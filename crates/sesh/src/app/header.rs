@@ -80,7 +80,7 @@ impl<'r> Header<'r> {
             prefix = ", ";
         }
 
-        if self.selected.is_some_and(|s| s.can_close()) {
+        if self.selected.is_some_and(|s| s.is_live()) {
             line += Span::raw(prefix).dim();
             push_shortcut_span(&mut line, "C-x");
             line += Span::raw(" close");

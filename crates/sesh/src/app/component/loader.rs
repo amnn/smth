@@ -1,7 +1,7 @@
 // Copyright (c) Ashok Menon
 // SPDX-License-Identifier: Apache-2.0
 
-//! Stateful component for views loaded by a background task.
+//! Stateful component and retained task state for values loaded in the background.
 
 use std::future::Future;
 use std::marker::PhantomData;
@@ -21,24 +21,27 @@ pub(crate) struct Loader<'s, V, S> {
     _view: PhantomData<fn() -> V>,
 }
 
-/// Retained loading state for a background-loaded view.
+/// Retained loading state for a value produced by a background task.
 pub(crate) struct State<V> {
     status: Status<V>,
 }
 
-/// Current result state for a background-loaded view.
+/// Current result state for a value produced by a background task.
 pub(crate) enum Status<V> {
     /// The background task is still running.
     Loading(Task<V>),
 
-    /// The background task failed or ended before returning a view.
+    /// The background task failed or ended before returning a value.
     Error(anyhow::Error),
 
-    /// The view has loaded. `done` is true if the loaded view has been acknowledged.
+    /// The value has loaded. `done` is true if the value has been acknowledged.
     Loaded { view: V, done: bool },
+
+    /// The completed result has been taken by the loader's owner.
+    Finished,
 }
 
-/// In-flight background task state while a view is loading.
+/// In-flight background task state while a value is loading.
 pub(crate) struct Task<V> {
     rx: oneshot::Receiver<anyhow::Result<V>>,
     _h: AbortOnDropHandle<()>,
@@ -58,7 +61,7 @@ impl<V> State<V>
 where
     V: Send + 'static,
 {
-    /// Start loading a view in the background.
+    /// Start producing a value in the background.
     pub(crate) fn new<F>(load: F) -> Self
     where
         F: Future<Output = anyhow::Result<V>> + Send + 'static,
@@ -78,13 +81,13 @@ where
 }
 
 impl<V> State<V> {
-    /// Mark a loaded view as handled without changing its rendered output.
+    /// Mark a loaded value as handled without changing its rendered output.
     pub(crate) fn finish(&mut self) -> bool {
         self.poll();
 
         use Status as S;
         match &mut self.status {
-            S::Loading(_) | S::Error(_) => false,
+            S::Loading(_) | S::Error(_) | S::Finished => false,
             S::Loaded { done: true, .. } => false,
             S::Loaded { done, .. } => {
                 *done = true;
@@ -93,7 +96,12 @@ impl<V> State<V> {
         }
     }
 
-    /// Return the view if it has loaded and has not yet been marked handled.
+    /// Return whether the retained background task state is still loading.
+    pub(crate) fn is_loading(&self) -> bool {
+        matches!(self.status, Status::Loading(_))
+    }
+
+    /// Return the value if it has loaded and has not yet been marked handled.
     pub(crate) fn pending(&self) -> Option<&V> {
         if let Status::Loaded { view, done: false } = &self.status {
             Some(view)
@@ -102,7 +110,23 @@ impl<V> State<V> {
         }
     }
 
-    /// Return the loaded view, including after it has been marked handled.
+    /// Take the completed result, leaving this state finished.
+    ///
+    /// Requires the loader to have been polled previously to update its status. Returns `None`
+    /// while the task is still loading or after its result has already been taken.
+    pub(crate) fn take(&mut self) -> Option<anyhow::Result<V>> {
+        match std::mem::replace(&mut self.status, Status::Finished) {
+            Status::Loading(task) => {
+                self.status = Status::Loading(task);
+                None
+            }
+            Status::Error(err) => Some(Err(err)),
+            Status::Loaded { view, .. } => Some(Ok(view)),
+            Status::Finished => None,
+        }
+    }
+
+    /// Return the loaded value, including after it has been marked handled.
     pub(crate) fn view(&self) -> Option<&V> {
         if let Status::Loaded { view, .. } = &self.status {
             Some(view)
@@ -111,18 +135,18 @@ impl<V> State<V> {
         }
     }
 
-    /// Poll the background task and update the status if the load completed.
-    fn poll(&mut self) {
+    /// Poll the background task and retain any completed result.
+    pub(super) fn poll(&mut self) {
         match &mut self.status {
             Status::Loading(task) => match task.rx.try_recv() {
                 Ok(Ok(view)) => self.status = Status::Loaded { view, done: false },
                 Ok(Err(err)) => self.status = Status::Error(err),
                 Err(TryRecvError::Empty) => { /* nop */ }
                 Err(TryRecvError::Closed) => {
-                    self.status = Status::Error(anyhow!("failed to load view"))
+                    self.status = Status::Error(anyhow!("background task ended without a value"))
                 }
             },
-            Status::Error(_) | Status::Loaded { .. } => { /* nop */ }
+            Status::Error(_) | Status::Loaded { .. } | Status::Finished => { /* nop */ }
         }
     }
 }
@@ -142,6 +166,7 @@ where
             Status::Loaded { view, .. } => {
                 view.render(area, buf, self.state);
             }
+            Status::Finished => {}
         }
     }
 }

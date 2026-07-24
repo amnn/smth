@@ -36,6 +36,21 @@ impl State {
             start: Instant::now(),
         }
     }
+
+    /// Pick the frame for instant `now` from `frames`.
+    ///
+    /// `now` must not precede the state start, `frame_duration` must be at least one millisecond,
+    /// and `frames` must not be empty.
+    pub(crate) fn frame<'f>(
+        &self,
+        now: Instant,
+        frame_duration: Duration,
+        frames: &[&'f str],
+    ) -> &'f str {
+        let delta = now - self.start;
+        let index = (delta.as_millis() / frame_duration.as_millis()) as usize;
+        frames[index % frames.len()]
+    }
 }
 
 impl StatefulWidget for Spinner {
@@ -56,9 +71,6 @@ impl StatefulWidget for Spinner {
             return;
         }
 
-        let now = Instant::now();
-        let delta = (now - state.start).as_millis() / FRAME_DURATION.as_millis();
-        let frame = (delta as usize) % FRAMES.len();
-        cell.set_symbol(FRAMES[frame]);
+        cell.set_symbol(state.frame(Instant::now(), FRAME_DURATION, FRAMES));
     }
 }

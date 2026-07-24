@@ -26,7 +26,10 @@ use crossterm::event::KeyEventKind;
 use crossterm::event::KeyModifiers;
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
+use ratatui::style::Stylize as _;
+use ratatui::text::Span;
 
+use crate::app::component::activity;
 use crate::app::component::block::Block;
 use crate::app::component::prompt;
 use crate::app::component::spinner;
@@ -46,6 +49,9 @@ const POLL_TIMEOUT: Duration = Duration::from_millis(16);
 
 /// Session picker state, caches, and UI behavior.
 pub struct App {
+    /// Active background activity, including a completed result awaiting handling.
+    bg: Option<activity::State<bool>>,
+
     onto: Option<onto::State>,
     repo: Option<Repo>,
     spinner: spinner::State,
@@ -97,6 +103,7 @@ impl App {
         preview.feed(model.sessions());
 
         Self {
+            bg: None,
             onto: None,
             repo: repo.map(Repo::new),
             spinner: spinner::State::new(),
@@ -108,62 +115,89 @@ impl App {
 
     /// Run the interactive picker for discovered sessions.
     pub async fn run(mut self, cwd: &Path, ctx: Context<'_>) -> anyhow::Result<()> {
-        let guard = AlternateScreenGuard::new()?;
+        let _guard = AlternateScreenGuard::new()?;
         let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
 
         loop {
-            loop {
-                terminal.draw(|frame| self.draw(frame, ctx.sigil))?;
+            terminal.draw(|frame| self.draw(frame, ctx.sigil))?;
 
-                if !event::poll(POLL_TIMEOUT)? {
+            match self.poll_bg() {
+                Some(Err(err)) => return Err(err),
+                Some(Ok(true)) => return Ok(()),
+                Some(Ok(false)) => {
+                    self.discover(ctx.globs).await?;
                     continue;
                 }
 
-                let Event::Key(key) = event::read()? else {
-                    continue;
-                };
-
-                if key.kind != KeyEventKind::Press {
-                    continue;
-                }
-
-                match self.handle_key(key).await {
-                    None => continue,
-                    Some(Action::Cancel) => return Ok(()),
-
-                    Some(Action::Close(session)) => {
-                        session.close().await?;
-                        break;
-                    }
-
-                    Some(Action::Delete(session)) => {
-                        self.delete(&session).await?;
-                        session.close().await?;
-                        self.sessions.reset_delete();
-                        break;
-                    }
-
-                    Some(Action::Create(session)) => {
-                        session.create(cwd, ctx.setup).await?;
-                        self.sessions.select_first();
-                        self.model.clear_query();
-                        break;
-                    }
-
-                    Some(Action::Switch(session)) => {
-                        drop(guard);
-                        session.switch(cwd, ctx.setup).await?;
-                        return Ok(());
-                    }
-
-                    Some(Action::ToggleFlag(session)) => {
-                        session.toggle_flag().await?;
-                        break;
-                    }
-                }
+                None => {}
             }
 
-            self.discover(ctx.globs).await?;
+            if !event::poll(POLL_TIMEOUT)? {
+                continue;
+            }
+
+            let Event::Key(key) = event::read()? else {
+                continue;
+            };
+
+            if key.kind != KeyEventKind::Press {
+                continue;
+            }
+
+            match self.handle_key(key).await {
+                None => {}
+                Some(Action::Cancel) => return Ok(()),
+
+                Some(Action::Close(session)) => {
+                    session.close().await?;
+                    self.discover(ctx.globs).await?;
+                }
+
+                Some(Action::Delete(session)) => {
+                    let repo = session.repo();
+                    let workspace = repo
+                        .as_deref()
+                        .and_then(|repo| self.model.workspace_name(repo))
+                        .map(str::to_owned);
+
+                    self.bg = Some(activity::State::new(
+                        Span::raw("deleting").light_red(),
+                        async move {
+                            delete(repo, workspace).await?;
+                            session.close().await?;
+                            Ok(false)
+                        },
+                    ));
+                }
+
+                Some(Action::Create(session)) => {
+                    self.model.clear_query();
+                    self.sessions.select_first();
+
+                    let cwd = cwd.to_owned();
+                    let setup = ctx.setup.to_owned();
+
+                    self.bg = Some(activity::State::new(Span::raw("creating"), async move {
+                        session.create(&cwd, &setup).await?;
+                        Ok(false)
+                    }));
+                }
+
+                Some(Action::Switch(session)) => {
+                    let cwd = cwd.to_owned();
+                    let setup = ctx.setup.to_owned();
+
+                    self.bg = Some(activity::State::new(Span::raw("switching"), async move {
+                        session.switch(&cwd, &setup).await?;
+                        Ok(true)
+                    }));
+                }
+
+                Some(Action::ToggleFlag(session)) => {
+                    session.toggle_flag().await?;
+                    self.discover(ctx.globs).await?;
+                }
+            }
         }
     }
 
@@ -179,24 +213,6 @@ impl App {
             self.repo = Some(repo.with_revision(revision));
         } else {
             self.onto = Some(onto::State::new(repo.source().to_owned()));
-        }
-    }
-
-    /// Delete the repository or workspace checkout attached to `session`, if any.
-    async fn delete(&self, session: &Session) -> anyhow::Result<()> {
-        let Some(repo) = session.repo() else {
-            return Ok(());
-        };
-
-        if let Some(name) = self.model.workspace_name(&repo) {
-            jj::forget_workspace(&repo, name).await?;
-        }
-
-        match tokio::fs::remove_dir_all(&repo).await {
-            Ok(()) => Ok(()),
-            Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
-            Err(err) => Err(err)
-                .with_context(|| format!("failed to remove repository '{}'", repo.display())),
         }
     }
 
@@ -227,7 +243,7 @@ impl App {
             ("session", query)
         };
 
-        // (1) Render picker state
+        // (1) Render picker state.
         f.render_widget(prompt::widget(label, query), l.prompt);
         f.render_stateful_widget(Spinner::new(status.running), l.loading, &mut self.spinner);
 
@@ -247,6 +263,11 @@ impl App {
         // selected row corresponds to the new session, then its repo may not have been fed to
         // preview yet.
         self.preview.feed(self.sessions.selected());
+
+        // (2.b) Render activity progress over the bottom row of the session list.
+        if let (Some(activity), Some(area)) = (&mut self.bg, l.sessions.rows().next_back()) {
+            f.render_stateful_widget(activity::Activity::new(), area, activity);
+        }
 
         let header = Header::new(
             self.sessions.is_deleting(),
@@ -287,16 +308,21 @@ impl App {
         const CTRL: KM = KM::CONTROL;
         const SHIFT: KM = KM::SHIFT;
 
+        let is_loading = self.bg.as_ref().is_some_and(activity::State::is_loading);
+        let alt = key.modifiers.contains(ALT);
+        let ctrl = key.modifiers.contains(CTRL);
+        let shift = key.modifiers.contains(SHIFT);
+
         if self.sessions.is_deleting() {
             self.sessions.reset_delete();
 
             match key.code {
-                KC::Char('y') if key.modifiers.contains(CTRL) => {
+                KC::Char('y') if ctrl => {
                     return self.sessions.take_selected().map(Action::Delete);
                 }
 
                 KC::Esc => return None,
-                KC::Char('c') if key.modifiers.contains(CTRL) => return None,
+                KC::Char('c') if ctrl => return None,
 
                 _ => {}
             }
@@ -315,46 +341,48 @@ impl App {
 
         match key.code {
             // Accept the selected row.
-            KC::Enter => return self.sessions.take_selected().map(Action::Switch),
+            KC::Enter if !is_loading => return self.sessions.take_selected().map(Action::Switch),
 
             // Create the selected row without switching.
-            KC::Char('n') if key.modifiers.contains(CTRL) => {
+            KC::Char('n') if ctrl && !is_loading && !self.sessions.is_live() => {
                 return self.sessions.take_selected().map(Action::Create);
             }
 
             // Cancel
-            KC::Esc => return Some(Action::Cancel),
-            KC::Char('c' | 'g') if key.modifiers.contains(CTRL) => return Some(Action::Cancel),
+            KC::Esc if !is_loading => return Some(Action::Cancel),
+            KC::Char('c' | 'g') if ctrl && !is_loading => {
+                return Some(Action::Cancel);
+            }
 
             // Session actions
-            KC::Char('x') if key.modifiers.contains(CTRL) && self.sessions.can_close() => {
+            KC::Char('x') if ctrl && !is_loading && self.sessions.is_live() => {
                 return self.sessions.take_selected().map(Action::Close);
             }
 
-            KC::Char('d') if key.modifiers.contains(CTRL) && self.sessions.can_delete() => {
+            KC::Char('d') if ctrl && !is_loading && self.sessions.can_delete() => {
                 self.sessions.start_delete();
             }
 
-            KC::Char('f') if key.modifiers.contains(CTRL) && self.sessions.can_flag() => {
+            KC::Char('f') if ctrl && !is_loading && self.sessions.can_flag() => {
                 return self.sessions.take_selected().map(Action::ToggleFlag);
             }
 
             // Scroll preview
-            KC::Up if key.modifiers.contains(SHIFT) => {
+            KC::Up if shift => {
                 self.preview.scroll_up();
             }
 
-            KC::Down if key.modifiers.contains(SHIFT) => {
+            KC::Down if shift => {
                 self.preview.scroll_down();
             }
 
             // Session list selection
-            KC::Up | KC::Char('k') if key.modifiers.contains(ALT) => {
+            KC::Up | KC::Char('k') if alt => {
                 self.sessions.select_first();
                 self.preview.first();
             }
 
-            KC::Down | KC::Char('j') if key.modifiers.contains(ALT) => {
+            KC::Down | KC::Char('j') if alt => {
                 self.sessions.select_last();
                 self.preview.first();
             }
@@ -364,7 +392,7 @@ impl App {
                 self.preview.first();
             }
 
-            KC::Char('k') if key.modifiers.contains(CTRL) => {
+            KC::Char('k') if ctrl => {
                 self.sessions.select_previous();
                 self.preview.first();
             }
@@ -374,36 +402,41 @@ impl App {
                 self.preview.first();
             }
 
-            KC::Char('j') if key.modifiers.contains(CTRL) => {
+            KC::Char('j') if ctrl => {
                 self.sessions.select_next();
                 self.preview.first();
             }
 
             // App state
-            KC::Char('o') if key.modifiers.contains(CTRL) => {
+            KC::Char('o') if ctrl => {
                 if let Some(repo) = &self.repo {
                     self.onto = Some(onto::State::new(repo.source().to_owned()));
                 }
             }
 
-            KC::Char('r') if key.modifiers.contains(ALT) => self.reset_current_repo(),
-            KC::Char('r') if key.modifiers.contains(CTRL) => self.set_current_repo(),
+            KC::Char('r') if alt => self.reset_current_repo(),
+            KC::Char('r') if ctrl => self.set_current_repo(),
 
             // View state
-            KC::Char('p') if key.modifiers.contains(CTRL) => {
-                self.preview.toggle();
-            }
+            KC::Char('p') if ctrl => self.preview.toggle(),
 
             // Edit query
             KC::Backspace => self.model.pop_query(),
-            KC::Char('u') if key.modifiers.contains(CTRL) => self.model.clear_query(),
+            KC::Char('u') if ctrl => self.model.clear_query(),
             KC::Char(c) if key.modifiers.is_empty() => self.model.push_query(c),
-            KC::Char(c) if key.modifiers.contains(SHIFT) => self.model.push_query(c),
+            KC::Char(c) if shift => self.model.push_query(c),
 
             _ => {}
         };
 
         None
+    }
+
+    /// Take a completed background result, where `true` indicates that the picker should exit.
+    fn poll_bg(&mut self) -> Option<anyhow::Result<bool>> {
+        let result = self.bg.as_mut()?.take()?;
+        self.bg = None;
+        Some(result)
     }
 
     /// Clear the current repo.
@@ -421,5 +454,27 @@ impl App {
             .selected()
             .and_then(Session::repo)
             .map(Repo::new);
+    }
+}
+
+/// Delete `repo`, first forgetting its named jj `workspace` when supplied.
+///
+/// A missing repository is a no-op. Returns an error if forgetting the workspace or removing the
+/// checkout fails.
+async fn delete(repo: Option<PathBuf>, workspace: Option<String>) -> anyhow::Result<()> {
+    let Some(repo) = repo else {
+        return Ok(());
+    };
+
+    if let Some(name) = workspace {
+        jj::forget_workspace(&repo, &name).await?;
+    }
+
+    match tokio::fs::remove_dir_all(&repo).await {
+        Ok(()) => Ok(()),
+        Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
+        Err(err) => {
+            Err(err).with_context(|| format!("failed to remove repository '{}'", repo.display()))
+        }
     }
 }

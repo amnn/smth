@@ -85,11 +85,6 @@ enum Kind {
 }
 
 impl Session {
-    /// Return whether this entry represents a currently live tmux session that can be closed.
-    pub fn can_close(&self) -> bool {
-        matches!(&self.0, Kind::Live(_))
-    }
-
     /// Return whether this entry can be deleted.
     pub fn can_delete(&self) -> bool {
         match &self.0 {
@@ -118,6 +113,11 @@ impl Session {
             Kind::Live(kind) => Some(kind.flagged),
             Kind::New(_) | Kind::Repo(_) => None,
         }
+    }
+
+    /// Return whether this entry represents a currently live tmux session.
+    pub fn is_live(&self) -> bool {
+        matches!(&self.0, Kind::Live(_))
     }
 
     /// Return the session name.

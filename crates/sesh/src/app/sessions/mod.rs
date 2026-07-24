@@ -147,11 +147,6 @@ impl State {
         Self::default()
     }
 
-    /// Whether the currently selected session can be closed.
-    pub(super) fn can_close(&self) -> bool {
-        self.selected.as_ref().is_some_and(Session::can_close)
-    }
-
     /// Whether the currently selected session can be deleted.
     pub(super) fn can_delete(&self) -> bool {
         self.selected.as_ref().is_some_and(Session::can_delete)
@@ -165,6 +160,11 @@ impl State {
     /// Whether the selected session is marked for deletion.
     pub(super) fn is_deleting(&self) -> bool {
         self.deleting
+    }
+
+    /// Whether the currently selected session is live.
+    pub(super) fn is_live(&self) -> bool {
+        self.selected.as_ref().is_some_and(Session::is_live)
     }
 
     /// The session to preview, if one is currently selected.

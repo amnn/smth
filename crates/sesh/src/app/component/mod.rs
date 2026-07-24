@@ -5,6 +5,7 @@
 //!
 //! Components in this module are app-agnostic building blocks composed by higher-level views.
 
+pub(crate) mod activity;
 pub(crate) mod block;
 pub(crate) mod list;
 pub(crate) mod loader;

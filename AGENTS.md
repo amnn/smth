@@ -26,6 +26,10 @@ For markdown-driven snapshot changes, refresh the checked-in `.snap` files with
 `cargo insta test --accept` using the appropriate package/test selection, and
 remove any leftover `.snap.new` artifacts before finishing.
 
+Before changing test setup to address an apparent flake, rerun the unchanged
+failing case multiple times and require a repeatable failure; treat an isolated
+failure as transient.
+
 Use `:snap --color` only when terminal colour is part of the behavior under
 test; plain `:snap` intentionally skips SVG artifacts.
 
@@ -84,11 +88,13 @@ an immediate-mode widget and retain only the load task and loaded view in
 `app::component::loader::State`; keep reusable inner widget state outside the
 loader state so owners can share it when needed.
 
-For actions based on asynchronously refreshed matcher output, derive and retain
-the action index from the exact snapshot used by the render pass. Input handlers
-must use that retained index instead of refreshing matcher state independently.
-Use an ordered index for next/previous navigation rather than repeatedly
-scanning matches.
+For actions based on asynchronously refreshed matcher output or background task
+status, derive and retain the action index or loading state on its owning
+component from the exact snapshot used by the render pass. Input handlers must
+query that retained state instead of refreshing or polling independently; do
+not mirror task status in app-level flags. While an activity is loading, gate
+mutating actions but keep query editing and navigation available. Use an ordered
+index for next/previous navigation rather than repeatedly scanning matches.
 
 When moving behavior onto domain types, keep configuration arguments narrow:
 pass only the values the method needs rather than the full `SeshConfig`.
