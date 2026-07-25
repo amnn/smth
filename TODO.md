@@ -20,10 +20,13 @@
 ## Harnesses
 
 - [ ] Agent progress indicator -- `sesh` exposes commands that agents can call
-  to set their status (which in turn set a tmux user option on the underlying
-  pane. Harness extensions call these commands to indicate when an agent is
+  to set their status (which in turn sets a tmux user option on the underlying
+  pane). Harness extensions call these commands to indicate when an agent is
   idle, running, waiting for input, succeeded or failed. `sesh` displays this
   information in the session list.
+  - [x] Add `sesh agent ACTION` to publish lifecycle state or clear it on exit.
+  - [ ] Add harness integrations that publish lifecycle transitions.
+  - [ ] Display published lifecycle state in the session list.
 
 ## README
 

@@ -3,6 +3,7 @@
 
 //! CLI entrypoint for `sesh`.
 
+mod agent;
 mod help;
 
 use std::env;
@@ -71,9 +72,19 @@ struct Args {
                      leading ~ path component expands to the user's home directory."
     )]
     repos: Vec<String>,
+
+    /// Operation to run instead of opening the picker.
+    #[command(subcommand)]
+    command: Option<Command>,
 }
 
-/// Parse CLI arguments, load config, and run the picker.
+#[derive(Debug, clap::Subcommand)]
+enum Command {
+    /// Publish agent lifecycle state on the current tmux pane.
+    Agent(agent::Args),
+}
+
+/// Parse CLI arguments and run the requested command or picker.
 #[tokio::main]
 async fn main() -> anyhow::Result<ExitCode> {
     let args = Args::parse();
@@ -85,6 +96,11 @@ async fn main() -> anyhow::Result<ExitCode> {
 
     if args.help {
         Args::command().print_help()?;
+        return Ok(ExitCode::SUCCESS);
+    }
+
+    if let Some(Command::Agent(args)) = args.command {
+        args.run().await?;
         return Ok(ExitCode::SUCCESS);
     }
 

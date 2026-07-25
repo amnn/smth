@@ -5,12 +5,16 @@ input_file: crates/sesh/tests/cases/help.md
 ---
 # Help output
 
-The brief help output should document CLI options only.
+The brief help output should document CLI commands and options.
 
     :$ sesh -h (exit: 0)
 
 ```stdout
-Usage: sesh [OPTIONS]
+Usage: sesh [OPTIONS] [COMMAND]
+
+Commands:
+  agent  Publish agent lifecycle state on the current tmux pane
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
   -h                   Print brief help
@@ -24,12 +28,42 @@ Options:
   -V, --version        Print version
 ```
 
+The agent command help should describe the exit action and every lifecycle state.
+
+    :$ sesh agent --help (exit: 0)
+
+```stdout
+Publish agent lifecycle state on the current tmux pane
+
+Usage: sesh agent <ACTION>
+
+Arguments:
+  <ACTION>
+          Agent tracking action or lifecycle state
+
+          Possible values:
+          - exit:      Exit agent tracking and clear its state
+          - idle:      The harness is ready, but no agent run has started
+          - running:   The agent is actively processing a request
+          - waiting:   The agent is blocked waiting for user input
+          - succeeded: The most recent agent run completed successfully
+          - failed:    The most recent agent run failed
+
+Options:
+  -h, --help
+          Print help
+```
+
 The complete help output should include detailed key binding and configuration sections.
 
     :$ sesh --help (exit: 0)
 
 ```stdout
-Usage: sesh [OPTIONS]
+Usage: sesh [OPTIONS] [COMMAND]
+
+Commands:
+  agent  Publish agent lifecycle state on the current tmux pane
+  help   Print this message or the help of the given subcommand(s)
 
 Options:
   -h
