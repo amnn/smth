@@ -33,13 +33,13 @@ Hide the preview so the selected row movement is easy to inspect.
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-                                                                                                   ┃
-▌⬤ alpha                                                                                           ┃
+ ⬤ ui                                                                                              ┃
+▌⬤ runner                                                                                          ┃
+ ⬤ alpha                                                                                           ┃
  ⬤ beta                                                                                            ┃
  ⬤ gamma                                                                                           ┃
- ⬤ runner                                                                                          ┃
- ⬤ ui                                                                                              ┃
  ⬤ zeta                                                                                            ┃
+                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -53,13 +53,13 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-                                                                                                   ┃
- ⬤ alpha                                                                                           ┃
-▌⬤ beta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
- ⬤ runner                                                                                          ┃
  ⬤ ui                                                                                              ┃
+ ⬤ runner                                                                                          ┃
+▌⬤ alpha                                                                                           ┃
+ ⬤ beta                                                                                            ┃
+ ⬤ gamma                                                                                           ┃
  ⬤ zeta                                                                                            ┃
+                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -73,13 +73,13 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-                                                                                                   ┃
-▌⬤ alpha                                                                                           ┃
+ ⬤ ui                                                                                              ┃
+▌⬤ runner                                                                                          ┃
+ ⬤ alpha                                                                                           ┃
  ⬤ beta                                                                                            ┃
  ⬤ gamma                                                                                           ┃
- ⬤ runner                                                                                          ┃
- ⬤ ui                                                                                              ┃
  ⬤ zeta                                                                                            ┃
+                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -93,13 +93,13 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-                                                                                                   ┃
+ ⬤ ui                                                                                              ┃
+ ⬤ runner                                                                                          ┃
  ⬤ alpha                                                                                           ┃
  ⬤ beta                                                                                            ┃
  ⬤ gamma                                                                                           ┃
- ⬤ runner                                                                                          ┃
- ⬤ ui                                                                                              ┃
 ▌⬤ zeta                                                                                            ┃
+                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -113,13 +113,13 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-                                                                                                   ┃
-▌⬤ alpha                                                                                           ┃
+▌⬤ ui                                                                                              ┃
+ ⬤ runner                                                                                          ┃
+ ⬤ alpha                                                                                           ┃
  ⬤ beta                                                                                            ┃
  ⬤ gamma                                                                                           ┃
- ⬤ runner                                                                                          ┃
- ⬤ ui                                                                                              ┃
  ⬤ zeta                                                                                            ┃
+                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

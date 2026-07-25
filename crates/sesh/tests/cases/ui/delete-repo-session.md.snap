@@ -35,8 +35,8 @@ even though the selected row has no live tmux sigil.
 ```terminal
 session: feature
   1/4 | [C-r] repo: none | [C-d] delete
-   feature                                                                                                             ┃
 ▌  beta/feature                             ~/beta.feature                                                             ┃
+                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) feature commit
@@ -56,8 +56,8 @@ Pressing `C-d` should mark the repo entry for deletion.
 ```terminal
 session: feature
   1/4 | [C-r] repo: none | [C-y] confirm
-   feature                                                                                                             ┃
 ▌× beta/feature                             ~/beta.feature                                                             ┃
+                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) feature commit

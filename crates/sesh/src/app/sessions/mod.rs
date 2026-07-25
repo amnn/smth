@@ -142,9 +142,12 @@ impl<'s> Sessions<'s> {
 }
 
 impl State {
-    /// Create empty session-list state.
-    pub(super) fn new() -> Self {
-        Self::default()
+    /// Create session-list state with an optional initially selected list row.
+    pub(super) fn new(selected: Option<usize>) -> Self {
+        Self {
+            list: ListState::default().with_selected(selected),
+            ..Self::default()
+        }
     }
 
     /// Whether the currently selected session can be deleted.

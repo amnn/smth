@@ -38,6 +38,9 @@ pub struct Model {
     /// The sessions to fuzzy find over.
     sessions: Vec<Session>,
 
+    /// Index of the unattached session that was most recently attached to.
+    recently_attached: Option<usize>,
+
     /// Names of live tmux sessions, used to disambiguate candidate session names.
     seen_tmux_names: BTreeSet<String>,
 
@@ -77,6 +80,7 @@ impl Model {
         let mut model = Self {
             picker: Picker::new(query),
             sessions: Vec::new(),
+            recently_attached: None,
             seen_tmux_names: BTreeSet::new(),
             seen_workspaces: BTreeMap::new(),
             workspaces: BTreeMap::new(),
@@ -111,6 +115,7 @@ impl Model {
         current: Option<&Path>,
     ) -> anyhow::Result<()> {
         self.sessions.clear();
+        self.recently_attached = None;
         self.seen_tmux_names.clear();
         self.seen_workspaces.clear();
         self.workspaces.clear();
@@ -134,7 +139,22 @@ impl Model {
         // construct workspace-aware session names.
         self.workspaces = workspaces(repos).await;
 
-        // Add all the live sessions from tmux.
+        // Order live sessions by attached status (attached first), then last attached time (most
+        // recent first), the name (lexicographically).
+        let mut tmux_sessions: Vec<_> = tmux_sessions.into_iter().collect();
+        tmux_sessions.sort_by(|(lname, left), (rname, right)| {
+            let l = (left.attached, left.last_attached, lname);
+            let r = (right.attached, right.last_attached, rname);
+            r.cmp(&l)
+        });
+
+        // Find the unattached session that was most recently attached.
+        if self.picker.query().is_empty()
+            && let Some(index) = tmux_sessions.iter().position(|(_, info)| !info.attached)
+        {
+            self.recently_attached = Some(index);
+        }
+
         for (name, info) in tmux_sessions {
             let can_delete = info
                 .repo
@@ -188,6 +208,11 @@ impl Model {
         self.picker.inject(self.sessions.clone());
 
         Ok(())
+    }
+
+    /// Index of the unattached live session that was most recently attached to.
+    pub(crate) fn recently_attached(&self) -> Option<usize> {
+        self.recently_attached
     }
 
     /// Construct the dynamic "new session" candidate for the current query and repo context.

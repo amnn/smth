@@ -31,7 +31,7 @@ repo-only entries discovered through the CLI globs.
     :pane ui:0.0
     :settle
 
-Initially the query is empty, so the top row is an unselectable spacer.
+Initially the query is empty, so no new-session candidate is available.
 Pressing `C-n` should do nothing and leave the picker open in the same state.
 
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
@@ -42,7 +42,7 @@ Pressing `C-n` should do nothing and leave the picker open in the same state.
 Typing a prefix of the live `alpha` session makes the new-session row selectable,
 because `alp` is not an exact live session name.
 
-    :k alp
+    :k alp M-up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Completing the live session name causes the new-session row's name to become

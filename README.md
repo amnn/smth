@@ -61,6 +61,21 @@ Reload tmux after editing your config:
 tmux source-file ~/.tmux.conf
 ```
 
+## Session ordering
+
+Live tmux sessions are ordered by when they were most recently attached to a
+tmux client, newest first. Once at least two live sessions have attachment
+history, the picker initially selects the second newest so pressing `enter`
+returns to the previous session.
+
+`sesh` reads tmux's built-in `session_last_attached` value, so switches made
+outside `sesh` also affect the order. Sessions that have never been attached
+follow sessions with attachment history in name order. Inspect the values with:
+
+```sh
+tmux list-sessions -F '#{session_name}:#{session_last_attached}'
+```
+
 ## Scripting
 
 `sesh` accepts fzf-style startup flags for scripted bindings:

@@ -24,7 +24,7 @@ the query.
 
 Filter to the matching sessions. The first match, `alpha`, is selected.
 
-    :k alp
+    :k alp up
     :snap
 
 ```terminal

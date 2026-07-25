@@ -49,7 +49,7 @@ Normalize both animations for the snapshot.
 session:
   2/2 | [C-r] repo: none | [C-x] close, [C-f] flag
                                                                                                                        ┃
-▌⬤ runner                                                                                                              ┃
+▌⬤ ui                                                                                                                  ┃
 ⠋ creating...                                                                                                          ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

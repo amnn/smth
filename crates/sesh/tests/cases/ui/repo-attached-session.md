@@ -48,10 +48,13 @@ repo discovery enabled for `alpha`, `beta`, and `mono*`.
     :t new-session -d -s ui "sesh -r 'alpha' -r 'beta' -r 'mono*'"
     :t resize-window -t ui:0 -x 120 -y 12
     :pane ui:0.0
+    :settle -d 2s
 
-This snapshot shows the initial mixed picker state before any query is typed,
-including the attached `alpha-live` session and the glob-discovered repos.
+Move from the recency-selected previous session to `alpha-live`. This snapshot
+shows the mixed picker state before any query is typed, including the attached
+session and glob-discovered repos.
 
+    :k down
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 This snapshot shows the picker after typing `beta`, so the selection should

@@ -31,7 +31,7 @@ should list all discovered tmux sessions.
 ```terminal
 session:
   5/5 | [C-r] repo: none | [C-x] close, [C-f] flag
-▌⬤ alpha                                                                       ┃
+▌⬤ runner                                                                      ┃
 ────────────────────────────────────────────────────────────────────────────────
 
 

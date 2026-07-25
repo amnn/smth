@@ -19,8 +19,14 @@ pub struct SessionInfo {
     /// Windows in the session that have an active bell alert.
     pub alerts: Vec<String>,
 
+    /// Whether a tmux client is currently attached to the session.
+    pub attached: bool,
+
     /// Whether the session has been manually flagged by the user.
     pub flagged: bool,
+
+    /// Time the session was most recently attached to a tmux client.
+    pub last_attached: Option<u64>,
 
     /// Optional jj repository attached to the session.
     pub repo: Option<PathBuf>,
@@ -87,9 +93,12 @@ pub async fn run_shell(target: &str, cwd: &Path, script: &str) -> anyhow::Result
     Ok(())
 }
 
-/// Query tmux for current sessions, attached sesh repo metadata, flags, and bell alerts.
+/// Query tmux for current sessions, attached sesh metadata, and bell alerts.
 pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
-    let format = "#{session_name}\t#{@sesh.flag}\t#{@sesh.repo}";
+    let format = concat!(
+        "#{session_name}\t#{session_attached}\t#{@sesh.flag}\t",
+        "#{session_last_attached}\t#{@sesh.repo}",
+    );
     let output = Command::new("tmux")
         .args(["list-sessions", "-F", format])
         .output()
@@ -104,8 +113,8 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
 
     let mut sessions = BTreeMap::new();
     for line in String::from_utf8_lossy(&output.stdout).lines() {
-        let fields: Vec<_> = line.splitn(3, '\t').collect();
-        let [session, flag, repo] = fields[..] else {
+        let fields: Vec<_> = line.splitn(5, '\t').collect();
+        let [session, attached, flag, last_attached, repo] = fields[..] else {
             continue;
         };
 
@@ -114,6 +123,7 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
             continue;
         }
 
+        let attached: usize = attached.trim().parse().unwrap_or_default();
         let repo = repo.trim();
         let repo = if repo.is_empty() {
             None
@@ -125,7 +135,9 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
             session.to_owned(),
             SessionInfo {
                 alerts: vec![],
+                attached: attached != 0,
                 flagged: is_flag_set(flag),
+                last_attached: last_attached.trim().parse().ok(),
                 repo,
             },
         );

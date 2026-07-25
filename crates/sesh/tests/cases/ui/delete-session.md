@@ -16,7 +16,7 @@ associated checkout for `C-d` to remove.
 Filter to the matching sessions. The first match, `alpha`, is selected. The
 header should offer `C-x` close, but not `C-d` delete.
 
-    :k alp
+    :k alp up
     :snap
 
 Pressing `C-d` should do nothing for a plain live tmux session.

@@ -42,8 +42,8 @@ Launch a fresh picker and select the workspace-backed session.
 ```terminal
 session: feature
   1/4 | [C-r] repo: ~/alpha.feature, [C-o] onto: trunk() | [C-d] delete, [C-x] close, [C-f] flag
-   alpha/feature~1                          ~/alpha.feature~1                                                          ┃
 ▌⬤ alpha/feature                            ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) (no description set)
@@ -64,8 +64,8 @@ shortcut.
 ```terminal
 session: feature
   1/4 | [C-r] repo: ~/alpha.feature, [C-o] onto: trunk() | [C-y] confirm, [C-x] close, [C-f] flag
-   alpha/feature~1                          ~/alpha.feature~1                                                          ┃
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) (no description set)

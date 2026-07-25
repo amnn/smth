@@ -1,0 +1,107 @@
+---
+source: crates/sesh/tests/test.rs
+expression: output
+input_file: crates/sesh/tests/cases/ui/session-recency.md
+---
+# Session recency
+
+Live tmux sessions should be ordered by tmux's `session_last_attached` value.
+The picker should initially select the second-most-recent live session so
+pressing Enter can switch back to the previous session.
+
+    :bins jj cat sh sleep tmux
+
+> [!NOTE]
+> 'jj', 'cat', 'sh', 'sleep', and 'tmux' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s alpha "cat" (success)
+    :t new-session -d -s beta "cat" (success)
+    :t new-session -d -s gamma "cat" (success)
+
+Build deterministic attachment history. `alpha` remains detached, while the
+other sessions are attached in ascending recency order. Sleep between switches
+because tmux reports attachment times with one-second resolution.
+
+    :$ sleep 1 (exit: 0)
+    :t switch-client -t beta (success)
+    :$ sleep 1 (exit: 0)
+    :t switch-client -t gamma (success)
+    :$ sleep 1 (exit: 0)
+    :t switch-client -t runner (success)
+    :pane runner:0.0
+
+The non-interactive list should put attached sessions in descending recency
+order and leave the never-attached `alpha` session last.
+
+    :$ sesh --filter (exit: 0)
+
+```stdout
+runner
+gamma
+beta
+alpha
+```
+
+Launch the picker in the runner pane with enough height to show the complete
+order. The second row, `gamma`, should be selected initially.
+
+    :t resize-window -t runner:0 -x 80 -y 20 (success)
+    :$ tmux respawn-pane -k 'sesh; : > picker-exited; cat' (exit: 0)
+    :settle -d 2s (settled)
+    :snap
+
+```terminal
+session:
+  4/4 | [C-r] repo: none | [C-x] close, [C-f] flag
+                                                                               ┃
+ ⬤ runner                                                                      ┃
+▌⬤ gamma                                                                       ┃
+ ⬤ beta                                                                        ┃
+ ⬤ alpha                                                                       ┃
+────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+Accept the initial selection after tmux's timestamp advances, then synchronize
+on both the client switch and picker exit.
+
+    :$ sleep 1 (exit: 0)
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S recency-switched" (success)
+    :k enter
+    :t wait-for recency-switched (success)
+    :$ sh -c 'until test -f picker-exited; do :; done' (exit: 0)
+
+    :t display-message -p '#{client_session}' (success)
+
+```
+gamma
+```
+
+Tmux should update `gamma`'s attachment time itself, making it the most recent
+session without `sesh` writing any metadata.
+
+    :$ sesh --filter (exit: 0)
+
+```stdout
+gamma
+runner
+beta
+alpha
+```
+
+---
+vim: set ft=markdown:

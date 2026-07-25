@@ -34,7 +34,7 @@ The live session row should use the configured sigil.
 ```terminal
 session:
   3/3 | [C-r] repo: none | [C-x] close, [C-f] flag
-▌* alpha                                                                       ┃
+▌* runner                                                                      ┃
 ────────────────────────────────────────────────────────────────────────────────
 
 

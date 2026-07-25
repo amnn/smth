@@ -99,6 +99,7 @@ impl App {
     /// `repo` is the initial base repository. `model` contains the underlying data to drive the
     /// interface.
     pub fn new(repo: Option<PathBuf>, model: Model) -> Self {
+        let select = model.recently_attached().map(|i| i + 1);
         let mut preview = preview::State::new();
         preview.feed(model.sessions());
 
@@ -109,7 +110,7 @@ impl App {
             spinner: spinner::State::new(),
             model,
             preview,
-            sessions: sessions::State::new(),
+            sessions: sessions::State::new(select),
         }
     }
 

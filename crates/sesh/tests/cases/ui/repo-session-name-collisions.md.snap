@@ -34,16 +34,16 @@ will also show `beta~1`:
     :t resize-window -t ui:0 -x 120 -y 12 (success)
     :pane ui:0.0
     :settle -d 2s (settled)
-    :k C-p beta
+    :k C-p beta up
     :snap
 
 ```terminal
 session: beta                                                                                                          ┃
   3/5 | [C-r] repo: none | [C-x] close, [C-f] flag                                                                     ┃
-   beta~1                                                                                                              ┃
 ▌⬤ beta                                                                                                                ┃
    beta~1                                   ~/a/beta                                                                   ┃
    beta~1                                   ~/o/beta                                                                   ┃
+                                                                                                                       ┃
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃

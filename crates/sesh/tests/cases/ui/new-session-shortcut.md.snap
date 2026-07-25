@@ -39,7 +39,7 @@ repo-only entries discovered through the CLI globs.
     :pane ui:0.0
     :settle (settled)
 
-Initially the query is empty, so the top row is an unselectable spacer.
+Initially the query is empty, so no new-session candidate is available.
 Pressing `C-n` should do nothing and leave the picker open in the same state.
 
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
@@ -47,12 +47,12 @@ Pressing `C-n` should do nothing and leave the picker open in the same state.
 ```terminal
 session:
   8/8 | [C-r] repo: none | [C-x] close, [C-f] flag
-                                                                                                                       ┃
-▌⬤ alpha                                    alpha                                                                      │
+ ⬤ ui                                                                                                                  ┃
+▌⬤ runner                                                                                                              │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
-│  (empty) alpha commit
-◆  wwwwwwww root() hhhhhhhh
+
+
+
 
 
 
@@ -65,12 +65,12 @@ session:
 ```terminal
 session:
   8/8 | [C-r] repo: none | [C-x] close, [C-f] flag
-                                                                                                                       ┃
-▌⬤ alpha                                    alpha                                                                      │
+ ⬤ ui                                                                                                                  ┃
+▌⬤ runner                                                                                                              │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
-│  (empty) alpha commit
-◆  wwwwwwww root() hhhhhhhh
+
+
+
 
 
 
@@ -80,18 +80,18 @@ session:
 Typing a prefix of the live `alpha` session makes the new-session row selectable,
 because `alp` is not an exact live session name.
 
-    :k alp
+    :k alp M-up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
 session: alp
-  2/8 | [C-r] repo: none | [C-x] close, [C-f] flag
-   alp                                                                                                                 ┃
-▌⬤ alpha                                    alpha                                                                      │
+  2/8 | [C-r] repo: none
+▌  alp                                                                                                                 ┃
+ ⬤ alpha                                    alpha                                                                      │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
-│  (empty) alpha commit
-◆  wwwwwwww root() hhhhhhhh
+
+
+
 
 
 
@@ -106,13 +106,13 @@ disambiguated.
 
 ```terminal
 session: alpha
-  2/8 | [C-r] repo: none | [C-x] close, [C-f] flag
-   alpha~1                                                                                                             ┃
-▌⬤ alpha                                    alpha                                                                      │
+  2/8 | [C-r] repo: none
+▌  alpha~1                                                                                                             ┃
+ ⬤ alpha                                    alpha                                                                      │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
-│  (empty) alpha commit
-◆  wwwwwwww root() hhhhhhhh
+
+
+
 
 
 

@@ -26,7 +26,7 @@ from `cwd`.
 
 Move the cursor to the discovered `beta` repo row.
 
-    :k down down down
+    :k down down
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Hide the session preview while `beta` is selected. The list should use the

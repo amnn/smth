@@ -33,11 +33,10 @@
 - [ ] Onto: show matching commit logs and position in that list when tabbing or
   backtabbing.
 
-- [ ] Session list: recency order. Show live tmux sessions in recency order
-  (most recently picked session first). Start the picker on the second most
-  recently picked session (if there are multiple live sessions). It should be
-  possible to implement this by storing timestamps from a monotonic clock as
-  tmux user options each time a session is switched to.
+- [x] Session list: recency order. Show live tmux sessions in recency order
+  (most recently attached session first). Start the picker on the second most
+  recently attached session (if there are multiple live sessions). Use tmux's
+  `session_last_attached` value as recency metadata.
 
 ## README
 
