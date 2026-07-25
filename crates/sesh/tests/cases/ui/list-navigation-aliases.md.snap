@@ -35,10 +35,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
  ⬤ ui                                                                                              ┃
 ▌⬤ runner                                                                                          ┃
- ⬤ alpha                                                                                           ┃
- ⬤ beta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ gamma                                                                                           ┃
+ ⬤ beta                                                                                            ┃
+ ⬤ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -55,10 +55,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
  ⬤ ui                                                                                              ┃
  ⬤ runner                                                                                          ┃
-▌⬤ alpha                                                                                           ┃
- ⬤ beta                                                                                            ┃
+▌⬤ zeta                                                                                            ┃
  ⬤ gamma                                                                                           ┃
- ⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
+ ⬤ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -75,10 +75,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
  ⬤ ui                                                                                              ┃
 ▌⬤ runner                                                                                          ┃
- ⬤ alpha                                                                                           ┃
- ⬤ beta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ gamma                                                                                           ┃
+ ⬤ beta                                                                                            ┃
+ ⬤ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -95,10 +95,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
  ⬤ ui                                                                                              ┃
  ⬤ runner                                                                                          ┃
- ⬤ alpha                                                                                           ┃
- ⬤ beta                                                                                            ┃
+ ⬤ zeta                                                                                            ┃
  ⬤ gamma                                                                                           ┃
-▌⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
+▌⬤ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -115,10 +115,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
 ▌⬤ ui                                                                                              ┃
  ⬤ runner                                                                                          ┃
- ⬤ alpha                                                                                           ┃
- ⬤ beta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ gamma                                                                                           ┃
+ ⬤ beta                                                                                            ┃
+ ⬤ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

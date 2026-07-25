@@ -38,10 +38,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
  ⬤ ui                                                                                              ┃
 ▌⬤ runner                                                                                          ┃
- ⬤ beta                                                                                            ┃
- ⬤ delta                                                                                           ┃
- ⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ ta                                                                                              ┃
+ ⬤ delta                                                                                           ┃
+ ⬤ beta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -56,10 +56,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
  ⬤ ui                                                                                              ┃
  ⬤ runner                                                                                          ┃
- ⬤ beta                                                                                            ┃
- ⬤ delta                                                                                           ┃
+ ⬤ zeta                                                                                            ┃
  ⬤ ta                                                                                              ┃
-▌⬤ zeta                                                                                            ┃
+ ⬤ delta                                                                                           ┃
+▌⬤ beta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -74,10 +74,10 @@ session:                                                                        
   6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
 ▌⬤ ui                                                                                              ┃
  ⬤ runner                                                                                          ┃
- ⬤ beta                                                                                            ┃
- ⬤ delta                                                                                           ┃
- ⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ ta                                                                                              ┃
+ ⬤ delta                                                                                           ┃
+ ⬤ beta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -93,8 +93,8 @@ The new-session row is selectable, so `M-up` jumps to that row.
 ```terminal
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-▌⬤ beta                                                                                            ┃
- ⬤ zeta                                                                                            ┃
+▌⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
  ⬤ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -111,8 +111,8 @@ session: et                                                                     
 ```terminal
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
- ⬤ beta                                                                                            ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
 ▌⬤ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -130,8 +130,8 @@ session: et                                                                     
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none                                                                           ┃
 ▌  et                                                                                              ┃
- ⬤ beta                                                                                            ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
  ⬤ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -153,8 +153,8 @@ session: ta                                                                     
   4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
    ta~1                                                                                            ┃
 ▌⬤ ta                                                                                              ┃
- ⬤ beta                                                                                            ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
  ⬤ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -171,8 +171,8 @@ session: ta                                                                     
   4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
    ta~1                                                                                            ┃
  ⬤ ta                                                                                              ┃
- ⬤ beta                                                                                            ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
 ▌⬤ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -189,8 +189,8 @@ session: ta                                                                     
   4/6 | [C-r] repo: none                                                                           ┃
 ▌  ta~1                                                                                            ┃
  ⬤ ta                                                                                              ┃
- ⬤ beta                                                                                            ┃
  ⬤ zeta                                                                                            ┃
+ ⬤ beta                                                                                            ┃
  ⬤ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
