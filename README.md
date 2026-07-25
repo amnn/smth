@@ -88,6 +88,31 @@ tmux list-sessions -F '#{session_name}:#{session_last_attached}'
 - `-f`, `--filter` skips the UI and prints matches for the query from
   `--query`; combine it with `-1` to switch when there is exactly one match.
 
+### Agent lifecycle state
+
+Agent harness integrations can publish lifecycle state for the tmux pane they
+run in:
+
+```sh
+sesh agent idle
+sesh agent running
+sesh agent succeeded
+sesh agent exit
+```
+
+Harnesses can publish `idle`, `running`, `waiting`, `succeeded`, or `failed`.
+These states cover a ready harness, an active run, a run waiting for user input,
+and the two terminal outcomes of a settled run. `exit` stops tracking the agent
+and removes its state.
+
+`sesh agent` writes the state to the `@sesh.agent.state` user option on the
+invoking pane, selected through `$TMUX_PANE`. The value remains until the next
+update or `exit`. Inspect it with:
+
+```sh
+tmux show-options -pqv -t "$TMUX_PANE" @sesh.agent.state
+```
+
 ## Key bindings
 
 `sesh -h` prints brief CLI help. `sesh --help` prints complete help, including

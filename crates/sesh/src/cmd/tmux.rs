@@ -206,6 +206,28 @@ pub async fn set_option<V: AsRef<OsStr> + ?Sized>(
     Ok(())
 }
 
+/// Set a tmux pane option.
+pub async fn set_pane_option<V: AsRef<OsStr> + ?Sized>(
+    pane: &str,
+    option: &str,
+    value: &V,
+) -> anyhow::Result<()> {
+    let output = Command::new("tmux")
+        .args(["set-option", "-p", "-t", pane, option])
+        .arg(value)
+        .output()
+        .await
+        .context("failed to set tmux pane option")?;
+
+    ensure!(
+        output.status.success(),
+        "error running 'tmux set-option -p': {}",
+        String::from_utf8_lossy(&output.stderr),
+    );
+
+    Ok(())
+}
+
 /// Switch the current tmux client to an existing session.
 pub async fn switch_client(session: &str) -> anyhow::Result<()> {
     let output = Command::new("tmux")
@@ -217,6 +239,23 @@ pub async fn switch_client(session: &str) -> anyhow::Result<()> {
     ensure!(
         output.status.success(),
         "error running 'tmux switch-client': {}",
+        String::from_utf8_lossy(&output.stderr),
+    );
+
+    Ok(())
+}
+
+/// Unset a tmux pane option.
+pub async fn unset_pane_option(pane: &str, option: &str) -> anyhow::Result<()> {
+    let output = Command::new("tmux")
+        .args(["set-option", "-p", "-u", "-t", pane, option])
+        .output()
+        .await
+        .context("failed to unset tmux pane option")?;
+
+    ensure!(
+        output.status.success(),
+        "error running 'tmux set-option -p -u': {}",
         String::from_utf8_lossy(&output.stderr),
     );
 
