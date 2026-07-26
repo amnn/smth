@@ -48,11 +48,11 @@ pub(super) fn row(
         return row;
     };
 
-    let alerts = session.alerts();
+    let alerts = session.has_alerts();
     let sigil = Span::raw(sigil.to_string());
-    if !alerts.is_empty() && highlighted {
+    if alerts && highlighted {
         row.with_sigil(sigil.on_light_yellow())
-    } else if !alerts.is_empty() {
+    } else if alerts {
         row.with_sigil(sigil.light_yellow())
     } else if flagged && highlighted {
         row.with_sigil(sigil.on_light_blue())

@@ -3,6 +3,7 @@
 
 //! Application model for discovered sessions and derived session candidates.
 
+pub(crate) mod agent;
 pub(crate) mod picker;
 pub(crate) mod session;
 

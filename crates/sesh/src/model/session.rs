@@ -38,7 +38,7 @@ pub(crate) enum Base {
 pub(crate) struct LiveKind {
     name: String,
     repo: Option<PathBuf>,
-    alerts: Vec<String>,
+    alerts: BTreeSet<String>,
     flagged: bool,
     can_delete: bool,
 }
@@ -153,11 +153,8 @@ impl Session {
     }
 
     /// Return the live tmux alert windows for this session, if any.
-    pub(crate) fn alerts(&self) -> &[String] {
-        match &self.0 {
-            Kind::Live(kind) => &kind.alerts,
-            Kind::New(_) | Kind::Repo(_) => &[],
-        }
+    pub(crate) fn has_alerts(&self) -> bool {
+        matches!(&self.0, Kind::Live(kind) if !kind.alerts.is_empty())
     }
 
     /// Return the repository whose log should be shown in the preview pane.
@@ -203,7 +200,7 @@ impl LiveKind {
     pub(crate) fn new(
         name: String,
         repo: Option<PathBuf>,
-        alerts: Vec<String>,
+        alerts: BTreeSet<String>,
         flagged: bool,
         can_delete: bool,
     ) -> Self {

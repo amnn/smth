@@ -77,7 +77,7 @@ Unsupported actions should be rejected before tmux metadata is changed.
 
 ```stderr
 error: invalid value 'start' for '<ACTION>'
-  [possible values: exit, idle, running, waiting, succeeded, failed]
+  [possible values: idle, running, waiting, succeeded, failed, exit]
 
 For more information, try '--help'.
 ```

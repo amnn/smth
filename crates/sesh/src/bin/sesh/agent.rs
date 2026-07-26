@@ -4,12 +4,17 @@
 //! CLI support for publishing agent lifecycle state to tmux.
 
 use std::env;
+use std::iter;
 
 use anyhow::Context as _;
+use clap::ValueEnum as _;
+use clap::builder::PossibleValue;
+use clap::builder::PossibleValuesParser;
+use clap::builder::TypedValueParser as _;
 
+use sesh::AGENT_STATE_OPTION;
+use sesh::AgentState;
 use sesh::cmd::tmux;
-
-const TMUX_STATE_OPTION: &str = "@sesh.agent.state";
 
 /// Arguments for updating agent metadata on the current tmux pane.
 #[derive(Debug, clap::Args)]
@@ -19,31 +24,15 @@ pub(crate) struct Args {
     help: Option<bool>,
 
     /// Agent tracking action or lifecycle state.
-    #[arg(value_enum)]
+    #[arg(value_parser = state_parser())]
     action: Action,
 }
 
-/// Agent tracking actions and lifecycle states that harness integrations can publish.
-#[derive(Clone, Copy, Debug, clap::ValueEnum)]
-enum Action {
-    /// Exit agent tracking and clear its state.
-    Exit,
-
-    /// The harness is ready, but no agent run has started.
-    Idle,
-
-    /// The agent is actively processing a request.
-    Running,
-
-    /// The agent is blocked waiting for user input.
-    Waiting,
-
-    /// The most recent agent run completed successfully.
-    Succeeded,
-
-    /// The most recent agent run failed.
-    Failed,
-}
+/// Agent lifecycle state to publish, or `None` to stop tracking.
+///
+/// Naming the type prevents clap's derive from treating the `Option` as an optional argument and
+/// unwrapping the custom parser's value type.
+type Action = Option<AgentState>;
 
 impl Args {
     /// Apply the requested tracking action or lifecycle state to the pane that invoked `sesh`.
@@ -52,24 +41,24 @@ impl Args {
             .context("'sesh agent' must be run from inside a tmux pane ($TMUX_PANE is unset)")?;
 
         tmux::ensure()?;
-        if let Some(state) = self.action.state() {
-            tmux::set_pane_option(&pane, TMUX_STATE_OPTION, state).await
+        if let Some(state) = self.action {
+            let value = state.option_value();
+            tmux::set_pane_option(&pane, AGENT_STATE_OPTION, &value).await
         } else {
-            tmux::unset_pane_option(&pane, TMUX_STATE_OPTION).await
+            tmux::unset_pane_option(&pane, AGENT_STATE_OPTION).await
         }
     }
 }
 
-impl Action {
-    /// Return the stable value to store in tmux, or `None` when the option should be removed.
-    fn state(self) -> Option<&'static str> {
-        match self {
-            Self::Exit => None,
-            Self::Idle => Some("idle"),
-            Self::Running => Some("running"),
-            Self::Waiting => Some("waiting"),
-            Self::Succeeded => Some("succeeded"),
-            Self::Failed => Some("failed"),
-        }
-    }
+/// Build a parser for clearing agent tracking or publishing a lifecycle state.
+fn state_parser() -> impl clap::builder::TypedValueParser<Value = Action> {
+    let values = AgentState::value_variants()
+        .iter()
+        .filter_map(clap::ValueEnum::to_possible_value)
+        .chain(iter::once(
+            PossibleValue::new("exit").help("The agent has exited"),
+        ));
+
+    PossibleValuesParser::new(values)
+        .map(|action| (action != "exit").then(|| AgentState::parse(&action).unwrap()))
 }
