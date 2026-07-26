@@ -1,0 +1,96 @@
+---
+source: crates/sesh/tests/test.rs
+expression: output
+input_file: crates/sesh/tests/cases/ui/agent-attention.md
+---
+# Agent attention
+
+Agent harnesses should render right-aligned lifecycle summaries on their
+session rows and in aggregate on the header. Waiting, failed, and succeeded
+harnesses should use the same attention pip styling as a tmux bell; running and
+idle harnesses should not. A manual flag on a session that also has agent
+attention should retain the existing attention-over-flag precedence.
+
+    :bins jj cat
+
+> [!NOTE]
+> 'jj', and 'cat' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s waiting "cat" (success)
+    :t set-option -p -t waiting:0.0 @sesh.agent.state waiting (success)
+    :t split-window -d -t waiting:0 "cat" (success)
+    :t set-option -p -t waiting:0.1 @sesh.agent.state running (success)
+    :t new-window -d -t waiting: -n worker "cat" (success)
+    :t set-option -p -t waiting:1.0 @sesh.agent.state running (success)
+    :t new-session -d -s failed "cat" (success)
+    :t set-option -p -t failed:0.0 @sesh.agent.state failed (success)
+    :t new-session -d -s succeeded "cat" (success)
+    :t set-option -p -t succeeded:0.0 @sesh.agent.state succeeded (success)
+    :t split-window -d -t succeeded:0 "cat" (success)
+    :t set-option -p -t succeeded:0.1 @sesh.agent.state succeeded (success)
+    :t new-window -d -t succeeded: -n ready "cat" (success)
+    :t set-option -p -t succeeded:1.0 @sesh.agent.state idle (success)
+    :t set-option -t succeeded @sesh.flag 1 (success)
+    :t new-session -d -s running "cat" (success)
+    :t set-option -p -t running:0.0 @sesh.agent.state running (success)
+    :t split-window -d -t running:0 "cat" (success)
+    :t set-option -p -t running:0.1 @sesh.agent.state running (success)
+    :t new-session -d -s idle "cat" (success)
+    :t set-option -p -t idle:0.0 @sesh.agent.state idle (success)
+    :t new-session -d -s ui "sesh; cat" (success)
+    :t resize-window -t ui:0 -x 100 -y 12 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+
+Hide the preview so every session is visible in one snapshot. The linked colour
+snapshots distinguish lifecycle states and attention, flag, and ordinary
+live-session pips.
+
+    :k C-p
+    :settle (settled)
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  7/7 | [C-r] repo: none | [C-x] close, [C-f] flag                         ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
+ ⬤ ui                                                                                              ┃
+▌⬤ runner                                                                                          ┃
+ ⬤ waiting                                                                                 ⏸ · ▶ 2 ┃
+ ⬤ succeeded                                                                               ✔ 2 · ○ ┃
+ ⬤ running                                                                                     ▶ 2 ┃
+ ⬤ idle                                                                                          ○ ┃
+ ⬤ failed                                                                                        × ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+```
+
+![light](agent-attention.md.snap.1.light.svg)
+![dark](agent-attention.md.snap.1.dark.svg)
+
+Filter to one session. The header summary should continue to aggregate agents
+across every session while the row shows only that session's agents.
+
+    :k waiting
+    :snap
+
+```terminal
+session: waiting                                                                                   ┃
+  1/7 | [C-r] repo: none | [C-x] close, [C-f] flag                         ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
+▌⬤ waiting                                                                                 ⏸ · ▶ 2 ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+```
+
+---
+vim: set ft=markdown:

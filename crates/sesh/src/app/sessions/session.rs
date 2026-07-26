@@ -9,6 +9,7 @@ use ratatui::text::Line;
 use ratatui::text::Span;
 use unicode_width::UnicodeWidthStr as _;
 
+use crate::app::agent;
 use crate::app::component::row::Row;
 use crate::app::highlight::Highlight;
 use crate::app::span::push_repo_path_spans;
@@ -39,6 +40,11 @@ pub(super) fn row(
     };
 
     let row = Row::new(line);
+    let row = if let Some(agents) = session.agents() {
+        row.with_overlay(agent::summary(agents))
+    } else {
+        row
+    };
 
     if highlighted && deleting {
         return row.with_sigil(Span::raw(SIGIL_DELETE).on_light_red());

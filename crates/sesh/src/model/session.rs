@@ -3,6 +3,7 @@
 
 //! Session domain model.
 
+use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::path::Path;
 use std::path::PathBuf;
@@ -11,6 +12,7 @@ use anyhow::Context as _;
 
 use crate::cmd::jj;
 use crate::cmd::tmux;
+use crate::model::agent::AgentState;
 use crate::model::picker::Pickable;
 use crate::path::TruncatedExt as _;
 
@@ -38,6 +40,7 @@ pub(crate) enum Base {
 pub(crate) struct LiveKind {
     name: String,
     repo: Option<PathBuf>,
+    agents: BTreeMap<AgentState, usize>,
     alerts: BTreeSet<String>,
     flagged: bool,
     can_delete: bool,
@@ -152,6 +155,14 @@ impl Session {
         }
     }
 
+    /// Return lifecycle state counts for agents in this live session.
+    pub(crate) fn agents(&self) -> Option<&BTreeMap<AgentState, usize>> {
+        match &self.0 {
+            Kind::Live(kind) => Some(&kind.agents),
+            Kind::New(_) | Kind::Repo(_) => None,
+        }
+    }
+
     /// Return the live tmux alert windows for this session, if any.
     pub(crate) fn has_alerts(&self) -> bool {
         matches!(&self.0, Kind::Live(kind) if !kind.alerts.is_empty())
@@ -194,12 +205,14 @@ impl LiveKind {
     /// Construct a potential session from information extracted from `tmux`.
     ///
     /// `name` is a tmux session name, `repo` is an optional path to a jj repository attached as a
-    /// user-option on the tmux session, `alerts` is a list of windows in the session that have an
-    /// active bell alert, `flagged` indicates whether the user has manually flagged the session,
-    /// and `can_delete` indicates whether deletion can remove a named jj workspace.
+    /// user-option on the tmux session, `agents` contains lifecycle state counts published by agent
+    /// harnesses, `alerts` is a set of windows in the session that have a bell or agent alert,
+    /// `flagged` indicates whether the user has manually flagged the session, and `can_delete`
+    /// indicates whether deletion can remove a named jj workspace.
     pub(crate) fn new(
         name: String,
         repo: Option<PathBuf>,
+        agents: BTreeMap<AgentState, usize>,
         alerts: BTreeSet<String>,
         flagged: bool,
         can_delete: bool,
@@ -207,6 +220,7 @@ impl LiveKind {
         Self {
             name,
             repo,
+            agents,
             alerts,
             flagged,
             can_delete,

@@ -3,6 +3,7 @@
 
 //! Picker UI state, rendering, and input handling.
 
+mod agent;
 mod component;
 mod header;
 mod highlight;
@@ -233,6 +234,7 @@ impl App {
         let l = layout::Layout::new(f.area(), self.preview.visible() || self.onto.is_some());
 
         let new_session = self.model.new_session(self.repo.as_ref());
+        let agent_summary = self.model.agent_summary();
 
         // Poll the picker for its latest state, and build the data model.
         let (status, snapshot, query) = self.model.refresh();
@@ -271,6 +273,7 @@ impl App {
         }
 
         let header = Header::new(
+            agent_summary,
             self.sessions.is_deleting(),
             items.len(),
             self.repo.as_ref(),

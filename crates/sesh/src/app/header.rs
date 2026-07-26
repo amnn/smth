@@ -3,20 +3,26 @@
 
 //! Rendering for the header bar.
 
+use std::collections::BTreeMap;
+
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use ratatui::style::Stylize as _;
 use ratatui::text::Line;
 use ratatui::text::Span;
 
+use crate::app::agent;
 use crate::app::highlight::Highlight;
 use crate::app::span::push_repo_path_spans;
 use crate::app::span::push_shortcut_span;
+use crate::model::agent::AgentState;
 use crate::model::session::Repo;
 use crate::model::session::Session;
 
 /// Header bar component showing counts, repo context, and available actions.
 pub(super) struct Header<'r> {
+    /// Lifecycle state counts across all discovered live sessions.
+    agents: BTreeMap<AgentState, usize>,
     confirm_delete: bool,
     found: usize,
     repo: Option<&'r Repo>,
@@ -27,6 +33,7 @@ pub(super) struct Header<'r> {
 impl<'r> Header<'r> {
     /// Create a header from the current picker state.
     pub(super) fn new(
+        agents: BTreeMap<AgentState, usize>,
         confirm_delete: bool,
         found: usize,
         repo: Option<&'r Repo>,
@@ -34,6 +41,7 @@ impl<'r> Header<'r> {
         total: usize,
     ) -> Self {
         Self {
+            agents,
             confirm_delete,
             found,
             repo,
@@ -93,6 +101,7 @@ impl<'r> Header<'r> {
             line += Span::raw(if flag { " unflag" } else { " flag" });
         }
 
-        f.render_widget(line, area)
+        f.render_widget(line, area);
+        f.render_widget(agent::summary(&self.agents), area);
     }
 }

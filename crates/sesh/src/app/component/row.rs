@@ -10,10 +10,11 @@ use ratatui::text::Span;
 use ratatui::widgets::Paragraph;
 use ratatui::widgets::Widget;
 
-/// One visible session row, with optional sticky sigil and scrollable text.
+/// One visible session row with scrollable text, an optional sticky sigil, and an overlay.
 #[derive(Default)]
 pub(crate) struct Row {
     line: Line<'static>,
+    overlay: Option<Line<'static>>,
     right_margin: Option<u16>,
     sigil: Option<Span<'static>>,
 }
@@ -28,9 +29,16 @@ impl Row {
     pub(crate) fn new(line: Line<'static>) -> Self {
         Self {
             line,
+            overlay: None,
             right_margin: None,
             sigil: None,
         }
+    }
+
+    /// Set content to overdraw on top of the scrollable line.
+    pub(crate) fn with_overlay(mut self, overlay: Line<'static>) -> Self {
+        self.overlay = Some(overlay);
+        self
     }
 
     /// Set the rightmost scrollable content column that should stay visible.
@@ -74,5 +82,9 @@ impl Widget for Row {
         Paragraph::new(self.line)
             .scroll((0, left_margin))
             .render(rest, buf);
+
+        if let Some(overlay) = self.overlay {
+            overlay.render(rest, buf);
+        }
     }
 }
