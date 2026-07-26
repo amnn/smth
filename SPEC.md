@@ -41,6 +41,9 @@ The session switcher maintains the following state:
   corresponds to a repository/workspace, or is plain.
   - This is used by the session switcher to advertise metadata about
     existing sessions.
+- Agent harnesses can publish idle, running, waiting, succeeded, or failed
+  lifecycle state on their tmux pane. Multiple panes in one session contribute
+  independently to that session's state.
 
 ## UX
 The session switcher opens a tmux pop-over when a tmux kebinding is pressed.
@@ -70,6 +73,28 @@ When reconciling existing sessions with candidate sessions, a name is generated
 for each candidate session. If it matches the name of an existing session, the
 candidate is discarded (existing sessions take precedence).
 
+### Agent Lifecycle Indicators
+
+Live session rows show right-aligned counts of pane-scoped agent lifecycle
+state. The session-list header uses the same presentation aggregated across all
+live sessions, independently of the active fuzzy filter. States appear in the
+following order:
+
+- `⏸`: waiting.
+- `×`: failed.
+- `✔`: succeeded.
+- `▶`: running.
+- `○`: idle.
+
+A state with one agent shows only its indicator; larger counts use an indicator,
+a space, and the count. A non-empty summary is dimmed and delimited by ` · `
+separators and one outer space. It overdraws the underlying row or header content
+at its right edge rather than reserving layout width.
+
+A live session's existing attention pip is active when a window has a bell
+alert or an agent is waiting, failed, or succeeded. This attention styling
+retains the existing precedence over manual flag styling.
+
 ### Session Names and Metadata
 The switcher represents sessions by their name and metadata.
 
@@ -89,7 +114,9 @@ When picking a session from the fuzzy finder, all its parts are ensured to exist
 - If there is a workspace, it is set-up -- it is the CWD for the session.
 - The session is created and added to tmux.
 
-Then the pop-over switches to the session and closes itself.
+Then the pop-over switches to the session and closes itself. For an existing
+session, the first window with either a bell or agent attention is the preferred
+target. If no window needs attention, `sesh` uses the session's ordinary target.
 
 ### Actions
 - `C-r` opens a sub-fuzzy-finder to select a different repository,
