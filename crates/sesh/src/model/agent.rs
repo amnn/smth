@@ -9,7 +9,7 @@ use clap::ValueEnum as _;
 pub const STATE_OPTION: &str = "@sesh.agent.state";
 
 /// Lifecycle state published by an agent harness.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, clap::ValueEnum)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Ord, PartialOrd, clap::ValueEnum)]
 pub enum AgentState {
     /// The harness is ready, but no agent run has started.
     Idle,

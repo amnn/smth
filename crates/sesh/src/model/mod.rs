@@ -19,6 +19,7 @@ use nucleo::Status;
 
 use crate::cmd::jj;
 use crate::cmd::tmux;
+use crate::model::agent::AgentState;
 use crate::model::picker::Picker;
 use crate::model::session::Base;
 use crate::model::session::LiveKind;
@@ -104,6 +105,17 @@ impl Model {
         }
     }
 
+    /// Return lifecycle state counts for agents across all discovered sessions.
+    pub(crate) fn agent_summary(&self) -> BTreeMap<AgentState, usize> {
+        let mut summary = BTreeMap::new();
+        for agents in self.sessions.iter().filter_map(Session::agents) {
+            for (&state, &count) in agents {
+                *summary.entry(state).or_default() += count;
+            }
+        }
+        summary
+    }
+
     /// Clear the active query string.
     pub(crate) fn clear_query(&mut self) {
         self.picker.clear();
@@ -163,7 +175,14 @@ impl Model {
                 .and_then(|repo| self.workspace_name(repo))
                 .is_some();
 
-            let session = LiveKind::new(name, info.repo, info.alerts, info.flagged, can_delete);
+            let session = LiveKind::new(
+                name,
+                info.repo,
+                info.agents,
+                info.alerts,
+                info.flagged,
+                can_delete,
+            );
             self.sessions.push(session.into());
         }
 
