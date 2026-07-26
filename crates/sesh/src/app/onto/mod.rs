@@ -3,6 +3,7 @@
 
 //! State for `onto` revision selection mode.
 
+mod match_counter;
 mod picker;
 
 use std::collections::BTreeSet;
@@ -116,6 +117,9 @@ impl State {
         const CTRL: KM = KM::CONTROL;
         const SHIFT: KM = KM::SHIFT;
 
+        // Any key dismisses previous feedback; match navigation below replaces it.
+        self.state.invalidate_match_counter();
+
         match key.code {
             // Accept the selected commit.
             KC::Enter => return Some(Action::Accept),
@@ -133,10 +137,10 @@ impl State {
             KC::BackTab => self.state.select_previous_match(),
 
             // Edit query
-            KC::Backspace => self.state.model.pop(),
-            KC::Char('u') if key.modifiers.contains(CTRL) => self.state.model.clear(),
-            KC::Char(c) if key.modifiers.is_empty() => self.state.model.push(c),
-            KC::Char(c) if key.modifiers.contains(SHIFT) => self.state.model.push(c),
+            KC::Backspace => self.state.pop_query(),
+            KC::Char('u') if key.modifiers.contains(CTRL) => self.state.clear_query(),
+            KC::Char(c) if key.modifiers.is_empty() => self.state.push_query(c),
+            KC::Char(c) if key.modifiers.contains(SHIFT) => self.state.push_query(c),
 
             _ => {}
         }
@@ -146,7 +150,7 @@ impl State {
 
     /// Return the current `onto` revision query.
     pub(super) fn query(&self) -> &str {
-        self.state.model.query()
+        self.state.query()
     }
 }
 

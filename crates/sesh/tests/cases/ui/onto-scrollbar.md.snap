@@ -9,10 +9,10 @@ This scenario verifies that the onto picker selects and inverts the working-copy
 commit, navigates commits independently from fuzzy matching, jumps between
 matches, and scrolls an overflowing current-repo log.
 
-    :bins jj cat python3
+    :bins jj cat python3 sleep
 
 > [!NOTE]
-> 'jj', 'cat', and 'python3' are available.
+> 'jj', 'cat', 'python3', and 'sleep' are available.
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 
@@ -155,7 +155,9 @@ onto: pty6
 ![dark](onto-scrollbar.md.snap.5.dark.svg)
 
 Search for every numbered `line` commit. `Tab` should skip the selected,
-non-matching child and select the next matching commit in rendered order.
+non-matching child and select the next matching commit in rendered order. A
+transient padded, inverted widget immediately left of the scrollbar shows that
+this is the first of six matching commits.
 
     :k C-u line
     :settle (settled)
@@ -168,7 +170,7 @@ onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
 ▌⬤ runner                                                                                ┃
 ──────────────────────────────────────────────────────────────────────────────────────────
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 ┃
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       │
@@ -179,7 +181,8 @@ onto: line
 ![light](onto-scrollbar.md.snap.6.light.svg)
 ![dark](onto-scrollbar.md.snap.6.dark.svg)
 
-`S-tab` should wrap to the final matching commit before the root.
+`S-tab` should wrap to the final matching commit before the root and update the
+widget.
 
     :k BTab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
@@ -189,7 +192,7 @@ onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
 ▌⬤ runner                                                                                ┃
 ──────────────────────────────────────────────────────────────────────────────────────────
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              6/6 │
 │  (empty) line 03                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 02                                                                       ┃
@@ -210,7 +213,7 @@ onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
 ▌⬤ runner                                                                                ┃
 ──────────────────────────────────────────────────────────────────────────────────────────
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 │
 │  (empty) line 06                                                                       ┃
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) line 05                                                                       │
@@ -220,6 +223,49 @@ onto: line
 
 ![light](onto-scrollbar.md.snap.8.light.svg)
 ![dark](onto-scrollbar.md.snap.8.dark.svg)
+
+Moving manually should hide the match-position widget immediately, before its
+timeout.
+
+    :k Down
+    :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+onto: line
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+▌⬤ runner                                                                                ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+│  (empty) line 06                                                                       ┃
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
+│  (empty) line 05                                                                       │
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+│  (empty) line 04                                                                       │
+```
+
+![light](onto-scrollbar.md.snap.9.light.svg)
+![dark](onto-scrollbar.md.snap.9.dark.svg)
+
+Jump to another match, then wait beyond the one-second timeout. The selection
+should remain while the widget disappears.
+
+    :k Tab
+    :$ sleep 1.1 (exit: 0)
+
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+onto: line
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+▌⬤ runner                                                                                ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+│  (empty) line 06                                                                       ┃
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
+│  (empty) line 05                                                                       │
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+│  (empty) line 04                                                                       │
+```
 
 Repeatedly pressing `Down` past the other end should leave the root commit
 selected and scroll it into view.
@@ -240,8 +286,28 @@ onto: line
 ◆  wwwwwwww root() hhhhhhhh                                                              ┃
 ```
 
-![light](onto-scrollbar.md.snap.9.light.svg)
-![dark](onto-scrollbar.md.snap.9.dark.svg)
+![light](onto-scrollbar.md.snap.11.light.svg)
+![dark](onto-scrollbar.md.snap.11.dark.svg)
+
+After jumping to a match, editing the query should immediately hide the match
+counter without moving the selection.
+
+    :k Tab
+    :k backspace
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+onto: lin
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+▌⬤ runner                                                                                ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+│  (empty) line 06                                                                       ┃
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
+│  (empty) line 05                                                                       │
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+│  (empty) line 04                                                                       │
+```
 
 ---
 vim: set ft=markdown:

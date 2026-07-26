@@ -4,9 +4,6 @@
 //! Rendering for the `onto` revision picker.
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
-use std::ops::Bound::Excluded;
-use std::ops::Bound::Unbounded;
 use std::ops::Range;
 use std::sync::LazyLock;
 
@@ -24,6 +21,8 @@ use regex::Regex;
 
 use crate::app::component::scrollbar;
 use crate::app::highlight::Highlight;
+use crate::app::onto::match_counter;
+use crate::app::onto::match_counter::MatchCounter;
 use crate::model::picker as model;
 
 /// Matches commit header lines in forced-curved `builtin_log_compact` output.
@@ -56,9 +55,11 @@ pub(super) struct Picker {
 
 /// Mutable state owned by the onto-picker preview surface.
 pub(super) struct State {
-    pub(super) model: model::Picker<Candidate>,
-    /// Commit positions matched by the fuzzy snapshot used for the latest render.
-    matches: BTreeSet<usize>,
+    model: model::Picker<Candidate>,
+    /// Sorted, deduplicated commit positions matched by the latest rendered fuzzy snapshot.
+    matches: Vec<usize>,
+    /// Transient counter for the latest fuzzy-match jump.
+    match_counter: Option<match_counter::State>,
     scrollbar: ScrollbarState,
     /// Zero-based index of the selected commit.
     selected: Option<usize>,
@@ -130,6 +131,11 @@ impl Picker {
 }
 
 impl State {
+    /// Clear the query.
+    pub(super) fn clear_query(&mut self) {
+        self.model.clear();
+    }
+
     /// Initialize commit selection and fuzzy candidates from a loaded picker.
     pub(super) fn initialize(&mut self, picker: &Picker) {
         self.selected = picker
@@ -138,6 +144,26 @@ impl State {
             .position(|commit| commit.head)
             .or((!picker.commits.is_empty()).then_some(0));
         self.model.inject(picker.candidates());
+    }
+
+    /// Hide fuzzy-match counter feedback.
+    pub(super) fn invalidate_match_counter(&mut self) {
+        self.match_counter = None;
+    }
+
+    /// Remove the query's trailing character.
+    pub(super) fn pop_query(&mut self) {
+        self.model.pop();
+    }
+
+    /// Append a query character.
+    pub(super) fn push_query(&mut self, ch: char) {
+        self.model.push(ch);
+    }
+
+    /// Return the current query.
+    pub(super) fn query(&self) -> &str {
+        self.model.query()
     }
 
     /// Move selection down by one commit.
@@ -153,11 +179,14 @@ impl State {
             return;
         }
 
-        self.selected = self
-            .selected
-            .and_then(|s| self.matches.range((Excluded(s), Unbounded)).next())
-            .or_else(|| self.matches.first())
-            .copied();
+        let matches = self.matches.len();
+        let boundary = self.selected.map_or(0, |selected| {
+            self.matches.partition_point(|matched| *matched <= selected)
+        });
+
+        let position = boundary % matches;
+        self.selected = Some(self.matches[position]);
+        self.match_counter = Some(match_counter::State::new(position + 1, matches));
     }
 
     /// Move selection up by one commit.
@@ -173,11 +202,14 @@ impl State {
             return;
         }
 
-        self.selected = self
-            .selected
-            .and_then(|s| self.matches.range((Unbounded, Excluded(s))).next_back())
-            .or_else(|| self.matches.last())
-            .copied();
+        let matches = self.matches.len();
+        let boundary = self.selected.map_or(0, |selected| {
+            self.matches.partition_point(|matched| *matched < selected)
+        });
+
+        let position = (boundary + matches - 1) % matches;
+        self.selected = Some(self.matches[position]);
+        self.match_counter = Some(match_counter::State::new(position + 1, matches));
     }
 
     /// Return the selected commit's revision hint.
@@ -246,7 +278,7 @@ impl StatefulWidget for &Picker {
             // An empty pattern matches everything, but we don't want to tab through every commit in
             // that case, so ignore matches if the pattern is empty.
             if !snapshot.pattern().is_empty() {
-                state.matches.insert(item.data.commit);
+                state.matches.push(item.data.commit);
             }
 
             let commit = &self.commits[item.data.commit];
@@ -264,6 +296,10 @@ impl StatefulWidget for &Picker {
 
             highlights.insert(index, indices);
         }
+
+        // Index matches in rendered commit order for navigation and one-based counter positions.
+        state.matches.sort_unstable();
+        state.matches.dedup();
 
         // Render the lines in the viewport.
         buf.set_style(area, self.text.style);
@@ -290,6 +326,10 @@ impl StatefulWidget for &Picker {
             .position(position);
 
         scrollbar::widget().render(area, buf, &mut state.scrollbar);
+
+        if let Some(counter) = &mut state.match_counter {
+            MatchCounter.render(area, buf, counter);
+        }
     }
 }
 
@@ -297,7 +337,8 @@ impl Default for State {
     fn default() -> Self {
         Self {
             model: model::Picker::new(String::new()),
-            matches: BTreeSet::new(),
+            matches: Vec::new(),
+            match_counter: None,
             scrollbar: ScrollbarState::default(),
             selected: None,
         }
@@ -515,6 +556,22 @@ mod tests {
         state.initialize(&picker);
 
         assert_eq!(state.selected, Some(1));
+    }
+
+    #[test]
+    fn invalidating_hides_match_counter_until_match_navigation() {
+        let mut state = State::default();
+        state.matches.extend([1, 4, 7]);
+        state.selected = Some(1);
+
+        state.select_next_match();
+        assert!(state.match_counter.is_some());
+
+        state.invalidate_match_counter();
+        assert!(state.match_counter.is_none());
+
+        state.select_previous_match();
+        assert!(state.match_counter.is_some());
     }
 
     #[test]
