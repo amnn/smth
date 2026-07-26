@@ -4,6 +4,7 @@
 //! Helpers for querying and invoking tmux.
 
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 use std::ffi::OsStr;
 use std::path::Path;
 use std::path::PathBuf;
@@ -11,13 +12,19 @@ use std::path::PathBuf;
 use anyhow::Context as _;
 use anyhow::ensure;
 use tokio::process::Command;
+use tokio::try_join;
 use which::which;
+
+use crate::model::agent::AgentState;
 
 /// Metadata for a live tmux session.
 #[derive(Debug)]
 pub struct SessionInfo {
+    /// Agent harnesses running in panes in this session.
+    pub agents: BTreeMap<AgentState, usize>,
+
     /// Windows in the session that have an active bell alert.
-    pub alerts: Vec<String>,
+    pub alerts: BTreeSet<String>,
 
     /// Whether a tmux client is currently attached to the session.
     pub attached: bool,
@@ -93,26 +100,42 @@ pub async fn run_shell(target: &str, cwd: &Path, script: &str) -> anyhow::Result
     Ok(())
 }
 
-/// Query tmux for current sessions, attached sesh metadata, and bell alerts.
+/// Query tmux for current sessions, attached sesh metadata, bell alerts, and agent state.
 pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
-    let format = concat!(
+    let sessions_format = concat!(
         "#{session_name}\t#{session_attached}\t#{@sesh.flag}\t",
         "#{session_last_attached}\t#{@sesh.repo}",
     );
-    let output = Command::new("tmux")
-        .args(["list-sessions", "-F", format])
-        .output()
-        .await
-        .context("failed to discover information on tmux sessions")?;
+
+    let panes_format = concat!(
+        "#{session_name}\t#{window_index}\t",
+        "#{window_bell_flag}\t#{@sesh.agent.state}",
+    );
+
+    let (sessions_output, panes_output) = try_join!(
+        Command::new("tmux")
+            .args(["list-sessions", "-F", sessions_format])
+            .output(),
+        Command::new("tmux")
+            .args(["list-panes", "-a", "-F", panes_format])
+            .output(),
+    )
+    .context("failed to discover tmux session and pane information")?;
 
     ensure!(
-        output.status.success(),
+        sessions_output.status.success(),
         "error running 'tmux list-sessions': {}",
-        String::from_utf8_lossy(&output.stderr),
+        String::from_utf8_lossy(&sessions_output.stderr),
+    );
+
+    ensure!(
+        panes_output.status.success(),
+        "error running 'tmux list-panes': {}",
+        String::from_utf8_lossy(&panes_output.stderr),
     );
 
     let mut sessions = BTreeMap::new();
-    for line in String::from_utf8_lossy(&output.stdout).lines() {
+    for line in String::from_utf8_lossy(&sessions_output.stdout).lines() {
         let fields: Vec<_> = line.splitn(5, '\t').collect();
         let [session, attached, flag, last_attached, repo] = fields[..] else {
             continue;
@@ -134,7 +157,8 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
         sessions.insert(
             session.to_owned(),
             SessionInfo {
-                alerts: vec![],
+                agents: BTreeMap::new(),
+                alerts: BTreeSet::new(),
                 attached: attached != 0,
                 flagged: is_flag_set(flag),
                 last_attached: last_attached.trim().parse().ok(),
@@ -143,36 +167,30 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
         );
     }
 
-    let output = Command::new("tmux")
-        .args([
-            "list-windows",
-            "-a",
-            "-F",
-            "#{session_name}\t#{window_index}\t#{window_bell_flag}",
-        ])
-        .output()
-        .await
-        .context("failed to discover tmux bell alerts")?;
-
-    ensure!(
-        output.status.success(),
-        "error running 'tmux list-windows': {}",
-        String::from_utf8_lossy(&output.stderr),
-    );
-
-    for line in String::from_utf8_lossy(&output.stdout).lines() {
-        let fields: Vec<_> = line.splitn(3, '\t').collect();
-        let [session, window, bell] = fields[..] else {
+    for line in String::from_utf8_lossy(&panes_output.stdout).lines() {
+        let fields: Vec<_> = line.splitn(4, '\t').collect();
+        let [session, window, bell, state] = fields[..] else {
             continue;
         };
 
-        if bell.trim() != "1" {
+        let Some(info) = sessions.get_mut(session.trim()) else {
             continue;
+        };
+
+        let window = window.trim();
+        if bell.trim() == "1" {
+            info.alerts.insert(window.to_owned());
         }
 
-        if let Some(info) = sessions.get_mut(session.trim()) {
-            info.alerts.push(window.trim().to_owned());
+        let Some(state) = AgentState::parse(state.trim()) else {
+            continue;
+        };
+
+        if state.needs_attention() {
+            info.alerts.insert(window.to_owned());
         }
+
+        *info.agents.entry(state).or_default() += 1;
     }
 
     Ok(sessions)

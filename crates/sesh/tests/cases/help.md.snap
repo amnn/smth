@@ -42,12 +42,12 @@ Arguments:
           Agent tracking action or lifecycle state
 
           Possible values:
-          - exit:      Exit agent tracking and clear its state
           - idle:      The harness is ready, but no agent run has started
           - running:   The agent is actively processing a request
           - waiting:   The agent is blocked waiting for user input
           - succeeded: The most recent agent run completed successfully
           - failed:    The most recent agent run failed
+          - exit:      The agent has exited
 
 Options:
   -h, --help
