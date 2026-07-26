@@ -26,7 +26,7 @@
   information in the session list.
   - [x] Add `sesh agent ACTION` to publish lifecycle state or clear it on exit.
   - [ ] Add harness integrations that publish lifecycle transitions.
-  - [ ] Display published lifecycle state in the session list.
+  - [x] Display published lifecycle state in the session list.
 
 ## README
 

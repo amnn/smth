@@ -113,6 +113,29 @@ update or `exit`. Inspect it with:
 tmux show-options -pqv -t "$TMUX_PANE" @sesh.agent.state
 ```
 
+The session list summarizes agent state at the right edge of every live session
+row and aggregates the same summary across all live sessions in its header,
+regardless of the active filter:
+
+| State | Indicator | Needs attention |
+| --- | --- | --- |
+| Waiting | `⏸` | Yes |
+| Failed | `×` | Yes |
+| Succeeded | `✔` | Yes |
+| Running | `▶` | No |
+| Idle | `○` | No |
+
+An indicator appears by itself for one agent, or with a count for multiple
+agents in that state. The whole summary is dimmed, and middle dots separate
+states, for example `⏸ · × · ✔ 2 · ▶ 3 · ○`. A session may contain multiple
+tracked harnesses as long as each runs in its own pane.
+
+Waiting, failed, and succeeded agents activate the same attention pip as a tmux
+bell. Succeeded agents remain attention-worthy because they should receive
+another prompt or exit. When switching to a session, `sesh` selects the first
+window with either a bell or agent attention before falling back to the
+session's ordinary target.
+
 ## Key bindings
 
 `sesh -h` prints brief CLI help. `sesh --help` prints complete help, including
