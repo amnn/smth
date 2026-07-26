@@ -25,19 +25,6 @@
   idle, running, waiting for input, succeeded or failed. `sesh` displays this
   information in the session list.
 
-## UI
-
-- [x] Spinner for long-running operations -- operations on `sui` can take time
-  so it would be good to have a visual indicator that something is happening.
-
-- [ ] Onto: show matching commit logs and position in that list when tabbing or
-  backtabbing.
-
-- [x] Session list: recency order. Show live tmux sessions in recency order
-  (most recently attached session first). Start the picker on the second most
-  recently attached session (if there are multiple live sessions). Use tmux's
-  `session_last_attached` value as recency metadata.
-
 ## README
 
 - [ ] README: Screenshot/animation

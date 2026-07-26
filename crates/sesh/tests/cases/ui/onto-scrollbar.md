@@ -4,7 +4,7 @@ This scenario verifies that the onto picker selects and inverts the working-copy
 commit, navigates commits independently from fuzzy matching, jumps between
 matches, and scrolls an overflowing current-repo log.
 
-    :bins jj cat python3
+    :bins jj cat python3 sleep
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml
 
@@ -67,7 +67,9 @@ is the first commit in the view.
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Search for every numbered `line` commit. `Tab` should skip the selected,
-non-matching child and select the next matching commit in rendered order.
+non-matching child and select the next matching commit in rendered order. A
+transient padded, inverted widget immediately left of the scrollbar shows that
+this is the first of six matching commits.
 
     :k C-u line
     :settle
@@ -75,7 +77,8 @@ non-matching child and select the next matching commit in rendered order.
     :k Tab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
-`S-tab` should wrap to the final matching commit before the root.
+`S-tab` should wrap to the final matching commit before the root and update the
+widget.
 
     :k BTab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
@@ -85,11 +88,32 @@ non-matching child and select the next matching commit in rendered order.
     :k Tab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
+Moving manually should hide the match-position widget immediately, before its
+timeout.
+
+    :k Down
+    :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+Jump to another match, then wait beyond the one-second timeout. The selection
+should remain while the widget disappears.
+
+    :k Tab
+    :$ sleep 1.1
+
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
 Repeatedly pressing `Down` past the other end should leave the root commit
 selected and scroll it into view.
 
     :k Down Down Down Down Down Down Down Down Down Down Down Down
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+After jumping to a match, editing the query should immediately hide the match
+counter without moving the selection.
+
+    :k Tab
+    :k backspace
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ---
 vim: set ft=markdown:
