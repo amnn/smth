@@ -28,10 +28,13 @@ workspace should be based on the recorded default workspace instead of the named
 checkout path.
 
     :k omega
-    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/^(?:│ )*(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S workspace-switched"
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S picker-closed"
     :k Enter
-    :settle -d 2s
+    :t wait-for workspace-switched
+    :t wait-for picker-closed
 
 Accepting the row should create `beta.omega` and switch to the `beta/omega`
 session.
