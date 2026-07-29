@@ -54,17 +54,14 @@ pub(crate) struct NewKind {
     suffix: Option<String>,
 }
 
-/// Repository information used while constructing workspace-backed sessions.
+/// Repository context used while constructing workspace-backed sessions.
 ///
-/// `source` is the selected checkout whose workspace metadata is inspected. `default` is the
-/// resolved default checkout used for workspace naming and placement. `revision` is the jj revset
-/// used as the new workspace base.
+/// `path` is normalized to an existing default workspace when available. `revision` is the jj
+/// revset used as the new workspace base.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub(crate) struct Repo {
-    /// Selected repository or workspace checkout used to look up workspace metadata.
-    source: PathBuf,
-    /// Default checkout used to derive sibling workspace names and paths.
-    default: PathBuf,
+    /// Checkout used as the repository context and base for sibling workspaces.
+    path: PathBuf,
     /// jj revset used as the base revision for new workspaces.
     revision: String,
 }
@@ -312,7 +309,7 @@ impl NewKind {
     /// The tmux session name for the new session.
     fn name(&self) -> String {
         let base = match &self.base {
-            Base::Repo(base) => Some(base.default()),
+            Base::Repo(base) => Some(base.path()),
             Base::Cwd(_) => None,
         };
 
@@ -322,7 +319,7 @@ impl NewKind {
     /// The repository whose log should be shown before this session's workspace exists.
     fn preview_repo(&self) -> Option<PathBuf> {
         match &self.base {
-            Base::Repo(base) => Some(base.default().to_owned()),
+            Base::Repo(base) => Some(base.path().to_owned()),
             Base::Cwd(_) => None,
         }
     }
@@ -347,23 +344,22 @@ impl NewKind {
             workspace.push_str(suffix);
         }
 
-        Some((base.default(), workspace, base.revision()))
+        Some((base.path(), workspace, base.revision()))
     }
 }
 
 impl Repo {
     /// Package repository information with the default base revision.
-    pub(crate) fn new(source: PathBuf) -> Self {
+    pub(crate) fn new(path: PathBuf) -> Self {
         Self {
-            source: source.clone(),
-            default: source,
+            path,
             revision: jj::DEFAULT_BASE_REVSET.to_owned(),
         }
     }
 
-    /// Return the default workspace checkout that names new workspaces.
-    pub(crate) fn default(&self) -> &Path {
-        &self.default
+    /// Return the repository context path.
+    pub(crate) fn path(&self) -> &Path {
+        &self.path
     }
 
     /// Return the selected base revision expression.
@@ -371,25 +367,10 @@ impl Repo {
         &self.revision
     }
 
-    /// Return the repository or workspace path this information applies to.
-    pub(crate) fn source(&self) -> &Path {
-        &self.source
-    }
-
-    /// Return a copy of this repo with the default workspace checkout overridden.
-    pub(crate) fn with_default(&self, default: PathBuf) -> Self {
-        Self {
-            source: self.source.clone(),
-            default,
-            revision: self.revision.clone(),
-        }
-    }
-
     /// Return a copy of this repo with the base revision overridden.
     pub(crate) fn with_revision(&self, revision: String) -> Self {
         Self {
-            source: self.source.clone(),
-            default: self.default.clone(),
+            path: self.path.clone(),
             revision,
         }
     }

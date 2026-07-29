@@ -196,7 +196,7 @@ impl Model {
             let mut session = if let Some(Some(workspace)) = self.workspaces.get(&repo) {
                 RepoKind::new(
                     workspace.name.as_deref(),
-                    workspace.default.clone().unwrap_or_else(|| repo.to_owned()),
+                    existing_default(workspace).unwrap_or(&repo).to_owned(),
                     repo.to_owned(),
                     workspace.name.is_some(),
                 )
@@ -215,7 +215,7 @@ impl Model {
                 continue;
             };
 
-            let root = workspace.default.as_ref().unwrap_or(root);
+            let root = existing_default(workspace).unwrap_or(root);
             let name = workspace.name.as_deref().unwrap_or(jj::DEFAULT_WORKSPACE);
 
             self.seen_workspaces
@@ -244,22 +244,13 @@ impl Model {
 
         let base = match repo {
             None => Base::Cwd(None),
-            Some(repo) => match self.workspaces.get(repo.source()) {
-                None => Base::Cwd(Some(repo.source().to_owned())),
-                Some(workspace) => Base::Repo(
-                    repo.with_default(
-                        workspace
-                            .as_ref()
-                            .and_then(|w| w.default.clone())
-                            .unwrap_or_else(|| repo.source().to_owned()),
-                    ),
-                ),
-            },
+            Some(repo) if self.workspaces.contains_key(repo.path()) => Base::Repo(repo.clone()),
+            Some(repo) => Base::Cwd(Some(repo.path().to_owned())),
         };
 
         let empty = BTreeSet::new();
         let siblings = match &base {
-            Base::Repo(base) => self.seen_workspaces.get(base.default()).unwrap_or(&empty),
+            Base::Repo(base) => self.seen_workspaces.get(base.path()).unwrap_or(&empty),
             Base::Cwd(_) => &empty,
         };
 
@@ -283,6 +274,19 @@ impl Model {
         self.picker.refresh()
     }
 
+    /// Construct a repository context, normalizing it to an existing default workspace when known.
+    pub(crate) fn repo_context(&self, path: PathBuf) -> Repo {
+        let path = self
+            .workspaces
+            .get(&path)
+            .and_then(Option::as_ref)
+            .and_then(existing_default)
+            .map(Path::to_owned)
+            .unwrap_or(path);
+
+        Repo::new(path)
+    }
+
     /// Return the discovered sessions.
     pub(crate) fn sessions(&self) -> &[Session] {
         &self.sessions
@@ -295,6 +299,11 @@ impl Model {
             .and_then(|w| w.as_ref())
             .and_then(|w| w.name.as_deref())
     }
+}
+
+/// Return the recorded default workspace root when it still exists.
+fn existing_default(workspace: &Workspace) -> Option<&Path> {
+    workspace.default.as_deref().filter(|root| root.exists())
 }
 
 /// Discover workspace metadata for every workspace associated with each repository.
@@ -326,4 +335,53 @@ async fn workspaces<'a>(
     }
 
     info
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use tempfile::tempdir;
+
+    use super::*;
+
+    fn model_with_workspace(workspace: &Path, default: PathBuf) -> Model {
+        Model {
+            picker: Picker::new(String::new()),
+            sessions: Vec::new(),
+            recently_attached: None,
+            seen_tmux_names: BTreeSet::new(),
+            seen_workspaces: BTreeMap::new(),
+            workspaces: BTreeMap::from([(
+                workspace.to_owned(),
+                Some(Workspace {
+                    name: Some("feature".to_owned()),
+                    default: Some(default),
+                }),
+            )]),
+        }
+    }
+
+    #[test]
+    fn repo_context_keeps_path_when_default_workspace_is_missing() {
+        let temp = tempdir().unwrap();
+        let workspace = temp.path().join("repo.feature");
+        let default = temp.path().join("repo");
+        fs::create_dir(&workspace).unwrap();
+        let model = model_with_workspace(&workspace, default);
+
+        assert_eq!(model.repo_context(workspace.clone()).path(), workspace);
+    }
+
+    #[test]
+    fn repo_context_normalizes_to_existing_default_workspace() {
+        let temp = tempdir().unwrap();
+        let workspace = temp.path().join("repo.feature");
+        let default = temp.path().join("repo");
+        fs::create_dir(&workspace).unwrap();
+        fs::create_dir(&default).unwrap();
+        let model = model_with_workspace(&workspace, default.clone());
+
+        assert_eq!(model.repo_context(workspace).path(), default);
+    }
 }

@@ -31,7 +31,7 @@ same metadata as normal user-created workspace sessions.
 
 Launch a fresh picker and select the workspace-backed session.
 
-    :t new-session -d -s ui "sesh; cat" (success)
+    :t new-session -d -s ui "sesh -r \"$HOME/alpha*\"; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
     :pane ui:0.0
     :settle -d 2s (settled)
@@ -41,7 +41,7 @@ Launch a fresh picker and select the workspace-backed session.
 
 ```terminal
 session: feature
-  1/4 | [C-r] repo: ~/alpha.feature, [C-o] onto: trunk() | [C-d] delete, [C-x] close, [C-f] flag
+  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-d] delete, [C-x] close, [C-f] flag
 ▌⬤ alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ shortcut.
 
 ```terminal
 session: feature
-  1/4 | [C-r] repo: ~/alpha.feature, [C-o] onto: trunk() | [C-y] confirm, [C-x] close, [C-f] flag
+  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-y] confirm, [C-x] close, [C-f] flag
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -78,6 +78,11 @@ session: feature
 
 ![light](delete-workspace.md.snap.2.light.svg)
 ![dark](delete-workspace.md.snap.2.dark.svg)
+
+Before confirming, add a sibling workspace so the refreshed picker can verify
+that the repository family remains usable after deletion.
+
+    :$ jj workspace add -R alpha --name sibling alpha.sibling (exit: 0)
 
 Confirming should remove the tmux session, remove the workspace from jj's
 workspace list, and delete the workspace directory.
@@ -97,9 +102,47 @@ can't find session: alpha/feature
 
 ```stdout
 default
+sibling
 ```
 
     :$ sh -c 'test ! -e alpha.feature' (exit: 0)
+
+The current repository context should have been normalized to the surviving
+default workspace. Clear the preserved session query, then verify that the onto
+picker still loads a valid log.
+
+    :k C-u C-o
+    :settle -d 2s (settled)
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+onto:
+  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+                                                                                                                       ┃
+▌⬤ ui                                                                                                                  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
+│  (empty) alpha commit
+│ ○  wwwwwwww (no email set) ttttttttttttttttttt sibling@ hhhhhhhh
+├─╯  (empty) (no description set)
+◆  wwwwwwww root() hhhhhhhh
+
+
+```
+
+Cancel the onto picker and switch to the surviving sibling workspace.
+
+    :k C-g sibling
+    :settle (settled)
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S switched-sibling" (success)
+    :k Enter
+    :t wait-for switched-sibling (success)
+
+    :t display-message -p '#{client_session}' (success)
+
+```
+alpha/sibling
+```
 
 ---
 vim: set ft=markdown:

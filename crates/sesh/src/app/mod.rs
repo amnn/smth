@@ -103,11 +103,12 @@ impl App {
         let select = model.recently_attached().map(|i| i + 1);
         let mut preview = preview::State::new();
         preview.feed(model.sessions());
+        let repo = repo.map(|repo| model.repo_context(repo));
 
         Self {
             bg: None,
             onto: None,
-            repo: repo.map(Repo::new),
+            repo,
             spinner: spinner::State::new(),
             model,
             preview,
@@ -162,6 +163,12 @@ impl App {
                         .and_then(|repo| self.model.workspace_name(repo))
                         .map(str::to_owned);
 
+                    if let (Some(repo), Some(current)) = (repo.as_deref(), self.repo.as_ref())
+                        && current.path() == repo
+                    {
+                        self.repo = None;
+                    }
+
                     self.bg = Some(activity::State::new(
                         Span::raw("deleting").light_red(),
                         async move {
@@ -214,13 +221,13 @@ impl App {
         if let Ok(revision) = onto.accept().await {
             self.repo = Some(repo.with_revision(revision));
         } else {
-            self.onto = Some(onto::State::new(repo.source().to_owned()));
+            self.onto = Some(onto::State::new(repo.path().to_owned()));
         }
     }
 
     /// Discover sessions and inject them into the picker.
     async fn discover(&mut self, globs: &[String]) -> anyhow::Result<()> {
-        let repo = self.repo.as_ref().map(|r| r.source());
+        let repo = self.repo.as_ref().map(|r| r.path());
         self.model.discover(globs, repo).await?;
         self.preview.feed(self.model.sessions());
         Ok(())
@@ -414,7 +421,7 @@ impl App {
             // App state
             KC::Char('o') if ctrl => {
                 if let Some(repo) = &self.repo {
-                    self.onto = Some(onto::State::new(repo.source().to_owned()));
+                    self.onto = Some(onto::State::new(repo.path().to_owned()));
                 }
             }
 
@@ -453,11 +460,8 @@ impl App {
     /// If there is no selection, or the selected session has no associated repo, the current repo
     /// is cleared.
     fn set_current_repo(&mut self) {
-        self.repo = self
-            .sessions
-            .selected()
-            .and_then(Session::repo)
-            .map(Repo::new);
+        let repo = self.sessions.selected().and_then(Session::repo);
+        self.repo = repo.map(|repo| self.model.repo_context(repo));
     }
 }
 

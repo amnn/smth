@@ -5,8 +5,10 @@
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::env;
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use anyhow::Context as _;
 use anyhow::ensure;
@@ -21,6 +23,10 @@ pub const DEFAULT_BASE_REVSET: &str = "trunk()";
 /// The conventional workspace name created by `jj git init`.
 pub const DEFAULT_WORKSPACE: &str = "default";
 
+/// Process working directory captured by the first `jj` command, retained if its checkout is
+/// deleted.
+static INITIAL_CWD: LazyLock<Option<PathBuf>> = LazyLock::new(|| env::current_dir().ok());
+
 /// Create a new workspace in `destination`, named `name`, with working copy based on `revision`.
 pub async fn add_workspace(
     repo: &Path,
@@ -28,7 +34,7 @@ pub async fn add_workspace(
     name: &str,
     revision: &str,
 ) -> anyhow::Result<()> {
-    let output = Command::new("jj")
+    let output = command()
         .args(["workspace", "add"])
         .arg("-R")
         .arg(repo)
@@ -63,7 +69,7 @@ pub fn ensure() -> anyhow::Result<()> {
 
 /// Forget the workspace named `name` in the repository containing `repo`.
 pub async fn forget_workspace(repo: &Path, name: &str) -> anyhow::Result<()> {
-    let output = Command::new("jj")
+    let output = command()
         .args(["workspace", "forget"])
         .arg("-R")
         .arg(repo)
@@ -90,7 +96,7 @@ pub async fn forget_workspace(repo: &Path, name: &str) -> anyhow::Result<()> {
 
 /// Fetch `jj log` output from the repository at `repo`.
 pub async fn log(repo: &Path) -> anyhow::Result<String> {
-    let output = Command::new("jj")
+    let output = command()
         .arg("log")
         .arg("-R")
         .arg(repo)
@@ -145,7 +151,7 @@ pub fn repos(globs: &[String]) -> anyhow::Result<BTreeSet<PathBuf>> {
 
 /// Fetch template-only `jj show` output for `rev` in the repository at `repo`.
 pub async fn show(repo: &Path, rev: &str, template: &str) -> anyhow::Result<String> {
-    let output = Command::new("jj")
+    let output = command()
         .arg("show")
         .arg("-R")
         .arg(repo)
@@ -177,7 +183,7 @@ pub async fn show(repo: &Path, rev: &str, template: &str) -> anyhow::Result<Stri
 ///
 /// The default workspace name is normalized to `None`; named workspaces are `Some(name)`.
 pub async fn workspaces(repo: &Path) -> anyhow::Result<BTreeMap<Option<String>, Option<PathBuf>>> {
-    let output = Command::new("jj")
+    let output = command()
         .args(["workspace", "list"])
         .arg("-R")
         .arg(repo)
@@ -217,6 +223,21 @@ pub async fn workspaces(repo: &Path) -> anyhow::Result<BTreeMap<Option<String>, 
     }
 
     Ok(workspaces)
+}
+
+/// Construct a `jj` command with a valid working directory.
+///
+/// The initial working directory may be deleted while the picker remains open. Use its nearest
+/// surviving ancestor because repo-bound commands identify their target explicitly with `-R`.
+fn command() -> Command {
+    let mut command = Command::new("jj");
+    if let Some(cwd) = LazyLock::force(&INITIAL_CWD).as_deref()
+        && let Some(cwd) = cwd.ancestors().find(|path| path.is_dir())
+    {
+        command.current_dir(cwd);
+    }
+
+    command
 }
 
 #[cfg(test)]

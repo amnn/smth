@@ -1,0 +1,97 @@
+---
+source: crates/sesh/tests/test.rs
+expression: output
+input_file: crates/sesh/tests/cases/ui/delete-current-workspace-without-default.md
+---
+# Delete current workspace without a default
+
+When jj cannot resolve a default workspace, deleting the checkout used as the
+current repository context should clear that context rather than retain the
+deleted path.
+
+    :bins jj tmux cat test sh
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'test', and 'sh' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init beta (exit: 0)
+    :$ jj describe -R beta -m "beta commit" (exit: 0)
+
+Create a named workspace and a live tmux session carrying the same repository
+metadata that `sesh` records.
+
+    :$ jj workspace add -R beta --name zeta beta.zeta (exit: 0)
+    :t new-session -d -s beta/zeta -c beta.zeta "cat" (success)
+    :t set-option -F -t '=beta/zeta:' @sesh.repo '#{pane_current_path}' (success)
+
+Forget the default workspace registration while leaving its checkout and the
+repository store in place. Workspace discovery can still identify `zeta`, but
+cannot normalize it to a default workspace.
+
+    :$ jj workspace forget -R beta.zeta --ignore-working-copy -- default (exit: 0)
+
+    :t new-session -d -s ui -c beta.zeta "sesh; cat" (success)
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+
+    :k zeta
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: zeta
+  1/3 | [C-r] repo: ~/beta.zeta, [C-o] onto: trunk() | [C-d] delete, [C-x] close, [C-f] flag
+▌⬤ beta/zeta                                ~/beta.zeta                                                                ┃
+                                                                                                                       ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) (no description set)
+│ ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+├─╯  (empty) beta commit
+◆  wwwwwwww root() hhhhhhhh
+
+
+```
+
+Delete the selected workspace. Closing its live session happens after the
+checkout is removed, so the one-shot tmux hook is the completion signal.
+
+    :k C-d
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S deleted-current-workspace" (success)
+    :k C-y
+    :t wait-for deleted-current-workspace (success)
+    :settle -d 2s (settled)
+
+The picker should remain usable without advertising the deleted repository as
+its current context.
+
+    :snap
+
+```terminal
+session: zeta
+  0/2 | [C-r] repo: none
+▌  zeta                                                                                                                ┃
+                                                                                                                       ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+```
+
+    :t has-session -t beta/zeta (failure)
+
+```
+can't find session: beta/zeta
+```
+
+    :$ sh -c 'test ! -e beta.zeta' (exit: 0)
+
+---
+vim: set ft=markdown:

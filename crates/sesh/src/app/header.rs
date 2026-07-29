@@ -66,7 +66,7 @@ impl<'r> Header<'r> {
         line += Span::raw(" repo: ");
 
         if let Some(repo) = self.repo {
-            push_repo_path_spans(&mut line, repo.source(), &mut Highlight::none());
+            push_repo_path_spans(&mut line, repo.path(), &mut Highlight::none());
             line += Span::raw(", ").dim();
             push_shortcut_span(&mut line, "C-o");
             line += Span::raw(" onto: ");

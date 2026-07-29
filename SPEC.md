@@ -33,7 +33,8 @@ The session switcher maintains the following state:
 - When the switcher is open, it remembers:
   - The currently selected repository (if any). Defaults to the closest
     containing jj repo root to the current working directory of the active tmux
-    pane.
+    pane, normalized to the recorded default workspace when that checkout
+    exists.
   - The currently selected `onto` revision, if there is a selected repository.
     Defaults to `trunk()`, and resets if the selected repository changes. The
     revision picker lists bookmarks (including `origin/*`) and a `trunk()` entry.
