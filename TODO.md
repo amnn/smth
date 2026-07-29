@@ -17,12 +17,6 @@
   (behind a configuration), and should detect whether the session is visible or
   not.
 
-## UI
-
-- [ ] Invert bg/fg colors for agent summary on selected row (selected rows are
-  inverted themselves, so this is how to get the color to "stay inside" the
-  glyph).
-
 ## README
 
 - [ ] README: Screenshot/animation

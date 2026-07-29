@@ -5,6 +5,7 @@
 
 use std::collections::BTreeMap;
 
+use ratatui::style::Color;
 use ratatui::style::Style;
 use ratatui::text::Line;
 use ratatui::text::Span;
@@ -21,8 +22,9 @@ const STATES: [AgentState; 5] = [
 
 /// Render a right-aligned lifecycle summary, or an empty line when no agents are tracked.
 ///
-/// States appear as waiting, failed, succeeded, running, then idle.
-pub(super) fn summary(summary: &BTreeMap<AgentState, usize>) -> Line<'static> {
+/// States appear as waiting, failed, succeeded, running, then idle. When `selected`, state colours
+/// are pre-inverted so the surrounding row inversion keeps them in the foreground.
+pub(super) fn summary(summary: &BTreeMap<AgentState, usize>, selected: bool) -> Line<'static> {
     let mut line = Line::default();
 
     let mut separator = " ";
@@ -41,7 +43,7 @@ pub(super) fn summary(summary: &BTreeMap<AgentState, usize>) -> Line<'static> {
             format!("{glyph} {count}")
         };
 
-        line += Span::styled(text, style(state));
+        line += Span::styled(text, style(state, selected));
     }
 
     if separator != " " {
@@ -66,13 +68,19 @@ fn glyph(state: AgentState) -> &'static str {
     }
 }
 
-/// Return the fixed style for an agent lifecycle state.
-fn style(state: AgentState) -> Style {
-    match state {
-        AgentState::Waiting => Style::new().light_yellow(),
-        AgentState::Failed => Style::new().light_red(),
-        AgentState::Succeeded => Style::new().light_green(),
-        AgentState::Running => Style::new().light_cyan(),
-        AgentState::Idle => Style::new(),
+/// Return a lifecycle-state style, pre-inverted when rendered on a selected row.
+fn style(state: AgentState, selected: bool) -> Style {
+    let colour = match state {
+        AgentState::Waiting => Color::LightYellow,
+        AgentState::Failed => Color::LightRed,
+        AgentState::Succeeded => Color::LightGreen,
+        AgentState::Running => Color::LightCyan,
+        AgentState::Idle => return Style::new(),
+    };
+
+    if selected {
+        Style::new().bg(colour)
+    } else {
+        Style::new().fg(colour)
     }
 }

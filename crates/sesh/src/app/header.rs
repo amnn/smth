@@ -102,6 +102,6 @@ impl<'r> Header<'r> {
         }
 
         f.render_widget(line, area);
-        f.render_widget(agent::summary(&self.agents), area);
+        f.render_widget(agent::summary(&self.agents, false), area);
     }
 }
