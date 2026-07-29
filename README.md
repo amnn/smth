@@ -30,7 +30,9 @@ bind S choose-tree -s
 
 The `-d "#{pane_current_path}"` option runs `sesh` from the pane that was active
 when you pressed `C-b s`, so the picker can pre-populate its current repository
-context from that pane's working directory.
+context from that pane's working directory. When that directory belongs to a
+named jj workspace, `sesh` uses the recorded default workspace as the repository
+context if its checkout still exists.
 
 If you want to surface additional repositories, add repository globs to your
 config:

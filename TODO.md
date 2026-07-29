@@ -5,7 +5,7 @@
 - [ ] Find a way to keep the session picker working even if the workspace is
   stale.
 
-- [ ] Repo handling after a deletion. Operations that require the repo seem to
+- [x] Repo handling after a deletion. Operations that require the repo seem to
   break after the current repo gets deleted.
 
 - [ ] Rename session
