@@ -88,7 +88,7 @@ tmux list-sessions -F '#{session_name}:#{session_last_attached}'
 - `-f`, `--filter` skips the UI and prints matches for the query from
   `--query`; combine it with `-1` to switch when there is exactly one match.
 
-### Agent lifecycle state
+### Agent lifecycle
 
 Agent harness integrations can publish lifecycle state for the tmux pane they
 run in:
@@ -135,6 +135,30 @@ bell. Succeeded agents remain attention-worthy because they should receive
 another prompt or exit. When switching to a session, `sesh` selects the first
 window with either a bell or agent attention before falling back to the
 session's ordinary target.
+
+#### Pi extension
+
+This repository is also a
+[Pi package](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/packages.md).
+After installing the `sesh` binary, install its Pi lifecycle extension directly
+from this repository:
+
+```sh
+pi install git:github.com/amnn/sesh
+```
+
+For local development, load the checkout without installing it:
+
+```sh
+pi -e ./extensions/pi/index.ts
+```
+
+The extension activates when Pi is running inside tmux. It publishes `idle`
+when the Pi session starts, `running` when an agent run starts, `succeeded` or
+`failed` once the run fully settles (after automatic retries, compaction, and
+queued follow-ups), and `exit` during session shutdown. Pi does not expose a
+generic lifecycle event for arbitrary prompts that block on user input, so the
+extension does not infer `waiting` state.
 
 ## Key bindings
 
