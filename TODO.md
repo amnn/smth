@@ -5,8 +5,6 @@
 - [ ] Find a way to keep the session picker working even if the workspace is
   stale.
 
-- [ ] Rename session
-
 ## Harnesses
 
 - [ ] Notification support

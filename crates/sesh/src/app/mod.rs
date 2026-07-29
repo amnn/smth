@@ -40,6 +40,7 @@ use crate::app::sessions::Sessions;
 use crate::app::sessions::preview;
 use crate::app::sessions::preview::Preview;
 use crate::cmd::jj;
+use crate::cmd::tmux;
 use crate::model::Model;
 use crate::model::session::Repo;
 use crate::model::session::Session;
@@ -58,6 +59,7 @@ pub struct App {
     spinner: spinner::State,
     model: Model,
     preview: preview::State,
+    rename: Option<Rename>,
     sessions: sessions::State,
 }
 
@@ -81,11 +83,14 @@ enum Action {
     /// Close the selected tmux session without deleting any attached workspace.
     Close(Session),
 
+    /// Create the selected session without switching to it.
+    Create(Session),
+
     /// Delete the selected session's attached workspace checkout, closing tmux if live.
     Delete(Session),
 
-    /// Create the selected session without switching to it.
-    Create(Session),
+    /// Rename the selected live tmux session.
+    Rename { current: String, new: String },
 
     /// Switch to the selected session, creating it first if needed.
     Switch(Session),
@@ -106,6 +111,12 @@ enum BackgroundOutcome {
     Exit,
 }
 
+/// In-progress rename of a live tmux session.
+struct Rename {
+    current: String,
+    new: String,
+}
+
 impl App {
     /// Create a new application.
     ///
@@ -123,6 +134,7 @@ impl App {
             spinner: spinner::State::new(),
             model,
             preview,
+            rename: None,
             sessions: sessions::State::new(select),
         }
     }
@@ -226,6 +238,15 @@ impl App {
                     session.toggle_flag().await?;
                     self.discover(ctx.globs).await?;
                 }
+
+                Some(Action::Rename { current, new }) => {
+                    tmux::rename_session(&current, &new).await?;
+                    self.model.clear_query();
+                    for ch in new.chars() {
+                        self.model.push_query(ch);
+                    }
+                    self.discover(ctx.globs).await?;
+                }
             }
         }
     }
@@ -267,7 +288,9 @@ impl App {
         let (status, snapshot, query) = self.model.refresh();
         let items: Vec<_> = snapshot.matched_items(..).collect();
 
-        let (label, query) = if let Some(onto) = &self.onto {
+        let (label, query) = if let Some(rename) = &self.rename {
+            ("rename", rename.new.as_str())
+        } else if let Some(onto) = &self.onto {
             ("onto", onto.query())
         } else {
             ("session", query)
@@ -344,6 +367,30 @@ impl App {
         let ctrl = key.modifiers.contains(CTRL);
         let shift = key.modifiers.contains(SHIFT);
 
+        if let Some(rename) = &mut self.rename {
+            match key.code {
+                KC::Enter => {
+                    let rename = self.rename.take()?;
+                    return Some(Action::Rename {
+                        current: rename.current,
+                        new: rename.new,
+                    });
+                }
+
+                KC::Esc => self.rename = None,
+                KC::Char('c' | 'g') if ctrl => self.rename = None,
+                KC::Backspace => {
+                    rename.new.pop();
+                }
+                KC::Char('u') if ctrl => rename.new.clear(),
+                KC::Char(c) if key.modifiers.is_empty() => rename.new.push(c),
+                KC::Char(c) if shift => rename.new.push(c),
+                _ => {}
+            }
+
+            return None;
+        }
+
         if self.sessions.is_deleting() {
             self.sessions.reset_delete();
 
@@ -396,6 +443,14 @@ impl App {
 
             KC::Char('f') if ctrl && !is_loading && self.sessions.can_flag() => {
                 return self.sessions.take_selected().map(Action::ToggleFlag);
+            }
+
+            KC::Char('e') if ctrl && !is_loading && self.sessions.is_live() => {
+                let current = self.sessions.selected()?.name();
+                self.rename = Some(Rename {
+                    new: current.clone(),
+                    current,
+                });
             }
 
             // Scroll preview

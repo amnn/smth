@@ -131,6 +131,9 @@ target. If no window needs attention, `sesh` uses the session's ordinary target.
   follows the "picking a session" flow above.
 - `C-x` will close the selected existing tmux session, then refresh discovered
   sessions while preserving the current query.
+- `C-e` will edit the selected live tmux session's current name. Enter accepts
+  the rename and refreshes discovered sessions without closing the picker;
+  Escape cancels it.
 - `C-d` will delete an existing session and/or workspace. If there is a
   session for this selection, it is closed in tmux. If the selection is tied
   to a real repository/workspace candidate, the workspace is forgotten in `jj`
