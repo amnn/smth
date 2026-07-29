@@ -10,6 +10,13 @@
 
 - [ ] Rename session
 
+## Harnesses
+
+- [ ] Notification support
+  Send a notification when a session needs attention. This should be optional
+  (behind a configuration), and should detect whether the session is visible or
+  not.
+
 ## UI
 
 - [ ] Invert bg/fg colors for agent summary on selected row (selected rows are
