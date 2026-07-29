@@ -168,6 +168,7 @@ all picker key bindings:
 | Key | Action |
 | --- | --- |
 | `C-d` | Delete the repository and close the session. |
+| `C-e` | Rename a live session. |
 | `C-f` | Flag or unflag a live session. |
 | `C-n` | Create the session if necessary without switching to it. |
 | `C-o` | Open or cancel the onto revision picker. |
@@ -180,8 +181,8 @@ all picker key bindings:
 | `M-up`, `M-down`, `M-k`, `M-j` | Move selection to the first or last row. |
 | `S-up`, `S-down` | Scroll the preview pane up or down. |
 | `tab`, `S-tab` | Jump between fuzzy matches in onto mode. |
-| `enter` | Accept the onto revision, or switch to the session, creating it if necessary. |
-| `esc`, `C-g`, `C-c` | Cancel onto mode, or close the UI. |
+| `enter` | Accept a rename or onto revision, or switch to the session, creating it if necessary. |
+| `esc`, `C-g`, `C-c` | Cancel rename or onto mode, or close the UI. |
 
 ## Configuration
 

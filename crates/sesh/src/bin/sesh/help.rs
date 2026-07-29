@@ -233,6 +233,7 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
 
     writeln!(w)?;
     w.def("C-d", "Delete the repository and close the session.")?;
+    w.def("C-e", "Rename a live session.")?;
     w.def("C-f", "Flag or unflag a live session.")?;
     w.def("C-n", "Create the session without switching to it.")?;
     w.def("C-o", "Open or cancel the onto revision picker.")?;
@@ -249,9 +250,12 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     w.def("tab, S-tab", "Jump between fuzzy matches in onto mode.")?;
     w.def(
         "enter",
-        "Accept the onto revision, or switch to the session, creating it if necessary.",
+        "Accept a rename or onto revision, or switch to the session, creating it if necessary.",
     )?;
-    w.def("esc, C-g, C-c", "Cancel onto mode, or close the UI.")?;
+    w.def(
+        "esc, C-g, C-c",
+        "Cancel rename or onto mode, or close the UI.",
+    )?;
 
     Ok(())
 }

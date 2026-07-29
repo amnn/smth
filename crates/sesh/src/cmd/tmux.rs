@@ -81,6 +81,24 @@ pub async fn new_session(session: &str, cwd: &Path) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Rename an existing tmux session.
+pub async fn rename_session(session: &str, new: &str) -> anyhow::Result<()> {
+    let target = format!("={session}");
+    let output = Command::new("tmux")
+        .args(["rename-session", "-t", &target, new])
+        .output()
+        .await
+        .context("failed to rename tmux session")?;
+
+    ensure!(
+        output.status.success(),
+        "error running 'tmux rename-session': {}",
+        String::from_utf8_lossy(&output.stderr),
+    );
+
+    Ok(())
+}
+
 /// Run a shell script in the context of a target pane.
 pub async fn run_shell(target: &str, cwd: &Path, script: &str) -> anyhow::Result<()> {
     let output = Command::new("tmux")

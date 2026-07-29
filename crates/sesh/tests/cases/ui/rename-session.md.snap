@@ -1,0 +1,65 @@
+---
+source: crates/sesh/tests/test.rs
+expression: output
+input_file: crates/sesh/tests/cases/ui/rename-session.md
+---
+# Rename session
+
+Under tmux 3.4, `C-e` should open a rename prompt for the selected live session
+with its current name available for editing.
+
+    :bins jj tmux cat
+
+> [!NOTE]
+> 'jj', 'tmux', and 'cat' are available.
+
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s alpha "cat" (success)
+    :t new-session -d -s ui "sesh; cat" (success)
+    :t resize-window -t ui:0 -x 100 -y 10 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+
+    :k alpha
+    :k C-e
+    :snap
+
+```terminal
+rename: alpha
+  1/3 | [C-r] repo: none | [C-x] close, [C-f] flag
+▌⬤ alpha                                                                                           ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+Accepting the edited name should keep the picker open and refresh its session
+list with the new name.
+
+    :t set-hook -g session-renamed "set-hook -gu session-renamed; wait-for -S renamed-session" (success)
+    :k C-u renamed Enter
+    :t wait-for renamed-session (success)
+    :settle -d 2s (settled)
+    :snap
+
+```terminal
+session: renamed
+  1/3 | [C-r] repo: none | [C-x] close, [C-f] flag
+▌⬤ renamed                                                                                         ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+    :t has-session -t renamed (success)
+
+---
+vim: set ft=markdown:
