@@ -23,6 +23,21 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
 
+  pi-extension:
+    name: Pi extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 22
+      - run: npm ci
+      - name: Check extension
+        run: npm run check
+      - name: Check package contents
+        run: npm pack --dry-run
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
