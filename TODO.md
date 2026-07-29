@@ -2,13 +2,6 @@
 
 ## Session and Repo Lifecycle
 
-- [x] Add `C-o` to pick the `onto` revision used for new workspaces.
-  - Label this as `onto:` in the header and user-facing text.
-  - Define revision resolution rules for mixed repo types.
-
-- [x] `C-n` to create a session without switching to it (and without closing
-  the picker).
-
 - [ ] Find a way to keep the session picker working even if the workspace is
   stale.
 
@@ -17,16 +10,11 @@
 
 - [ ] Rename session
 
-## Harnesses
+## UI
 
-- [x] Agent progress indicator -- `sesh` exposes commands that agents can call
-  to set their status (which in turn sets a tmux user option on the underlying
-  pane). Harness extensions call these commands to indicate when an agent is
-  idle, running, waiting for input, succeeded or failed. `sesh` displays this
-  information in the session list.
-  - [x] Add `sesh agent ACTION` to publish lifecycle state or clear it on exit.
-  - [x] Add harness integrations that publish lifecycle transitions.
-  - [x] Display published lifecycle state in the session list.
+- [ ] Invert bg/fg colors for agent summary on selected row (selected rows are
+  inverted themselves, so this is how to get the color to "stay inside" the
+  glyph).
 
 ## README
 
