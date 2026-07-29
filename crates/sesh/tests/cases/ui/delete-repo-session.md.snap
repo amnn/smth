@@ -1,5 +1,6 @@
 ---
 source: crates/sesh/tests/test.rs
+assertion_line: 76
 expression: output
 input_file: crates/sesh/tests/cases/ui/delete-repo-session.md
 ---
@@ -9,10 +10,10 @@ input_file: crates/sesh/tests/cases/ui/delete-repo-session.md
 there is no live tmux session to close. Confirming should forget the workspace
 and delete the workspace checkout.
 
-    :bins jj tmux cat sh test
+    :bins jj tmux cat sh sleep test
 
 > [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', and 'test' are available.
+> 'jj', 'tmux', 'cat', 'sh', 'sleep', and 'test' are available.
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 
@@ -30,11 +31,12 @@ Filter to the repo-only named workspace entry. The header should offer deletion
 even though the selected row has no live tmux sigil.
 
     :k feature
+    :k C-r
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
 session: feature
-  1/4 | [C-r] repo: none | [C-d] delete
+  1/4 | [C-r] repo: ~/beta.feature, [C-o] onto: trunk() | [C-d] delete
 ▌  beta/feature                             ~/beta.feature                                                             ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -55,7 +57,7 @@ Pressing `C-d` should mark the repo entry for deletion.
 
 ```terminal
 session: feature
-  1/4 | [C-r] repo: none | [C-y] confirm
+  1/4 | [C-r] repo: ~/beta.feature, [C-o] onto: trunk() | [C-y] confirm
 ▌× beta/feature                             ~/beta.feature                                                             ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -75,6 +77,7 @@ Confirming should leave the picker alive, forget the workspace, and remove the
 workspace checkout.
 
     :k C-y
+    :$ sh -c 'while test -e beta.feature; do sleep 0.05; done' (exit: 0)
     :settle -d 2s (settled)
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
@@ -101,6 +104,37 @@ default
 ```
 
     :t has-session -t ui (success)
+
+The deleted checkout should no longer be the current repo context. Creating a
+plain session should therefore inherit the picker's working directory and have
+no repo metadata.
+
+    :k C-u
+    :k zeta
+    :k C-n
+    :settle -d 2s (settled)
+    :snap
+
+```terminal
+session:
+  4/4 | [C-r] repo: none | [C-x] close, [C-f] flag
+                                                                                                                       ┃
+▌⬤ ui                                                                                                                  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+```
+
+    :t list-sessions -f '#{==:#{session_name},zeta}' -F '#{session_name}:#{@sesh.repo}' (success)
+
+```
+zeta:
+```
 
 ---
 vim: set ft=markdown:
