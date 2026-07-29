@@ -4,7 +4,7 @@
 there is no live tmux session to close. Confirming should forget the workspace
 and delete the workspace checkout.
 
-    :bins jj tmux cat sh test
+    :bins jj tmux cat sh sleep test
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml
 
@@ -22,6 +22,7 @@ Filter to the repo-only named workspace entry. The header should offer deletion
 even though the selected row has no live tmux sigil.
 
     :k feature
+    :k C-r
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Pressing `C-d` should mark the repo entry for deletion.
@@ -34,6 +35,7 @@ Confirming should leave the picker alive, forget the workspace, and remove the
 workspace checkout.
 
     :k C-y
+    :$ sh -c 'while test -e beta.feature; do sleep 0.05; done'
     :settle -d 2s
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
@@ -41,6 +43,18 @@ workspace checkout.
     :$ jj workspace list -R beta --ignore-working-copy --no-pager --color never --template 'name ++ "\n"'
 
     :t has-session -t ui
+
+The deleted checkout should no longer be the current repo context. Creating a
+plain session should therefore inherit the picker's working directory and have
+no repo metadata.
+
+    :k C-u
+    :k zeta
+    :k C-n
+    :settle -d 2s
+    :snap
+
+    :t list-sessions -f '#{==:#{session_name},zeta}' -F '#{session_name}:#{@sesh.repo}'
 
 ---
 vim: set ft=markdown:

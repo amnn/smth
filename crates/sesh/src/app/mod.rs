@@ -51,7 +51,7 @@ const POLL_TIMEOUT: Duration = Duration::from_millis(16);
 /// Session picker state, caches, and UI behavior.
 pub struct App {
     /// Active background activity, including a completed result awaiting handling.
-    bg: Option<activity::State<bool>>,
+    bg: Option<activity::State<BackgroundOutcome>>,
 
     onto: Option<onto::State>,
     repo: Option<Repo>,
@@ -94,6 +94,18 @@ enum Action {
     ToggleFlag(Session),
 }
 
+/// State change produced by a completed background activity.
+enum BackgroundOutcome {
+    /// Refresh the picker and continue running.
+    Continue,
+
+    /// Refresh the picker after deleting a repository checkout.
+    Deleted(PathBuf),
+
+    /// Exit the picker after switching sessions.
+    Exit,
+}
+
 impl App {
     /// Create a new application.
     ///
@@ -125,8 +137,19 @@ impl App {
 
             match self.poll_bg() {
                 Some(Err(err)) => return Err(err),
-                Some(Ok(true)) => return Ok(()),
-                Some(Ok(false)) => {
+                Some(Ok(BackgroundOutcome::Exit)) => return Ok(()),
+                Some(Ok(BackgroundOutcome::Deleted(repo))) => {
+                    if self
+                        .repo
+                        .as_ref()
+                        .is_some_and(|current| current.source() == repo)
+                    {
+                        self.repo = None;
+                    }
+                    self.discover(ctx.globs).await?;
+                    continue;
+                }
+                Some(Ok(BackgroundOutcome::Continue)) => {
                     self.discover(ctx.globs).await?;
                     continue;
                 }
@@ -162,14 +185,18 @@ impl App {
                         .and_then(|repo| self.model.workspace_name(repo))
                         .map(str::to_owned);
 
-                    self.bg = Some(activity::State::new(
-                        Span::raw("deleting").light_red(),
-                        async move {
-                            delete(repo, workspace).await?;
-                            session.close().await?;
-                            Ok(false)
-                        },
-                    ));
+                    self.bg =
+                        Some(activity::State::new(
+                            Span::raw("deleting").light_red(),
+                            async move {
+                                delete(repo.clone(), workspace).await?;
+                                session.close().await?;
+                                Ok(repo.map_or(
+                                    BackgroundOutcome::Continue,
+                                    BackgroundOutcome::Deleted,
+                                ))
+                            },
+                        ));
                 }
 
                 Some(Action::Create(session)) => {
@@ -181,7 +208,7 @@ impl App {
 
                     self.bg = Some(activity::State::new(Span::raw("creating"), async move {
                         session.create(&cwd, &setup).await?;
-                        Ok(false)
+                        Ok(BackgroundOutcome::Continue)
                     }));
                 }
 
@@ -191,7 +218,7 @@ impl App {
 
                     self.bg = Some(activity::State::new(Span::raw("switching"), async move {
                         session.switch(&cwd, &setup).await?;
-                        Ok(true)
+                        Ok(BackgroundOutcome::Exit)
                     }));
                 }
 
@@ -436,8 +463,8 @@ impl App {
         None
     }
 
-    /// Take a completed background result, where `true` indicates that the picker should exit.
-    fn poll_bg(&mut self) -> Option<anyhow::Result<bool>> {
+    /// Take a completed background activity outcome.
+    fn poll_bg(&mut self) -> Option<anyhow::Result<BackgroundOutcome>> {
         let result = self.bg.as_mut()?.take()?;
         self.bg = None;
         Some(result)
