@@ -28,6 +28,8 @@ pub const DEFAULT_WORKSPACE: &str = "default";
 static INITIAL_CWD: LazyLock<Option<PathBuf>> = LazyLock::new(|| env::current_dir().ok());
 
 /// Create a new workspace in `destination`, named `name`, with working copy based on `revision`.
+///
+/// A stale source working copy is automatically updated as part of this operation.
 pub async fn add_workspace(
     repo: &Path,
     destination: &Path,
@@ -38,6 +40,7 @@ pub async fn add_workspace(
         .args(["workspace", "add"])
         .arg("-R")
         .arg(repo)
+        .args(["--config", "snapshot.auto-update-stale=true"])
         .arg("--name")
         .arg(name)
         .arg("--revision")
