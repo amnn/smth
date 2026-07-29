@@ -45,11 +45,13 @@ live-session pips.
     :settle
     :snap --color
 
-Filter to one session. The header summary should continue to aggregate agents
-across every session while the row shows only that session's agents.
+Filter to a session with successful agent responses. The header summary should
+continue to aggregate agents across every session while the selected row shows
+only that session's agents. In the linked colour snapshots, the success glyph
+should remain green without creating a green background cell.
 
-    :k waiting
-    :snap
+    :k succeeded
+    :snap --color
 
 ---
 vim: set ft=markdown:

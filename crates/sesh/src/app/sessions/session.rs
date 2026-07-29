@@ -41,7 +41,7 @@ pub(super) fn row(
 
     let row = Row::new(line);
     let row = if let Some(agents) = session.agents() {
-        row.with_overlay(agent::summary(agents))
+        row.with_overlay(agent::summary(agents, highlighted))
     } else {
         row
     };

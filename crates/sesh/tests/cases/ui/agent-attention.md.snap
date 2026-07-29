@@ -71,16 +71,18 @@ session:                                                                        
 ![light](agent-attention.md.snap.1.light.svg)
 ![dark](agent-attention.md.snap.1.dark.svg)
 
-Filter to one session. The header summary should continue to aggregate agents
-across every session while the row shows only that session's agents.
+Filter to a session with successful agent responses. The header summary should
+continue to aggregate agents across every session while the selected row shows
+only that session's agents. In the linked colour snapshots, the success glyph
+should remain green without creating a green background cell.
 
-    :k waiting
-    :snap
+    :k succeeded
+    :snap --color
 
 ```terminal
-session: waiting                                                                                   ┃
-  1/7 | [C-r] repo: none | [C-x] close, [C-f] flag                         ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
-▌⬤ waiting                                                                                 ⏸ · ▶ 2 ┃
+session: succeeded                                                                                 ┃
+  1/7 | [C-r] repo: none | [C-x] close, [C-f] unflag                       ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
+▌⬤ succeeded                                                                               ✔ 2 · ○ ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -91,6 +93,9 @@ session: waiting                                                                
                                                                                                    ┃
                                                                                                    ┃
 ```
+
+![light](agent-attention.md.snap.2.light.svg)
+![dark](agent-attention.md.snap.2.dark.svg)
 
 ---
 vim: set ft=markdown:
