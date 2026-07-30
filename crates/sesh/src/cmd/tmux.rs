@@ -17,6 +17,30 @@ use which::which;
 
 use crate::model::agent::AgentState;
 
+/// One eligible interactive tmux client and the pane it currently displays.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ClientInfo {
+    /// Tmux's last-activity timestamp for this client, not for its displayed pane.
+    pub activity: u64,
+
+    /// Pane currently displayed by the client.
+    pub pane: String,
+
+    /// TTY connecting tmux to the outer terminal.
+    pub tty: String,
+
+    /// True exactly when the terminal supports focus reporting, tmux focus events are enabled,
+    /// and the client flags do not contain `focused`.
+    pub unfocussed: bool,
+}
+
+/// All eligible interactive tmux clients captured from one query.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ClientSnapshot {
+    /// Eligible clients, excluding control, suspended, and tty-less clients.
+    pub clients: Vec<ClientInfo>,
+}
+
 /// Metadata for a live tmux session.
 #[derive(Debug)]
 pub struct SessionInfo {
@@ -37,6 +61,54 @@ pub struct SessionInfo {
 
     /// Optional jj repository attached to the session.
     pub repo: Option<PathBuf>,
+}
+
+/// Query eligible tmux clients and their derived focus state.
+pub async fn client_snapshot() -> anyhow::Result<ClientSnapshot> {
+    let format = concat!(
+        "#{client_activity}\t#{client_control_mode}\t#{client_flags}\t",
+        "#{client_termfeatures}\t#{focus-events}\t#{client_tty}\t#{pane_id}",
+    );
+
+    let output = Command::new("tmux")
+        .args(["list-clients", "-F", format])
+        .output()
+        .await
+        .context("failed to discover tmux clients")?;
+
+    ensure!(
+        output.status.success(),
+        "error running 'tmux list-clients': {}",
+        String::from_utf8_lossy(&output.stderr),
+    );
+
+    let clients = String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .filter_map(|line| {
+            let fields: Vec<_> = line.splitn(7, '\t').collect();
+            let [activity, control, flags, features, focus_events, tty, pane] = fields[..] else {
+                return None;
+            };
+
+            let flags: BTreeSet<_> = flags.split(',').collect();
+            let tty = tty.trim();
+            if control.trim() == "1" || flags.contains("suspended") || tty.is_empty() {
+                return None;
+            }
+
+            let supports_focus = features.split(',').any(|feature| feature == "focus");
+            Some(ClientInfo {
+                activity: activity.trim().parse().unwrap_or_default(),
+                pane: pane.trim().to_owned(),
+                tty: tty.to_owned(),
+                unfocussed: supports_focus
+                    && is_flag_set(focus_events)
+                    && !flags.contains("focused"),
+            })
+        })
+        .collect();
+
+    Ok(ClientSnapshot { clients })
 }
 
 /// Validate that `tmux` is available on `$PATH`.
@@ -79,6 +151,25 @@ pub async fn new_session(session: &str, cwd: &Path) -> anyhow::Result<()> {
     );
 
     Ok(())
+}
+
+/// Read a tmux user option from one pane.
+pub async fn pane_option(pane: &str, option: &str) -> anyhow::Result<Option<String>> {
+    let output = Command::new("tmux")
+        .args(["show-options", "-p", "-qv", "-t", pane, option])
+        .output()
+        .await
+        .context("failed to read tmux pane option")?;
+
+    ensure!(
+        output.status.success(),
+        "error running 'tmux show-options -p': {}",
+        String::from_utf8_lossy(&output.stderr),
+    );
+
+    let value = String::from_utf8_lossy(&output.stdout);
+    let value = value.trim();
+    Ok((!value.is_empty()).then(|| value.to_owned()))
 }
 
 /// Run a shell script in the context of a target pane.
@@ -244,6 +335,26 @@ pub async fn set_pane_option<V: AsRef<OsStr> + ?Sized>(
     );
 
     Ok(())
+}
+
+/// Return the active tmux server socket path.
+pub async fn socket_path() -> anyhow::Result<String> {
+    let output = Command::new("tmux")
+        .args(["display-message", "-p", "#{socket_path}"])
+        .output()
+        .await
+        .context("failed to discover tmux socket path")?;
+
+    ensure!(
+        output.status.success(),
+        "error running 'tmux display-message': {}",
+        String::from_utf8_lossy(&output.stderr),
+    );
+
+    let socket = String::from_utf8_lossy(&output.stdout);
+    let socket = socket.trim();
+    ensure!(!socket.is_empty(), "tmux returned an empty socket path");
+    Ok(socket.to_owned())
 }
 
 /// Switch the current tmux client to an existing session.

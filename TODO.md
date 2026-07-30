@@ -12,7 +12,7 @@
 
 ## Harnesses
 
-- [ ] Notification support
+- [x] Notification support
   Send a notification when a session needs attention. This should be optional
   (behind a configuration), and should detect whether the session is visible or
   not.

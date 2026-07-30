@@ -13,8 +13,19 @@ use anyhow::Context as _;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::cmd::custom::Cmd;
+
 /// The relative config file path below the `sesh` config root.
 pub const PATH: &str = "sesh.toml";
+
+/// Configuration for desktop notification delivery.
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(default)]
+pub struct NotificationConfig {
+    /// Recursively evaluated command arguments, with the root executed directly without a shell.
+    /// An empty command disables notifications.
+    pub command: Vec<Cmd>,
+}
 
 /// Configuration for discovering repositories.
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
@@ -28,6 +39,9 @@ pub struct RepoConfig {
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(default)]
 pub struct SeshConfig {
+    /// Configuration for desktop notification delivery.
+    pub notification: NotificationConfig,
+
     /// Configuration for discovering repositories.
     pub repo: RepoConfig,
 
@@ -52,6 +66,13 @@ pub struct TmuxConfig {
 pub struct UiConfig {
     /// Character used to mark live tmux sessions in the picker.
     pub sigil: char,
+}
+
+impl NotificationConfig {
+    /// Whether notification delivery has a configured command.
+    pub fn enabled(&self) -> bool {
+        !self.command.is_empty()
+    }
 }
 
 impl SeshConfig {

@@ -14,6 +14,11 @@ supports opening new sessions:
 The switcher is configured via a configuration file at
 `~/.config/sesh/sesh.toml`, containing the following properties:
 
+- `notification.command`: A root argument array executed directly. Supplying a
+  non-empty command enables notifications; omitting it disables them. Nested
+  arrays are recursively evaluated depth-first and POSIX-shell-joined into one
+  parent argument. Command strings interpolate `{message}`, `{pane}`, `{socket}`,
+  `{state}`, `{title}`, and `{tty}`.
 - `repo.globs`: A list of glob patterns to locate jj repositories. These stack
   with repository globs supplied on the command line. A leading `~` path
   component expands to the user's home directory.
@@ -44,7 +49,8 @@ The session switcher maintains the following state:
     existing sessions.
 - Agent harnesses can publish idle, running, waiting, succeeded, or failed
   lifecycle state on their tmux pane. Multiple panes in one session contribute
-  independently to that session's state.
+  independently to that session's state. A state update may include a one-shot
+  notification title and summary, which are not persisted in tmux metadata.
 
 ## UX
 The session switcher opens a tmux pop-over when a tmux kebinding is pressed.
@@ -95,6 +101,29 @@ at its right edge rather than reserving layout width.
 A live session's existing attention pip is active when a window has a bell
 alert or an agent is waiting, failed, or succeeded. This attention styling
 retains the existing precedence over manual flag styling.
+
+### Agent Notifications
+
+When a notification command is configured, an agent notifies only when crossing
+from a non-attention state into waiting, succeeded, or failed. Repeated attention
+states and transitions between attention states do not notify. State metadata
+is published before notification discovery or delivery, and all notification
+failures are ignored.
+
+A client is categorically unfocused only when its terminal advertises focus
+reporting, tmux focus events are enabled, and the client lacks tmux's `focused`
+flag. Otherwise, its displayed pane conservatively counts as focused.
+Control-mode, suspended, and tty-less clients are ignored. If delivery proceeds,
+`sesh` selects the most recently active client from the first available group:
+clients displaying the agent pane, clients not categorically unfocused, then all
+eligible clients. Delivery may proceed without a client.
+
+The command root runs directly as an argument vector. Each nested array is
+evaluated recursively and shell-joined as one argument at its parent depth.
+Interpolation occurs once before shell joining. Titles and summaries collapse
+Unicode whitespace, NUL, and ESC into space separators, preserve other
+non-whitespace control characters, and are truncated safely. Configured command
+execution is bounded and best-effort.
 
 ### Session Names and Metadata
 The switcher represents sessions by their name and metadata.

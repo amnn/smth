@@ -34,14 +34,14 @@ running
 waiting
 ```
 
-    :$ sesh agent succeeded (exit: 0)
+    :$ sesh agent succeeded --title "release ready" --summary "ready now" (exit: 0)
     :t show-options -pqv @sesh.agent.state (success)
 
 ```
 succeeded
 ```
 
-    :$ sesh agent failed (exit: 0)
+    :$ sesh agent failed --title -still-titled --summary -still-safe (exit: 0)
     :t show-options -pqv @sesh.agent.state (success)
 
 ```

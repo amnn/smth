@@ -101,6 +101,12 @@ let x = (..1).collect::<..2>(); -> let x: ..2 = (..1).collect();
 
 It's okay to use the turbofish in circumstances where the type cannot be
 inferred and there is not a binding that a type annotation can be attached to.
+It is also okay when collecting into a `Result`, so `?` can be applied directly
+without introducing a typed intermediate binding and then shadowing it:
+
+```rust
+let values = iter.collect::<anyhow::Result<Vec<_>>>()?;
+```
 
 ### Strings
 
