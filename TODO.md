@@ -2,8 +2,8 @@
 
 ## Session and Repo Lifecycle
 
-- [ ] Find a way to keep the session picker working even if the workspace is
-  stale.
+- [x] Keep the session picker working when the current workspace is stale by
+  automatically updating it during workspace creation.
 
 - [x] Repo handling after a deletion. Operations that require the repo seem to
   break after the current repo gets deleted.
