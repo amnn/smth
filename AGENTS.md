@@ -75,6 +75,11 @@ command construction and process execution belong in
 operation, but the binary-specific modules should abstract how that operation
 is performed.
 
+For Pi extension metadata that belongs to a Pi session rather than a tmux pane,
+persist a custom session entry with `pi.appendEntry` and restore it from
+`sessionManager.getEntries`. Keep notification title and summary normalization
+in `sesh`; harness extensions should pass those values through unchanged.
+
 Keep `model` modules free of ratatui widgets and other concrete view types.
 Session-specific rendering belongs in `app::sessions`, while generic reusable
 widgets belong in `app::component`.
