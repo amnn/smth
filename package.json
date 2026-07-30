@@ -19,6 +19,7 @@
   ],
   "files": [
     "extensions/pi/index.ts",
+    "extensions/pi/title.ts",
     "LICENSE.md"
   ],
   "engines": {
