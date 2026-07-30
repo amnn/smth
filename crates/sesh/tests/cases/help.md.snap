@@ -35,7 +35,7 @@ The agent command help should describe the exit action and every lifecycle state
 ```stdout
 Publish agent lifecycle state on the current tmux pane
 
-Usage: sesh agent <ACTION>
+Usage: sesh agent [OPTIONS] <ACTION>
 
 Arguments:
   <ACTION>
@@ -52,6 +52,12 @@ Arguments:
 Options:
   -h, --help
           Print help
+
+      --title <TEXT>
+          Optional one-shot title for a notification triggered by this transition
+
+      --summary <TEXT>
+          Optional one-shot summary for a notification triggered by this transition
 ```
 
 The complete help output should include detailed key binding and configuration sections.
@@ -121,6 +127,15 @@ Configuration:
   The config file is TOML. It is optional; when no file is present, sesh uses
   the built-in defaults.
 
+  notification.command  
+                    Command arguments run when an unfocused agent newly enters
+                    waiting, succeeded, or failed state. An empty command
+                    disables notifications. Delivery failures never fail state
+                    publication. The root array executes directly. A nested
+                    array is evaluated depth-first, POSIX-shell-joined, and
+                    passed to its parent as one argument. Strings interpolate
+                    {message}, {pane}, {socket}, {state}, {title}, and {tty}
+                    variables.
   repo.globs        Glob patterns for jj repositories to surface alongside
                     existing tmux sessions. These stack with any --repo command-
                     line globs. A leading ~ path component expands to the user's
@@ -134,6 +149,18 @@ Configuration:
 Example:
   Below is an example configuration that makes use of every available
   configuration field.
+
+  [notification]
+  command = [
+    "terminal-notifier",
+    "-title", "{title}",
+    "-message", "{message}",
+    "-group", "sesh:{pane}",
+    "-execute", [
+      "/Users/me/.config/sesh/focus-pane",
+      "{socket}", "{tty}", "{pane}",
+    ],
+  ]
 
   [repo]
   globs = [

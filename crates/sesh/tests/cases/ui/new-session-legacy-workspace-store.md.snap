@@ -67,9 +67,9 @@ runner:
     :$ sh -c 'jj workspace list -R beta.zeta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"' (exit: 0)
 
 ```stdout
-default	<Error: Workspace has no recorded path: default>
+default	
 omega	beta.zeta.omega
-zeta	<Error: Workspace has no recorded path: zeta>
+zeta	
 ```
 
 ---

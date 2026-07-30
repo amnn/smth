@@ -99,12 +99,13 @@ async fn main() -> anyhow::Result<ExitCode> {
         return Ok(ExitCode::SUCCESS);
     }
 
+    let config = SeshConfig::load(args.config.as_deref())?;
+
     if let Some(Command::Agent(args)) = args.command {
-        args.run().await?;
+        args.run(&config.notification).await?;
         return Ok(ExitCode::SUCCESS);
     }
 
-    let config = SeshConfig::load(args.config.as_deref())?;
     let mut globs = config.repo.globs.clone();
     globs.extend(args.repos);
 

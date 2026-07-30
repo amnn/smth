@@ -179,6 +179,15 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     writeln!(w)?;
 
     w.def(
+        "notification.command",
+        "Command arguments run when an unfocused agent newly enters waiting, succeeded, or failed \
+         state. An empty command disables notifications. Delivery failures never fail state \
+         publication. The root array executes directly. A nested array is evaluated depth-first, \
+         POSIX-shell-joined, and passed to its parent as one argument. Strings interpolate \
+         {message}, {pane}, {socket}, {state}, {title}, and {tty} variables.",
+    )?;
+
+    w.def(
         "repo.globs",
         "Glob patterns for jj repositories to surface alongside existing tmux sessions. These \
          stack with any --repo command-line globs. A leading ~ path component expands to the \
@@ -207,6 +216,18 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     writeln!(w)?;
     writeln!(w)?;
     w.code(|out| {
+        writeln!(out, "  [notification]")?;
+        writeln!(out, "  command = [")?;
+        writeln!(out, "    \"terminal-notifier\",")?;
+        writeln!(out, "    \"-title\", \"{{title}}\",")?;
+        writeln!(out, "    \"-message\", \"{{message}}\",")?;
+        writeln!(out, "    \"-group\", \"sesh:{{pane}}\",")?;
+        writeln!(out, "    \"-execute\", [")?;
+        writeln!(out, "      \"/Users/me/.config/sesh/focus-pane\",")?;
+        writeln!(out, "      \"{{socket}}\", \"{{tty}}\", \"{{pane}}\",")?;
+        writeln!(out, "    ],")?;
+        writeln!(out, "  ]")?;
+        writeln!(out)?;
         writeln!(out, "  [repo]")?;
         writeln!(out, "  globs = [")?;
         writeln!(out, "    \"~/Code/*\",")?;

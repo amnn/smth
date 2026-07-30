@@ -20,6 +20,7 @@ once_cell.workspace = true
 ratatui.workspace = true
 regex.workspace = true
 serde.workspace = true
+shlex.workspace = true
 textwrap.workspace = true
 tokio.workspace = true
 tokio-util.workspace = true

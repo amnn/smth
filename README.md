@@ -98,7 +98,9 @@ run in:
 ```sh
 sesh agent idle
 sesh agent running
-sesh agent succeeded
+sesh agent succeeded \
+  --title "Implement notifications" \
+  --summary "Implemented the requested change"
 sesh agent exit
 ```
 
@@ -106,6 +108,9 @@ Harnesses can publish `idle`, `running`, `waiting`, `succeeded`, or `failed`.
 These states cover a ready harness, an active run, a run waiting for user input,
 and the two terminal outcomes of a settled run. `exit` stops tracking the agent
 and removes its state.
+
+`--title TEXT` and `--summary TEXT` supply one-shot notification text for that
+transition. Neither is persisted in tmux metadata.
 
 `sesh agent` writes the state to the `@sesh.agent.state` user option on the
 invoking pane, selected through `$TMUX_PANE`. The value remains until the next
@@ -138,6 +143,48 @@ another prompt or exit. When switching to a session, `sesh` selects the first
 window with either a bell or agent attention before falling back to the
 session's ordinary target.
 
+#### Desktop notifications
+
+Desktop notification delivery is optional and disabled unless a non-empty
+`notification.command` is configured. When configured, `sesh agent` runs that
+command when an agent newly enters `waiting`, `succeeded`, or `failed` and no
+eligible tmux client has that pane focused.
+Moving between attention-worthy states does not notify again; the agent must
+first return to `idle` or `running`.
+
+On macOS, [`terminal-notifier`](https://github.com/julienXX/terminal-notifier)
+can be installed to turn this command invocation into a notification:
+
+```sh
+brew install terminal-notifier
+```
+
+`sesh` is then configured to call it as follows:
+
+```toml
+[notification]
+command = [
+  "terminal-notifier",
+  "-title", "{title}",
+  "-message", "{message}",
+  "-group", "sesh:{pane}",
+  "-execute", [
+    "/Users/me/.config/sesh/focus.sh",
+    "{socket}",
+    "{tty}",
+    "{pane}",
+  ],
+]
+```
+
+The `-execute` section controls what happens when the user clicks the
+notification. In the example, a `focus.sh` script is run passing the tmux
+socket, preferred client TTY and target pane.
+
+Grouping by pane replaces an older notification when that pane needs attention
+again. Notification delivery is best-effort and never makes a state update
+fail.
+
 #### Pi extension
 
 This repository is also a
@@ -158,9 +205,13 @@ pi -e ./extensions/pi/index.ts
 The extension activates when Pi is running inside tmux. It publishes `idle`
 when the Pi session starts, `running` when an agent run starts, `succeeded` or
 `failed` once the run fully settles (after automatic retries, compaction, and
-queued follow-ups), and `exit` during session shutdown. Pi does not expose a
-generic lifecycle event for arbitrary prompts that block on user input, so the
-extension does not infer `waiting` state.
+queued follow-ups), and `exit` during session shutdown. Settled updates include
+a bounded summary of the final assistant text. The extension also asks the
+configured model for a short title based on the first user message and stores
+it as private extension data in Pi's session tree. An explicitly assigned Pi
+session name always takes precedence over that generated title when notifying.
+Pi does not expose a generic lifecycle event for arbitrary prompts that block
+on user input, so the extension does not infer `waiting` state.
 
 ## Key bindings
 
@@ -191,9 +242,12 @@ all picker key bindings:
 `~/.config/sesh/sesh.toml` when `$XDG_CONFIG_HOME` is unset. You can also pass
 an explicit config file with `--config PATH`.
 
-The config file is optional. The default configuration has no repository globs,
-does not run any extra setup after creating a tmux session, and uses `⬤` to
-mark live tmux sessions in the picker.
+The config file is optional. The default configuration has no notification
+command or repository globs, does not run any extra setup after creating a tmux
+session, and uses `⬤` to mark live tmux sessions in the picker.
+
+Use `[notification].command` to enable and configure desktop notifications as
+described in [Desktop notifications](#desktop-notifications).
 
 Use `[repo].globs` to surface jj repositories alongside existing tmux sessions.
 These stack with any `--repo`/`-r` globs supplied on the command line.
@@ -206,6 +260,14 @@ Use `[ui].sigil` to choose the single character that marks live tmux sessions in
 the picker:
 
 ```toml
+[notification]
+command = [
+  "terminal-notifier",
+  "-title", "{title}",
+  "-message", "{message}",
+  "-group", "sesh:{pane}",
+]
+
 [repo]
 globs = [
   "~/Code/*",

@@ -1653,6 +1653,7 @@ dependencies = [
  "regex",
  "serde",
  "sesh-integration-tests",
+ "shlex",
  "telemetry-subscribers",
  "tempfile",
  "textwrap",

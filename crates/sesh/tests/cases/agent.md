@@ -14,10 +14,10 @@ invoking tmux pane's `@sesh.agent.state` user option.
     :$ sesh agent waiting
     :t show-options -pqv @sesh.agent.state
 
-    :$ sesh agent succeeded
+    :$ sesh agent succeeded --title "release ready" --summary "ready now"
     :t show-options -pqv @sesh.agent.state
 
-    :$ sesh agent failed
+    :$ sesh agent failed --title -still-titled --summary -still-safe
     :t show-options -pqv @sesh.agent.state
 
 The command should target `$TMUX_PANE`, even when it identifies a pane other
