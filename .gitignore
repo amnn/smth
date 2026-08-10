@@ -1,2 +1,9 @@
-/node_modules
+node_modules/
 /target
+
+# This project uses pnpm; do not commit lockfiles from other package managers.
+package-lock.json
+npm-shrinkwrap.json
+yarn.lock
+bun.lock
+bun.lockb

@@ -196,11 +196,22 @@ from this repository:
 pi install git:github.com/amnn/sesh
 ```
 
-For local development, load the checkout without installing it:
+The Pi package is isolated under `extensions/pi`. For local development, load
+that workspace package without installing it:
 
 ```sh
-pi -e ./extensions/pi/index.ts
+pi -e ./extensions/pi
 ```
+
+Validate the extension package from the repository root with:
+
+```sh
+pnpm install
+pnpm check
+```
+
+The full check verifies formatting, type-checks the package, runs its tests,
+smoke-tests extension loading without a model request, and audits dependencies.
 
 The extension activates when Pi is running inside tmux. It publishes `idle`
 when the Pi session starts, `running` when an agent run starts, `succeeded` or

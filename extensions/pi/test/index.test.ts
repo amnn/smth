@@ -11,8 +11,8 @@ import type {
   SessionEntry,
 } from "@earendil-works/pi-coding-agent";
 
-import extension, { outcome } from "./index.ts";
-import { deserializeTitle } from "./title.ts";
+import extension, { outcome } from "../index.ts";
+import { deserializeTitle } from "../src/title.ts";
 
 interface TestEvent {
   messages?: AgentEndEvent["messages"];
