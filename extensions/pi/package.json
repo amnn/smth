@@ -1,0 +1,48 @@
+{
+  "name": "pi-sesh",
+  "version": "0.1.0",
+  "description": "Pi agent lifecycle integration for the sesh tmux session switcher",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Ashok Menon",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amnn/sesh.git",
+    "directory": "extensions/pi"
+  },
+  "homepage": "https://github.com/amnn/sesh#agent-lifecycle-state",
+  "bugs": "https://github.com/amnn/sesh/issues",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "tmux",
+    "coding-agent"
+  ],
+  "files": [
+    "index.ts",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "smoke": "pi --offline --no-extensions -e . --list-models __pi_package_smoke__ && pnpm run smoke:repository",
+    "smoke:repository": "pi --offline --no-extensions -e ../.. --list-models __pi_repository_smoke__",
+    "prepublishOnly": "pnpm --workspace-root check"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.1"
+  }
+}
