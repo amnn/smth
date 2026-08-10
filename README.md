@@ -210,8 +210,9 @@ a bounded summary of the final assistant text. The extension also asks the
 configured model for a short title based on the first user message and stores
 it as private extension data in Pi's session tree. An explicitly assigned Pi
 session name always takes precedence over that generated title when notifying.
-Pi does not expose a generic lifecycle event for arbitrary prompts that block
-on user input, so the extension does not infer `waiting` state.
+Notification titles use `pi · TITLE`, or just `pi` when no other title is
+available. Pi does not expose a generic lifecycle event for arbitrary prompts
+that block on user input, so the extension does not infer `waiting` state.
 
 ## Key bindings
 

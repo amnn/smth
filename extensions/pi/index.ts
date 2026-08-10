@@ -87,7 +87,7 @@ export default function (pi: ExtensionAPI): void {
       const args = ["agent", outcome.state];
       const t = pi.getSessionName() ?? title;
 
-      if (t) args.push("--title", t);
+      args.push("--title", t ? `pi · ${t}` : "pi");
       if (outcome.summary) args.push("--summary", outcome.summary);
 
       const result = await pi.exec("sesh", args, {
