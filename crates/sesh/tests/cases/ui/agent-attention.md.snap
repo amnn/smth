@@ -47,7 +47,7 @@ attention should retain the existing attention-over-flag precedence.
 
 Hide the preview so every session is visible in one snapshot. The linked colour
 snapshots distinguish lifecycle states and attention, flag, and ordinary
-live-session pips.
+live-session pips. Status indicators and counts should remain undimmed.
 
     :k C-p
     :settle (settled)
@@ -74,7 +74,7 @@ session:                                                                        
 Filter to a session with successful agent responses. The header summary should
 continue to aggregate agents across every session while the selected row shows
 only that session's agents. In the linked colour snapshots, the success glyph
-should remain green without creating a green background cell.
+should remain bright green without creating a green background cell.
 
     :k succeeded
     :snap --color
