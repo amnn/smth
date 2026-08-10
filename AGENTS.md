@@ -1,14 +1,28 @@
 ## Validation
 
-Once you are happy with a solution, run the `nits` subagent to validate and
-auto-fix style issues so the solution meets [code style guidelines](./STYLE.md).
+When the current task changes relevant hand-authored files, run the shared
+`nits` skill once before final validation. Scope it to files edited for the
+current user task; do not run a whole-codebase check unless explicitly asked.
 
-Use a fix-first invocation: `@nits Fix style issues in-place; do not only
-suggest changes. Report unresolved items with reasons.`
+The skill reuses a cached `style-guide` clustering when available, or invokes
+`style-guide` once to build it. It assigns applicable rule packs to read-only
+`check-nits` subagents, verifies coverage, and lets the parent apply accepted
+fixes once. Do not invoke `check-nits` directly as a fixer.
 
-> [!IMPORTANT]
-> Invoke it as a subagent (`@nits`), not as a shell command -- **there is no
-> `nits` binary**.
+Skip this workflow when no relevant files changed. There is no `nits` shell
+binary.
+
+After the nits workflow, run final validation appropriate to the task:
+
+- For Rust source or Cargo manifest changes, run `cargo fmt --all -- --check`
+  and `cargo clippy --workspace --all-targets --locked -- -D warnings`.
+- For behavioral or test changes, run the smallest relevant
+  `cargo nextest run ...` command. Use
+  `cargo nextest run --workspace --locked --retries 2 --no-fail-fast` only
+  when the task scope warrants the full workspace suite.
+- For documentation or agent-workflow-only changes, run targeted structural or
+  parsing checks instead of the Rust toolchain solely because a hand-authored
+  file changed.
 
 When validating multiple Rust tests, avoid parallel `cargo test` invocations:
 they contend on Cargo's package and build locks. Prefer a single `cargo
