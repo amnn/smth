@@ -240,27 +240,27 @@ test("publishes the Pi lifecycle and waits for the final settled outcome", async
     ]);
 
     assert.deepEqual(harness.calls, [
-      ["agent", "idle"],
-      ["agent", "running"],
-      ["agent", "running", "--title", "Generated session title"],
+      ["agent", "idle", "--title", "pi"],
+      ["agent", "running", "--title", "pi"],
+      ["agent", "running", "--title", "pi · Generated session title"],
     ]);
 
     await harness.emit("agent_settled");
     await harness.emit("session_shutdown");
 
     assert.deepEqual(harness.calls, [
-      ["agent", "idle"],
-      ["agent", "running"],
-      ["agent", "running", "--title", "Generated session title"],
+      ["agent", "idle", "--title", "pi"],
+      ["agent", "running", "--title", "pi"],
+      ["agent", "running", "--title", "pi · Generated session title"],
       [
         "agent",
         "succeeded",
         "--title",
-        "Generated session title",
+        "pi · Generated session title",
         "--summary",
         "Finished\n successfully",
       ],
-      ["agent", "exit", "--title", "Generated session title"],
+      ["agent", "exit", "--title", "pi · Generated session title"],
     ]);
 
     assert.deepEqual(harness.titlePrompts, ["Implement the requested change"]);
@@ -300,7 +300,7 @@ test("uses an explicit session name without suppressing title generation", async
       "agent",
       "succeeded",
       "--title",
-      "Updated explicit name",
+      "pi · Updated explicit name",
       "--summary",
       "Done",
     ]);
@@ -327,7 +327,7 @@ test("restores the earliest generated title without regenerating it", async () =
       "agent",
       "succeeded",
       "--title",
-      "Stable title",
+      "pi · Stable title",
     ]);
   });
 });
@@ -359,7 +359,7 @@ test("generates once from the initial stored user message", async () => {
   });
 });
 
-test("passes generated titles through without normalization", async () => {
+test("prefixes generated titles without further normalization", async () => {
   await insideTmux(async () => {
     const title = "  Raw\n title  ";
     const harness = createHarness({ generatedTitle: title });
@@ -373,7 +373,7 @@ test("passes generated titles through without normalization", async () => {
       "agent",
       "succeeded",
       "--title",
-      title.trim(),
+      `pi · ${title.trim()}`,
     ]);
   });
 });
@@ -392,7 +392,12 @@ test("does not wait for title generation before notifying", async () => {
 
     assert.deepEqual(harness.titlePrompts, ["Initial task"]);
     assert.deepEqual(harness.appendedEntries, []);
-    assert.deepEqual(harness.calls.at(-1), ["agent", "succeeded"]);
+    assert.deepEqual(harness.calls.at(-1), [
+      "agent",
+      "succeeded",
+      "--title",
+      "pi",
+    ]);
 
     await harness.emit("before_agent_start", { prompt: "Follow-up task" });
     assert.deepEqual(harness.titlePrompts, ["Initial task"]);
@@ -411,7 +416,7 @@ test("does not wait for title generation before notifying", async () => {
       "agent",
       "succeeded",
       "--title",
-      "Late title",
+      "pi · Late title",
     ]);
   });
 });
@@ -450,6 +455,8 @@ test("keeps lifecycle updates working when title generation fails", async () => 
     assert.deepEqual(harness.calls.at(-1), [
       "agent",
       "succeeded",
+      "--title",
+      "pi",
       "--summary",
       "Done",
     ]);
