@@ -7,6 +7,7 @@ use std::collections::BTreeMap;
 
 use ratatui::style::Color;
 use ratatui::style::Style;
+use ratatui::style::Stylize as _;
 use ratatui::text::Line;
 use ratatui::text::Span;
 
@@ -22,8 +23,9 @@ const STATES: [AgentState; 5] = [
 
 /// Render a right-aligned lifecycle summary, or an empty line when no agents are tracked.
 ///
-/// States appear as waiting, failed, succeeded, running, then idle. When `selected`, state colours
-/// are pre-inverted so the surrounding row inversion keeps them in the foreground.
+/// States appear as waiting, failed, succeeded, running, then idle. State text remains undimmed
+/// while separators are dimmed. When `selected`, state colours are pre-inverted so the surrounding
+/// row inversion keeps them in the foreground.
 pub(super) fn summary(summary: &BTreeMap<AgentState, usize>, selected: bool) -> Line<'static> {
     let mut line = Line::default();
 
@@ -33,7 +35,7 @@ pub(super) fn summary(summary: &BTreeMap<AgentState, usize>, selected: bool) -> 
             continue;
         };
 
-        line += Span::raw(separator);
+        line += Span::raw(separator).dim();
         separator = " · ";
 
         let glyph = glyph(state);
@@ -47,11 +49,7 @@ pub(super) fn summary(summary: &BTreeMap<AgentState, usize>, selected: bool) -> 
     }
 
     if separator != " " {
-        line += Span::raw(" ");
-    }
-
-    for span in &mut line.spans {
-        span.style = span.style.dim();
+        line += Span::raw(" ").dim();
     }
 
     line.right_aligned()

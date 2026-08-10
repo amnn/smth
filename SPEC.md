@@ -94,9 +94,10 @@ following order:
 - `○`: idle.
 
 A state with one agent shows only its indicator; larger counts use an indicator,
-a space, and the count. A non-empty summary is dimmed and delimited by ` · `
-separators and one outer space. It overdraws the underlying row or header content
-at its right edge rather than reserving layout width.
+a space, and the count. Indicators and counts remain undimmed, while a non-empty
+summary uses dim ` · ` separators and one dim outer space. It overdraws the
+underlying row or header content at its right edge rather than reserving layout
+width.
 
 A live session's existing attention pip is active when a window has a bell
 alert or an agent is waiting, failed, or succeeded. This attention styling

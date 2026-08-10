@@ -133,9 +133,9 @@ regardless of the active filter:
 | Idle | `○` | No |
 
 An indicator appears by itself for one agent, or with a count for multiple
-agents in that state. The whole summary is dimmed, and middle dots separate
-states, for example `⏸ · × · ✔ 2 · ▶ 3 · ○`. A session may contain multiple
-tracked harnesses as long as each runs in its own pane.
+agents in that state. Indicators and counts remain undimmed while dim middle
+dots separate states, for example `⏸ · × · ✔ 2 · ▶ 3 · ○`. A session may
+contain multiple tracked harnesses as long as each runs in its own pane.
 
 Waiting, failed, and succeeded agents activate the same attention pip as a tmux
 bell. Succeeded agents remain attention-worthy because they should receive
