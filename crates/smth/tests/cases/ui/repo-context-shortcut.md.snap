@@ -1,0 +1,168 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/repo-context-shortcut.md
+---
+# Repo context shortcut
+
+This scenario launches `smth` from inside the `alpha` repository so the
+picker starts with a repo context inferred from `cwd`, then uses `C-r` both on
+an unfiltered repo row and on a row selected from a multi-match query.
+
+    :bins jj cat
+
+> [!NOTE]
+> 'jj', and 'cat' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+    :$ jj describe -R alpha -m "alpha commit" (exit: 0)
+    :$ jj git init beta (exit: 0)
+    :$ jj describe -R beta -m "beta commit" (exit: 0)
+    :$ jj git init gamma (exit: 0)
+    :$ jj describe -R gamma -m "gamma commit" (exit: 0)
+    :t new-session -d -s ui "cd alpha && smth -r '../alpha' -r '../beta' -r '../gamma'" (success)
+    :t resize-window -t ui:0 -x 90 -y 10 (success)
+    :pane ui:0.0
+
+This snapshot shows the initial picker state with the current repo inferred
+from `cwd`.
+
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session:
+  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+▌⬤ runner                                                                                ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+Move the cursor to the discovered `beta` repo row.
+
+    :k down down
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session:
+  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+▌  beta                                     ~/beta                                       ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) beta commit
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+```
+
+Hide the session preview while `beta` is selected. The list should use the
+full height, and no repo log should be visible.
+
+    :k C-p
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session:                                                                                 ┃
+  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                         ┃
+▌  beta                                     ~/beta                                       ┃
+   gamma                                    ~/gamma                                      ┃
+                                                                                         ┃
+                                                                                         ┃
+                                                                                         ┃
+                                                                                         ┃
+                                                                                         ┃
+                                                                                         ┃
+```
+
+Press `C-o` while the session preview is hidden. Onto mode should still reserve
+and render the preview-shaped pane with the current repo context (`alpha`), not
+the selected row's preview (`beta`).
+
+    :k C-o
+    :snap -d 2s "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+onto:
+  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+▌  beta                                     ~/beta                                       ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) alpha commit
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+```
+
+Cancel onto mode and restore the session preview before continuing with
+repo-context shortcuts.
+
+    :k C-g C-p
+
+Press `C-r` to set repo context from the selected row. The header should update
+to `beta` while the selected row stays on `beta` after the picker refreshes.
+
+    :k C-r
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session:
+  5/5 | [C-r] repo: ~/beta, [C-o] onto: trunk()
+▌  beta                                     ~/beta                                       ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) beta commit
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+```
+
+This snapshot applies the query `a`, which still matches multiple repo rows,
+moves to `gamma`, and then uses `C-r` to update the current repo from the
+filtered list.
+
+    :k C-u a down down C-r
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: a
+  3/5 | [C-r] repo: ~/gamma, [C-o] onto: trunk()
+▌  gamma                                    ~/gamma                                      ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) gamma commit
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+```
+
+Press `M-r` to clear the current repo without changing the selected row.
+
+    :k M-r
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: a
+  3/5 | [C-r] repo: none
+▌  gamma                                    ~/gamma                                      ┃
+──────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) gamma commit
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+```
+
+---
+vim: set ft=markdown:

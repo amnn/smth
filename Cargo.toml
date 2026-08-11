@@ -1,11 +1,11 @@
 [workspace]
-members = ["crates/sesh", "crates/sesh-integration-tests"]
+members = ["crates/smth", "crates/smth-integration-tests"]
 resolver = "2"
 
 [workspace.dependencies]
 # Workspace members
-sesh = { path = "crates/sesh" }
-sesh-integration-tests = { path = "crates/sesh-integration-tests" }
+smth = { path = "crates/smth" }
+smth-integration-tests = { path = "crates/smth-integration-tests" }
 
 # External dependencies
 ansi-to-tui = "8.0.1"

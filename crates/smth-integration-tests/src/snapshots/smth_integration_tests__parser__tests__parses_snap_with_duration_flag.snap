@@ -1,0 +1,24 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[\"    :snap --duration 100ms /foo/x\", \"\"].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Snap {
+                count: 5,
+                duration: 100ms,
+                color: false,
+                filters: [
+                    Filter {
+                        patt: Regex(
+                            "foo",
+                        ),
+                        paint: "x",
+                    },
+                ],
+            },
+            raw: "    :snap --duration 100ms /foo/x",
+        },
+    ],
+}

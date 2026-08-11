@@ -1,0 +1,89 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/new-session-stale-workspace.md
+---
+# New session with stale workspace
+
+A stale default jj workspace should not prevent creating a new repo-backed
+session. `smth` should allow jj to update the stale working copy automatically
+as part of workspace creation.
+
+    :bins jj tmux sh sed cat
+
+> [!NOTE]
+> 'jj', 'tmux', 'sh', 'sed', and 'cat' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+Create a default workspace with tracked content and a second, healthy workspace.
+Rewriting the default workspace's commit from the second workspace leaves its
+working copy stale.
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+    :$ sh -c 'printf "tracked\n" > alpha/tracked' (exit: 0)
+    :$ jj workspace add -R alpha --name healthy alpha.healthy (exit: 0)
+    :$ jj restore -R alpha.healthy --into 'default@' --from 'root()' (exit: 0)
+    :t new-session -d -s ui "cd alpha && smth; cat" (success)
+    :t resize-window -t ui:0 -x 120 -y 10 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+
+Type a new workspace name while the stale default workspace is the current repo
+context.
+
+    :k feature
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: feature
+  0/2 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+▌  alpha/feature                            ~/alpha.feature                                                            ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
+│  (empty) (no description set)
+│ ○  wwwwwwww (no email set) ttttttttttttttttttt healthy@ hhhhhhhh
+├─╯  (empty) (no description set)
+◆  wwwwwwww root() hhhhhhhh
+
+```
+
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S stale-workspace-switched" (success)
+    :k Enter
+    :t wait-for stale-workspace-switched (success)
+
+The client should switch to the new workspace-backed session. The new workspace
+is registered in the shared repository and the default working copy is fresh.
+
+    :t display-message -p '#{client_session}' (success)
+
+```
+alpha/feature
+```
+
+    :t list-sessions -F '#{session_name}:#{b:@smth.repo}' (success)
+
+```
+alpha/feature:alpha.feature
+runner:
+ui:
+```
+
+    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"' (exit: 0)
+
+```stdout
+default	alpha
+feature	alpha.feature
+healthy	alpha.healthy
+```
+
+    :$ sh -c 'jj status -R alpha --config snapshot.auto-update-stale=false >/dev/null' (exit: 0)
+
+The update should also materialize the rewritten working-copy commit, which no
+longer contains the tracked file.
+
+    :$ sh -c 'test ! -e alpha/tracked' (exit: 0)
+
+---
+vim: set ft=markdown:

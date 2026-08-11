@@ -53,7 +53,7 @@ replacement behavior.
 
 When UI snapshots include `jj log --template builtin_log_compact` output, keep
 volatile IDs and timestamps behind explicit `:snap` filters. For colour
-snapshots, also keep `crates/sesh/tests/fixtures/jjconfig.toml` styling the
+snapshots, also keep `crates/smth/tests/fixtures/jjconfig.toml` styling the
 `change_id`/`commit_id` prefix and rest labels identically so jj's variable
 unique-prefix boundary does not leak into SVG diffs.
 
@@ -61,9 +61,9 @@ When reviewing SVG snapshot diffs, inspect the actual SVG text/span changes and
 compare old versus new before describing behavior. Distinguish visual movement
 from changes in span ownership or styling of the same visible cells.
 
-When a UI test sends keys immediately after starting or switching to a `sesh`
+When a UI test sends keys immediately after starting or switching to a `smth`
 pane, use an explicit `:settle` directive before `:keys` to ensure the UI has
-reached a stable state. For a freshly launched `sesh` pane, prefer
+reached a stable state. For a freshly launched `smth` pane, prefer
 `:settle -d 2s`; the default timeout can be too short on cold runs.
 
 Do not use `:settle` as the completion signal for an asynchronous action when
@@ -72,9 +72,9 @@ on an observable side effect first, such as a one-shot tmux hook plus
 `wait-for` or the creation of an expected file, before querying resulting
 state.
 
-When a UI test needs to assert behavior after `sesh` exits without
+When a UI test needs to assert behavior after `smth` exits without
 switching the client, keep the launched tmux pane alive (for example
-`"sesh ...; cat"`) so later markdown directives can still query the tmux
+`"smth ...; cat"`) so later markdown directives can still query the tmux
 server. Include any helper command used inside tmux panes (such as `cat` or
 `sleep`) in the case's `:bins`; panes run with the sandboxed PATH, so missing
 helpers can exit immediately and make sessions disappear.
@@ -82,17 +82,17 @@ helpers can exit immediately and make sessions disappear.
 ## Architecture
 
 Keep direct interactions with external binaries behind a dedicated module per
-binary under `crates/sesh/src/cmd/`. For example, `tmux` command construction
-and process execution belong in `crates/sesh/src/cmd/tmux.rs`, while `jj`
+binary under `crates/smth/src/cmd/`. For example, `tmux` command construction
+and process execution belong in `crates/smth/src/cmd/tmux.rs`, while `jj`
 command construction and process execution belong in
-`crates/sesh/src/cmd/jj.rs`. Other modules may decide when to request an
+`crates/smth/src/cmd/jj.rs`. Other modules may decide when to request an
 operation, but the binary-specific modules should abstract how that operation
 is performed.
 
 For Pi extension metadata that belongs to a Pi session rather than a tmux pane,
 persist a custom session entry with `pi.appendEntry` and restore it from
 `sessionManager.getEntries`. Keep notification title and summary normalization
-in `sesh`; harness extensions should pass those values through unchanged.
+in `smth`; harness extensions should pass those values through unchanged.
 
 Keep `model` modules free of ratatui widgets and other concrete view types.
 Session-specific rendering belongs in `app::sessions`, while generic reusable
@@ -116,17 +116,17 @@ mutating actions but keep query editing and navigation available. Use an ordered
 index for next/previous navigation rather than repeatedly scanning matches.
 
 When moving behavior onto domain types, keep configuration arguments narrow:
-pass only the values the method needs rather than the full `SeshConfig`.
+pass only the values the method needs rather than the full `SmthConfig`.
 
 When adding or changing config fields, keep the schema, CLI long help, README
 config examples, and markdown snapshot coverage in sync.
 
-When adding or changing picker key bindings, keep input handling, `sesh --help`,
+When adding or changing picker key bindings, keep input handling, `smth --help`,
 the README key table, and markdown snapshot coverage in sync.
 
 For read-only `jj` commands on startup or hot paths, pass
 `--ignore-working-copy` unless fresh working-copy state is required; otherwise
-large repositories can spend visible time snapshotting before `sesh` renders.
+large repositories can spend visible time snapshotting before `smth` renders.
 
 When a `jj` template emits local bookmark names for later use as revisions,
 render each `CommitRef.name()` instead of the `CommitRef` itself. The latter is

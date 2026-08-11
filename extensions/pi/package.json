@@ -1,17 +1,17 @@
 {
-  "name": "pi-sesh",
+  "name": "pi-smth",
   "version": "0.1.0",
-  "description": "Pi agent lifecycle integration for the sesh tmux session switcher",
+  "description": "Pi agent lifecycle integration for the smth tmux session switcher",
   "type": "module",
   "license": "Apache-2.0",
   "author": "Ashok Menon",
   "repository": {
     "type": "git",
-    "url": "https://github.com/amnn/sesh.git",
+    "url": "https://github.com/amnn/smth.git",
     "directory": "extensions/pi"
   },
-  "homepage": "https://github.com/amnn/sesh#agent-lifecycle-state",
-  "bugs": "https://github.com/amnn/sesh/issues",
+  "homepage": "https://github.com/amnn/smth#agent-lifecycle-state",
+  "bugs": "https://github.com/amnn/smth/issues",
   "keywords": [
     "pi-package",
     "pi-extension",

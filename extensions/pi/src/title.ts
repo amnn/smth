@@ -9,7 +9,7 @@ import type {
   SessionEntry,
 } from "@earendil-works/pi-coding-agent";
 
-const TITLE_ENTRY = "sesh.notification-title";
+const TITLE_ENTRY = "smth.notification-title";
 const TITLE_VERSION = 1;
 
 const TITLE_PROMPT = [

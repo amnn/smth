@@ -1,0 +1,24 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[\"    :snap /(a)(b)/x\", \"\"].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Snap {
+                count: 5,
+                duration: 1s,
+                color: false,
+                filters: [
+                    Filter {
+                        patt: Regex(
+                            "(a)(b)",
+                        ),
+                        paint: "x",
+                    },
+                ],
+            },
+            raw: "    :snap /(a)(b)/x",
+        },
+    ],
+}
