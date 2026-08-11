@@ -19,9 +19,9 @@
 
 ## README
 
-- [ ] README: Screenshot/animation
-- [ ] README: Feature list
-- [ ] README: Contribution
+- [x] README: Screenshot/animation
+- [x] README: Feature list
+- [x] README: Contribution
 
 ## GitHub
 

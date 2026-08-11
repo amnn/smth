@@ -8,9 +8,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/amnn/smth.git",
-    "directory": "extensions/pi"
+    "directory": "extensions/pi-smth"
   },
-  "homepage": "https://github.com/amnn/smth#agent-lifecycle-state",
+  "homepage": "https://github.com/amnn/smth/blob/main/docs/agent-integration.md#pi-extension",
   "bugs": "https://github.com/amnn/smth/issues",
   "keywords": [
     "pi-package",
