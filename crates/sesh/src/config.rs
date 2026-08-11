@@ -22,8 +22,11 @@ pub const PATH: &str = "sesh.toml";
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(default)]
 pub struct NotificationConfig {
+    /// Whether to emit a terminal bell in the agent pane.
+    pub bell: bool,
+
     /// Recursively evaluated command arguments, with the root executed directly without a shell.
-    /// An empty command disables notifications.
+    /// An empty command disables command delivery.
     pub command: Vec<Cmd>,
 }
 
@@ -69,9 +72,9 @@ pub struct UiConfig {
 }
 
 impl NotificationConfig {
-    /// Whether notification delivery has a configured command.
+    /// Whether at least one notification delivery channel is enabled.
     pub fn enabled(&self) -> bool {
-        !self.command.is_empty()
+        self.bell || !self.command.is_empty()
     }
 }
 

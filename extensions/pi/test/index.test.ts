@@ -31,6 +31,7 @@ interface HarnessOptions {
   generatedTitle?: string;
   sessionName?: string;
   stderr?: string;
+  stdout?: string;
   throws?: Error;
   titleThrows?: Error;
 }
@@ -118,7 +119,7 @@ function createHarness(options: HarnessOptions = {}) {
         code: options.code ?? 0,
         killed: false,
         stderr: options.stderr ?? "",
-        stdout: "",
+        stdout: options.stdout ?? "",
       };
     },
 
@@ -271,6 +272,21 @@ test("publishes the Pi lifecycle and waits for the final settled outcome", async
         data: { version: 1, title: "Generated session title" },
       },
     ]);
+  });
+});
+
+test("forwards sesh output to the Pi terminal", async (t) => {
+  await insideTmux(async () => {
+    const writes: string[] = [];
+    t.mock.method(process.stdout, "write", ((chunk: string | Uint8Array) => {
+      writes.push(chunk.toString());
+      return true;
+    }) as typeof process.stdout.write);
+
+    const harness = createHarness({ stdout: "\x07" });
+    await harness.emit("session_start");
+
+    assert.deepEqual(writes, ["\x07"]);
   });
 });
 

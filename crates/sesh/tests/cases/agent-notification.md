@@ -6,6 +6,8 @@ messages must remain data through every shell level.
 
     :bins sh cat
 
+    :t set-window-option -g monitor-bell on
+
     :w .config/sesh/sesh.toml
 
 ```toml
@@ -37,6 +39,10 @@ no eligible interactive client, so the optional client TTY is empty.
     :$ sesh agent succeeded --title "Fix {state}" --summary "it's {pane}; safe"
     :$ cat notifications
 
+Terminal bells default to off even when command notifications are enabled.
+
+    :t display-message -p '#{window_bell_flag}'
+
 Changing between attention-worthy states should not append another
 notification.
 
@@ -49,6 +55,23 @@ notify again.
     :$ sesh agent running
     :$ sesh agent failed --summary second
     :$ cat notifications
+
+A bell-only configuration should enable notifications and emit a terminal bell
+in a background agent window.
+
+    :w .config/sesh/sesh.toml
+
+```toml
+[notification]
+bell = true
+```
+
+The pane runs `sesh agent` itself so its stdout reaches the pane terminal. Wait
+for an explicit tmux signal before checking the asynchronous result.
+
+    :t new-window -d -t 0:1 "sesh agent running; sesh agent waiting; tmux wait-for -S bell-ready; cat"
+    :t wait-for bell-ready
+    :t display-message -p -t 0:1.0 '#{window_bell_flag}'
 
 Notification delivery is best-effort. A missing configured executable must not
 make successful state publication fail.

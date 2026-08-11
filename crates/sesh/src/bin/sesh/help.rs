@@ -179,10 +179,17 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     writeln!(w)?;
 
     w.def(
+        "notification.bell",
+        "Whether to emit a terminal bell in the agent pane when an unfocused agent newly enters \
+         waiting, succeeded, or failed state. Defaults to false. Bell failures never fail state \
+         publication.",
+    )?;
+
+    w.def(
         "notification.command",
-        "Command arguments run when an unfocused agent newly enters waiting, succeeded, or failed \
-         state. An empty command disables notifications. Delivery failures never fail state \
-         publication. The root array executes directly. A nested array is evaluated depth-first, \
+        "Optional command arguments run for the same agent transitions as notification.bell. An \
+         empty command disables command delivery. Delivery failures never fail state publication. \
+         The root array executes directly. A nested array is evaluated depth-first, \
          POSIX-shell-joined, and passed to its parent as one argument. Strings interpolate \
          {message}, {pane}, {socket}, {state}, {title}, and {tty} variables.",
     )?;
@@ -217,6 +224,7 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     writeln!(w)?;
     w.code(|out| {
         writeln!(out, "  [notification]")?;
+        writeln!(out, "  bell = true")?;
         writeln!(out, "  command = [")?;
         writeln!(out, "    \"terminal-notifier\",")?;
         writeln!(out, "    \"-title\", \"{{title}}\",")?;

@@ -127,10 +127,15 @@ Configuration:
   The config file is TOML. It is optional; when no file is present, sesh uses
   the built-in defaults.
 
+  notification.bell  
+                    Whether to emit a terminal bell in the agent pane when an
+                    unfocused agent newly enters waiting, succeeded, or failed
+                    state. Defaults to false. Bell failures never fail state
+                    publication.
   notification.command  
-                    Command arguments run when an unfocused agent newly enters
-                    waiting, succeeded, or failed state. An empty command
-                    disables notifications. Delivery failures never fail state
+                    Optional command arguments run for the same agent
+                    transitions as notification.bell. An empty command disables
+                    command delivery. Delivery failures never fail state
                     publication. The root array executes directly. A nested
                     array is evaluated depth-first, POSIX-shell-joined, and
                     passed to its parent as one argument. Strings interpolate
@@ -151,6 +156,7 @@ Example:
   configuration field.
 
   [notification]
+  bell = true
   command = [
     "terminal-notifier",
     "-title", "{title}",

@@ -14,10 +14,12 @@ supports opening new sessions:
 The switcher is configured via a configuration file at
 `~/.config/sesh/sesh.toml`, containing the following properties:
 
-- `notification.command`: A root argument array executed directly. Supplying a
-  non-empty command enables notifications; omitting it disables them. Nested
-  arrays are recursively evaluated depth-first and POSIX-shell-joined into one
-  parent argument. Command strings interpolate `{message}`, `{pane}`, `{socket}`,
+- `notification.bell`: Whether to emit a terminal bell in the agent pane.
+  Defaults to false.
+- `notification.command`: An optional root argument array executed directly.
+  An empty or omitted array disables command delivery. Nested arrays are
+  recursively evaluated depth-first and POSIX-shell-joined into one parent
+  argument. Command strings interpolate `{message}`, `{pane}`, `{socket}`,
   `{state}`, `{title}`, and `{tty}`.
 - `repo.globs`: A list of glob patterns to locate jj repositories. These stack
   with repository globs supplied on the command line. A leading `~` path
@@ -105,7 +107,7 @@ retains the existing precedence over manual flag styling.
 
 ### Agent Notifications
 
-When a notification command is configured, an agent notifies only when crossing
+When a notification channel is enabled, an agent notifies only when crossing
 from a non-attention state into waiting, succeeded, or failed. Repeated attention
 states and transitions between attention states do not notify. State metadata
 is published before notification discovery or delivery, and all notification
@@ -119,12 +121,15 @@ Control-mode, suspended, and tty-less clients are ignored. If delivery proceeds,
 clients displaying the agent pane, clients not categorically unfocused, then all
 eligible clients. Delivery may proceed without a client.
 
-The command root runs directly as an argument vector. Each nested array is
-evaluated recursively and shell-joined as one argument at its parent depth.
-Interpolation occurs once before shell joining. Titles and summaries collapse
-Unicode whitespace, NUL, and ESC into space separators, preserve other
-non-whitespace control characters, and are truncated safely. Configured command
-execution is bounded and best-effort.
+Bell delivery writes an ASCII BEL to `sesh agent`'s stdout. Harnesses that
+capture stdout must forward it to the pane terminal so tmux can apply its normal
+audible or visual bell handling. The command root runs directly as an argument
+vector. Each nested array is evaluated recursively and shell-joined as one
+argument at its parent depth. Interpolation occurs once before shell joining.
+Titles and summaries collapse Unicode whitespace, NUL, and ESC into space
+separators, preserve other non-whitespace control characters, and are truncated
+safely. Bell and configured command delivery run concurrently and are
+independently best-effort; configured command execution is bounded.
 
 ### Session Names and Metadata
 The switcher represents sessions by their name and metadata.
