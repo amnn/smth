@@ -143,17 +143,27 @@ another prompt or exit. When switching to a session, `sesh` selects the first
 window with either a bell or agent attention before falling back to the
 session's ordinary target.
 
-#### Desktop notifications
+#### Notifications
 
-Desktop notification delivery is optional and disabled unless a non-empty
-`notification.command` is configured. When configured, `sesh agent` runs that
-command when an agent newly enters `waiting`, `succeeded`, or `failed` and no
-eligible tmux client has that pane focused.
-Moving between attention-worthy states does not notify again; the agent must
-first return to `idle` or `running`.
+Notification delivery is optional and disabled unless `notification.bell` is
+true, `notification.command` is non-empty, or both. Enabled channels run when an
+agent newly enters `waiting`, `succeeded`, or `failed` and no eligible tmux
+client has that pane focused. Moving between attention-worthy states does not
+notify again; the agent must first return to `idle` or `running`.
 
-On macOS, [`terminal-notifier`](https://github.com/julienXX/terminal-notifier)
-can be installed to turn this command invocation into a notification:
+Set `notification.bell = true` to make `sesh agent` emit a terminal bell on
+stdout. It defaults to false. Harness integrations that capture stdout must
+forward it to the pane terminal; the bundled Pi extension does this. Tmux can
+monitor that bell and surface it visually with, for example:
+
+```tmux
+set -g visual-bell both
+setw -g monitor-bell on
+```
+
+For desktop notifications, configure `notification.command`. On macOS,
+[`terminal-notifier`](https://github.com/julienXX/terminal-notifier) can be
+installed to turn this command invocation into a notification:
 
 ```sh
 brew install terminal-notifier
@@ -254,12 +264,14 @@ all picker key bindings:
 `~/.config/sesh/sesh.toml` when `$XDG_CONFIG_HOME` is unset. You can also pass
 an explicit config file with `--config PATH`.
 
-The config file is optional. The default configuration has no notification
-command or repository globs, does not run any extra setup after creating a tmux
-session, and uses `⬤` to mark live tmux sessions in the picker.
+The config file is optional. The default configuration has terminal bells and
+notification commands disabled, has no repository globs, does not run any extra
+setup after creating a tmux session, and uses `⬤` to mark live tmux sessions in
+the picker.
 
-Use `[notification].command` to enable and configure desktop notifications as
-described in [Desktop notifications](#desktop-notifications).
+Use `[notification].bell` to enable terminal bells and
+`[notification].command` to configure desktop notifications, as described in
+[Notifications](#notifications).
 
 Use `[repo].globs` to surface jj repositories alongside existing tmux sessions.
 These stack with any `--repo`/`-r` globs supplied on the command line.
@@ -273,6 +285,7 @@ the picker:
 
 ```toml
 [notification]
+bell = true
 command = [
   "terminal-notifier",
   "-title", "{title}",

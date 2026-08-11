@@ -14,6 +14,8 @@ messages must remain data through every shell level.
 > [!NOTE]
 > 'sh', and 'cat' are available.
 
+    :t set-window-option -g monitor-bell on (success)
+
     :w .config/sesh/sesh.toml (written)
 
 ```toml
@@ -54,6 +56,14 @@ socket-set
 
 ```
 
+Terminal bells default to off even when command notifications are enabled.
+
+    :t display-message -p '#{window_bell_flag}' (success)
+
+```
+0
+```
+
 Changing between attention-worthy states should not append another
 notification.
 
@@ -89,6 +99,27 @@ second
 %0
 socket-set
 
+```
+
+A bell-only configuration should enable notifications and emit a terminal bell
+in a background agent window.
+
+    :w .config/sesh/sesh.toml (written)
+
+```toml
+[notification]
+bell = true
+```
+
+The pane runs `sesh agent` itself so its stdout reaches the pane terminal. Wait
+for an explicit tmux signal before checking the asynchronous result.
+
+    :t new-window -d -t 0:1 "sesh agent running; sesh agent waiting; tmux wait-for -S bell-ready; cat" (success)
+    :t wait-for bell-ready (success)
+    :t display-message -p -t 0:1.0 '#{window_bell_flag}' (success)
+
+```
+1
 ```
 
 Notification delivery is best-effort. A missing configured executable must not

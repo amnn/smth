@@ -94,6 +94,8 @@ export default function (pi: ExtensionAPI): void {
         timeout: 5_000,
       });
 
+      if (result.stdout) process.stdout.write(result.stdout);
+
       if (result.code === 0) {
         return;
       }

@@ -1,11 +1,15 @@
 // Copyright (c) Ashok Menon
 // SPDX-License-Identifier: Apache-2.0
 
-//! Configurable best-effort desktop notification delivery for agent attention transitions.
+//! Configurable best-effort notification delivery for agent attention transitions.
 
 use std::collections::BTreeMap;
+use std::io;
+use std::io::Write as _;
 
-use futures::try_join;
+use anyhow::Context as _;
+use futures::future::OptionFuture;
+use futures::join;
 
 use crate::cmd::custom;
 use crate::cmd::tmux;
@@ -16,11 +20,10 @@ use crate::model::agent::AgentState;
 /// Maximum number of Unicode scalar values retained in notification text.
 const MAX_TEXT_CHARS: usize = 160;
 
-/// Send a configured notification for an agent pane unless that pane is focused.
+/// Send configured notification channels for an agent pane unless that pane is focused.
 ///
-/// Delivery is bounded and best-effort at the call site. The configured root command is executed
-/// directly as an argument vector; every nested array is recursively rendered as one POSIX shell
-/// command argument.
+/// Delivery is bounded and best-effort at the call site. Enabled channels run concurrently and
+/// independently, so a terminal bell failure does not prevent the configured command from running.
 pub async fn send(
     config: &NotificationConfig,
     pane: &str,
@@ -32,37 +35,32 @@ pub async fn send(
         return Ok(());
     }
 
-    let (clients, socket) = try_join!(tmux::client_snapshot(), tmux::socket_path())?;
+    let socket: OptionFuture<_> = (!config.command.is_empty()).then(tmux::socket_path).into();
+    let (clients, socket) = join!(tmux::client_snapshot(), socket);
+    let clients = clients?;
+    let socket = socket.transpose()?;
+
     if !should_send(&clients, pane) {
         return Ok(());
     }
 
-    let tty = target_tty(&clients, pane).unwrap_or_default();
-    let title = sanitize_text(title.unwrap_or_default());
-    let summary = sanitize_text(summary.unwrap_or_default());
-    let message = if summary.is_empty() {
-        state.to_string()
-    } else {
-        summary
-    };
+    let bell: OptionFuture<_> = config.bell.then(ring_bell).into();
+    let command: OptionFuture<_> = socket
+        .as_deref()
+        .map(|socket| send_command(config, &clients, socket, pane, state, title, summary))
+        .into();
 
-    let state = state.value();
-    let variables = BTreeMap::from([
-        ("message", message.as_str()),
-        ("pane", pane),
-        ("socket", socket.as_str()),
-        ("state", state.as_str()),
-        ("title", title.as_str()),
-        ("tty", tty),
-    ]);
+    let (bell, command) = join!(bell, command);
+    bell.transpose().context("failed to emit bell")?;
+    command.transpose().context("failed to run command")?;
+    Ok(())
+}
 
-    let arguments = config
-        .command
-        .iter()
-        .map(|command| command.render(&variables))
-        .collect::<anyhow::Result<Vec<_>>>()?;
-
-    custom::run(&arguments).await
+/// Emit an ASCII BEL on stdout for the invoking harness to forward to the pane terminal.
+async fn ring_bell() -> anyhow::Result<()> {
+    let mut stdout = io::stdout();
+    stdout.write_all(b"\x07")?;
+    Ok(stdout.flush()?)
 }
 
 /// Normalize Unicode whitespace plus NUL and ESC separators.
@@ -83,6 +81,44 @@ fn sanitize_text(text: &str) -> String {
     let mut truncated: String = normalized.chars().take(MAX_TEXT_CHARS - 1).collect();
     truncated.push('…');
     truncated
+}
+
+/// Render and run the optional notification command.
+async fn send_command(
+    config: &NotificationConfig,
+    clients: &ClientSnapshot,
+    socket: &str,
+    pane: &str,
+    state: AgentState,
+    title: Option<&str>,
+    summary: Option<&str>,
+) -> anyhow::Result<()> {
+    let tty = target_tty(clients, pane).unwrap_or_default();
+    let title = sanitize_text(title.unwrap_or_default());
+    let summary = sanitize_text(summary.unwrap_or_default());
+    let message = if summary.is_empty() {
+        state.to_string()
+    } else {
+        summary
+    };
+
+    let state = state.value();
+    let variables = BTreeMap::from([
+        ("message", message.as_str()),
+        ("pane", pane),
+        ("socket", socket),
+        ("state", state.as_str()),
+        ("title", title.as_str()),
+        ("tty", tty),
+    ]);
+
+    let arguments = config
+        .command
+        .iter()
+        .map(|command| command.render(&variables))
+        .collect::<anyhow::Result<Vec<_>>>()?;
+
+    custom::run(&arguments).await
 }
 
 /// Whether no possibly focused client is displaying the agent pane.
