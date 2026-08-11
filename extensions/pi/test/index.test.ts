@@ -55,7 +55,7 @@ function assistant(
 function title(title: string, id = "title"): SessionEntry {
   return {
     type: "custom",
-    customType: "sesh.notification-title",
+    customType: "smth.notification-title",
     data: { version: 1, title },
     id,
     parentId: null,
@@ -108,7 +108,7 @@ function createHarness(options: HarnessOptions = {}) {
     },
 
     exec: async (command: string, args: string[]) => {
-      assert.equal(command, "sesh");
+      assert.equal(command, "smth");
       assert.equal(args[0], "agent");
       calls.push(args);
       if (options.throws) {
@@ -268,14 +268,14 @@ test("publishes the Pi lifecycle and waits for the final settled outcome", async
 
     assert.deepEqual(harness.appendedEntries, [
       {
-        customType: "sesh.notification-title",
+        customType: "smth.notification-title",
         data: { version: 1, title: "Generated session title" },
       },
     ]);
   });
 });
 
-test("forwards sesh output to the Pi terminal", async (t) => {
+test("forwards smth output to the Pi terminal", async (t) => {
   await insideTmux(async () => {
     const writes: string[] = [];
     t.mock.method(process.stdout, "write", ((chunk: string | Uint8Array) => {
@@ -307,7 +307,7 @@ test("uses an explicit session name without suppressing title generation", async
 
     assert.deepEqual(harness.appendedEntries, [
       {
-        customType: "sesh.notification-title",
+        customType: "smth.notification-title",
         data: { version: 1, title: "Generated fallback" },
       },
     ]);
@@ -421,7 +421,7 @@ test("does not wait for title generation before notifying", async () => {
     await harness.release();
     assert.deepEqual(harness.appendedEntries, [
       {
-        customType: "sesh.notification-title",
+        customType: "smth.notification-title",
         data: { version: 1, title: "Late title" },
       },
     ]);
@@ -520,7 +520,7 @@ test("does not register lifecycle hooks outside tmux", () => {
   }
 });
 
-test("warns only once when sesh cannot publish state", async () => {
+test("warns only once when smth cannot publish state", async () => {
   await insideTmux(async () => {
     const harness = createHarness({
       code: 1,
@@ -531,7 +531,7 @@ test("warns only once when sesh cannot publish state", async () => {
     await harness.emit("agent_start");
 
     assert.deepEqual(harness.notifications, [
-      "Could not notify sesh: tmux unavailable",
+      "Could not notify smth: tmux unavailable",
     ]);
   });
 });

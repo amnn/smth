@@ -39,7 +39,7 @@ jobs:
       - name: Check extension
         run: pnpm check
       - name: Check package contents
-        run: pnpm --filter pi-sesh pack --dry-run
+        run: pnpm --filter pi-smth pack --dry-run
 
   lint:
     name: Lint

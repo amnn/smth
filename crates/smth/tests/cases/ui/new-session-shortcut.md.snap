@@ -1,0 +1,144 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/new-session-shortcut.md
+---
+# New session row
+
+This scenario creates several repo-backed picker entries, with both live tmux
+sessions and discoverable repos that do not have live sessions. It verifies that
+the ephemeral new-session row is selectable when the query is non-empty, with
+names disambiguated from live sessions as needed.
+
+    :bins jj cat
+
+> [!NOTE]
+> 'jj', and 'cat' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+    :$ jj describe -R alpha -m "alpha commit" (exit: 0)
+    :$ jj git init beta (exit: 0)
+    :$ jj describe -R beta -m "beta commit" (exit: 0)
+    :$ jj git init gamma (exit: 0)
+    :$ jj describe -R gamma -m "gamma commit" (exit: 0)
+    :$ jj git init delta (exit: 0)
+    :$ jj describe -R delta -m "delta commit" (exit: 0)
+
+Launch live sessions for `alpha` and `gamma`, while `beta` and `delta` remain
+repo-only entries discovered through the CLI globs.
+
+    :t new-session -d -s alpha "cat" (success)
+    :t set-option -t alpha @smth.repo alpha (success)
+    :t new-session -d -s gamma "cat" (success)
+    :t set-option -t gamma @smth.repo gamma (success)
+    :t new-session -d -s ui "smth -r 'alpha' -r 'beta' -r 'gamma' -r 'delta'" (success)
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :pane ui:0.0
+    :settle (settled)
+
+Initially the query is empty, so no new-session candidate is available.
+Pressing `C-n` should do nothing and leave the picker open in the same state.
+
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session:
+  8/8 | [C-r] repo: none | [C-x] close, [C-f] flag
+ ⬤ ui                                                                                                                  ┃
+▌⬤ runner                                                                                                              │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+```
+
+    :k C-n
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session:
+  8/8 | [C-r] repo: none | [C-x] close, [C-f] flag
+ ⬤ ui                                                                                                                  ┃
+▌⬤ runner                                                                                                              │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+```
+
+Typing a prefix of the live `alpha` session makes the new-session row selectable,
+because `alp` is not an exact live session name.
+
+    :k alp M-up
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: alp
+  2/8 | [C-r] repo: none
+▌  alp                                                                                                                 ┃
+ ⬤ alpha                                    alpha                                                                      │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+```
+
+Completing the live session name causes the new-session row's name to become
+disambiguated.
+
+    :k ha
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: alpha
+  2/8 | [C-r] repo: none
+▌  alpha~1                                                                                                             ┃
+ ⬤ alpha                                    alpha                                                                      │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+```
+
+Completing the name of the non-live `beta` repo removes the disambiguation from
+the new-session row, because there is no live session named `beta`.
+
+    :k C-u beta
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: beta
+  1/8 | [C-r] repo: none
+   beta                                                                                                                ┃
+▌  beta                                     ~/beta                                                                     ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) beta commit
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+
+```
+
+---
+vim: set ft=markdown:

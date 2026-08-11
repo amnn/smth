@@ -1,4 +1,4 @@
-# sesh: tmux session switcher
+# smth: switch to something else
 
 A tmux-native session switcher, for navigating between and opening new sessions
 based on jujutsu (jj) repositories and workspaces. The session switcher
@@ -12,7 +12,7 @@ supports opening new sessions:
 
 ## Configuration
 The switcher is configured via a configuration file at
-`~/.config/sesh/sesh.toml`, containing the following properties:
+`~/.config/smth/smth.toml`, containing the following properties:
 
 - `notification.bell`: Whether to emit a terminal bell in the agent pane.
   Defaults to false.
@@ -117,11 +117,11 @@ A client is categorically unfocused only when its terminal advertises focus
 reporting, tmux focus events are enabled, and the client lacks tmux's `focused`
 flag. Otherwise, its displayed pane conservatively counts as focused.
 Control-mode, suspended, and tty-less clients are ignored. If delivery proceeds,
-`sesh` selects the most recently active client from the first available group:
+`smth` selects the most recently active client from the first available group:
 clients displaying the agent pane, clients not categorically unfocused, then all
 eligible clients. Delivery may proceed without a client.
 
-Bell delivery writes an ASCII BEL to `sesh agent`'s stdout. Harnesses that
+Bell delivery writes an ASCII BEL to `smth agent`'s stdout. Harnesses that
 capture stdout must forward it to the pane terminal so tmux can apply its normal
 audible or visual bell handling. The command root runs directly as an argument
 vector. Each nested array is evaluated recursively and shell-joined as one
@@ -152,7 +152,7 @@ When picking a session from the fuzzy finder, all its parts are ensured to exist
 
 Then the pop-over switches to the session and closes itself. For an existing
 session, the first window with either a bell or agent attention is the preferred
-target. If no window needs attention, `sesh` uses the session's ordinary target.
+target. If no window needs attention, `smth` uses the session's ordinary target.
 
 ### Actions
 - `C-r` opens a sub-fuzzy-finder to select a different repository,

@@ -1,0 +1,132 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[r#\"# Scenario\"#, r#\"\"#, r#\"    :$ cargo --version\"#,\nr#\"    :w tmp/hello.txt\"#, r#\"```text\"#, r#\"hello\"#, r#\"```\"#,\nr#\"    :cp fixtures/source.txt tmp/source.txt\"#,\nr#\"    :t new-session -d -s fixture \"sleep 3600\"\"#, r#\"    :p runner:0.0\"#,\nr#\"    :k down \"abc\"\"#, r#\"    :settle -c 2 -d 500ms /foo/x\"#,\nr#\"    :s /foo/x\"#, r#\"\"#, r#\"Notes.\"#, r#\"\"#,].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Text,
+            raw: "# Scenario",
+        },
+        Line {
+            kind: Text,
+            raw: "",
+        },
+        Line {
+            kind: Sh {
+                args: NonEmpty {
+                    head: "cargo",
+                    tail: [
+                        "--version",
+                    ],
+                },
+            },
+            raw: "    :$ cargo --version",
+        },
+        Line {
+            kind: Write {
+                path: "tmp/hello.txt",
+            },
+            raw: "    :w tmp/hello.txt",
+        },
+        Line {
+            kind: Text,
+            raw: "```text",
+        },
+        Line {
+            kind: Text,
+            raw: "hello",
+        },
+        Line {
+            kind: Text,
+            raw: "```",
+        },
+        Line {
+            kind: Copy {
+                source: "fixtures/source.txt",
+                path: "tmp/source.txt",
+            },
+            raw: "    :cp fixtures/source.txt tmp/source.txt",
+        },
+        Line {
+            kind: Tmux {
+                args: NonEmpty {
+                    head: "new-session",
+                    tail: [
+                        "-d",
+                        "-s",
+                        "fixture",
+                        "sleep 3600",
+                    ],
+                },
+            },
+            raw: "    :t new-session -d -s fixture \"sleep 3600\"",
+        },
+        Line {
+            kind: Pane {
+                target: "runner:0.0",
+            },
+            raw: "    :p runner:0.0",
+        },
+        Line {
+            kind: Keys {
+                keys: [
+                    Key {
+                        kind: Down,
+                        ctrl: false,
+                        meta: false,
+                        shft: false,
+                    },
+                    Key {
+                        kind: Text(
+                            "abc",
+                        ),
+                        ctrl: false,
+                        meta: false,
+                        shft: false,
+                    },
+                ],
+            },
+            raw: "    :k down \"abc\"",
+        },
+        Line {
+            kind: Settle {
+                count: 2,
+                duration: 500ms,
+                filters: [
+                    Filter {
+                        patt: Regex(
+                            "foo",
+                        ),
+                        paint: "x",
+                    },
+                ],
+            },
+            raw: "    :settle -c 2 -d 500ms /foo/x",
+        },
+        Line {
+            kind: Snap {
+                count: 5,
+                duration: 1s,
+                color: false,
+                filters: [
+                    Filter {
+                        patt: Regex(
+                            "foo",
+                        ),
+                        paint: "x",
+                    },
+                ],
+            },
+            raw: "    :s /foo/x",
+        },
+        Line {
+            kind: Text,
+            raw: "",
+        },
+        Line {
+            kind: Text,
+            raw: "Notes.",
+        },
+    ],
+}

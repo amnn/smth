@@ -1,7 +1,7 @@
 // Copyright (c) Ashok Menon
 // SPDX-License-Identifier: Apache-2.0
 
-/** Publish Pi agent lifecycle transitions through `sesh agent`. */
+/** Publish Pi agent lifecycle transitions through `smth agent`. */
 
 import type {
   AgentEndEvent,
@@ -18,10 +18,10 @@ import {
 
 type State = "idle" | "running" | "succeeded" | "failed" | "exit";
 
-/** A lifecycle transition and optional notification summary sent to sesh. */
+/** A lifecycle transition and optional notification summary sent to smth. */
 interface Outcome {
   state: State;
-  /** Assistant text passed to sesh without normalization or truncation. */
+  /** Assistant text passed to smth without normalization or truncation. */
   summary?: string;
 }
 
@@ -62,7 +62,7 @@ export default function (pi: ExtensionAPI): void {
     }
 
     warned = true;
-    ctx.ui.notify(`Could not notify sesh: ${detail}`, "warning");
+    ctx.ui.notify(`Could not notify smth: ${detail}`, "warning");
   };
 
   // Titles are lazily generated. Generation is discarded when the epoch bumps
@@ -90,7 +90,7 @@ export default function (pi: ExtensionAPI): void {
       args.push("--title", t ? `pi · ${t}` : "pi");
       if (outcome.summary) args.push("--summary", outcome.summary);
 
-      const result = await pi.exec("sesh", args, {
+      const result = await pi.exec("smth", args, {
         timeout: 5_000,
       });
 
@@ -101,7 +101,7 @@ export default function (pi: ExtensionAPI): void {
       }
 
       const stderr = result.stderr.trim().split("\n", 1)[0];
-      const detail = stderr || `sesh exited with status ${result.code}`;
+      const detail = stderr || `smth exited with status ${result.code}`;
       warn(ctx, detail);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);

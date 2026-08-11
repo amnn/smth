@@ -1635,63 +1635,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sesh"
-version = "0.3.0"
-dependencies = [
- "ansi-to-tui",
- "anstyle",
- "anyhow",
- "clap",
- "crossterm 0.29.0",
- "datatest-stable",
- "futures",
- "glob",
- "insta",
- "nucleo",
- "once_cell",
- "ratatui",
- "regex",
- "serde",
- "sesh-integration-tests",
- "shlex",
- "telemetry-subscribers",
- "tempfile",
- "textwrap",
- "tokio",
- "tokio-util",
- "toml",
- "tracing",
- "unicode-width",
- "which",
-]
-
-[[package]]
-name = "sesh-integration-tests"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "datatest-stable",
- "futures",
- "humantime",
- "insta",
- "nonempty",
- "regex",
- "shlex",
- "telemetry-subscribers",
- "tempfile",
- "textwrap",
- "thiserror 2.0.18",
- "tokio",
- "tokio-util",
- "tracing",
- "unicode-width",
- "vt100",
- "which",
- "winnow 0.7.14",
-]
-
-[[package]]
 name = "sha2"
 version = "0.10.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1784,6 +1727,63 @@ name = "smawk"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7c388c1b5e93756d0c740965c41e8822f866621d41acbdf6336a6a168f8840c"
+
+[[package]]
+name = "smth"
+version = "0.3.0"
+dependencies = [
+ "ansi-to-tui",
+ "anstyle",
+ "anyhow",
+ "clap",
+ "crossterm 0.29.0",
+ "datatest-stable",
+ "futures",
+ "glob",
+ "insta",
+ "nucleo",
+ "once_cell",
+ "ratatui",
+ "regex",
+ "serde",
+ "shlex",
+ "smth-integration-tests",
+ "telemetry-subscribers",
+ "tempfile",
+ "textwrap",
+ "tokio",
+ "tokio-util",
+ "toml",
+ "tracing",
+ "unicode-width",
+ "which",
+]
+
+[[package]]
+name = "smth-integration-tests"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "datatest-stable",
+ "futures",
+ "humantime",
+ "insta",
+ "nonempty",
+ "regex",
+ "shlex",
+ "telemetry-subscribers",
+ "tempfile",
+ "textwrap",
+ "thiserror 2.0.18",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "unicode-width",
+ "vt100",
+ "which",
+ "winnow 0.7.14",
+]
 
 [[package]]
 name = "static_assertions"

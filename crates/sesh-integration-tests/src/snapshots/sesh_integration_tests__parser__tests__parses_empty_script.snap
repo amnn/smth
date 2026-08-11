@@ -1,7 +1,0 @@
----
-source: crates/sesh-integration-tests/src/parser.rs
-expression: "Script::parse(\"\")"
----
-Script {
-    lines: [],
-}

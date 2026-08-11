@@ -1,0 +1,23 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[r#\"    :k \"a\\\\b\"\"#, r#\"\"#].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Keys {
+                keys: [
+                    Key {
+                        kind: Text(
+                            "a\\b",
+                        ),
+                        ctrl: false,
+                        meta: false,
+                        shft: false,
+                    },
+                ],
+            },
+            raw: "    :k \"a\\\\b\"",
+        },
+    ],
+}

@@ -1,0 +1,24 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[\"    :snap --color /foo/x\", \"\"].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Snap {
+                count: 5,
+                duration: 1s,
+                color: true,
+                filters: [
+                    Filter {
+                        patt: Regex(
+                            "foo",
+                        ),
+                        paint: "x",
+                    },
+                ],
+            },
+            raw: "    :snap --color /foo/x",
+        },
+    ],
+}

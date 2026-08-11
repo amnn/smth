@@ -1,0 +1,14 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[r#\"    :sh \"unterminated\"#, r#\"\"#].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Error {
+                message: "invalid shell arguments",
+            },
+            raw: "    :sh \"unterminated",
+        },
+    ],
+}
