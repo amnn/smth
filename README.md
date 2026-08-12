@@ -111,10 +111,6 @@ all picker key bindings:
 | `enter` | Accept the onto revision, or switch to the session, creating it if necessary. |
 | `esc`, `C-g`, `C-c` | Cancel onto mode, or close the UI. |
 
-![Flagging a live workspace session][flag]
-
-[flag]: docs/assets/session-flagging.gif
-
 ## Troubleshooting
 
 If repository detection, session metadata, flags, or secondary jj workspaces do
