@@ -1,36 +1,21 @@
 # TODO
 
+## Agent Integration
+
+- [ ] Agent view: A view that shows the state of all agents (latest title,
+  summary, state).
+
 ## Session and Repo Lifecycle
-
-- [x] Keep the session picker working when the current workspace is stale by
-  automatically updating it during workspace creation.
-
-- [x] Repo handling after a deletion. Operations that require the repo seem to
-  break after the current repo gets deleted.
 
 - [ ] Rename session
 
-## Harnesses
+## UI
 
-- [x] Notification support
-  Send a notification when a session needs attention. This should be optional
-  (behind a configuration), and should detect whether the session is visible or
-  not.
+- [ ] Reset selected row to the top the first time the filter changes (to
+  counteract the initial behaviour of selecting the second most recently
+  attached session initially).
 
-## README
-
-- [x] README: Screenshot/animation
-- [x] README: Feature list
-- [x] README: Contribution
-
-## GitHub
-
-- [ ] List relevant PRs for repo in session list (a relevant PR is one that is
-  related to the user in some way -- e.g. they are the author, or they are a
-  reviewer, commenter, or mention in the PR).
-
-- [ ] Associate PR information with sessions that have a repo that is attached
-  to a PR.
+- [ ] Preview actual pane content
 
 # Appendix: Legend
 
