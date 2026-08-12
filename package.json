@@ -4,7 +4,7 @@
   "packageManager": "pnpm@11.20.0",
   "pi": {
     "extensions": [
-      "./extensions/pi/index.ts"
+      "./extensions/pi-smth/index.ts"
     ]
   },
   "scripts": {

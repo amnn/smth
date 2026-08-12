@@ -16,5 +16,5 @@ pi install git:github.com/amnn/smth
 ```
 
 See the repository's
-[agent lifecycle documentation](https://github.com/amnn/smth#agent-lifecycle-state)
-for configuration and development instructions.
+[agent integration documentation](https://github.com/amnn/smth/blob/main/docs/agent-integration.md)
+for lifecycle behavior, configuration, and development instructions.
