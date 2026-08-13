@@ -149,6 +149,13 @@ before opening a pull request.
 
 [issue]: https://github.com/amnn/smth/issues/new
 
+## Acknowledgements
+
+Credit to [@giacgiuliari][giac] for the name, [`smth`][why-smth].
+
+[giac]: https://github.com/giacgiuliari
+[why-smth]: docs/troubleshooting.md#why-is-this-called-smth
+
 ## License
 
 `smth` is licensed under the [Apache License 2.0][lic].
