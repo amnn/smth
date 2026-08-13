@@ -3,9 +3,10 @@
 Pi agent lifecycle integration for the
 [`smth`](https://github.com/amnn/smth) tmux session switcher.
 
-The extension publishes Pi's lifecycle state to `smth agent`, including a
-session title and a summary when a run settles. It activates only when Pi is
-running inside tmux and requires the `smth` binary to be available on `PATH`.
+The extension publishes Pi's lifecycle state to `smth agent`, including the
+current Pi session name and a summary when a run settles. It activates only
+when Pi is running inside tmux and requires the `smth` binary to be available
+on `PATH`.
 
 ## Installation
 

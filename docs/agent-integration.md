@@ -90,11 +90,9 @@ when the Pi session starts, `running` when an agent run starts, `succeeded` or
 queued follow-ups, and `exit` during session shutdown. Settled updates include
 a bounded summary of the final assistant text.
 
-The extension also asks the configured model for a short title based on the
-first user message and stores it as private extension data in Pi's session tree.
-An explicitly assigned Pi session name always takes precedence over that
-generated title when notifying. Notification titles use `pi · TITLE`, or just
-`pi` when no other title is available.
+Notification titles use the current Pi session name as `pi · TITLE`, or just
+`pi` when the session is unnamed. Session naming is left to Pi or dedicated
+session-naming extensions.
 
 Pi does not expose a generic lifecycle event for arbitrary prompts that block
 on user input, so the extension does not infer `waiting` state.
