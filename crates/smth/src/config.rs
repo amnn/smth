@@ -25,9 +25,11 @@ pub struct NotificationConfig {
     /// Whether to emit a terminal bell in the agent pane.
     pub bell: bool,
 
-    /// Recursively evaluated command arguments, with the root executed directly without a shell.
-    /// An empty command disables command delivery.
-    pub command: Vec<Cmd>,
+    /// Command to clear a pane's notification when its agent starts running.
+    pub clear: Vec<Cmd>,
+
+    /// Command to notify when an agent newly needs attention.
+    pub notify: Vec<Cmd>,
 }
 
 /// Configuration for discovering repositories.
@@ -74,7 +76,7 @@ pub struct UiConfig {
 impl NotificationConfig {
     /// Whether at least one notification delivery channel is enabled.
     pub fn enabled(&self) -> bool {
-        self.bell || !self.command.is_empty()
+        self.bell || !self.notify.is_empty()
     }
 }
 

@@ -20,6 +20,12 @@ use crate::model::agent::AgentState;
 /// Maximum number of Unicode scalar values retained in notification text.
 const MAX_TEXT_CHARS: usize = 160;
 
+/// Run the configured command to clear any notification associated with an agent pane.
+pub async fn clear(command: &[custom::Cmd], pane: &str) -> anyhow::Result<()> {
+    let variables = BTreeMap::from([("pane", pane)]);
+    run(command, &variables).await
+}
+
 /// Send configured notification channels for an agent pane unless that pane is focused.
 ///
 /// Delivery is bounded and best-effort at the call site. Enabled channels run concurrently and
@@ -35,7 +41,7 @@ pub async fn send(
         return Ok(());
     }
 
-    let socket: OptionFuture<_> = (!config.command.is_empty()).then(tmux::socket_path).into();
+    let socket: OptionFuture<_> = (!config.notify.is_empty()).then(tmux::socket_path).into();
     let (clients, socket) = join!(tmux::client_snapshot(), socket);
     let clients = clients?;
     let socket = socket.transpose()?;
@@ -61,6 +67,16 @@ async fn ring_bell() -> anyhow::Result<()> {
     let mut stdout = io::stdout();
     stdout.write_all(b"\x07")?;
     Ok(stdout.flush()?)
+}
+
+/// Render and run one configured command.
+async fn run(command: &[custom::Cmd], variables: &BTreeMap<&str, &str>) -> anyhow::Result<()> {
+    let arguments = command
+        .iter()
+        .map(|argument| argument.render(variables))
+        .collect::<anyhow::Result<Vec<_>>>()?;
+
+    custom::run(&arguments).await
 }
 
 /// Normalize Unicode whitespace plus NUL and ESC separators.
@@ -112,13 +128,7 @@ async fn send_command(
         ("tty", tty),
     ]);
 
-    let arguments = config
-        .command
-        .iter()
-        .map(|command| command.render(&variables))
-        .collect::<anyhow::Result<Vec<_>>>()?;
-
-    custom::run(&arguments).await
+    run(&config.notify, &variables).await
 }
 
 /// Whether no possibly focused client is displaying the agent pane.

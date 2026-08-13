@@ -66,6 +66,13 @@ impl Args {
         let value = state.value();
         tmux::set_pane_option(&pane, AGENT_STATE_OPTION, &value).await?;
 
+        if state == AgentState::Running && !config.clear.is_empty() {
+            if let Err(err) = notify::clear(&config.clear, &pane).await {
+                debug!(?err, pane, "failed to clear agent notification");
+            }
+            return Ok(());
+        }
+
         // A notification is only sent when the state transitions from a non-attention state to an
         // attention state.
         if !state.needs_attention() {

@@ -186,7 +186,14 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     )?;
 
     w.def(
-        "notification.command",
+        "notification.clear",
+        "Optional command arguments run whenever an agent enters running state. An empty command \
+         disables clearing. Failures never fail state publication. Strings interpolate the \
+         {pane} variable.",
+    )?;
+
+    w.def(
+        "notification.notify",
         "Optional command arguments run for the same agent transitions as notification.bell. An \
          empty command disables command delivery. Delivery failures never fail state publication. \
          The root array executes directly. A nested array is evaluated depth-first, \
@@ -225,7 +232,11 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     w.code(|out| {
         writeln!(out, "  [notification]")?;
         writeln!(out, "  bell = true")?;
-        writeln!(out, "  command = [")?;
+        writeln!(out, "  clear = [")?;
+        writeln!(out, "    \"terminal-notifier\",")?;
+        writeln!(out, "    \"-remove\", \"smth:{{pane}}\",")?;
+        writeln!(out, "  ]")?;
+        writeln!(out, "  notify = [")?;
         writeln!(out, "    \"terminal-notifier\",")?;
         writeln!(out, "    \"-title\", \"{{title}}\",")?;
         writeln!(out, "    \"-message\", \"{{message}}\",")?;
