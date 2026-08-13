@@ -136,7 +136,12 @@ Configuration:
                     unfocused agent newly enters waiting, succeeded, or failed
                     state. Defaults to false. Bell failures never fail state
                     publication.
-  notification.command  
+  notification.clear  
+                    Optional command arguments run whenever an agent enters
+                    running state. An empty command disables clearing. Failures
+                    never fail state publication. Strings interpolate the {pane}
+                    variable.
+  notification.notify  
                     Optional command arguments run for the same agent
                     transitions as notification.bell. An empty command disables
                     command delivery. Delivery failures never fail state
@@ -161,7 +166,11 @@ Example:
 
   [notification]
   bell = true
-  command = [
+  clear = [
+    "terminal-notifier",
+    "-remove", "smth:{pane}",
+  ]
+  notify = [
     "terminal-notifier",
     "-title", "{title}",
     "-message", "{message}",

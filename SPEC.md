@@ -16,11 +16,14 @@ The switcher is configured via a configuration file at
 
 - `notification.bell`: Whether to emit a terminal bell in the agent pane.
   Defaults to false.
-- `notification.command`: An optional root argument array executed directly.
-  An empty or omitted array disables command delivery. Nested arrays are
-  recursively evaluated depth-first and POSIX-shell-joined into one parent
-  argument. Command strings interpolate `{message}`, `{pane}`, `{socket}`,
-  `{state}`, `{title}`, and `{tty}`.
+- `notification.clear`: An optional root argument array executed whenever an
+  agent publishes `running`. An empty or omitted array disables clearing.
+  Command strings interpolate `{pane}`.
+- `notification.notify`: An optional root argument array executed for agent
+  attention transitions. An empty or omitted array disables command delivery.
+  Nested arrays are recursively evaluated depth-first and POSIX-shell-joined
+  into one parent argument. Command strings interpolate `{message}`, `{pane}`,
+  `{socket}`, `{state}`, `{title}`, and `{tty}`.
 - `repo.globs`: A list of glob patterns to locate jj repositories. These stack
   with repository globs supplied on the command line. A leading `~` path
   component expands to the user's home directory.
@@ -128,8 +131,12 @@ vector. Each nested array is evaluated recursively and shell-joined as one
 argument at its parent depth. Interpolation occurs once before shell joining.
 Titles and summaries collapse Unicode whitespace, NUL, and ESC into space
 separators, preserve other non-whitespace control characters, and are truncated
-safely. Bell and configured command delivery run concurrently and are
+safely. Bell and configured notify delivery run concurrently and are
 independently best-effort; configured command execution is bounded.
+
+Every `running` state update invokes the configured clear command after state
+metadata is published. Clear command failures are ignored, and clearing does
+not itself enable notification delivery.
 
 ### Session Names and Metadata
 The switcher represents sessions by their name and metadata.

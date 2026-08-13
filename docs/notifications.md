@@ -1,16 +1,17 @@
 # Notifications
 
 Notification delivery complements [agent integration][agent] and is optional.
-It is disabled unless `notification.bell` is `true`, `notification.command` is
-non-empty, or both.
+It is disabled unless `notification.bell` is `true`, `notification.notify` is
+non-empty, or both. An optional `notification.clear` command removes stale
+notifications when work resumes.
 
 Enabled channels run when an agent newly enters `waiting`, `succeeded`, or
 `failed` and no eligible tmux client has that pane focused. Moving between
 attention-worthy states does not notify again; the agent must first return to
 `idle` or `running`.
 
-Notification delivery is best-effort and never makes a lifecycle state update
-fail.
+Notification delivery and clearing are best-effort and never make a lifecycle
+state update fail.
 
 [agent]: agent-integration.md
 
@@ -35,12 +36,12 @@ setw -g monitor-bell on
 
 ## Desktop notifications
 
-Configure `notification.command` to run a desktop notification program. On
+Configure `notification.notify` to run a desktop notification program. On
 macOS, [`smth-notifier`][app] is a purpose-built bridge that sends silent
 agent-state notifications. Clicking one switches the associated tmux client to
 the requested pane and activates the configured terminal application. Its
 README covers installation, notification authorization, and the corresponding
-`notification.command` configuration.
+`notification.notify` and `notification.clear` configuration.
 
 For a generic alternative, [`terminal-notifier`][tn] can be installed with:
 
@@ -52,7 +53,12 @@ Then configure `smth` to call it:
 
 ```toml
 [notification]
-command = [
+clear = [
+  "terminal-notifier",
+  "-remove", "smth:{pane}",
+]
+
+notify = [
   "terminal-notifier",
   "-title", "{title}",
   "-message", "{message}",
@@ -76,12 +82,12 @@ notification when that pane needs attention again.
 
 ### Command arguments
 
-The root `command` array is executed directly as an argument vector, without a
-shell. A nested array is evaluated from the inside out, POSIX-shell-joined, and
-passed to its parent as one argument. This makes the nested `-execute` command
-above safe to pass as a single shell command string.
+The root `notify` and `clear` arrays are executed directly as argument vectors,
+without a shell. A nested array is evaluated from the inside out,
+POSIX-shell-joined, and passed to its parent as one argument. This makes the
+nested `-execute` command above safe to pass as a single shell command string.
 
-Command strings can interpolate these values:
+`notification.notify` command strings can interpolate these values:
 
 | Variable    | Value                                                                     |
 | ----------- | ------------------------------------------------------------------------- |
@@ -93,7 +99,9 @@ Command strings can interpolate these values:
 | `{tty}`     | The preferred tmux client TTY, or an empty string when none is available. |
 
 Titles and messages have whitespace normalized and are bounded before command
-interpolation.
+interpolation. `notification.clear` command strings can interpolate `{pane}`.
+The clear command runs on every `running` update, even if the agent was already
+running.
 
 ## Focus detection
 
