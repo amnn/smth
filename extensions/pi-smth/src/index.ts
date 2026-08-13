@@ -9,13 +9,6 @@ import type {
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 
-import {
-  deserializeTitle,
-  generateTitle,
-  userPrompt,
-  serializeTitle,
-} from "./title.ts";
-
 type State = "idle" | "running" | "succeeded" | "failed" | "exit";
 
 /** A lifecycle transition and optional notification summary sent to smth. */
@@ -65,12 +58,6 @@ export default function (pi: ExtensionAPI): void {
     ctx.ui.notify(`Could not notify smth: ${detail}`, "warning");
   };
 
-  // Titles are lazily generated. Generation is discarded when the epoch bumps
-  // (which happens whenever the session is stopped or started).
-  let epoch = 0;
-  let generating = false;
-  let title: string | undefined;
-
   // Cache the last outcome from an agent turn end event, to emit once the agent
   // is fully settled.
   //
@@ -85,9 +72,9 @@ export default function (pi: ExtensionAPI): void {
   ): Promise<void> => {
     try {
       const args = ["agent", outcome.state];
-      const t = pi.getSessionName() ?? title;
+      const title = pi.getSessionName();
 
-      args.push("--title", t ? `pi · ${t}` : "pi");
+      args.push("--title", title ? `pi · ${title}` : "pi");
       if (outcome.summary) args.push("--summary", outcome.summary);
 
       const result = await pi.exec("smth", args, {
@@ -110,28 +97,8 @@ export default function (pi: ExtensionAPI): void {
   };
 
   pi.on("session_start", async (_event, ctx) => {
-    epoch += 1;
-    title = deserializeTitle(ctx.sessionManager.getBranch());
-    generating = false;
     settled = { state: "failed" };
     await update({ state: "idle" }, ctx);
-  });
-
-  pi.on("before_agent_start", (event, ctx) => {
-    if (title || generating) return;
-
-    generating = true;
-    const session = epoch;
-    const prompt = userPrompt(ctx.sessionManager.getBranch()) ?? event.prompt;
-
-    void generateTitle(prompt, ctx).then((generated) => {
-      if (!generated || session !== epoch) {
-        return;
-      }
-
-      title = generated;
-      serializeTitle(pi, generated);
-    });
   });
 
   pi.on("agent_start", async (_event, ctx) => {
@@ -148,7 +115,6 @@ export default function (pi: ExtensionAPI): void {
   });
 
   pi.on("session_shutdown", async (_event, ctx) => {
-    epoch += 1;
     await update({ state: "exit" }, ctx);
   });
 }
