@@ -93,10 +93,10 @@ The new-session row is selectable, so `M-up` jumps to that row.
 ```terminal
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+   et                                                                                              ┃
 ▌⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃
  ⬤ delta                                                                                           ┃
-                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -111,10 +111,10 @@ session: et                                                                     
 ```terminal
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+   et                                                                                              ┃
  ⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃
 ▌⬤ delta                                                                                           ┃
-                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

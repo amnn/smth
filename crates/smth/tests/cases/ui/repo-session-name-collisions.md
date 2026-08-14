@@ -26,7 +26,7 @@ will also show `beta~1`:
     :t resize-window -t ui:0 -x 120 -y 12
     :pane ui:0.0
     :settle -d 2s
-    :k C-p beta up
+    :k C-p beta
     :snap
 
 ---

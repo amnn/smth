@@ -428,8 +428,8 @@ impl App {
             // Edit query
             KC::Backspace => self.model.pop_query(),
             KC::Char('u') if ctrl => self.model.clear_query(),
-            KC::Char(c) if key.modifiers.is_empty() => self.model.push_query(c),
-            KC::Char(c) if shift => self.model.push_query(c),
+            KC::Char(c) if key.modifiers.is_empty() => self.push_query(c),
+            KC::Char(c) if shift => self.push_query(c),
 
             _ => {}
         };
@@ -442,6 +442,13 @@ impl App {
         let result = self.bg.as_mut()?.take()?;
         self.bg = None;
         Some(result)
+    }
+
+    /// Append a character, resetting selection when it starts a new query.
+    fn push_query(&mut self, ch: char) {
+        if self.model.push_query(ch) {
+            self.sessions.reset_selection();
+        }
     }
 
     /// Clear the current repo.

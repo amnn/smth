@@ -265,8 +265,12 @@ impl Model {
     }
 
     /// Append one character to the active query string.
-    pub(crate) fn push_query(&mut self, ch: char) {
+    ///
+    /// Returns whether this character started a new query.
+    pub(crate) fn push_query(&mut self, ch: char) -> bool {
+        let started = self.picker.query().is_empty();
         self.picker.push(ch);
+        started
     }
 
     /// Refresh fuzzy matches and return the currently visible rows.

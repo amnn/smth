@@ -180,6 +180,11 @@ impl State {
         self.deleting = false;
     }
 
+    /// Clear the selection so the next render selects the default row.
+    pub(super) fn reset_selection(&mut self) {
+        self.list.select(None);
+    }
+
     /// Move selection to the beginning of the list.
     ///
     /// During rendering this may be shifted to the second element in the list if the first (the

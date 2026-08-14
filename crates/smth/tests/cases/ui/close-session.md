@@ -16,7 +16,7 @@ the query.
 
 Filter to the matching sessions. The first match, `alpha`, is selected.
 
-    :k alp up
+    :k alp
     :snap
 
 Pressing `C-x` should kill `alpha`, keep `smth` running, preserve the `alp`

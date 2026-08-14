@@ -11,10 +11,6 @@
 
 ## UI
 
-- [ ] Reset selected row to the top the first time the filter changes (to
-  counteract the initial behaviour of selecting the second most recently
-  attached session initially).
-
 - [ ] Preview actual pane content
 
 # Appendix: Legend
