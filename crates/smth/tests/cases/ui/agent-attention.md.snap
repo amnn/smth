@@ -82,8 +82,8 @@ should remain bright green without creating a green background cell.
 ```terminal
 session: succeeded                                                                                 ┃
   1/7 | [C-r] repo: none | [C-x] close, [C-f] unflag                       ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
+   succeeded~1                                                                                     ┃
 ▌⬤ succeeded                                                                               ✔ 2 · ○ ┃
-                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

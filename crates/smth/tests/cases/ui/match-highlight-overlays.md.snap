@@ -40,8 +40,8 @@ basename (`b`) spans.
 ```terminal
 session: onecb                                                                                     ┃
   1/3 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+   onecb                                                                                           ┃
 ▌⬤ tone~one                                 c/blue                                                 ┃
-                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

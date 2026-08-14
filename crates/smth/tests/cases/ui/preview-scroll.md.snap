@@ -57,8 +57,8 @@ scrollbar thumb should start at the top of the scroll area.
 ```terminal
 session: long
   1/5 | [C-r] repo: none
+   long                                                                                                                ┃
 ▌  long                                     ~/long                                                                     ┃
-                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                                                ┃
 │  (empty) line 09                                                                                                     ┃
@@ -78,8 +78,8 @@ scrollbar thumb should reach the bottom of the scroll area.
 ```terminal
 session: long
   1/5 | [C-r] repo: none
+   long                                                                                                                ┃
 ▌  long                                     ~/long                                                                     ┃
-                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                                                │
 │  (empty) line 03                                                                                                     │
@@ -100,8 +100,8 @@ than inheriting the previous session's scroll position.
 ```terminal
 session: other
   1/5 | [C-r] repo: none
+   other                                                                                                               ┃
 ▌  other                                    ~/other                                                                    ┃
-                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                                                ┃
 │  (empty) other 09                                                                                                    ┃

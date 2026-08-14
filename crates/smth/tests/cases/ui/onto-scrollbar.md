@@ -41,11 +41,13 @@ inverted. The scrollbar thumb should remain visible at the top edge.
     :k C-o
     :snap --color -d 2s "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
-Typing an onto query should update the fuzzy model used by rendering. Matching
-characters should be reversed against their surrounding row; inside the selected
-reversed `line 06` row, they should be switched back for contrast.
+Typing substring atoms for the stable `(empty) line 06` description should
+update the fuzzy model used by rendering. Each leading apostrophe selects
+substring matching, and all three atoms must match the same candidate line.
+Matching characters should be reversed against their surrounding row; inside
+the selected reversed `line 06` row, they should be switched back for contrast.
 
-    :k pty6
+    :k "'(empty)" space "'line" space "'06"
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 `Down` should move selection to `line 05` even though it does not match the

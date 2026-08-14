@@ -34,9 +34,24 @@ Launch the picker in the runner pane with enough height to show the complete
 order. The second row, `gamma`, should be selected initially.
 
     :t resize-window -t runner:0 -x 80 -y 20
-    :$ tmux respawn-pane -k 'smth; : > picker-exited; cat'
+    :$ tmux respawn-pane -k 'smth; : > query-picker-exited; cat'
     :settle -d 2s
     :snap
+
+Typing a query that has multiple matches should reset the cursor to the first
+existing fuzzy match rather than preserving the initial selection's row. The
+new-session candidate remains unselected.
+
+    :k a
+    :snap
+
+Cancel the filtered picker, then relaunch it without changing tmux's attachment
+history so the initial recency selection can still be accepted.
+
+    :k C-c
+    :$ sh -c 'until test -f query-picker-exited; do :; done'
+    :$ tmux respawn-pane -k 'smth; : > picker-exited; cat'
+    :settle -d 2s
 
 Accept the initial selection after tmux's timestamp advances, then synchronize
 on both the client switch and picker exit.
