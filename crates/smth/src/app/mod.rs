@@ -390,32 +390,26 @@ impl App {
             // Session list selection
             KC::Up | KC::Char('k') if alt => {
                 self.sessions.select_first();
-                self.preview.first();
             }
 
             KC::Down | KC::Char('j') if alt => {
                 self.sessions.select_last();
-                self.preview.first();
             }
 
             KC::Up => {
                 self.sessions.select_previous();
-                self.preview.first();
             }
 
             KC::Char('k') if ctrl => {
                 self.sessions.select_previous();
-                self.preview.first();
             }
 
             KC::Down => {
                 self.sessions.select_next();
-                self.preview.first();
             }
 
             KC::Char('j') if ctrl => {
                 self.sessions.select_next();
-                self.preview.first();
             }
 
             // App state

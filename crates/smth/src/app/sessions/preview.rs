@@ -27,6 +27,8 @@ pub(crate) struct Preview<'s> {
 pub(crate) struct State {
     entries: HashMap<PathBuf, loader::State<Scroll>>,
     scroll: scroll::State,
+    /// Repository whose preview owns the current scroll position.
+    viewing: Option<PathBuf>,
     visible: bool,
 }
 
@@ -37,15 +39,23 @@ impl<'s> Preview<'s> {
     }
 
     /// Render the preview text and its scrollbar into `area`.
+    ///
+    /// Resets the scroll position when the selected preview repository changes.
     pub(crate) fn draw(&self, f: &mut Frame<'_>, area: Rect, state: &mut State) {
-        let Some(repo) = self.selected.and_then(|s| s.preview_repo()) else {
+        let repo = self.selected.and_then(Session::preview_repo);
+        if state.viewing != repo {
+            state.viewing = repo;
+            scroll::first(&mut state.scroll);
+        }
+
+        let Some(repo) = state.viewing.as_ref() else {
             return;
         };
 
         let preview = state
             .entries
             .entry(repo.clone())
-            .or_insert_with(|| loader(repo));
+            .or_insert_with(|| loader(repo.clone()));
 
         f.render_stateful_widget(Loader::new(&mut state.scroll), area, preview);
     }
@@ -57,6 +67,7 @@ impl State {
         Self {
             entries: HashMap::new(),
             scroll: scroll::State::default(),
+            viewing: None,
             visible: true,
         }
     }
@@ -68,11 +79,6 @@ impl State {
                 .entry(repo.clone())
                 .or_insert_with(|| loader(repo));
         }
-    }
-
-    /// Move the scroll position to the start of the content.
-    pub(crate) fn first(&mut self) {
-        scroll::first(&mut self.scroll);
     }
 
     /// Scroll down by one unit.

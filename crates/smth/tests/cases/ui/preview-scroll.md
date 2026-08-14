@@ -1,7 +1,8 @@
 # Preview scroll
 
-This scenario verifies the preview scrollbar behavior for a long repo-backed
-preview: it should start at the top and reach the bottom after scrolling.
+This scenario verifies the preview scrollbar behavior for long repo-backed
+previews: each should start at the top, reach the bottom after scrolling, and
+reset when the selected session changes.
 
 The test creates a chain of numbered commits. With the fixed
 `builtin_log_compact` preview template, each commit contributes a compact header
@@ -31,8 +32,10 @@ for i in range(1, count + 1):
     :t rename-session -t 0 runner
     :$ jj git init long
     :$ python3 scripts/mklog.py long line 9
+    :$ jj git init other
+    :$ python3 scripts/mklog.py other other 9
     :t new-session -d -s plain "cat"
-    :t new-session -d -s ui "smth -r long"
+    :t new-session -d -s ui "smth -r long -r other"
     :t resize-window -t ui:0 -x 120 -y 12
     :pane ui:0.0
 
@@ -47,6 +50,13 @@ This snapshot shows the preview after repeated `S-down` presses. The preview
 scrollbar thumb should reach the bottom of the scroll area.
 
     :k S-down S-down S-down S-down S-down S-down S-down S-down S-down S-down S-down S-down S-down S-down S-down
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+Changing the query replaces the selected session without using a list
+navigation key. The newly selected preview should still start at the top rather
+than inheriting the previous session's scroll position.
+
+    :k C-u other
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ---
