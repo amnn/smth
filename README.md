@@ -41,7 +41,7 @@ new ones backed by **jujutsu** (jj) repositories and workspaces.
 Install the latest version from this repository with Cargo:
 
 ```sh
-cargo install --locked --git https://github.com/amnn/smth --package smth
+cargo install --locked --git https://github.com/amnn/smth
 ```
 
 Make sure Cargo's binary directory is on your `$PATH` so tmux can find the
