@@ -52,6 +52,7 @@ installed `smth` binary.
 Add to `~/.tmux.conf`:
 
 ```tmux
+set -g detach-on-destroy off
 bind s display-popup -E -w 80% -h 80% -T smth -d "#{pane_current_path}" "smth"
 bind S choose-tree -s
 ```
@@ -62,7 +63,7 @@ Then reload the tmux configuration:
 tmux source-file ~/.tmux.conf
 ```
 
-Next:
+### Next Steps
 
 - [Configure `smth`][cfg], including [repository discovery][repo].
 - [Connect agents][agent] so `smth` can track their statuses.
