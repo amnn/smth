@@ -4,6 +4,23 @@
 
 It's a **s**ession **m**anager for **t**mux **h**opping. Or something.
 
+## Tmux closes when the current session is closed
+
+Tmux's `detach-on-destroy` option defaults to `on`, so it detaches the client
+when `smth` closes (`C-x`) or deletes (`C-d`) the session the client is attached
+to. Add this to `~/.tmux.conf`:
+
+```tmux
+set -g detach-on-destroy off
+```
+
+With this option disabled, tmux switches the client to the most recently active
+remaining session instead. Reload the tmux configuration to apply it:
+
+```sh
+tmux source-file ~/.tmux.conf
+```
+
 ## `smth` does not detect the repository from the current directory
 
 `smth` detects the default repository context from the directory it starts in.
