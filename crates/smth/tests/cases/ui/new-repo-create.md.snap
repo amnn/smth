@@ -1,0 +1,172 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/new-repo-create.md
+---
+# Create repositories from the picker
+
+`M-n` should initialize a fresh repository only for the ephemeral plain-session
+candidate, then create its session while retaining the picker.
+
+    :bins jj tmux cat sh sed
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'sh', and 'sed' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :w .config/smth/smth.toml (written)
+
+```toml
+[repo]
+root = "repos"
+
+[tmux]
+setup = ": > .smth-ready"
+```
+
+    :t rename-session -t 0 runner (success)
+    :t resize-window -t runner:0 -x 120 -y 10 (success)
+    :t respawn-pane -k -t runner:0.0 'smth --no-base; cat' (success)
+    :pane runner:0.0
+    :settle -d 2s (settled)
+
+Type a repository name and wait for the ephemeral candidate to become the
+retained selection.
+
+    :k detached
+    :snap
+
+```terminal
+session: detached
+  0/1 | [C-r] repo: none
+▌  detached                                                                                                            ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+    :k M-n
+    :$ sh -c 'until test -f repos/detached/.smth-ready; do :; done' (exit: 0)
+    :settle -d 2s (settled)
+
+The picker should remain open with its query cleared, and the control-mode
+client should remain attached to the runner session.
+
+    :snap
+
+```terminal
+session:
+  2/2 | [C-r] repo: none | [C-x] close, [C-f] flag
+▌⬤ runner                                                                                                              ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+    :t display-message -p '#{client_session}' (success)
+
+```
+runner
+```
+
+The repository should be colocated, use the configured root, and be attached to
+its live tmux session.
+
+    :$ sh -c 'test -d repos/detached/.jj && test -d repos/detached/.git' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=detached:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+
+```stdout
+<ROOT>/repos/detached
+```
+
+A query that sanitizes to an empty name should use the first available numeric
+suffix for both the candidate and the new repository session.
+
+    :k ...
+    :snap
+
+```terminal
+session: ...
+  0/2 | [C-r] repo: none
+▌  1                                                                                                                   ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+    :k M-n
+    :$ sh -c 'until test -f repos/1/.smth-ready; do :; done' (exit: 0)
+    :settle -d 2s (settled)
+    :$ sh -c 'test -d repos/1/.jj && test -d repos/1/.git' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+
+```stdout
+<ROOT>/repos/1
+```
+
+With a repository context, `M-n` should create the selected workspace normally
+instead of initializing a fresh repository.
+
+    :t respawn-pane -k -t runner:0.0 'smth --base repos/detached; cat' (success)
+    :settle -d 2s (settled)
+    :k blocked
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: blocked
+  0/3 | [C-r] repo: ~/r/detached, [C-o] onto: trunk()
+▌  detached/blocked                         ~/r/detached.blocked                                                       ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) (no description set)
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+```
+
+    :k M-n
+    :$ sh -c 'until test -f repos/detached.blocked/.smth-ready; do :; done' (exit: 0)
+    :settle -d 2s (settled)
+    :snap
+
+```terminal
+session:
+  4/4 | [C-r] repo: ~/r/detached, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+▌⬤ runner                                                                                                              ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+    :t display-message -p '#{client_session}' (success)
+
+```
+runner
+```
+
+    :$ sh -c 'test -d repos/detached.blocked/.jj && test ! -e repos/blocked' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=detached/blocked:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+
+```stdout
+<ROOT>/repos/detached.blocked
+```
+
+---
+vim: set ft=markdown:

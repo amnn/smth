@@ -353,6 +353,11 @@ impl Model {
         &self.sessions
     }
 
+    /// Return discovered tmux names for disambiguating session candidates.
+    pub(crate) fn tmux_names(&self) -> &BTreeSet<String> {
+        &self.seen_tmux_names
+    }
+
     /// Return the exact jj workspace name for `repo`, if it is a named workspace.
     pub(crate) fn workspace_name(&self, repo: &Path) -> Option<&str> {
         self.workspace_info(repo).and_then(|w| w.name.as_deref())

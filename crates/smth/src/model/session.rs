@@ -204,6 +204,24 @@ impl Session {
         matches!(&self.0, Kind::Live(kind) if !kind.alerts.is_empty())
     }
 
+    /// Convert a prospective plain session into a fresh repository candidate when possible.
+    ///
+    /// Recheck its name against `sessions` and existing paths below `root`. Return sessions with a
+    /// repository context, live sessions, and existing checkouts unchanged.
+    pub(crate) fn try_into_new_repo(mut self, root: &Path, sessions: &BTreeSet<String>) -> Self {
+        let Kind::New(kind) = &mut self.0 else {
+            return self;
+        };
+
+        if !matches!(kind.base, Base::Cwd(None)) {
+            return self;
+        }
+
+        kind.base = Base::NewRepo(root.to_owned());
+        kind.disambiguate(sessions, &BTreeSet::new());
+        self
+    }
+
     /// Return the repository whose log should be shown in the preview pane.
     pub(crate) fn preview_repo(&self) -> Option<PathBuf> {
         match &self.0 {
@@ -647,6 +665,70 @@ mod tests {
 
         assert_eq!(session.name(), "repo/feature");
         assert_eq!(session.repo(), Some(temp.path().join("repo.feature")));
+    }
+
+    #[test]
+    fn only_plain_candidates_convert_to_new_repos() {
+        let temp = tempdir().unwrap();
+        let root = temp.path();
+        let names = BTreeSet::new();
+        let plain: Session = NewKind::new("project one", Base::Cwd(None)).into();
+        let converted = plain.try_into_new_repo(root, &names);
+
+        assert_eq!(converted.name(), "project-one");
+        assert_eq!(converted.repo(), Some(root.join("project-one")));
+        assert!(!converted.is_live());
+        assert!(!converted.can_delete());
+
+        let ineligible: [Session; 5] = [
+            NewKind::new("project", Base::Cwd(Some(root.to_owned()))).into(),
+            NewKind::new("project", Base::NewRepo(root.to_owned())).into(),
+            NewKind::new("project", Base::Repo(Repo::new(root.to_owned()))).into(),
+            RepoKind::new(None, root.to_owned(), root.to_owned()).into(),
+            LiveKind::new(
+                "project".to_owned(),
+                None,
+                None,
+                BTreeMap::new(),
+                BTreeSet::new(),
+                false,
+            )
+            .into(),
+        ];
+
+        for session in ineligible {
+            assert_eq!(session.clone().try_into_new_repo(root, &names), session);
+        }
+    }
+
+    #[test]
+    fn plain_candidate_conversion_disambiguates_empty_name() {
+        let temp = tempdir().unwrap();
+        fs::create_dir(temp.path().join("2")).unwrap();
+        let names = BTreeSet::from(["1".to_owned(), "3".to_owned()]);
+        let mut candidate = NewKind::new("...", Base::Cwd(None));
+        candidate.disambiguate(&names, &BTreeSet::new());
+        assert_eq!(candidate.name(), "2");
+
+        let session = Session::from(candidate).try_into_new_repo(temp.path(), &names);
+
+        assert_eq!(session.name(), "4");
+        assert_eq!(session.repo(), Some(temp.path().join("4")));
+    }
+
+    #[test]
+    fn plain_candidate_conversion_disambiguates_names_and_paths() {
+        let temp = tempdir().unwrap();
+        fs::create_dir(temp.path().join("project~1")).unwrap();
+        let names = BTreeSet::from(["project".to_owned(), "project~2".to_owned()]);
+        let mut candidate = NewKind::new("project", Base::Cwd(None));
+        candidate.disambiguate(&names, &BTreeSet::new());
+        assert_eq!(candidate.name(), "project~1");
+
+        let session = Session::from(candidate).try_into_new_repo(temp.path(), &names);
+
+        assert_eq!(session.name(), "project~3");
+        assert_eq!(session.repo(), Some(temp.path().join("project~3")));
     }
 
     #[test]
