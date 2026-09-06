@@ -154,7 +154,7 @@ impl App {
                 continue;
             }
 
-            match self.handle_key(key).await {
+            match self.handle_key(key, ctx.repo_root).await {
                 None => {}
                 Some(Action::Cancel) => return Ok(()),
 
@@ -319,7 +319,9 @@ impl App {
     }
 
     /// Handle a single keyboard event, returning the consequent application action.
-    async fn handle_key(&mut self, key: KeyEvent) -> Option<Action> {
+    ///
+    /// Alt-based creation uses `repo_root` as the new repository's parent directory.
+    async fn handle_key(&mut self, key: KeyEvent, repo_root: &Path) -> Option<Action> {
         use KeyCode as KC;
         use KeyModifiers as KM;
 
@@ -358,11 +360,36 @@ impl App {
             return None;
         }
 
-        match key.code {
-            // Accept the selected row.
-            KC::Enter if !is_loading => return self.sessions.take_selected().map(Action::Switch),
+        let try_new_repo = |session: Session| {
+            if alt {
+                session.try_into_new_repo(repo_root, self.model.tmux_names())
+            } else {
+                session
+            }
+        };
 
-            // Create the selected row without switching.
+        match key.code {
+            // Accept the selected row, switching to it. If the alt modifier is set and we are
+            // creating a new plain session, then we will create a repo with it as well.
+            KC::Enter if !is_loading => {
+                return self
+                    .sessions
+                    .take_selected()
+                    .map(try_new_repo)
+                    .map(Action::Switch);
+            }
+
+            // Create the selected row without switching, with the same alt modifier convention.
+            KC::Char('n') if alt && !is_loading && !self.sessions.is_live() => {
+                return self
+                    .sessions
+                    .take_selected()
+                    .map(try_new_repo)
+                    .map(Action::Create);
+            }
+
+            // Create the selected row without switching, and without necessarily creating a new
+            // repo.
             KC::Char('n') if ctrl && !is_loading && !self.sessions.is_live() => {
                 return self.sessions.take_selected().map(Action::Create);
             }

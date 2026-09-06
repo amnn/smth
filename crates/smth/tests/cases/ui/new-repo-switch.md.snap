@@ -1,0 +1,125 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/new-repo-switch.md
+---
+# Switch to a repository created from the picker
+
+`M-enter` should initialize a fresh repository for the ephemeral plain-session
+candidate, create its session, and switch the invoking client.
+
+    :bins jj tmux cat sh sed mkdir
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'sh', 'sed', and 'mkdir' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :w .config/smth/smth.toml (written)
+
+```toml
+[repo]
+root = "repos"
+
+[tmux]
+setup = ": > .smth-ready"
+```
+
+Reserve a destination and live names so the selected plain candidate must be
+disambiguated again after it becomes repo-backed.
+
+    :$ mkdir -p repos/switched~1 (exit: 0)
+    :t new-session -d -s switched "cat" (success)
+    :t new-session -d -s switched~2 "cat" (success)
+    :t rename-session -t 0 runner (success)
+    :t resize-window -t runner:0 -x 120 -y 10 (success)
+    :t respawn-pane -k -t runner:0.0 'smth --no-base; cat' (success)
+    :pane runner:0.0
+    :settle -d 2s (settled)
+
+Select the ephemeral plain candidate, whose name already avoids the live
+sessions but does not yet account for repository paths.
+
+    :k switched M-up
+    :snap
+
+```terminal
+session: switched
+  2/3 | [C-r] repo: none
+▌  switched~1                                                                                                          ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+Synchronize on a persistent option written by a one-shot tmux hook after the
+client changes session.
+
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; set-option -g @smth.test-switched yes" (success)
+    :k M-enter
+    :$ sh -c 'until test -f repos/switched~3/.smth-ready; do :; done' (exit: 0)
+    :$ sh -c 'until test "$(tmux show-options -gqv @smth.test-switched)" = yes; do :; done' (exit: 0)
+
+The client should show the new session after repository initialization and tmux
+setup complete.
+
+    :t display-message -p '#{client_session}' (success)
+
+```
+switched~3
+```
+
+    :$ sh -c 'test -d repos/switched~3/.jj && test -d repos/switched~3/.git && test ! -e repos/switched~1/.jj' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=switched~3:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+
+```stdout
+<ROOT>/repos/switched~3
+```
+
+    :t has-session -t '=switched' (success)
+    :t has-session -t '=switched~2' (success)
+    :t display-message -p -t runner:0.0 '#{pane_dead}' (success)
+
+```
+0
+```
+
+An existing live session cannot become a fresh repository. `M-enter` should
+still switch to that selected session without initializing a checkout.
+
+    :t switch-client -t runner (success)
+    :t new-session -d -s fallback -c '#{pane_start_path}' 'smth --no-base --query switched~2; cat' (success)
+    :t resize-window -t fallback:0 -x 120 -y 10 (success)
+    :pane fallback:0.0
+    :settle -d 2s (settled)
+    :snap
+
+```terminal
+session: switched~2
+  1/5 | [C-r] repo: none | [C-x] close, [C-f] flag
+▌⬤ switched~2                                                                                                          ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+```
+
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S switched-existing" (success)
+    :k M-enter
+    :t wait-for switched-existing (success)
+    :t display-message -p '#{client_session}' (success)
+
+```
+switched~2
+```
+
+    :$ sh -c 'test ! -e repos/switched~2 && test ! -e repos/switched~2~1' (exit: 0)
+
+---
+vim: set ft=markdown:

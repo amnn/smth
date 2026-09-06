@@ -189,6 +189,10 @@ Key bindings:
   C-u               Clear the filter.
   C-x               Close a live session.
   C-y               Confirm a pending deletion.
+  M-enter           Switch to the session, initializing a fresh repository when
+                    eligible.
+  M-n               Create the session without switching, initializing a fresh
+                    repository when eligible.
   up, down          Move selection by one row.
   C-k, C-j          Move selection by one row.
   M-up, M-down      Move selection to the first or last row.

@@ -290,6 +290,14 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     w.def("C-u", "Clear the filter.")?;
     w.def("C-x", "Close a live session.")?;
     w.def("C-y", "Confirm a pending deletion.")?;
+    w.def(
+        "M-enter",
+        "Switch to the session, initializing a fresh repository when eligible.",
+    )?;
+    w.def(
+        "M-n",
+        "Create the session without switching, initializing a fresh repository when eligible.",
+    )?;
     w.def("up, down", "Move selection by one row.")?;
     w.def("C-k, C-j", "Move selection by one row.")?;
     w.def("M-up, M-down", "Move selection to the first or last row.")?;
