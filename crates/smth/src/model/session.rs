@@ -10,6 +10,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Context as _;
+use anyhow::ensure;
 
 use crate::cmd::jj;
 use crate::cmd::tmux;
@@ -32,6 +33,8 @@ pub struct Session(Kind);
 pub(crate) enum Base {
     /// Create a jj workspace from this repository information.
     Repo(Repo),
+    /// Create a new repository below this parent directory.
+    NewRepo(PathBuf),
     /// Create a tmux session at this working directory, or the process cwd if absent.
     Cwd(Option<PathBuf>),
 }
@@ -302,8 +305,8 @@ impl NewKind {
         }
     }
 
-    /// Tweak session's suffix until its tmux session name, workspace name, and repo path are all
-    /// unique.
+    /// Tweak session's suffix until its tmux name is non-empty and its tmux name, workspace name,
+    /// and repo path are all unique.
     ///
     /// `sessions` is the list of all tmux sessions found on startup, and `siblings` is the set of
     /// other workspaces associated with the same default repo as this session.
@@ -313,7 +316,8 @@ impl NewKind {
         workspaces: &BTreeSet<String>,
     ) {
         let mut i = 1;
-        while sessions.contains(&self.name())
+        while self.name().is_empty()
+            || sessions.contains(&self.name())
             || self.workspace().is_some_and(|w| workspaces.contains(&w.1))
             || self.repo().is_some_and(|r| r.exists())
         {
@@ -322,17 +326,37 @@ impl NewKind {
         }
     }
 
+    /// Ensure the checkout backing this new session exists, when it is repo-backed.
+    async fn ensure_checkout(&self) -> anyhow::Result<()> {
+        let Some(dest) = self.repo() else {
+            return Ok(());
+        };
+
+        if let Base::NewRepo(root) = &self.base {
+            ensure!(!dest.exists(), "repo '{}' already exists", dest.display());
+            tokio::fs::create_dir_all(root).await.with_context(|| {
+                format!("failed to create repository root '{}'", root.display())
+            })?;
+
+            jj::git_init(&dest).await?;
+        } else if let Some((default, workspace, revision)) = self.workspace() {
+            jj::add_workspace(default, &dest, &workspace, revision).await?;
+        };
+
+        Ok(())
+    }
+
     /// Ensure the tmux session for this new session exists.
     async fn ensure_tmux(&self, cwd: &Path, setup: &str) -> anyhow::Result<()> {
         let target = self.name();
         let repo = self.repo();
         let cwd = match &self.base {
-            Base::Repo(_) => repo.clone().context("missing repo")?,
+            Base::Repo(_) | Base::NewRepo(_) => repo.clone().context("missing repo")?,
             Base::Cwd(Some(cwd)) => cwd.clone(),
             Base::Cwd(None) => cwd.to_owned(),
         };
 
-        self.ensure_workspace().await?;
+        self.ensure_checkout().await?;
         tmux::new_session(&target, &cwd).await?;
 
         if let Some(repo) = self.repo() {
@@ -342,24 +366,11 @@ impl NewKind {
         tmux::run_shell(&format!("{target}:0"), &cwd, setup).await
     }
 
-    /// Ensure the jj workspace for this new session exists, when it is repo-backed.
-    async fn ensure_workspace(&self) -> anyhow::Result<()> {
-        let Some((default, workspace, revision)) = self.workspace() else {
-            return Ok(());
-        };
-
-        let destination = self
-            .repo()
-            .context("workspace-backed session is missing a destination")?;
-
-        jj::add_workspace(default, &destination, &workspace, revision).await
-    }
-
     /// The tmux session name for the new session.
     fn name(&self) -> String {
         let base = match &self.base {
             Base::Repo(base) => Some(base.path()),
-            Base::Cwd(_) => None,
+            Base::NewRepo(_) | Base::Cwd(_) => None,
         };
 
         workspace_session_name(base, Some(&self.name), self.suffix.as_deref())
@@ -369,15 +380,21 @@ impl NewKind {
     fn preview_repo(&self) -> Option<PathBuf> {
         match &self.base {
             Base::Repo(base) => Some(base.path().to_owned()),
-            Base::Cwd(_) => None,
+            Base::NewRepo(_) | Base::Cwd(_) => None,
         }
     }
 
     /// The repository associated with this session. Disambiguation ensures this path does not
     /// collide with an existing repo.
     fn repo(&self) -> Option<PathBuf> {
-        let (default, workspace, _) = self.workspace()?;
-        Some(default.with_added_extension(&workspace))
+        match &self.base {
+            Base::Repo(_) => {
+                let (default, workspace, _) = self.workspace()?;
+                Some(default.with_added_extension(&workspace))
+            }
+            Base::NewRepo(root) => Some(root.join(self.name())),
+            Base::Cwd(_) => None,
+        }
     }
 
     /// This session's workspace name. Disambiguation ensures this name does not collide with an
@@ -561,9 +578,66 @@ fn workspace_session_name(
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use tempfile::tempdir;
 
     use super::*;
+
+    #[tokio::test]
+    async fn new_plain_sessions_do_not_create_checkouts() {
+        let temp = tempdir().unwrap();
+        for base in [Base::Cwd(None), Base::Cwd(Some(temp.path().to_owned()))] {
+            let session = NewKind::new("plain", base);
+            session.ensure_checkout().await.unwrap();
+        }
+
+        assert!(fs::read_dir(temp.path()).unwrap().next().is_none());
+    }
+
+    #[tokio::test]
+    async fn new_repo_checkout_initializes_colocated_repo() {
+        let temp = tempdir().unwrap();
+        let root = temp.path().join("missing").join("repos");
+        let session = NewKind::new("project", Base::NewRepo(root.clone()));
+
+        session.ensure_checkout().await.unwrap();
+
+        assert!(root.join("project").join(".jj").is_dir());
+        assert!(root.join("project").join(".git").is_dir());
+    }
+
+    #[tokio::test]
+    async fn new_repo_checkout_rejects_existing_destination() {
+        let temp = tempdir().unwrap();
+        let destination = temp.path().join("project");
+        fs::create_dir(&destination).unwrap();
+        let session = NewKind::new("project", Base::NewRepo(temp.path().to_owned()));
+
+        let error = session.ensure_checkout().await.unwrap_err();
+
+        assert_eq!(
+            error.to_string(),
+            format!("repo '{}' already exists", destination.display())
+        );
+        assert!(!destination.join(".jj").exists());
+    }
+
+    #[tokio::test]
+    async fn new_workspace_checkout_creates_workspace() {
+        let temp = tempdir().unwrap();
+        let default = temp.path().join("repo");
+        let workspace = temp.path().join("repo.feature");
+        jj::git_init(&default).await.unwrap();
+
+        let repo = Repo::new(default.clone()).with_revision("@".to_owned());
+        let session = NewKind::new("feature", Base::Repo(repo));
+        session.ensure_checkout().await.unwrap();
+
+        assert!(workspace.join(".jj").is_dir());
+        let workspaces = jj::workspaces(&default).await.unwrap();
+        assert!(workspaces.contains_key(&Some("feature".to_owned())));
+    }
 
     #[test]
     fn new_workspace_sessions_derive_names_and_paths() {

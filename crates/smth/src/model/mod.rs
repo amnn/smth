@@ -14,6 +14,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Context as _;
+use anyhow::ensure;
 use futures::stream::FuturesUnordered;
 use futures::stream::StreamExt as _;
 use nucleo::Snapshot;
@@ -36,6 +37,9 @@ use crate::model::session::Session;
 /// This owns the discovered session rows, the collision sets used while deriving candidate rows,
 /// and the mapping from repository paths to workspace metadata needed by workspace-aware session
 /// construction.
+///
+/// The default model is empty and does not discover sessions.
+#[derive(Default)]
 pub struct Model {
     /// Fuzzy finder state for discovered sessions.
     picker: Picker<Session>,
@@ -126,12 +130,23 @@ impl Model {
     }
 
     /// Return the existing or prospective session represented by an explicit request.
+    ///
+    /// When `repo_root` is supplied, return a fresh repository candidate below it rather than
+    /// reusing an existing session. This requires an empty repository base. Missing names default to
+    /// empty and are disambiguated like explicitly empty names.
     pub fn session_for_request(
         &self,
+        repo_root: Option<&Path>,
         base: Option<&Path>,
         name: Option<&str>,
         onto: &str,
     ) -> anyhow::Result<Session> {
+        if let Some(root) = repo_root {
+            ensure!(base.is_none(), "repo creation requires no base");
+            let name = name.unwrap_or_default();
+            return Ok(self.new_session(name, Base::NewRepo(root.to_owned())));
+        }
+
         // If a session already exists for this base and name, return it.
         if let Some(session) = self.session(base, name) {
             return Ok(session.clone());
@@ -348,7 +363,7 @@ impl Model {
         let empty = BTreeSet::new();
         let siblings = match &base {
             Base::Repo(base) => self.seen_workspaces.get(base.path()).unwrap_or(&empty),
-            Base::Cwd(_) => &empty,
+            Base::NewRepo(_) | Base::Cwd(_) => &empty,
         };
 
         let mut session = NewKind::new(name, base);
@@ -484,6 +499,15 @@ mod tests {
 
     use super::*;
 
+    #[test]
+    fn default_model_is_empty() {
+        let mut model = Model::default();
+
+        assert!(model.picker.query().is_empty());
+        assert!(model.matches().is_empty());
+        assert!(model.session_for_query(None).is_none());
+    }
+
     fn model_with_workspace(workspace: &Path, default: PathBuf) -> Model {
         let session = RepoKind::new(Some("feature"), default.clone(), workspace.to_owned()).into();
 
@@ -506,13 +530,139 @@ mod tests {
         }
 
         Model {
-            picker: Picker::new(String::new()),
             sessions: vec![session],
-            recently_attached: None,
-            seen_tmux_names: BTreeSet::new(),
-            seen_workspaces: BTreeMap::new(),
             workspaces,
+            ..Model::default()
         }
+    }
+
+    #[test]
+    fn new_repo_session_derives_destination() {
+        let temp = tempdir().unwrap();
+        let model = Model::default();
+
+        let session = model
+            .session_for_request(
+                Some(temp.path()),
+                None,
+                Some("project one"),
+                jj::DEFAULT_BASE_REVSET,
+            )
+            .unwrap();
+
+        assert_eq!(session.name(), "project-one");
+        assert_eq!(session.repo(), Some(temp.path().join("project-one")));
+        assert!(!session.can_delete());
+    }
+
+    #[test]
+    fn new_repo_session_disambiguates_empty_sanitized_name() {
+        let temp = tempdir().unwrap();
+        let model = Model::default();
+
+        for root in [temp.path().to_owned(), temp.path().join("missing")] {
+            for name in [None, Some(""), Some("...")] {
+                let session = model
+                    .session_for_request(Some(&root), None, name, jj::DEFAULT_BASE_REVSET)
+                    .unwrap();
+
+                assert_eq!(session.name(), "1");
+                assert_eq!(session.repo(), Some(root.join("1")));
+            }
+        }
+    }
+
+    #[test]
+    fn new_repo_session_disambiguates_empty_sanitized_name_with_collisions() {
+        let temp = tempdir().unwrap();
+        fs::create_dir(temp.path().join("1")).unwrap();
+
+        let mut model = Model::default();
+        model.seen_tmux_names.insert("2".to_owned());
+
+        let session = model
+            .session_for_request(
+                Some(temp.path()),
+                None,
+                Some("..."),
+                jj::DEFAULT_BASE_REVSET,
+            )
+            .unwrap();
+
+        assert_eq!(session.name(), "3");
+        assert_eq!(session.repo(), Some(temp.path().join("3")));
+    }
+
+    #[test]
+    fn new_repo_session_disambiguates_existing_session() {
+        let temp = tempdir().unwrap();
+        let mut model = Model::default();
+        let existing: Session = LiveKind::new(
+            "project".to_owned(),
+            None,
+            None,
+            BTreeMap::new(),
+            BTreeSet::new(),
+            false,
+        )
+        .into();
+        model.sessions.push(existing.clone());
+        model.seen_tmux_names.insert("project".to_owned());
+
+        let reused = model
+            .session_for_request(None, None, Some("project"), jj::DEFAULT_BASE_REVSET)
+            .unwrap();
+        assert_eq!(reused, existing);
+
+        let fresh = model
+            .session_for_request(
+                Some(temp.path()),
+                None,
+                Some("project"),
+                jj::DEFAULT_BASE_REVSET,
+            )
+            .unwrap();
+        assert_eq!(fresh.name(), "project~1");
+        assert_eq!(fresh.repo(), Some(temp.path().join("project~1")));
+        assert!(!fresh.is_live());
+    }
+
+    #[test]
+    fn new_repo_session_disambiguates_path_and_tmux_collisions() {
+        let temp = tempdir().unwrap();
+        fs::create_dir(temp.path().join("project")).unwrap();
+
+        let mut model = Model::default();
+        model.seen_tmux_names.insert("project~1".to_owned());
+
+        let session = model
+            .session_for_request(
+                Some(temp.path()),
+                None,
+                Some("project"),
+                jj::DEFAULT_BASE_REVSET,
+            )
+            .unwrap();
+
+        assert_eq!(session.name(), "project~2");
+        assert_eq!(session.repo(), Some(temp.path().join("project~2")));
+    }
+
+    #[test]
+    fn new_repo_session_requires_empty_context() {
+        let temp = tempdir().unwrap();
+        let model = Model::default();
+
+        let error = model
+            .session_for_request(
+                Some(temp.path()),
+                Some(temp.path()),
+                Some("project"),
+                jj::DEFAULT_BASE_REVSET,
+            )
+            .unwrap_err();
+
+        assert_eq!(error.to_string(), "repo creation requires no base");
     }
 
     #[test]
