@@ -16,6 +16,11 @@ Repository context is selected independently from discovery:
   supplied explicitly.
 - `-r`, `--repo GLOB` adds repositories to discovery; it does not select the
   base context.
+- `--repo-root PATH` selects the parent for fresh repository creation. It
+  overrides `[repo].root`; without either setting, the process working
+  directory is used. Relative paths are resolved from that directory, and a
+  leading `~` path component expands to the user's home directory. This option
+  does not add repositories to discovery.
 
 The picker and filtering modes support these startup options:
 
@@ -70,10 +75,27 @@ Create starts a tmux session for an existing default or named checkout. If a
 named workspace does not exist, create adds it beside the default checkout at
 `--onto` (or `trunk()`), then starts tmux. A plain session starts in the process
 working directory. Newly created tmux sessions run `tmux.setup`; existing live
-sessions are left unchanged. Names are sanitized and disambiguated against both
-tmux sessions and sibling workspaces, so callers should use the printed name.
+sessions are left unchanged.
+
+Names are sanitized and disambiguated against existing tmux sessions, sibling
+workspaces, and checkout paths. Collisions use the first available `~N` suffix
+(`~1`, `~2`, and so on). If the resulting tmux name would be empty, it instead
+uses the first available numeric name (`1`, `2`, and so on). Callers should use
+the printed name.
+
 Switching to an existing live session prefers its first window with a bell or
 agent attention, matching interactive picker behavior.
+
+Add the no-argument `--create-repo` modifier to `--create [NAME]` or
+`--switch [NAME]` to initialize a fresh repository before creating its session.
+An omitted name is treated as empty for disambiguation. The resolved repository
+context must be empty. Use `--no-base` when current-directory inference would
+otherwise select a repository; passing `--base` is invalid, and `--onto` does
+not apply. The destination is `<repo-root>/<resolved-name>`. Repeated requests
+create new repositories rather than reuse existing sessions or checkouts;
+existing directories are never initialized. It creates a missing repository
+root, runs `jj git init --colocate` for the destination, starts tmux in that
+checkout, records the checkout as repository metadata, and runs `tmux.setup`.
 
 Delete requires both a repository base and an explicit named workspace session.
 It rejects plain sessions and the default workspace. Use `--repo` to surface a
