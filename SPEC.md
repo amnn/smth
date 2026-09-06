@@ -8,7 +8,9 @@ supports opening new sessions:
   - ...and existing workspace
   - ...and an `onto` revision (to create a new workspace)
   - ...on its own.
-- based on a custom name (and no repository), to create a simple tmux session.
+- based on a custom name (and no repository), to create either:
+  - a simple tmux session in the process working directory, or
+  - a fresh colocated Git-backed jj repository and its tmux session.
 
 ## Configuration
 The switcher is configured via a configuration file at
@@ -27,8 +29,10 @@ The switcher is configured via a configuration file at
 - `repo.globs`: A list of glob patterns to locate jj repositories. These stack
   with repository globs supplied on the command line. A leading `~` path
   component expands to the user's home directory.
-- `repo.root`: The parent directory for newly created repositories. This can be
-  overridden on the command line and defaults to the process working directory.
+- `repo.root`: The parent directory for newly created repositories. This is
+  overridden by `--repo-root` and defaults to the process working directory.
+  Relative paths are resolved from the process working directory, and a leading
+  `~` path component expands to the user's home directory.
 - `ui.sigil`: A character used to indicate a live tmux session.
 - `workspace.template`: A template for naming new workspaces. This can be
   a relative path that ends in a directory name that contains the `{repo}`
@@ -73,6 +77,8 @@ The fuzzy finder includes a header with the following information:
   - `C-r` to change repo (next to the current repo).
   - `C-o` to change the `onto` revision (next to the current revision).
   - `C-n` to create a new session from the current query.
+  - `M-n` to create without switching, initializing a repository when eligible.
+  - `M-enter` to switch, initializing a repository when eligible.
   - `C-x` to close a session and refresh the session list.
 
 ### Candidate Sessions
@@ -82,6 +88,8 @@ sources, in the following order:
 - Existing tmux sessions.
 - Repositories and workspaces found under `repo.globs` and command-line repo
   globs, in alphabetical order.
+- A prospective session derived from the non-empty query and current repository
+  context.
 
 When reconciling existing sessions with candidate sessions, a name is generated
 for each candidate session. If it matches the name of an existing session, the
@@ -155,6 +163,26 @@ The switcher represents sessions by their name and metadata.
 The preview pane shows a live preview of the selected session, in a similar
 style to tmux's `C-b s` session switcher, assuming the session already exists.
 
+### Fresh Repository Creation
+
+In the picker, fresh repository creation is available only when no repository
+context has been resolved and the selected row is the prospective plain session
+derived from the query. `--no-base` suppresses current-directory inference when
+necessary. Otherwise, `M-n` and `M-enter` ignore the repository-initialization
+request and perform the normal `C-n` and `enter` actions on the selected session.
+
+The destination parent is selected in this order: `--repo-root`, `repo.root`,
+and the process working directory. This setting is independent of repository
+discovery. The query is sanitized into both the destination basename and tmux
+session name. If either the destination or tmux name already exists, a shared
+`~N` suffix is incremented until both are available. An empty sanitized name
+uses the first available numeric name (`1`, `2`, and so on). Initialization
+never proceeds over an existing destination.
+
+Creation makes a missing parent directory, runs `jj git init --colocate` for the
+destination, creates tmux with that checkout as its working directory, records
+the checkout in `@smth.repo`, and runs the configured `tmux.setup` script.
+
 ### Picking a Session
 When picking a session from the fuzzy finder, all its parts are ensured to exist:
 
@@ -176,12 +204,32 @@ target. If no window needs attention, `smth` uses the session's ordinary target.
 - `C-n` will create a new session from the current query. This will first
   check that a session with this name doesn't already exist, and if so,
   follows the "picking a session" flow above.
+- `M-n` follows the normal create action, first initializing a fresh repository
+  when the selected candidate is eligible. Creation clears the query and
+  refreshes discovered sessions without switching.
+- `M-enter` follows the normal switch action, first initializing a fresh
+  repository when the selected candidate is eligible. Switching changes the
+  current client and closes the picker.
 - `C-x` will close the selected existing tmux session, then refresh discovered
   sessions while preserving the current query.
 - `C-d` will delete an existing session and/or workspace. If there is a
   session for this selection, it is closed in tmux. If the selection is tied
   to a real repository/workspace candidate, the workspace is forgotten in `jj`
   and deleted from disk; otherwise only the tmux session is closed.
+
+### Non-interactive Repository Creation
+
+`--create-repo` is a no-argument modifier for `--create [NAME]` and
+`--switch [NAME]`. With `--create`, it follows the fresh-repository flow without
+switching and prints the actual disambiguated tmux name. With `--switch`, it
+follows the same flow and switches the current client. An omitted name defaults
+to empty and uses the first available numeric name. Repeated requests create new
+repositories with disambiguated names instead of reusing existing sessions or
+checkouts.
+
+The modifier requires one of those two mutually exclusive root actions, rejects
+picker filtering options and `--onto`, and requires an empty resolved repository
+context. Without it, `--create` and `--switch` retain their existing behavior.
 
 ## Tech recommendations
 This tool will be built using Rust, taking advantage of `skim` for fuzzy

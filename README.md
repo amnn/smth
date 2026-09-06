@@ -17,7 +17,8 @@ new ones backed by **jujutsu** (jj) repositories and workspaces.
   preview, and jump back to the previous session using [recency-aware
   ordering][ord].
 - **First-class jj workflows.** Discover repositories and workspaces, open an
-  existing checkout, or create a new workspace at `trunk()` or a chosen commit.
+  existing checkout, create a new workspace at `trunk()` or a chosen commit, or
+  initialize a fresh colocated Git-backed jj repository.
 - **Keyboard-first session management.** Create sessions in the background,
   flag them, close them, or delete their associated workspace without leaving
   the picker. See the complete [key bindings][keys].
@@ -105,6 +106,8 @@ all picker key bindings:
 | `C-u` | Clear the filter. |
 | `C-x` | Close a live session. |
 | `C-y` | Confirm a pending deletion. |
+| `M-enter` | Switch to the session, initializing a fresh repository when eligible. |
+| `M-n` | Create the session without switching, initializing a fresh repository when eligible. |
 | `up`, `down`, `C-k`, `C-j` | Move selection by one row. |
 | `M-up`, `M-down`, `M-k`, `M-j` | Move selection to the first or last row. |
 | `S-up`, `S-down` | Scroll the preview pane up or down. |
