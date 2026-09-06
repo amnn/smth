@@ -95,6 +95,12 @@ impl<I: Pickable + Send + Sync + 'static> Picker<I> {
     }
 }
 
+impl<I: Pickable + Send + Sync + 'static> Default for Picker<I> {
+    fn default() -> Self {
+        Self::new(String::new())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::time::Duration;

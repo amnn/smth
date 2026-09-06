@@ -395,7 +395,8 @@ async fn run() -> anyhow::Result<ExitCode> {
 
         Some(Action::Create(name)) => {
             let onto = args.onto.as_deref().unwrap_or(jj::DEFAULT_BASE_REVSET);
-            let session = model.session_for_request(current.as_deref(), name.as_deref(), onto)?;
+            let session =
+                model.session_for_request(None, current.as_deref(), name.as_deref(), onto)?;
             let name = session.name();
 
             session.create(&cwd, &config.tmux.setup).await?;
@@ -405,7 +406,8 @@ async fn run() -> anyhow::Result<ExitCode> {
 
         Some(Action::Switch(name)) => {
             let onto = args.onto.as_deref().unwrap_or(jj::DEFAULT_BASE_REVSET);
-            let session = model.session_for_request(current.as_deref(), name.as_deref(), onto)?;
+            let session =
+                model.session_for_request(None, current.as_deref(), name.as_deref(), onto)?;
 
             session.switch(&cwd, &config.tmux.setup).await?;
             Ok(ExitCode::SUCCESS)
