@@ -97,6 +97,29 @@ pub async fn forget_workspace(repo: &Path, name: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Create a new colocated Git-backed jj repository at `destination`.
+pub async fn git_init(destination: &Path) -> anyhow::Result<()> {
+    let output = command()
+        .args(["git", "init", "--colocate"])
+        .arg(destination)
+        .output()
+        .await
+        .with_context(|| {
+            format!(
+                "failed to run 'jj git init' for destination '{}'",
+                destination.display()
+            )
+        })?;
+
+    ensure!(
+        output.status.success(),
+        "error running 'jj git init': {}",
+        String::from_utf8_lossy(&output.stderr).trim()
+    );
+
+    Ok(())
+}
+
 /// Fetch `jj log` output from the repository at `repo`.
 pub async fn log(repo: &Path) -> anyhow::Result<String> {
     let output = command()
@@ -341,6 +364,17 @@ mod tests {
                 .unwrap()
                 .contains_key(&Some("feature".to_owned()))
         );
+    }
+
+    #[tokio::test]
+    async fn initializes_colocated_git_repo() {
+        let temp = tempdir().unwrap();
+        let repo = temp.path().join("repo");
+
+        git_init(&repo).await.unwrap();
+
+        assert!(repo.join(".jj").is_dir());
+        assert!(repo.join(".git").is_dir());
     }
 
     #[tokio::test]
