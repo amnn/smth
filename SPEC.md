@@ -27,6 +27,8 @@ The switcher is configured via a configuration file at
 - `repo.globs`: A list of glob patterns to locate jj repositories. These stack
   with repository globs supplied on the command line. A leading `~` path
   component expands to the user's home directory.
+- `repo.root`: The parent directory for newly created repositories. This can be
+  overridden on the command line and defaults to the process working directory.
 - `ui.sigil`: A character used to indicate a live tmux session.
 - `workspace.template`: A template for naming new workspaces. This can be
   a relative path that ends in a directory name that contains the `{repo}`

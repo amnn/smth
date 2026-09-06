@@ -37,6 +37,7 @@ Options:
   -x, --close [<SESSION>]   Close a live session without deleting its checkout
   -d, --delete <SESSION>    Delete a named workspace session and close it if live
   -r, --repo <GLOB>         Additional repository globs to surface alongside existing tmux sessions
+      --repo-root <PATH>    Parent directory for newly created repositories
   -V, --version             Print version
 ```
 
@@ -161,6 +162,11 @@ Options:
           context for new repo-backed workspaces. A leading ~ path component expands to the user's
           home directory.
 
+      --repo-root <PATH>
+          Parent directory for newly created repositories. Overrides repo.root from config. A
+          leading ~ path component expands to the user's home directory, and a relative path is
+          resolved from the process working directory. Defaults to the process working directory.
+
   -V, --version
           Print version
 
@@ -213,6 +219,11 @@ Configuration:
                     existing tmux sessions. These stack with any --repo command-
                     line globs. A leading ~ path component expands to the user's
                     home directory.
+  repo.root         Parent directory for newly created repositories. A leading
+                    ~ path component expands to the user's home directory,
+                    and a relative path is resolved from the process working
+                    directory. Defaults to the process working directory and is
+                    overridden by --repo-root.
   tmux.setup        Shell script to run after smth creates a detached tmux
                     session. The script runs in the new session's tmux context
                     and working directory, so commands can use default tmux
@@ -241,6 +252,7 @@ Example:
   ]
 
   [repo]
+  root = "~/Code"
   globs = [
     "~/Code/*",
     "~/.config/nvim"

@@ -210,6 +210,13 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     )?;
 
     w.def(
+        "repo.root",
+        "Parent directory for newly created repositories. A leading ~ path component expands to \
+         the user's home directory, and a relative path is resolved from the process working \
+         directory. Defaults to the process working directory and is overridden by --repo-root.",
+    )?;
+
+    w.def(
         "tmux.setup",
         "Shell script to run after smth creates a detached tmux session. The script runs in the \
          new session's tmux context and working directory, so commands can use default tmux \
@@ -249,6 +256,7 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         writeln!(out, "  ]")?;
         writeln!(out)?;
         writeln!(out, "  [repo]")?;
+        writeln!(out, "  root = \"~/Code\"")?;
         writeln!(out, "  globs = [")?;
         writeln!(out, "    \"~/Code/*\",")?;
         writeln!(out, "    \"~/.config/nvim\"")?;
