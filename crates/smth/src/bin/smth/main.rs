@@ -66,10 +66,18 @@ enum Action {
 #[command(group(
     ArgGroup::new("action")
         .args([
-            "filter", "json", "flag", "unflag", "create", "switch", "close", "delete",
+            "filter",
+            "json",
+            "flag",
+            "unflag",
+            "create",
+            "switch",
+            "close",
+            "delete",
         ])
         .multiple(false)
 ))]
+#[command(group(ArgGroup::new("creation").args(["create", "switch"])))]
 struct Args {
     /// Print brief help.
     #[arg(short = 'h', action = ArgAction::SetTrue)]
@@ -186,6 +194,20 @@ struct Args {
                      the actual tmux name."
     )]
     create: Option<Option<String>>,
+
+    /// Create a fresh repository for the session requested by --create or --switch.
+    #[arg(
+        long,
+        action = ArgAction::SetTrue,
+        requires = "creation",
+        conflicts_with = "onto",
+        long_help = "Create a fresh colocated Git-backed jj repository for --create [SESSION] or \
+                     --switch [SESSION]. Takes no argument; an omitted name uses the first \
+                     available numeric name. Uses the repository creation root and disambiguates \
+                     existing paths and tmux names rather than reusing them. Requires an empty \
+                     repository context; use --no-base to suppress current-directory inference."
+    )]
+    create_repo: bool,
 
     /// Ensure a session exists and switch to it.
     #[arg(
@@ -393,23 +415,22 @@ async fn run() -> anyhow::Result<ExitCode> {
             Ok(ExitCode::SUCCESS)
         }
 
-        Some(Action::Create(name)) => {
+        Some(Action::Create(name) | Action::Switch(name)) => {
             let onto = args.onto.as_deref().unwrap_or(jj::DEFAULT_BASE_REVSET);
-            let session =
-                model.session_for_request(None, current.as_deref(), name.as_deref(), onto)?;
-            let name = session.name();
+            let session = model.session_for_request(
+                args.create_repo.then_some(repo_root.as_path()),
+                current.as_deref(),
+                name.as_deref(),
+                onto,
+            )?;
 
-            session.create(&cwd, &config.tmux.setup).await?;
-            println!("{name}");
-            Ok(ExitCode::SUCCESS)
-        }
+            if matches!(action, Some(Action::Create(_))) {
+                session.create(&cwd, &config.tmux.setup).await?;
+                println!("{}", session.name());
+            } else {
+                session.switch(&cwd, &config.tmux.setup).await?;
+            }
 
-        Some(Action::Switch(name)) => {
-            let onto = args.onto.as_deref().unwrap_or(jj::DEFAULT_BASE_REVSET);
-            let session =
-                model.session_for_request(None, current.as_deref(), name.as_deref(), onto)?;
-
-            session.switch(&cwd, &config.tmux.setup).await?;
             Ok(ExitCode::SUCCESS)
         }
 

@@ -33,6 +33,8 @@ Options:
       --flag [<SESSION>]    Mark a live session as flagged
       --unflag [<SESSION>]  Clear a live session's flag
   -c, --create [<SESSION>]  Ensure a session exists without switching to it
+      --create-repo         Create a fresh repository for the session requested by --create or
+                            --switch
   -s, --switch [<SESSION>]  Ensure a session exists and switch to it
   -x, --close [<SESSION>]   Close a live session without deleting its checkout
   -d, --delete <SESSION>    Delete a named workspace session and close it if live
@@ -140,6 +142,13 @@ Options:
           Ensure a session exists without switching to it. Existing repository checkouts receive a
           tmux session; missing named workspaces are created at --onto; plain sessions are created
           in the process working directory. Prints the actual tmux name.
+
+      --create-repo
+          Create a fresh colocated Git-backed jj repository for --create [SESSION] or --switch
+          [SESSION]. Takes no argument; an omitted name uses the first available numeric name. Uses
+          the repository creation root and disambiguates existing paths and tmux names rather than
+          reusing them. Requires an empty repository context; use --no-base to suppress
+          current-directory inference.
 
   -s, --switch [<SESSION>]
           Ensure a session exists and switch the current tmux client to it. Creation follows
