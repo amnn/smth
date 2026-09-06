@@ -63,6 +63,9 @@ pub struct Context<'a> {
     /// Repository globs to discover alongside existing tmux sessions.
     pub globs: &'a [String],
 
+    /// Parent directory for newly created repositories.
+    pub repo_root: &'a Path,
+
     /// Shell setup to run when creating a tmux session.
     pub setup: &'a str,
 

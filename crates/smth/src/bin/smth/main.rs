@@ -238,6 +238,17 @@ struct Args {
     )]
     repos: Vec<String>,
 
+    /// Parent directory for newly created repositories.
+    #[arg(
+        long,
+        value_name = "PATH",
+        long_help = "Parent directory for newly created repositories. Overrides repo.root from \
+                     config. A leading ~ path component expands to the user's home directory, and \
+                     a relative path is resolved from the process working directory. Defaults to \
+                     the process working directory."
+    )]
+    repo_root: Option<PathBuf>,
+
     /// Operation to run instead of opening the picker.
     #[command(subcommand)]
     command: Option<Command>,
@@ -342,6 +353,7 @@ async fn run() -> anyhow::Result<ExitCode> {
 
     let cwd = env::current_dir().context("failed to resolve current working directory")?;
     let current = args.base(&cwd)?;
+    let repo_root = config.repo.resolve_root(&cwd, args.repo_root.as_deref());
 
     ensure!(
         args.onto.is_none() || current.is_some(),
@@ -446,6 +458,7 @@ async fn run() -> anyhow::Result<ExitCode> {
 
             let context = Context {
                 globs: &globs,
+                repo_root: &repo_root,
                 setup: &config.tmux.setup,
                 sigil: config.ui.sigil,
             };

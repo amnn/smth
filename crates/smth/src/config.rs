@@ -14,6 +14,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::cmd::custom::Cmd;
+use crate::path::expand_home;
 
 /// The relative config file path below the `smth` config root.
 pub const PATH: &str = "smth.toml";
@@ -38,6 +39,9 @@ pub struct NotificationConfig {
 pub struct RepoConfig {
     /// Glob patterns to search for jj repositories, with leading `~` components expanded.
     pub globs: Vec<String>,
+
+    /// Parent directory for newly created repositories, with a leading `~` component expanded.
+    pub root: Option<PathBuf>,
 }
 
 /// Top-level `smth` config file schema.
@@ -77,6 +81,14 @@ impl NotificationConfig {
     /// Whether at least one notification delivery channel is enabled.
     pub fn enabled(&self) -> bool {
         self.bell || !self.notify.is_empty()
+    }
+}
+
+impl RepoConfig {
+    /// Resolve the repository creation root from a CLI override, this configuration, or `cwd`.
+    pub fn resolve_root(&self, cwd: &Path, root: Option<&Path>) -> PathBuf {
+        let root = root.or(self.root.as_deref()).unwrap_or(cwd);
+        cwd.join(expand_home(root))
     }
 }
 
@@ -120,5 +132,77 @@ fn read_to_string(path: Option<&Path>) -> anyhow::Result<Option<String>> {
         Ok(contents) => Ok(Some(contents)),
         Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(None),
         Err(err) => Err(err).with_context(|| format!("could not read '{}'", path.display())),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use tempfile::tempdir;
+
+    use super::*;
+
+    #[test]
+    fn deserializes_nested_repo_root() {
+        let config: SmthConfig = toml::from_str(
+            r#"
+            [repo]
+            root = "~/Code"
+            "#,
+        )
+        .unwrap();
+
+        assert_eq!(config.repo.root, Some(PathBuf::from("~/Code")));
+    }
+
+    #[test]
+    fn repo_root_defaults_to_working_directory() {
+        let temp = tempdir().unwrap();
+        let config = RepoConfig::default();
+
+        assert_eq!(config.resolve_root(temp.path(), None), temp.path());
+    }
+
+    #[test]
+    fn repo_root_expands_home_directory() {
+        let Some(home) = env::home_dir() else {
+            return;
+        };
+
+        let temp = tempdir().unwrap();
+        let home = home.canonicalize().unwrap_or(home);
+        let config = RepoConfig {
+            root: Some(PathBuf::from("~/Code")),
+            ..RepoConfig::default()
+        };
+
+        assert_eq!(config.resolve_root(temp.path(), None), home.join("Code"));
+    }
+
+    #[test]
+    fn repo_root_resolves_relative_paths_from_working_directory() {
+        let temp = tempdir().unwrap();
+        let config = RepoConfig {
+            root: Some(PathBuf::from("config-repos")),
+            ..RepoConfig::default()
+        };
+
+        assert_eq!(
+            config.resolve_root(temp.path(), None),
+            temp.path().join("config-repos")
+        );
+    }
+
+    #[test]
+    fn repo_root_uses_cli_override() {
+        let temp = tempdir().unwrap();
+        let config = RepoConfig {
+            root: Some(PathBuf::from("config-repos")),
+            ..RepoConfig::default()
+        };
+
+        assert_eq!(
+            config.resolve_root(temp.path(), Some(Path::new("cli-repos"))),
+            temp.path().join("cli-repos")
+        );
     }
 }

@@ -15,6 +15,7 @@ its built-in defaults. A path passed with `--config` must exist.
 | `notification.clear`  | `[]`    | Clear on agent `idle`, `running`, or `exit` updates.  |
 | `notification.notify` | `[]`    | Run a custom command for agent attention transitions. |
 | `repo.globs`          | `[]`    | Discover jj repositories from glob patterns.          |
+| `repo.root`           | `.`     | Parent directory for newly created repositories.      |
 | `tmux.setup`          | `""`    | Run a shell script after creating a tmux session.     |
 | `ui.sigil`            | `"⬤"`   | Mark live tmux sessions with this character.          |
 
@@ -37,6 +38,7 @@ Use `[repo].globs` to surface jj repositories alongside existing tmux sessions:
 
 ```toml
 [repo]
+root = "~/Code"
 globs = [
   "~/Code/*",
   "~/.bootstrap",
@@ -44,8 +46,14 @@ globs = [
 ]
 ```
 
-These patterns stack with any `--repo` or `-r` globs supplied on the command
-line. A leading `~` path component expands to your home directory.
+`repo.root` is the parent directory for newly created repositories. It defaults
+to the process working directory and can be overridden with `--repo-root PATH`.
+A leading `~` path component expands to your home directory; a relative path is
+resolved from the process working directory.
+
+Repository discovery remains controlled independently by `repo.globs`. These
+patterns stack with any `--repo` or `-r` globs supplied on the command line, and
+a leading `~` path component also expands to your home directory.
 
 When invoking `smth` from a tmux popup, use `-d "#{pane_current_path}"` so its
 working directory comes from the active pane:
@@ -100,6 +108,7 @@ notify = [
 ]
 
 [repo]
+root = "~/Code"
 globs = [
   "~/Code/*",
   "~/.config/nvim"
