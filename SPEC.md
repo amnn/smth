@@ -221,11 +221,11 @@ target. If no window needs attention, `smth` uses the session's ordinary target.
 
 `--create-repo` is a no-argument modifier for `--create [NAME]` and
 `--switch [NAME]`. With `--create`, it follows the fresh-repository flow without
-switching and prints the actual disambiguated tmux name. With `--switch`, it
-follows the same flow and switches the current client. An omitted name defaults
-to empty and uses the first available numeric name. Repeated requests create new
-repositories with disambiguated names instead of reusing existing sessions or
-checkouts.
+switching. With `--switch`, it follows the same flow and switches the current
+client. Both actions print the actual disambiguated tmux name on success. An
+omitted name defaults to empty and uses the first available numeric name.
+Repeated requests create new repositories with disambiguated names instead of
+reusing existing sessions or checkouts.
 
 The modifier requires one of those two mutually exclusive root actions, rejects
 picker filtering options and `--onto`, and requires an empty resolved repository

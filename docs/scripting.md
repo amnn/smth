@@ -60,11 +60,15 @@ fall back to the interactive picker.
 - `-c`, `--create [SESSION]` ensures the target exists without switching the
   current tmux client and prints its actual tmux name.
 - `-s`, `--switch [SESSION]` performs the same ensure operation, then switches
-  the current tmux client.
+  the current tmux client and prints its actual tmux name.
 - `-x`, `--close [SESSION]` kills a matching live tmux session without removing
   its checkout or workspace registration.
 - `-d`, `--delete SESSION` forgets and removes a matching discovered named
   workspace session, then closes it when live.
+
+Create and switch print the actual tmux session name on stdout after success,
+whether creating or reusing the session. A failed operation does not print a
+session name.
 
 Flag operations are idempotent. An explicit session operand overrides a named
 workspace inferred from `--base`; without a repository base, a plain session

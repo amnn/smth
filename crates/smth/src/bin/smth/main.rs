@@ -218,7 +218,7 @@ struct Args {
         conflicts_with_all = ["query", "select_1", "exit_0"],
         long_help = "Ensure a session exists and switch the current tmux client to it. Creation \
                      follows --create semantics, and an existing live target opens its first \
-                     window with a bell or agent attention."
+                     window with a bell or agent attention. Prints the actual tmux name on success."
     )]
     switch: Option<Option<String>>,
 
@@ -426,11 +426,11 @@ async fn run() -> anyhow::Result<ExitCode> {
 
             if matches!(action, Some(Action::Create(_))) {
                 session.create(&cwd, &config.tmux.setup).await?;
-                println!("{}", session.name());
             } else {
                 session.switch(&cwd, &config.tmux.setup).await?;
             }
 
+            println!("{}", session.name());
             Ok(ExitCode::SUCCESS)
         }
 
