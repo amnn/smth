@@ -17,7 +17,8 @@ metadata that `smth` records.
 
     :$ jj workspace add -R beta --name zeta beta.zeta
     :t new-session -d -s beta/zeta -c beta.zeta "cat"
-    :t set-option -F -t '=beta/zeta:' @smth.repo '#{pane_current_path}'
+
+    :t set-option -F -t '=beta/zeta:' @smth.repo '#{pane_start_path}'
 
 Forget the default workspace registration while leaving its checkout and the
 repository store in place. Workspace discovery can still identify `zeta`, but

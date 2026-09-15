@@ -24,8 +24,11 @@ Create a plain collision and a disambiguated repo-backed feature session. Strict
 metadata should ensure deletion closes only the latter.
 
     :t new-session -d -s alpha/feature "cat" (success)
+
     :t new-session -d -s alpha/feature~1 -c alpha.feature "cat" (success)
-    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_current_path}' (success)
+
+    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_start_path}' (success)
+
     :t new-session -d -s scratch "cat" (success)
 
     :$ smth --base alpha --delete feature (exit: 0)

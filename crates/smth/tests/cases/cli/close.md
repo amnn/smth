@@ -16,12 +16,19 @@ Create repo-backed sessions for the default and both named workspaces, plus a
 plain session that collides with the natural feature tmux name.
 
     :t new-session -d -s alpha/feature "cat"
+
     :t new-session -d -s alpha/feature~1 -c alpha.feature "cat"
-    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_current_path}'
+
+    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_start_path}'
+
     :t new-session -d -s alpha/other -c alpha.other "cat"
-    :t set-option -F -t '=alpha/other:' @smth.repo '#{pane_current_path}'
+
+    :t set-option -F -t '=alpha/other:' @smth.repo '#{pane_start_path}'
+
     :t new-session -d -s alpha-live -c alpha "cat"
-    :t set-option -F -t '=alpha-live:' @smth.repo '#{pane_current_path}'
+
+    :t set-option -F -t '=alpha-live:' @smth.repo '#{pane_start_path}'
+
     :t new-session -d -s scratch "cat"
 
 A named-workspace base should infer `feature` and close the disambiguated

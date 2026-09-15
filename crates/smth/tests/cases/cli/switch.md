@@ -18,7 +18,9 @@ named-workspace base with no operand should infer `feature`, and switching to an
 existing live target should select its first attention window.
 
     :t new-session -d -s feature-live -c alpha.feature "cat"
-    :t set-option -F -t '=feature-live:' @smth.repo '#{pane_current_path}'
+
+    :t set-option -F -t '=feature-live:' @smth.repo '#{pane_start_path}'
+
     :t new-window -d -t feature-live:1 -c alpha.feature "cat"
     :t set-option -p -t feature-live:1.0 @smth.agent.state waiting
 
