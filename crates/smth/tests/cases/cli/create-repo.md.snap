@@ -127,12 +127,16 @@ collision~2
 
 `--switch` with the modifier should perform the same initialization and name
 disambiguation before switching the client, leaving the existing session alone.
+Its stdout should report the disambiguated name, not the requested one.
 
     :t new-session -d -s switched "cat" (success)
-
-    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root switch-repos --switch switched --create-repo; tmux wait-for -S switched-repo; cat' (success)
-
+    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root switch-repos --switch switched --create-repo > switch-name; tmux wait-for -S switched-repo; cat' (success)
     :t wait-for switched-repo (success)
+    :$ cat switch-name (exit: 0)
+
+```stdout
+switched~1
+```
 
     :t display-message -p '#{client_session}' (success)
 
@@ -141,11 +145,8 @@ switched~1
 ```
 
     :$ sh -c 'test -d switch-repos/switched~1/.jj && test -d switch-repos/switched~1/.git' (exit: 0)
-
     :t has-session -t '=switched' (success)
-
     :t switch-client -t runner (success)
-
     :pane runner:0.0
 
 Without either root setting, creation should default to the process working
@@ -209,11 +210,15 @@ runner
 ```
 
 Switching without a name should initialize the next available numeric
-repository and switch the client to its session.
+repository, switch the client to its session, and print the selected name.
 
-    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root unnamed-repos --switch --create-repo; tmux wait-for -S unnamed-repo; cat' (success)
-
+    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root unnamed-repos --switch --create-repo > switch-name; tmux wait-for -S unnamed-repo; cat' (success)
     :t wait-for unnamed-repo (success)
+    :$ cat switch-name (exit: 0)
+
+```stdout
+5
+```
 
     :t display-message -p '#{client_session}' (success)
 
@@ -222,9 +227,7 @@ repository and switch the client to its session.
 ```
 
     :$ sh -c 'test -d unnamed-repos/5/.jj && test -d unnamed-repos/5/.git' (exit: 0)
-
     :t switch-client -t runner (success)
-
     :pane runner:0.0
 
 Repository creation requires an empty context and rejects incompatible or

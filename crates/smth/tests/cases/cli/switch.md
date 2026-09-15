@@ -1,7 +1,7 @@
 # Switch sessions
 
 `--switch` should share create semantics, then switch the invoking tmux client
-to the strictly resolved target.
+to the strictly resolved target and print its actual session name.
 
     :bins jj tmux cat sh sed
 
@@ -15,26 +15,30 @@ to the strictly resolved target.
 
 Create a live feature session with agent attention in its second window. A
 named-workspace base with no operand should infer `feature`, and switching to an
-existing live target should select its first attention window.
+existing live target should select its first attention window. Stdout should
+contain only the session name, not the window target.
 
     :t new-session -d -s feature-live -c alpha.feature "cat"
-
     :t set-option -F -t '=feature-live:' @smth.repo '#{pane_start_path}'
-
     :t new-window -d -t feature-live:1 -c alpha.feature "cat"
     :t set-option -p -t feature-live:1.0 @smth.agent.state waiting
-
-    :t respawn-pane -k -t runner:0.0 'smth --base alpha.feature --switch; tmux wait-for -S switched-feature; cat'
+    :t respawn-pane -k -t runner:0.0 'smth --base alpha.feature --switch > switch-name; tmux wait-for -S switched-feature; cat'
     :t wait-for switched-feature
+    :$ cat switch-name
+
     :t display-message -p '#{client_session}:#{window_index}'
 
 A default checkout with no live session should get one before the client
-switches.
+switches. A colliding plain session should force a disambiguated name in both
+stdout and the selected client session.
 
     :t switch-client -t runner
     :pane runner:0.0
-    :t respawn-pane -k -t runner:0.0 'smth --base alpha --switch; tmux wait-for -S switched-default; cat'
+    :t new-session -d -s alpha "cat"
+    :t respawn-pane -k -t runner:0.0 'smth --base alpha --switch > switch-name; tmux wait-for -S switched-default; cat'
     :t wait-for switched-default
+    :$ cat switch-name
+
     :t display-message -p '#{client_session}:#{window_index}'
 
 An explicit operand overrides the workspace inferred by a named base. Existing
@@ -42,16 +46,20 @@ checkouts receive tmux sessions without creating new workspaces.
 
     :t switch-client -t runner
     :pane runner:0.0
-    :t respawn-pane -k -t runner:0.0 'smth --base alpha.feature --switch other; tmux wait-for -S switched-other; cat'
+    :t respawn-pane -k -t runner:0.0 'smth --base alpha.feature --switch other > switch-name; tmux wait-for -S switched-other; cat'
     :t wait-for switched-other
+    :$ cat switch-name
+
     :t display-message -p '#{client_session}:#{window_index}'
 
 A missing named workspace should be created at `--onto`, then switched to.
 
     :t switch-client -t runner
     :pane runner:0.0
-    :t respawn-pane -k -t runner:0.0 'smth --base alpha --onto @ --switch fresh; tmux wait-for -S switched-fresh; cat'
+    :t respawn-pane -k -t runner:0.0 'smth --base alpha --onto @ --switch fresh > switch-name; tmux wait-for -S switched-fresh; cat'
     :t wait-for switched-fresh
+    :$ cat switch-name
+
     :t display-message -p '#{client_session}:#{window_index}'
 
     :t switch-client -t runner
@@ -61,12 +69,19 @@ A missing named workspace should be created at `--onto`, then switched to.
 Plain targets should be created in the empty base namespace and switched to in
 the same way.
 
-    :t respawn-pane -k -t runner:0.0 'smth --no-base --switch scratch; tmux wait-for -S switched-scratch; cat'
+    :t respawn-pane -k -t runner:0.0 'smth --no-base --switch scratch > switch-name; tmux wait-for -S switched-scratch; cat'
     :t wait-for switched-scratch
+    :$ cat switch-name
+
     :t display-message -p '#{client_session}:#{window_index}'
 
     :t switch-client -t runner
     :pane runner:0.0
+
+If checkout creation fails, switching should fail without printing a session
+name.
+
+    :$ smth --base alpha --onto missing --switch invalid
 
 A plain switch without a name is invalid, picker controls are rejected, and
 switch is mutually exclusive with create.

@@ -79,21 +79,18 @@ prospective sessions without modifying the existing directory.
 
 `--switch` with the modifier should perform the same initialization and name
 disambiguation before switching the client, leaving the existing session alone.
+Its stdout should report the disambiguated name, not the requested one.
 
     :t new-session -d -s switched "cat"
-
-    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root switch-repos --switch switched --create-repo; tmux wait-for -S switched-repo; cat'
-
+    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root switch-repos --switch switched --create-repo > switch-name; tmux wait-for -S switched-repo; cat'
     :t wait-for switched-repo
+    :$ cat switch-name
 
     :t display-message -p '#{client_session}'
 
     :$ sh -c 'test -d switch-repos/switched~1/.jj && test -d switch-repos/switched~1/.git'
-
     :t has-session -t '=switched'
-
     :t switch-client -t runner
-
     :pane runner:0.0
 
 Without either root setting, creation should default to the process working
@@ -137,18 +134,16 @@ creation, without changing the current session.
     :t display-message -p '#{client_session}'
 
 Switching without a name should initialize the next available numeric
-repository and switch the client to its session.
+repository, switch the client to its session, and print the selected name.
 
-    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root unnamed-repos --switch --create-repo; tmux wait-for -S unnamed-repo; cat'
-
+    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root unnamed-repos --switch --create-repo > switch-name; tmux wait-for -S unnamed-repo; cat'
     :t wait-for unnamed-repo
+    :$ cat switch-name
 
     :t display-message -p '#{client_session}'
 
     :$ sh -c 'test -d unnamed-repos/5/.jj && test -d unnamed-repos/5/.git'
-
     :t switch-client -t runner
-
     :pane runner:0.0
 
 Repository creation requires an empty context and rejects incompatible or

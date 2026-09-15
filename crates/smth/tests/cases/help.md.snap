@@ -153,7 +153,7 @@ Options:
   -s, --switch [<SESSION>]
           Ensure a session exists and switch the current tmux client to it. Creation follows
           --create semantics, and an existing live target opens its first window with a bell or
-          agent attention.
+          agent attention. Prints the actual tmux name on success.
 
   -x, --close [<SESSION>]
           Close a matching live tmux session without forgetting or removing any attached workspace.
