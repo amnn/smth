@@ -18,7 +18,9 @@ same metadata as normal user-created workspace sessions.
     :t resize-window -t create:0 -x 120 -y 12
     :pane create:0.0
     :settle -d 2s
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-workspace-session"
     :k alpha C-r C-u feature enter
+    :t wait-for created-workspace-session
     :settle -d 2s
 
 Launch a fresh picker and select the workspace-backed session.

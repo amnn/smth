@@ -43,7 +43,9 @@ session: zeta
 
 ```
 
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session" (success)
     :k enter
+    :t wait-for created-session (success)
     :settle -d 2s (settled)
 
 The client should switch to the new session, and the session should carry the

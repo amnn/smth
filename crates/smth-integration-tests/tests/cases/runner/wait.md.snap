@@ -1,0 +1,38 @@
+---
+source: crates/smth-integration-tests/tests/test.rs
+expression: output
+input_file: crates/smth-integration-tests/tests/cases/runner/wait.md
+---
+# Runner waits for asynchronous tmux commands
+
+Tmux's control-mode `%end` acknowledges a command before asynchronous work has
+necessarily finished. A following host directive must wait for the command
+queue to resume, not just for that acknowledgement.
+
+    :bins tmux sleep cat
+
+> [!NOTE]
+> 'tmux', 'sleep', and 'cat' are available.
+
+A foreground `run-shell` must finish writing its file before the host reads it.
+
+    :t run-shell 'sleep 0.2; printf "shell finished\n" > shell.txt' (success)
+    :$ cat shell.txt (exit: 0)
+
+```stdout
+shell finished
+```
+
+A background job can signal `wait-for`. The following host read must wait for
+the signal, even though tmux acknowledges `wait-for` immediately.
+
+    :t run-shell -b 'sleep 0.2; printf "signal received\n" > signal.txt; tmux wait-for -S finished' (success)
+    :t wait-for finished (success)
+    :$ cat signal.txt (exit: 0)
+
+```stdout
+signal received
+```
+
+---
+vim: set ft=markdown:

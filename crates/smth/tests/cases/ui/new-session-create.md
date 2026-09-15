@@ -19,7 +19,9 @@ Type a unique session name and accept the new-session row.
     :k zeta
     :snap
 
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session"
     :k enter
+    :t wait-for created-session
     :settle -d 2s
 
 The client should switch to the newly-created session, and no repo metadata

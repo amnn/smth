@@ -18,6 +18,8 @@ Supported directives:
   - Arguments are parsed with `shlex`.
 - `:t` / `:tmux <args...>`
   - Run a tmux command on the test socket.
+  - Wait for the command queue to resume before continuing, including foreground
+    `run-shell` jobs and `wait-for`. Background jobs still need explicit synchronization.
 - `:p` / `:pane <target>`
   - Set current pane target (default is `zz-smth-ui-runner:0.0`).
   - Use this instead of `:tmux switch-client ...` when later `:keys`, `:sh`, or
@@ -48,6 +50,22 @@ Supported directives:
   - If the regex has capture groups, only those groups' contents are painted.
   - Filters match against the plaintext transcript, then the corresponding styled cells are
     painted before SVG rendering so the original cell styles are preserved.
+
+## Synchronizing asynchronous actions
+
+`:settle` and `:snap` detect unchanged pane text, not completion of background work.
+Before sending keys to a fresh picker, use `:settle -d 2s`. After starting an
+asynchronous action, wait for an observable side effect before settling or
+inspecting state. For example, install a one-shot hook before a session switch:
+
+```text
+:t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S switched"
+:k enter
+:t wait-for switched
+:settle -d 2s
+```
+
+For creation without switching, wait for the expected session or file instead.
 
 ## Run tests
 

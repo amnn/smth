@@ -447,8 +447,27 @@ impl Runner {
     ) -> fmt::Result {
         write!(w, "{raw}")?;
 
-        let command = self.tmux.command(&args.head).args(&args.tail);
-        match command.status().await {
+        let result: anyhow::Result<_> = async {
+            let output = self
+                .tmux
+                .command(&args.head)
+                .args(&args.tail)
+                .status()
+                .await?;
+
+            // `%end` is emitted even when a command returns CMD_RETURN_WAIT. Queue a query behind
+            // it so host directives cannot run ahead of wait-for or foreground run-shell jobs.
+            // This also refreshes the pane context after commands that switch the client.
+            self.tmux
+                .refresh_pane()
+                .await
+                .context("failed to synchronize tmux command")?;
+
+            Ok(output)
+        }
+        .await;
+
+        match result {
             Ok(output) => {
                 writeln!(w, " (success)")?;
 
