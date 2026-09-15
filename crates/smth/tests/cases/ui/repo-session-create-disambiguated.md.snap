@@ -47,10 +47,15 @@ session: beta
 ![light](repo-session-create-disambiguated.md.snap.1.light.svg)
 ![dark](repo-session-create-disambiguated.md.snap.1.dark.svg)
 
-Accepting the repo row should create `beta~2`, attach repo metadata to that
-session, and switch the client there.
+Accepting the repo row should create `beta~1`, attach repo metadata to that
+session, and switch the client there once setup finishes.
+
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session" (success)
 
     :k enter
+
+    :t wait-for created-session (success)
+
     :settle -d 2s (settled)
 
     :t display-message -p '#{client_session}' (success)
