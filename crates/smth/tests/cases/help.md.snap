@@ -194,10 +194,12 @@ Configuration:
                     state. Defaults to false. Bell failures never fail state
                     publication.
   notification.clear  
-                    Optional command arguments run whenever an agent enters
-                    running state. An empty command disables clearing. Failures
-                    never fail state publication. Strings interpolate the {pane}
-                    variable.
+                    Optional command arguments run after every agent idle,
+                    running, or exit update, including repeated updates. On
+                    exit, state metadata is removed before clearing. An empty
+                    command disables clearing. Failures never fail metadata
+                    updates. Clearing does not enable notification delivery.
+                    Strings interpolate the {pane} variable.
   notification.notify  
                     Optional command arguments run for the same agent
                     transitions as notification.bell. An empty command disables

@@ -12,7 +12,7 @@ its built-in defaults. A path passed with `--config` must exist.
 | Setting               | Default | Description                                           |
 | --------------------- | ------- | ----------------------------------------------------- |
 | `notification.bell`   | `false` | Emit a terminal bell for agent attention transitions. |
-| `notification.clear`  | `[]`    | Clear a pane's notification when its agent runs.      |
+| `notification.clear`  | `[]`    | Clear on agent `idle`, `running`, or `exit` updates.  |
 | `notification.notify` | `[]`    | Run a custom command for agent attention transitions. |
 | `repo.globs`          | `[]`    | Discover jj repositories from glob patterns.          |
 | `tmux.setup`          | `""`    | Run a shell script after creating a tmux session.     |
@@ -22,8 +22,10 @@ its built-in defaults. A path passed with `--config` must exist.
 
 Use `[notification].bell` to enable terminal bells,
 `[notification].notify` to configure desktop notifications, and
-`[notification].clear` to remove a pane's notification when its agent starts
-running. All are disabled by default. See [Notifications][note] for transition
+`[notification].clear` to remove a pane's notification whenever its agent
+publishes `idle`, `running`, or `exit`, including repeated updates. Clearing runs
+after the metadata update and is best-effort, even when notification delivery is
+disabled. All are disabled by default. See [Notifications][note] for transition
 behavior, focus detection, command interpolation, and desktop notification
 examples.
 

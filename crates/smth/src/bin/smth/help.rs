@@ -187,9 +187,10 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
 
     w.def(
         "notification.clear",
-        "Optional command arguments run whenever an agent enters running state. An empty command \
-         disables clearing. Failures never fail state publication. Strings interpolate the \
-         {pane} variable.",
+        "Optional command arguments run after every agent idle, running, or exit update, including \
+         repeated updates. On exit, state metadata is removed before clearing. An empty command \
+         disables clearing. Failures never fail metadata updates. Clearing does not enable \
+         notification delivery. Strings interpolate the {pane} variable.",
     )?;
 
     w.def(

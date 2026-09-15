@@ -6,9 +6,9 @@ input_file: crates/smth/tests/cases/agent-notification.md
 # Agent notifications
 
 Notifications should run a recursively nested configured command only when an
-unfocused agent newly enters an attention-worthy state. Running an agent should
-clear that pane's pending notification. Interpolated values must remain data
-through every shell level.
+unfocused agent newly enters an attention-worthy state. Publishing idle, running,
+or exit should clear that pane's pending notification after updating its metadata.
+Interpolated values must remain data through every shell level.
 
     :bins sh cat
 
@@ -24,7 +24,7 @@ through every shell level.
 clear = [
   "sh",
   "-c",
-  "printf '%s\\n' \"$1\" >> cleared",
+  "printf '%s [%s]\\n' \"$1\" \"$(tmux show-options -pqv -t \"$1\" @smth.agent.state)\" >> cleared",
   "clear",
   "{pane}",
 ]
@@ -34,7 +34,7 @@ notify = [
   [
     "sh",
     "-c",
-    "printf '%s\\n' \"$1\" \"$2\" \"$3\" \"$4\" \"${5:+socket-set}\" \"$6\" >> notifications",
+    "printf '# %s\\ntitle: %s\\nmessage: %s\\npane: %s\\nsocket: %s\\ntty: %s\\n\\n' \"$1\" \"$2\" \"$3\" \"$4\" \"${5:+socket-set}\" \"$6\" >> notifications",
     "notify",
     "{state}",
     "{title}",
@@ -56,18 +56,19 @@ optional client TTY is empty.
     :$ cat cleared (exit: 0)
 
 ```stdout
-%0
+%0 [running]
 ```
 
     :$ smth agent succeeded --title "Fix {state}" --summary "it's {pane}; safe" (exit: 0)
     :$ cat notifications (exit: 0)
 
 ```stdout
-succeeded
-Fix {state}
-it's {pane}; safe
-%0
-socket-set
+# succeeded
+title: Fix {state}
+message: it's {pane}; safe
+pane: %0
+socket: socket-set
+tty: 
 
 ```
 
@@ -79,19 +80,29 @@ Terminal bells default to off even when command notifications are enabled.
 0
 ```
 
-Changing between attention-worthy states should not append another
-notification.
+Repeating or changing between attention-worthy states should neither append
+another notification nor invoke the clear command.
 
+    :$ smth agent succeeded (exit: 0)
     :$ smth agent failed --summary second (exit: 0)
+    :$ smth agent waiting (exit: 0)
+    :$ smth agent failed (exit: 0)
     :$ cat notifications (exit: 0)
 
 ```stdout
-succeeded
-Fix {state}
-it's {pane}; safe
-%0
-socket-set
+# succeeded
+title: Fix {state}
+message: it's {pane}; safe
+pane: %0
+socket: socket-set
+tty: 
 
+```
+
+    :$ cat cleared (exit: 0)
+
+```stdout
+%0 [running]
 ```
 
 After returning to a non-attention state, entering an attention state should
@@ -102,27 +113,135 @@ notify again. Every running update should also invoke the clear command.
     :$ cat cleared (exit: 0)
 
 ```stdout
-%0
-%0
-%0
+%0 [running]
+%0 [running]
+%0 [running]
 ```
 
     :$ smth agent failed --summary second (exit: 0)
     :$ cat notifications (exit: 0)
 
 ```stdout
-succeeded
-Fix {state}
-it's {pane}; safe
-%0
-socket-set
+# succeeded
+title: Fix {state}
+message: it's {pane}; safe
+pane: %0
+socket: socket-set
+tty: 
 
-failed
+# failed
+title: 
+message: second
+pane: %0
+socket: socket-set
+tty: 
 
-second
-%0
-socket-set
+```
 
+Idle should clear a pending notification after publishing its state, without
+sending a notification. A subsequent waiting update should notify again, but a
+repeated waiting update should not.
+
+    :$ sh -c ': > cleared; : > notifications' (exit: 0)
+    :$ smth agent idle (exit: 0)
+    :$ cat cleared (exit: 0)
+
+```stdout
+%0 [idle]
+```
+
+    :$ cat notifications (exit: 0)
+
+    :$ smth agent waiting (exit: 0)
+    :$ smth agent waiting (exit: 0)
+    :$ cat notifications (exit: 0)
+
+```stdout
+# waiting
+title: 
+message: Agent is waiting for user input
+pane: %0
+socket: socket-set
+tty: 
+
+```
+
+    :$ cat cleared (exit: 0)
+
+```stdout
+%0 [idle]
+```
+
+Exit should clear a pending notification after removing the pane's state,
+without sending a notification. A subsequent attention state should notify again
+even without an intervening idle or running update.
+
+    :$ sh -c ': > cleared; : > notifications' (exit: 0)
+    :$ smth agent exit (exit: 0)
+    :$ cat cleared (exit: 0)
+
+```stdout
+%0 []
+```
+
+    :$ cat notifications (exit: 0)
+
+    :$ smth agent succeeded (exit: 0)
+    :$ cat notifications (exit: 0)
+
+```stdout
+# succeeded
+title: 
+message: Agent run completed successfully
+pane: %0
+socket: socket-set
+tty: 
+
+```
+
+Clearing should work without enabling notification delivery. An exit followed by
+idle, as during a Pi session reset, should invoke the clear command for both
+updates. Repeated idle, running, and exit updates should still clear with this
+clear-only config.
+
+    :w .config/smth/smth.toml (written)
+
+```toml
+[notification]
+clear = [
+  "sh",
+  "-c",
+  "printf '%s [%s]\\n' \"$1\" \"$(tmux show-options -pqv -t \"$1\" @smth.agent.state)\" >> cleared",
+  "clear",
+  "{pane}",
+]
+```
+
+    :$ sh -c ': > cleared; : > notifications' (exit: 0)
+    :$ smth agent exit (exit: 0)
+    :$ smth agent exit (exit: 0)
+    :$ smth agent idle (exit: 0)
+    :$ smth agent idle (exit: 0)
+    :$ smth agent running (exit: 0)
+    :$ smth agent running (exit: 0)
+    :$ cat cleared (exit: 0)
+
+```stdout
+%0 []
+%0 []
+%0 [idle]
+%0 [idle]
+%0 [running]
+%0 [running]
+```
+
+    :$ smth agent waiting (exit: 0)
+    :$ cat notifications (exit: 0)
+
+    :t display-message -p '#{window_bell_flag}' (success)
+
+```
+0
 ```
 
 A bell-only configuration should enable notifications and emit a terminal bell
@@ -158,11 +277,70 @@ notify = ["missing-notification-command"]
 ```
 
     :$ smth agent running (exit: 0)
+    :t show-options -pqv @smth.agent.state (success)
+
+```
+running
+```
+
     :$ smth agent waiting (exit: 0)
     :t show-options -pqv @smth.agent.state (success)
 
 ```
 waiting
+```
+
+    :$ smth agent idle (exit: 0)
+    :t show-options -pqv @smth.agent.state (success)
+
+```
+idle
+```
+
+    :$ smth agent exit (exit: 0)
+    :t show-options -pqv @smth.agent.state (success)
+
+A clear command that runs but exits unsuccessfully must also leave successful
+metadata updates intact. Log each attempt before failing to prove it was invoked
+after publishing or removing the state.
+
+    :w .config/smth/smth.toml (written)
+
+```toml
+[notification]
+clear = [
+  "sh",
+  "-c",
+  "printf '%s [%s]\\n' \"$1\" \"$(tmux show-options -pqv -t \"$1\" @smth.agent.state)\" >> cleared; exit 1",
+  "clear",
+  "{pane}",
+]
+```
+
+    :$ sh -c ': > cleared' (exit: 0)
+    :$ smth agent running (exit: 0)
+    :t show-options -pqv @smth.agent.state (success)
+
+```
+running
+```
+
+    :$ smth agent idle (exit: 0)
+    :t show-options -pqv @smth.agent.state (success)
+
+```
+idle
+```
+
+    :$ smth agent exit (exit: 0)
+    :t show-options -pqv @smth.agent.state (success)
+
+    :$ cat cleared (exit: 0)
+
+```stdout
+%0 [running]
+%0 [idle]
+%0 []
 ```
 
 ---

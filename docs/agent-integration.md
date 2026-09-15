@@ -25,8 +25,10 @@ input, and the two terminal outcomes of a settled run. `exit` stops tracking the
 agent and removes its state.
 
 `--title TEXT` and `--summary TEXT` supply one-shot notification text for that
-transition. Neither value is persisted in tmux metadata. Publishing `running`
-can also clear any pending notification associated with the pane. See
+transition. Neither value is persisted in tmux metadata. Every `idle`, `running`,
+or `exit` update also invokes the configured notification clear command, including
+repeated updates. Clearing runs after publishing the state or removing it on
+`exit`, and failures never make a successful metadata update fail. See
 [Notifications][note] to configure delivery and clearing.
 
 `smth agent` writes the state to the `@smth.agent.state` user option on the
