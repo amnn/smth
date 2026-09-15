@@ -77,5 +77,39 @@ can't find session: alpha
     :t has-session -t alpine (success)
     :t has-session -t ui (success)
 
+Closing the last matching live session should select the prospective row once
+rediscovery has completed, rather than retaining a removed session forever.
+
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S closed-last-match" (success)
+    :k C-x
+    :t wait-for closed-last-match (success)
+    :settle (settled)
+    :snap
+
+```terminal
+session: alp
+  0/2 | [C-r] repo: none
+▌  alp                                                                                                                 ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+    :t has-session -t alpine (failure)
+
+```
+can't find session: alpine
+```
+
+    :t has-session -t ui (success)
+
 ---
 vim: set ft=markdown:
