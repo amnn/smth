@@ -53,7 +53,7 @@ Add to `~/.tmux.conf`:
 
 ```tmux
 set -g detach-on-destroy off
-bind s display-popup -E -w 80% -h 80% -T smth -d "#{pane_current_path}" "smth"
+bind s display-popup -E -w 80% -h 80% -T smth -d "#{pane_current_path}" smth --
 bind S choose-tree -s
 ```
 

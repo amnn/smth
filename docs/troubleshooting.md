@@ -21,6 +21,24 @@ remaining session instead. Reload the tmux configuration to apply it:
 tmux source-file ~/.tmux.conf
 ```
 
+## The popup opens slowly
+
+A single shell-command argument, such as `"smth"`, makes tmux start
+`default-shell -c` first. [Tmux 3.5 changed popup shell selection][tmux-changes]
+from `/bin/sh` to `default-shell`, so upgrading can expose expensive shell
+startup files even though the shell is non-interactive. Use the
+[setup binding][setup] with separate `smth --` arguments to launch the binary
+directly and skip shell startup. `smth` treats `--` as the end of its options.
+Ensure `smth` and `jj` are available on tmux's `PATH` without shell startup files.
+
+If startup is still slow, compare `time smth --filter` from the same directory
+with the same configuration. This measures session and workspace discovery
+without opening the picker. Narrow overly broad `repo.globs` if discovery is
+the bottleneck.
+
+[setup]: ../README.md#setup
+[tmux-changes]: https://github.com/tmux/tmux/blob/3.5a/CHANGES
+
 ## `smth` does not detect the repository from the current directory
 
 `smth` detects the default repository context from the directory it starts in.
@@ -28,7 +46,7 @@ If the picker header does not show the expected `repo: ...` value, check the
 path tmux uses when launching `smth`:
 
 ```tmux
-bind s display-popup -E -w 80% -h 80% -T smth -d "#{pane_current_path}" "smth"
+bind s display-popup -E -w 80% -h 80% -T smth -d "#{pane_current_path}" smth --
 ```
 
 The `-d "#{pane_current_path}"` option should be present so tmux starts `smth`
