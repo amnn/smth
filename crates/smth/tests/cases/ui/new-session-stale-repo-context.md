@@ -23,7 +23,9 @@ context, then accept a new-session row.
     :k plain C-r C-u zeta
     :snap
 
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session"
     :k enter
+    :t wait-for created-session
     :settle -d 2s
 
 The new tmux session should start in `plain`, but it should not record stale

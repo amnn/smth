@@ -44,7 +44,9 @@ session: zeta
 
 ```
 
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session" (success)
     :k enter
+    :t wait-for created-session (success)
     :settle -d 2s (settled)
 
 Accepting the row should create and switch to the disambiguated workspace.

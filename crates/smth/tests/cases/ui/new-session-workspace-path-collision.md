@@ -22,7 +22,9 @@ whose derived destination already exists.
     :k beta C-r C-u zeta
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session"
     :k enter
+    :t wait-for created-session
     :settle -d 2s
 
 Accepting the row should create and switch to a workspace whose derived path is

@@ -46,7 +46,9 @@ session: beta
 
 ```
 
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session" (success)
     :k enter
+    :t wait-for created-session (success)
     :settle -d 2s (settled)
 
 The created session should now be present, attached to the repo, and selected by
