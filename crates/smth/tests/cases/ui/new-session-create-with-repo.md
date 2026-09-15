@@ -22,7 +22,7 @@ new-session row for `zeta`.
     :k beta C-r C-u zeta
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
-    :k Enter
+    :k enter
     :settle -d 2s
 
 The client should switch to the new session, and the session should carry the

@@ -44,7 +44,7 @@ session: zeta
 
 ```
 
-    :k Enter
+    :k enter
     :settle -d 2s (settled)
 
 Accepting the row should create and switch to the disambiguated workspace.

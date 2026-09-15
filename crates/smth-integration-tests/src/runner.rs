@@ -199,22 +199,29 @@ impl Runner {
     async fn eval_keys(&self, w: &mut impl fmt::Write, raw: &str, keys: &[Key]) -> fmt::Result {
         writeln!(w, "{raw}")?;
 
-        let command = self
-            .tmux
-            .command("send-keys")
-            .args(keys.iter().map(|k| k.code().into_owned()));
+        // Keep literal text out of tmux's key-name lookup, and preserve ordering when text and
+        // named keys are interleaved. Group adjacent keys to avoid a command for every character.
+        for keys in keys.chunk_by(|a, b| a.is_literal() == b.is_literal()) {
+            let mut command = self.tmux.command("send-keys");
+            if keys[0].is_literal() {
+                command = command.arg("-l");
+            }
+            let command = command
+                .arg("--")
+                .args(keys.iter().map(|k| k.code().into_owned()));
 
-        if let Err(e) = command.status().await {
-            let stderr = e.to_string();
-            let stderr = stderr.trim();
-            let msg = if !stderr.is_empty() {
-                format!("failed to send keys: {stderr}")
-            } else {
-                "failed to send keys".to_owned()
-            };
+            if let Err(e) = command.status().await {
+                let stderr = e.to_string();
+                let stderr = stderr.trim();
+                let msg = if !stderr.is_empty() {
+                    format!("failed to send keys: {stderr}")
+                } else {
+                    "failed to send keys".to_owned()
+                };
 
-            writeln!(w)?;
-            write_callout(w, "WARNING", &[&msg])?;
+                writeln!(w)?;
+                return write_callout(w, "WARNING", &[&msg]);
+            }
         }
 
         Ok(())

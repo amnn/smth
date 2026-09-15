@@ -45,7 +45,7 @@ session: omega
 
 ```
 
-    :k Enter
+    :k enter
     :settle -d 2s (settled)
 
 Accepting the row should create a workspace from `beta.zeta`, not from the

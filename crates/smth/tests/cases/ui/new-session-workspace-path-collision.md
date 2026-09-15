@@ -22,7 +22,7 @@ whose derived destination already exists.
     :k beta C-r C-u zeta
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
-    :k Enter
+    :k enter
     :settle -d 2s
 
 Accepting the row should create and switch to a workspace whose derived path is

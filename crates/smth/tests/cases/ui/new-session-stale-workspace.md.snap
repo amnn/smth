@@ -50,7 +50,7 @@ session: feature
 ```
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S stale-workspace-switched" (success)
-    :k Enter
+    :k enter
     :t wait-for stale-workspace-switched (success)
 
 The client should switch to the new workspace-backed session. The new workspace

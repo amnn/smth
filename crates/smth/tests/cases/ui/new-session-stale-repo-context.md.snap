@@ -44,7 +44,7 @@ session: zeta
 
 ```
 
-    :k Enter
+    :k enter
     :settle -d 2s (settled)
 
 The new tmux session should start in `plain`, but it should not record stale

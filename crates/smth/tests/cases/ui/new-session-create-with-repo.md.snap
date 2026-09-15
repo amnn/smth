@@ -43,7 +43,7 @@ session: zeta
 
 ```
 
-    :k Enter
+    :k enter
     :settle -d 2s (settled)
 
 The client should switch to the new session, and the session should carry the

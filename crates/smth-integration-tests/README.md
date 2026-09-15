@@ -29,7 +29,9 @@ Supported directives:
     `backspace`, `btab`, `esc`, `tab`, `space`.
   - Modifiers are canonical uppercase only: `C-`, `M-`, `S-`.
   - `S-` only applies to arrow keys.
-  - Anything that doesn't match the above is treated as a literal string to send.
+  - Anything that doesn't match the above is sent literally with `tmux send-keys -l`,
+    including tmux names such as `Enter` and option-like text such as `-l`.
+    Use lowercase `enter` for the actual key press.
 - `:settle [-c <count>] [-d <duration>] [dregexdgrapheme ...]`
   - Wait for the current pane to settle without appending a snapshot.
   - Accepts the same settle options and filters as `:snap`, but does not accept `--color`.

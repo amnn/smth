@@ -18,7 +18,7 @@ same metadata as normal user-created workspace sessions.
     :t resize-window -t create:0 -x 120 -y 12
     :pane create:0.0
     :settle -d 2s
-    :k alpha C-r C-u feature Enter
+    :k alpha C-r C-u feature enter
     :settle -d 2s
 
 Launch a fresh picker and select the workspace-backed session.
@@ -70,7 +70,7 @@ Cancel the onto picker and switch to the surviving sibling workspace.
     :k C-g sibling
     :settle
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S switched-sibling"
-    :k Enter
+    :k enter
     :t wait-for switched-sibling
 
     :t display-message -p '#{client_session}'

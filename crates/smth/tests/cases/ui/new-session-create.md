@@ -19,7 +19,7 @@ Type a unique session name and accept the new-session row.
     :k zeta
     :snap
 
-    :k Enter
+    :k enter
     :settle -d 2s
 
 The client should switch to the newly-created session, and no repo metadata

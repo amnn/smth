@@ -54,18 +54,18 @@ the selected reversed `line 06` row, they should be switched back for contrast.
 query. The matching characters stay reversed on `line 06` while the full-row
 inversion moves down.
 
-    :k Down
+    :k down
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 `Up` should move selection back to the working-copy commit.
 
-    :k Up
+    :k up
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Pressing `Up` twice should move to the child commit, then remain there because it
 is the first commit in the view.
 
-    :k Up Up
+    :k up up
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Search for every numbered `line` commit. `Tab` should skip the selected,
@@ -76,30 +76,30 @@ this is the first of six matching commits.
     :k C-u line
     :settle
 
-    :k Tab
+    :k tab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 `S-tab` should wrap to the final matching commit before the root and update the
 widget.
 
-    :k BTab
+    :k btab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 `Tab` should wrap back to the first matching commit.
 
-    :k Tab
+    :k tab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Moving manually should hide the match-position widget immediately, before its
 timeout.
 
-    :k Down
+    :k down
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Jump to another match, then wait beyond the one-second timeout. The selection
 should remain while the widget disappears.
 
-    :k Tab
+    :k tab
     :$ sleep 1.1
 
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
@@ -107,13 +107,13 @@ should remain while the widget disappears.
 Repeatedly pressing `Down` past the other end should leave the root commit
 selected and scroll it into view.
 
-    :k Down Down Down Down Down Down Down Down Down Down Down Down
+    :k down down down down down down down down down down down down
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 After jumping to a match, editing the query should immediately hide the match
 counter without moving the selection.
 
-    :k Tab
+    :k tab
     :k backspace
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 

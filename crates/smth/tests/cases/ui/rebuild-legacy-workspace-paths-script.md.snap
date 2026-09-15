@@ -58,7 +58,7 @@ session: omega
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S workspace-switched" (success)
     :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S picker-closed" (success)
-    :k Enter
+    :k enter
     :t wait-for workspace-switched (success)
     :t wait-for picker-closed (success)
 
