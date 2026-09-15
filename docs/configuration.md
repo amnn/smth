@@ -49,7 +49,7 @@ When invoking `smth` from a tmux popup, use `-d "#{pane_current_path}"` so its
 working directory comes from the active pane:
 
 ```tmux
-bind s display-popup -E -w 80% -h 80% -T smth -d "#{pane_current_path}" "smth"
+bind s display-popup -E -w 80% -h 80% -T smth -d "#{pane_current_path}" smth --
 ```
 
 This lets the picker derive its current repository context from that pane. For
