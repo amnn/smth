@@ -25,7 +25,7 @@ pub struct NotificationConfig {
     /// Whether to emit a terminal bell in the agent pane.
     pub bell: bool,
 
-    /// Command to clear a pane's notification when its agent starts running.
+    /// Command to clear a pane's notification on every idle, running, or exit update.
     pub clear: Vec<Cmd>,
 
     /// Command to notify when an agent newly needs attention.

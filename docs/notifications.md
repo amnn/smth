@@ -3,12 +3,12 @@
 Notification delivery complements [agent integration][agent] and is optional.
 It is disabled unless `notification.bell` is `true`, `notification.notify` is
 non-empty, or both. An optional `notification.clear` command removes stale
-notifications when work resumes.
+notifications when an agent publishes `idle`, `running`, or `exit`.
 
 Enabled channels run when an agent newly enters `waiting`, `succeeded`, or
 `failed` and no eligible tmux client has that pane focused. Moving between
-attention-worthy states does not notify again; the agent must first return to
-`idle` or `running`.
+attention-worthy states does not notify again; the agent must first publish
+`idle`, `running`, or `exit`.
 
 Notification delivery and clearing are best-effort and never make a lifecycle
 state update fail.
@@ -100,8 +100,10 @@ nested `-execute` command above safe to pass as a single shell command string.
 
 Titles and messages have whitespace normalized and are bounded before command
 interpolation. `notification.clear` command strings can interpolate `{pane}`.
-The clear command runs on every `running` update, even if the agent was already
-running.
+The clear command runs on every `idle`, `running`, or `exit` update, including
+repeated updates. It runs after publishing the state, or after removing the
+pane's state on `exit`. Clearing works even when both delivery channels are
+disabled.
 
 ## Focus detection
 

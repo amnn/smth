@@ -17,8 +17,8 @@ The switcher is configured via a configuration file at
 - `notification.bell`: Whether to emit a terminal bell in the agent pane.
   Defaults to false.
 - `notification.clear`: An optional root argument array executed whenever an
-  agent publishes `running`. An empty or omitted array disables clearing.
-  Command strings interpolate `{pane}`.
+  agent publishes `idle`, `running`, or `exit`, including repeated updates. An
+  empty or omitted array disables clearing. Command strings interpolate `{pane}`.
 - `notification.notify`: An optional root argument array executed for agent
   attention transitions. An empty or omitted array disables command delivery.
   Nested arrays are recursively evaluated depth-first and POSIX-shell-joined
@@ -134,9 +134,11 @@ separators, preserve other non-whitespace control characters, and are truncated
 safely. Bell and configured notify delivery run concurrently and are
 independently best-effort; configured command execution is bounded.
 
-Every `running` state update invokes the configured clear command after state
-metadata is published. Clear command failures are ignored, and clearing does
-not itself enable notification delivery.
+Every `idle`, `running`, or `exit` update invokes the configured clear command,
+including repeated updates. Clearing runs after state metadata is published, or
+after it is removed on `exit`. Clear command failures are ignored, and clearing
+works independently of notification delivery being enabled. These updates also
+allow the next attention state to notify again.
 
 ### Session Names and Metadata
 The switcher represents sessions by their name and metadata.

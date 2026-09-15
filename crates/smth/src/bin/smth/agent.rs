@@ -52,33 +52,33 @@ impl Args {
             .context("'smth agent' must be run from inside a tmux pane ($TMUX_PANE is unset)")?;
 
         tmux::ensure()?;
-        let Some(state) = self.action else {
-            return tmux::unset_pane_option(&pane, AGENT_STATE_OPTION).await;
-        };
 
-        // Try to fetch the previous state to detect whether we need to send a notification
-        let previous = if config.enabled() && state.needs_attention() {
+        // Try to fetch the previous state to detect whether we need to send a notification.
+        let previous = if config.enabled() && self.action.is_some_and(AgentState::needs_attention) {
             tmux::pane_option(&pane, AGENT_STATE_OPTION).await
         } else {
             Ok(None)
         };
 
-        let value = state.value();
-        tmux::set_pane_option(&pane, AGENT_STATE_OPTION, &value).await?;
+        if let Some(state) = self.action {
+            tmux::set_pane_option(&pane, AGENT_STATE_OPTION, &state.value()).await?;
+        } else {
+            tmux::unset_pane_option(&pane, AGENT_STATE_OPTION).await?;
+        }
 
-        if state == AgentState::Running && !config.clear.is_empty() {
-            if let Err(err) = notify::clear(&config.clear, &pane).await {
+        // If the next action does not need attention, try to clear a pending notification for this
+        // pane, and exit early.
+        let Some(state) = self.action.filter(|state| state.needs_attention()) else {
+            if !config.clear.is_empty()
+                && let Err(err) = notify::clear(&config.clear, &pane).await
+            {
                 debug!(?err, pane, "failed to clear agent notification");
             }
             return Ok(());
-        }
+        };
 
         // A notification is only sent when the state transitions from a non-attention state to an
         // attention state.
-        if !state.needs_attention() {
-            return Ok(());
-        }
-
         if previous
             .ok()
             .flatten()
