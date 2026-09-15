@@ -23,7 +23,7 @@ context, then accept a new-session row.
     :k plain C-r C-u zeta
     :snap
 
-    :k Enter
+    :k enter
     :settle -d 2s
 
 The new tmux session should start in `plain`, but it should not record stale

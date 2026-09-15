@@ -32,7 +32,7 @@ checkout path.
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S workspace-switched"
     :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S picker-closed"
-    :k Enter
+    :k enter
     :t wait-for workspace-switched
     :t wait-for picker-closed
 

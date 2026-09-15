@@ -29,7 +29,7 @@ context.
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S stale-workspace-switched"
-    :k Enter
+    :k enter
     :t wait-for stale-workspace-switched
 
 The client should switch to the new workspace-backed session. The new workspace

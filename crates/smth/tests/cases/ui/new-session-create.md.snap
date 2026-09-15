@@ -40,7 +40,7 @@ session: zeta
 
 ```
 
-    :k Enter
+    :k enter
     :settle -d 2s (settled)
 
 The client should switch to the newly-created session, and no repo metadata

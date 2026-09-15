@@ -24,7 +24,7 @@ its own path is used as the base.
     :k omega
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
-    :k Enter
+    :k enter
     :settle -d 2s
 
 Accepting the row should create a workspace from `beta.zeta`, not from the

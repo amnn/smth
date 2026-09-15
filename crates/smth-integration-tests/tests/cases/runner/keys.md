@@ -55,6 +55,20 @@ Literal text keys should preserve case and punctuation.
     :t wait-for done-pct
     :$ cat pct.txt
 
+## Keeps tmux key names and options literal
+
+Only the runner's lowercase key names are special. Other text must not be reinterpreted as
+named keys or command options by tmux.
+
+    :t new-window -d -n names 'tmcap names'
+    :p 0:names.0
+
+    :t wait-for ready-names
+    :k Enter space Up space BTab space Escape space -l space -- enter C-d
+
+    :t wait-for done-names
+    :$ cat names.txt
+
 ## Sends complex modifier combinations
 
 Complex modifier combinations should be forwarded to tmux as key codes, including explicit
@@ -64,10 +78,24 @@ Complex modifier combinations should be forwarded to tmux as key codes, includin
     :p 0:mod.0
 
     :t wait-for ready-mod
-    :k C-a M-a C-M-a btab C-btab S-up enter C-d
+    :k C-a M-a C-M-a btab S-up enter C-d
 
     :t wait-for done-mod
     :$ cat mod.txt
+
+## Modified backtab depends on tmux's legacy encoding
+
+Without extended key negotiation, tmux 3.4 drops `C-btab`, while tmux 3.7c sends an unmodified
+backtab. Accept these two observed legacy encodings rather than requiring either tmux version.
+
+    :t new-window -d -n backtab 'tmcap backtab'
+    :p 0:backtab.0
+
+    :t wait-for ready-backtab
+    :k C-btab enter C-d
+
+    :t wait-for done-backtab
+    :$ python3 -c 'from pathlib import Path; value = Path("backtab.txt").read_text(); assert value in ("\n", r"\x1b[Z" + "\n"), repr(value)'
 
 ## Failed pane selection does not retarget active pane
 

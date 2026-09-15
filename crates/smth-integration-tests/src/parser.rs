@@ -204,6 +204,11 @@ impl Key {
         prefixed.push_str(&code);
         Cow::Owned(prefixed)
     }
+
+    /// Whether this key is unmodified text, not a tmux key name.
+    pub(crate) fn is_literal(&self) -> bool {
+        matches!(self.kind, KeyKind::Text(_)) && !self.ctrl && !self.meta && !self.shft
+    }
 }
 
 impl<'s> Line<'s> {
