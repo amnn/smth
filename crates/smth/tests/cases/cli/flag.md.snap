@@ -24,15 +24,23 @@ workspace identity rather than by a guessed tmux name.
 Create a plain session whose name collides with the natural repo-backed name,
 then attach the real feature workspace to a disambiguated tmux session. Also
 create live targets for the default checkout, another named workspace, and the
-plain-session namespace.
+plain-session namespace. Record each pane's configured start path: its process
+may not yet report a current directory while starting.
 
     :t new-session -d -s alpha/feature "cat" (success)
+
     :t new-session -d -s alpha/feature~1 -c alpha.feature "cat" (success)
-    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_current_path}' (success)
+
+    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_start_path}' (success)
+
     :t new-session -d -s alpha-live -c alpha "cat" (success)
-    :t set-option -F -t '=alpha-live:' @smth.repo '#{pane_current_path}' (success)
+
+    :t set-option -F -t '=alpha-live:' @smth.repo '#{pane_start_path}' (success)
+
     :t new-session -d -s alpha/other -c alpha.other "cat" (success)
-    :t set-option -F -t '=alpha/other:' @smth.repo '#{pane_current_path}' (success)
+
+    :t set-option -F -t '=alpha/other:' @smth.repo '#{pane_start_path}' (success)
+
     :t new-session -d -s scratch "cat" (success)
 
 Flagging `feature` must update only the repo-backed session, not the colliding
