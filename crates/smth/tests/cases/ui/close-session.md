@@ -31,5 +31,18 @@ query, and show the refreshed list with only `alpine` remaining.
     :t has-session -t alpine
     :t has-session -t ui
 
+Closing the last matching live session should select the prospective row once
+rediscovery has completed, rather than retaining a removed session forever.
+
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S closed-last-match"
+    :k C-x
+    :t wait-for closed-last-match
+    :settle
+    :snap
+
+    :t has-session -t alpine
+
+    :t has-session -t ui
+
 ---
 vim: set ft=markdown:

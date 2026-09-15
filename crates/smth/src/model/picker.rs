@@ -75,9 +75,12 @@ impl<I: Pickable + Send + Sync + 'static> Picker<I> {
         (status, self.matcher.snapshot(), &self.query)
     }
 
-    /// Reset matcher contents while preserving the active query string.
+    /// Reset matcher contents while preserving the query and last completed matches.
+    ///
+    /// Keep the snapshot until replacement matches are ready so a transient empty list cannot
+    /// clamp the UI selection onto the new-session candidate during rediscovery.
     pub(crate) fn reset(&mut self) {
-        self.matcher.restart(true);
+        self.matcher.restart(false);
     }
 
     /// Reparse the active query and tell nucleo whether the change appended text.
@@ -89,5 +92,56 @@ impl<I: Pickable + Send + Sync + 'static> Picker<I> {
             Normalization::Smart,
             append,
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+    use std::time::Instant;
+
+    use super::*;
+
+    impl Pickable for &'static str {
+        fn text(&self) -> String {
+            (*self).to_owned()
+        }
+    }
+
+    fn matches(picker: &Picker<&'static str>) -> Vec<&'static str> {
+        picker
+            .matcher
+            .snapshot()
+            .matched_items(..)
+            .map(|item| *item.data)
+            .collect()
+    }
+
+    /// Wait for matching to finish without hanging indefinitely on a worker failure.
+    fn settle(picker: &mut Picker<&'static str>) {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while picker.refresh().0.running {
+            assert!(Instant::now() < deadline, "matcher did not finish");
+        }
+    }
+
+    #[test]
+    fn reset_retains_snapshot_until_matches_are_ready() {
+        let mut picker = Picker::new("alp".to_owned());
+        picker.inject(["alpha", "alpine"]);
+        settle(&mut picker);
+        assert_eq!(matches(&picker), ["alpha", "alpine"]);
+
+        picker.reset();
+        assert_eq!(picker.query(), "alp");
+        assert_eq!(matches(&picker), ["alpha", "alpine"]);
+
+        picker.inject(["alpine"]);
+        settle(&mut picker);
+        assert_eq!(matches(&picker), ["alpine"]);
+
+        picker.reset();
+        settle(&mut picker);
+        assert!(matches(&picker).is_empty());
     }
 }
