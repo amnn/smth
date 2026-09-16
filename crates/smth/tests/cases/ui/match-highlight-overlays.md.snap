@@ -40,9 +40,9 @@ basename (`b`) spans.
 ```terminal
 session: onecb                                                                                     ┃
   1/3 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+   onecb                                    ~/onecb                                                ┃
    onecb                                                                                           ┃
 ▌⬤ tone~one                                 c/blue                                                 ┃
-                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -62,9 +62,9 @@ not reversed, making its overlaid span styles visible in the SVG.
 ```terminal
 session: onecb                                                                                     ┃
   1/3 | [C-r] repo: none                                                                           ┃
-▌  onecb                                                                                           ┃
+▌  onecb                                    ~/onecb                                                ┃
+   onecb                                                                                           ┃
  ⬤ tone~one                                 c/blue                                                 ┃
-                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -85,9 +85,9 @@ to show and highlight the matched `o`.
 ```terminal
 session: oneob                                                                                     ┃
   1/3 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+   oneob                                    ~/oneob                                                ┃
    oneob                                                                                           ┃
 ▌⬤ tone~one                                 co/blue                                                ┃
-                                                                                                   ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

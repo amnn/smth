@@ -77,19 +77,25 @@ The fuzzy finder includes a header with the following information:
   - `C-r` to change repo (next to the current repo).
   - `C-o` to change the `onto` revision (next to the current revision).
   - `C-n` to create a new session from the current query.
-  - `M-n` to create without switching, initializing a repository when eligible.
-  - `M-enter` to switch, initializing a repository when eligible.
   - `C-x` to close a session and refresh the session list.
 
 ### Candidate Sessions
 The fuzzy finder constructs a list of candidate sessions from the following
 sources, in the following order:
 
+- Prospective sessions derived from a non-empty query: a fresh repository, then
+  a plain session when there is no repository context; otherwise only the usual
+  workspace or checkout-backed candidate.
 - Existing tmux sessions.
 - Repositories and workspaces found under `repo.globs` and command-line repo
   globs, in alphabetical order.
-- A prospective session derived from the non-empty query and current repository
-  context.
+
+Two rows are reserved above discovered sessions. Empty rows pad the top so
+prospective candidates remain adjacent to discovered sessions, whose starting
+row does not move as candidates appear or disappear. Empty rows cannot be
+selected. With no query, there are no prospective candidates. Default selection
+prefers discovered matches, then the last prospective candidate (the plain
+session when there is no repository context).
 
 When reconciling existing sessions with candidate sessions, a name is generated
 for each candidate session. If it matches the name of an existing session, the
@@ -165,11 +171,13 @@ style to tmux's `C-b s` session switcher, assuming the session already exists.
 
 ### Fresh Repository Creation
 
-In the picker, fresh repository creation is available only when no repository
-context has been resolved and the selected row is the prospective plain session
-derived from the query. `--no-base` suppresses current-directory inference when
-necessary. Otherwise, `M-n` and `M-enter` ignore the repository-initialization
-request and perform the normal `C-n` and `enter` actions on the selected session.
+In the picker, a fresh repository candidate appears above the plain-session
+candidate when the query is nonempty and no repository context is resolved.
+`--no-base` suppresses current-directory inference when necessary. The
+repository candidate displays its resolved name and destination path before
+creation. Select it and use `C-n` to create without switching or `enter` to
+create and switch. Both actions operate on the displayed candidate without
+converting it or choosing a different name at activation.
 
 The destination parent is selected in this order: `--repo-root`, `repo.root`,
 and the process working directory. This setting is independent of repository
@@ -201,15 +209,11 @@ target. If no window needs attention, `smth` uses the session's ordinary target.
   will only be enabled if a repository is selected. The fuzzy finder is
   populated with bookmarks (including `*@origin`), with `trunk()` included as
   a pseudo-entry at the top.
-- `C-n` will create a new session from the current query. This will first
-  check that a session with this name doesn't already exist, and if so,
-  follows the "picking a session" flow above.
-- `M-n` follows the normal create action, first initializing a fresh repository
-  when the selected candidate is eligible. Creation clears the query and
-  refreshes discovered sessions without switching.
-- `M-enter` follows the normal switch action, first initializing a fresh
-  repository when the selected candidate is eligible. Switching changes the
-  current client and closes the picker.
+- `C-n` creates the selected non-live session without switching, including a
+  fresh repository when that candidate is selected. Creation clears the query
+  and refreshes discovered sessions.
+- `enter` follows the "picking a session" flow for the selected candidate,
+  changing the current client and closing the picker.
 - `C-x` will close the selected existing tmux session, then refresh discovered
   sessions while preserving the current query.
 - `C-d` will delete an existing session and/or workspace. If there is a

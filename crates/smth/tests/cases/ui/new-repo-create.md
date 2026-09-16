@@ -1,7 +1,7 @@
 # Create repositories from the picker
 
-`M-n` should initialize a fresh repository only for the ephemeral plain-session
-candidate, then create its session while retaining the picker.
+The picker should offer a fresh-repository candidate above the ordinary plain
+candidate. `C-n` creates the selected candidate while retaining the picker.
 
     :bins jj tmux cat sh sed
 
@@ -17,18 +17,30 @@ setup = ": > .smth-ready"
 ```
 
     :t rename-session -t 0 runner
-    :t resize-window -t runner:0 -x 120 -y 10
+    :t resize-window -t runner:0 -x 120 -y 14
     :t respawn-pane -k -t runner:0.0 'smth --no-base; cat'
     :pane runner:0.0
     :settle -d 2s
 
-Type a repository name and wait for the ephemeral candidate to become the
-retained selection.
+With an empty query, navigation skips both reserved rows and stays on a live
+session.
+
+    :k M-up up up
+    :snap
+
+Type a repository name. With no discovered matches, the plain candidate remains
+the default even though the fresh-repository candidate appears first.
 
     :k detached
     :snap
 
-    :k M-n
+Select the repository candidate explicitly. Its destination is visible before
+creation, and `C-n` creates that exact candidate.
+
+    :k up
+    :snap
+
+    :k C-n
     :$ sh -c 'until test -f repos/detached/.smth-ready; do :; done'
     :settle -d 2s
 
@@ -48,24 +60,24 @@ its live tmux session.
 A query that sanitizes to an empty name should use the first available numeric
 suffix for both the candidate and the new repository session.
 
-    :k ...
+    :k ... up
     :snap
 
-    :k M-n
+    :k C-n
     :$ sh -c 'until test -f repos/1/.smth-ready; do :; done'
     :settle -d 2s
     :$ sh -c 'test -d repos/1/.jj && test -d repos/1/.git'
     :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
 
-With a repository context, `M-n` should create the selected workspace normally
-instead of initializing a fresh repository.
+With a repository context, only the workspace candidate is offered. Navigation
+must skip the empty row above it, and `C-n` creates the workspace normally.
 
     :t respawn-pane -k -t runner:0.0 'smth --base repos/detached; cat'
     :settle -d 2s
-    :k blocked
+    :k blocked M-up up up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
-    :k M-n
+    :k C-n
     :$ sh -c 'until test -f repos/detached.blocked/.smth-ready; do :; done'
     :settle -d 2s
     :snap

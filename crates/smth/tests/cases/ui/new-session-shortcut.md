@@ -2,8 +2,9 @@
 
 This scenario creates several repo-backed picker entries, with both live tmux
 sessions and discoverable repos that do not have live sessions. It verifies that
-the ephemeral new-session row is selectable when the query is non-empty, with
-names disambiguated from live sessions as needed.
+the ephemeral plain-session row is selectable below the repository candidate
+when the query is non-empty, with names disambiguated from live sessions as
+needed.
 
     :bins jj cat
 
@@ -42,7 +43,7 @@ Pressing `C-n` should do nothing and leave the picker open in the same state.
 Typing a prefix of the live `alpha` session makes the new-session row selectable,
 because `alp` is not an exact live session name.
 
-    :k alp M-up
+    :k alp M-up down
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Completing the live session name causes the new-session row's name to become

@@ -23,7 +23,7 @@ use crate::app::component::scrollbar;
 use crate::model::session::Session;
 
 /// Minimum rows reserved for prospective sessions, with unused rows padded above the candidates.
-pub(super) const NEW_SESSION_ROWS: usize = 1;
+pub(super) const NEW_SESSION_ROWS: usize = 2;
 
 /// Session-list component, backed by fuzzy-matched rows and prospective session candidates.
 pub(super) struct Sessions<'s> {

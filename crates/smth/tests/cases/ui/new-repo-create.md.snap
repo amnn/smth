@@ -5,8 +5,8 @@ input_file: crates/smth/tests/cases/ui/new-repo-create.md
 ---
 # Create repositories from the picker
 
-`M-n` should initialize a fresh repository only for the ephemeral plain-session
-candidate, then create its session while retaining the picker.
+The picker should offer a fresh-repository candidate above the ordinary plain
+candidate. `C-n` creates the selected candidate while retaining the picker.
 
     :bins jj tmux cat sh sed
 
@@ -25,22 +25,26 @@ setup = ": > .smth-ready"
 ```
 
     :t rename-session -t 0 runner (success)
-    :t resize-window -t runner:0 -x 120 -y 10 (success)
+    :t resize-window -t runner:0 -x 120 -y 14 (success)
     :t respawn-pane -k -t runner:0.0 'smth --no-base; cat' (success)
     :pane runner:0.0
     :settle -d 2s (settled)
 
-Type a repository name and wait for the ephemeral candidate to become the
-retained selection.
+With an empty query, navigation skips both reserved rows and stays on a live
+session.
 
-    :k detached
+    :k M-up up up
     :snap
 
 ```terminal
-session: detached
-  0/1 | [C-r] repo: none
-▌  detached                                                                                                            ┃
+session:
+  1/1 | [C-r] repo: none | [C-x] close, [C-f] flag
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌⬤ runner                                                                                                              ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
 
 
 
@@ -49,7 +53,53 @@ session: detached
 
 ```
 
-    :k M-n
+Type a repository name. With no discovered matches, the plain candidate remains
+the default even though the fresh-repository candidate appears first.
+
+    :k detached
+    :snap
+
+```terminal
+session: detached
+  0/1 | [C-r] repo: none
+   detached                                 ~/r/detached                                                               ┃
+▌  detached                                                                                                            ┃
+                                                                                                                       ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+Select the repository candidate explicitly. Its destination is visible before
+creation, and `C-n` creates that exact candidate.
+
+    :k up
+    :snap
+
+```terminal
+session: detached
+  0/1 | [C-r] repo: none
+▌  detached                                 ~/r/detached                                                               ┃
+   detached                                                                                                            ┃
+                                                                                                                       ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+    :k C-n
     :$ sh -c 'until test -f repos/detached/.smth-ready; do :; done' (exit: 0)
     :settle -d 2s (settled)
 
@@ -61,8 +111,12 @@ client should remain attached to the runner session.
 ```terminal
 session:
   2/2 | [C-r] repo: none | [C-x] close, [C-f] flag
-▌⬤ runner                                                                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌⬤ runner                                                                                                              │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
 
 
 
@@ -90,14 +144,18 @@ its live tmux session.
 A query that sanitizes to an empty name should use the first available numeric
 suffix for both the candidate and the new repository session.
 
-    :k ...
+    :k ... up
     :snap
 
 ```terminal
 session: ...
   0/2 | [C-r] repo: none
-▌  1                                                                                                                   ┃
+▌  1                                        ~/r/1                                                                      ┃
+   1                                                                                                                   ┃
+                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
 
 
 
@@ -106,7 +164,7 @@ session: ...
 
 ```
 
-    :k M-n
+    :k C-n
     :$ sh -c 'until test -f repos/1/.smth-ready; do :; done' (exit: 0)
     :settle -d 2s (settled)
     :$ sh -c 'test -d repos/1/.jj && test -d repos/1/.git' (exit: 0)
@@ -116,18 +174,20 @@ session: ...
 <ROOT>/repos/1
 ```
 
-With a repository context, `M-n` should create the selected workspace normally
-instead of initializing a fresh repository.
+With a repository context, only the workspace candidate is offered. Navigation
+must skip the empty row above it, and `C-n` creates the workspace normally.
 
     :t respawn-pane -k -t runner:0.0 'smth --base repos/detached; cat' (success)
     :settle -d 2s (settled)
-    :k blocked
+    :k blocked M-up up up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
 session: blocked
   0/3 | [C-r] repo: ~/r/detached, [C-o] onto: trunk()
+                                                                                                                       ┃
 ▌  detached/blocked                         ~/r/detached.blocked                                                       ┃
+                                                                                                                       ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) (no description set)
@@ -135,9 +195,11 @@ session: blocked
 
 
 
+
+
 ```
 
-    :k M-n
+    :k C-n
     :$ sh -c 'until test -f repos/detached.blocked/.smth-ready; do :; done' (exit: 0)
     :settle -d 2s (settled)
     :snap
@@ -145,8 +207,12 @@ session: blocked
 ```terminal
 session:
   4/4 | [C-r] repo: ~/r/detached, [C-o] onto: trunk() | [C-x] close, [C-f] flag
-▌⬤ runner                                                                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌⬤ runner                                                                                                              │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
 
 
 

@@ -1,8 +1,8 @@
 # List extreme navigation
 
 `M-up` and `M-down` jump to the first and last selectable rows in the session
-list. The top spacer for an unavailable new session is not selectable, while a
-valid new-session row is selectable.
+list. Empty prospective rows are not selectable, while both repository and
+plain-session candidates are selectable.
 
     :bins jj cat
 
@@ -19,7 +19,7 @@ valid new-session row is selectable.
     :settle
 
 Hide the preview so the session list has enough room to show several entries.
-With no query, the top row is an unselectable spacer; `M-down` jumps to the
+With no query, both top rows are unselectable spacers; `M-down` jumps to the
 last row and `M-up` jumps back to the first selectable session.
 
     :k C-p
@@ -31,8 +31,8 @@ last row and `M-up` jumps back to the first selectable session.
     :k M-up
     :snap
 
-A query for `et` keeps multiple existing matches and also allows a new session.
-The new-session row is selectable, so `M-up` jumps to that row.
+A query for `et` keeps multiple existing matches and offers both new-session
+candidates. `M-up` jumps to the repository candidate, above the plain one.
 
     :k et
     :snap
@@ -44,8 +44,8 @@ The new-session row is selectable, so `M-up` jumps to that row.
     :snap
 
 A query for `ta` also keeps multiple matches, but it exactly names the live
-`ta` session. The new-session row contains a disambiguated name, so `M-up`
-still jumps to it.
+`ta` session. Both prospective rows contain disambiguated names, and `M-up`
+still jumps to the repository candidate.
 
     :k C-u ta
     :snap

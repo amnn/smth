@@ -7,8 +7,9 @@ input_file: crates/smth/tests/cases/ui/new-session-shortcut.md
 
 This scenario creates several repo-backed picker entries, with both live tmux
 sessions and discoverable repos that do not have live sessions. It verifies that
-the ephemeral new-session row is selectable when the query is non-empty, with
-names disambiguated from live sessions as needed.
+the ephemeral plain-session row is selectable below the repository candidate
+when the query is non-empty, with names disambiguated from live sessions as
+needed.
 
     :bins jj cat
 
@@ -80,14 +81,14 @@ session:
 Typing a prefix of the live `alpha` session makes the new-session row selectable,
 because `alp` is not an exact live session name.
 
-    :k alp M-up
+    :k alp M-up down
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
 session: alp
   2/8 | [C-r] repo: none
-▌  alp                                                                                                                 ┃
- ⬤ alpha                                    alpha                                                                      │
+   alp                                      ~/alp                                                                      ┃
+▌  alp                                                                                                                 │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -107,8 +108,8 @@ disambiguated.
 ```terminal
 session: alpha
   2/8 | [C-r] repo: none
-▌  alpha~1                                                                                                             ┃
- ⬤ alpha                                    alpha                                                                      │
+   alpha~1                                  ~/alpha~1                                                                  ┃
+▌  alpha~1                                                                                                             │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -128,7 +129,7 @@ the new-session row, because there is no live session named `beta`.
 ```terminal
 session: beta
   1/8 | [C-r] repo: none
-   beta                                                                                                                ┃
+   beta                                                                                                                │
 ▌  beta                                     ~/beta                                                                     ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh

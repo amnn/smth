@@ -300,22 +300,6 @@ impl Model {
         self.recently_attached
     }
 
-    /// Return the prospective session represented by the current query and repository context.
-    pub(crate) fn session_for_query(&self, repo: Option<&Repo>) -> Option<Session> {
-        let query = self.picker.query();
-        if query.is_empty() {
-            return None;
-        }
-
-        let base = match repo {
-            None => Base::Cwd(None),
-            Some(repo) if self.workspaces.contains_key(repo.path()) => Base::Repo(repo.clone()),
-            Some(repo) => Base::Cwd(Some(repo.path().to_owned())),
-        };
-
-        Some(self.new_session(query, base))
-    }
-
     /// Remove the trailing character from the active query string.
     pub(crate) fn pop_query(&mut self) {
         self.picker.pop();
@@ -353,9 +337,32 @@ impl Model {
         &self.sessions
     }
 
-    /// Return discovered tmux names for disambiguating session candidates.
-    pub(crate) fn tmux_names(&self) -> &BTreeSet<String> {
-        &self.seen_tmux_names
+    /// Return prospective sessions for a nonempty query, with the default choice last.
+    ///
+    /// Without repository context, offer a fresh repository below `repo_root` followed by a plain
+    /// session. With context, offer only the usual workspace or checkout-backed candidate.
+    pub(crate) fn sessions_for_query(&self, repo: Option<&Repo>, repo_root: &Path) -> Vec<Session> {
+        let query = self.picker.query();
+        let mut sessions = Vec::new();
+
+        if query.is_empty() {
+            return sessions;
+        }
+
+        if let Some(repo) = repo {
+            let base = if self.workspaces.contains_key(repo.path()) {
+                Base::Repo(repo.clone())
+            } else {
+                Base::Cwd(Some(repo.path().to_owned()))
+            };
+
+            sessions.push(self.new_session(query, base))
+        } else {
+            sessions.push(self.new_session(query, Base::NewRepo(repo_root.to_owned())));
+            sessions.push(self.new_session(query, Base::Cwd(None)));
+        }
+
+        sessions
     }
 
     /// Return the exact jj workspace name for `repo`, if it is a named workspace.
@@ -510,7 +517,7 @@ mod tests {
 
         assert!(model.picker.query().is_empty());
         assert!(model.matches().is_empty());
-        assert!(model.session_for_query(None).is_none());
+        assert!(model.sessions_for_query(None, Path::new(".")).is_empty());
     }
 
     fn model_with_workspace(workspace: &Path, default: PathBuf) -> Model {
@@ -668,6 +675,77 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(error.to_string(), "repo creation requires no base");
+    }
+
+    #[test]
+    fn query_candidates_disambiguate_empty_names() {
+        let temp = tempdir().unwrap();
+        fs::create_dir(temp.path().join("2")).unwrap();
+        let mut model = Model {
+            seen_tmux_names: BTreeSet::from(["1".to_owned(), "3".to_owned()]),
+            ..Model::default()
+        };
+        for ch in "...".chars() {
+            model.push_query(ch);
+        }
+
+        let candidates = model.sessions_for_query(None, temp.path());
+
+        assert_eq!(candidates.len(), 2);
+        assert_eq!(candidates[0].name(), "4");
+        assert_eq!(candidates[0].repo(), Some(temp.path().join("4")));
+        assert_eq!(candidates[1].name(), "2");
+        assert_eq!(candidates[1].repo(), None);
+    }
+
+    #[test]
+    fn query_candidates_disambiguate_names_and_paths() {
+        let temp = tempdir().unwrap();
+        fs::create_dir(temp.path().join("project~1")).unwrap();
+        let mut model = Model {
+            seen_tmux_names: BTreeSet::from(["project".to_owned(), "project~2".to_owned()]),
+            ..Model::default()
+        };
+        for ch in "project".chars() {
+            model.push_query(ch);
+        }
+
+        let candidates = model.sessions_for_query(None, temp.path());
+
+        assert_eq!(candidates.len(), 2);
+        assert_eq!(candidates[0].name(), "project~3");
+        assert_eq!(candidates[0].repo(), Some(temp.path().join("project~3")));
+        assert_eq!(candidates[1].name(), "project~1");
+        assert_eq!(candidates[1].repo(), None);
+        assert!(candidates.iter().all(|s| !s.is_live() && !s.can_delete()));
+        assert!(!temp.path().join("project~3").exists());
+    }
+
+    #[test]
+    fn query_candidates_preserve_repository_context() {
+        let temp = tempdir().unwrap();
+        let base = temp.path().join("repo");
+        let repo = Repo::new(base.clone());
+        let mut model = Model::default();
+        assert!(
+            model
+                .sessions_for_query(Some(&repo), temp.path())
+                .is_empty()
+        );
+        for ch in "feature".chars() {
+            model.push_query(ch);
+        }
+
+        let candidates = model.sessions_for_query(Some(&repo), temp.path());
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].name(), "feature");
+        assert_eq!(candidates[0].repo(), None);
+
+        model.workspaces.insert(base, None);
+        let candidates = model.sessions_for_query(Some(&repo), temp.path());
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].name(), "repo/feature");
+        assert_eq!(candidates[0].repo(), Some(temp.path().join("repo.feature")));
     }
 
     #[test]
