@@ -77,6 +77,10 @@ tmux source-file ~/.tmux.conf
 
 ## Session ordering
 
+If the query is non-empty, the picker offers new session candidates above
+discovered sessions. This can be to create a new workspace in the current repo,
+or to create a new repo or plain tmux session, based on context.
+
 Live tmux sessions are ordered by when they were most recently attached to a
 tmux client, newest first. Once at least two live sessions have attachment
 history, the picker initially selects the second newest so pressing `enter`
@@ -106,8 +110,6 @@ all picker key bindings:
 | `C-u` | Clear the filter. |
 | `C-x` | Close a live session. |
 | `C-y` | Confirm a pending deletion. |
-| `M-enter` | Switch to the session, initializing a fresh repository when eligible. |
-| `M-n` | Create the session without switching, initializing a fresh repository when eligible. |
 | `up`, `down`, `C-k`, `C-j` | Move selection by one row. |
 | `M-up`, `M-down`, `M-k`, `M-j` | Move selection to the first or last row. |
 | `S-up`, `S-down` | Scroll the preview pane up or down. |

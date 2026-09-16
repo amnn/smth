@@ -52,8 +52,8 @@ padding cell. Normalize both animations for the snapshot.
 session:
 ⠋ creating....repo: none | [C-x] close, [C-f] flag
                                                                                                                        ┃
-▌⬤ ui                                                                                                                  ┃
- ⬤ runner                                                                                                              ┃
+                                                                                                                       ┃
+▌⬤ ui                                                                                                                  │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -74,8 +74,8 @@ request should be ignored until the active operation completes.
 ```terminal
 session: omega
 ⠋ creating....repo: none
+   omega                                    ~/omega                                                                    ┃
 ▌  omega                                                                                                               ┃
-                                                                                                                       ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -103,8 +103,8 @@ original `zeta` create request should have run.
 ```terminal
 session: omega
   0/3 | [C-r] repo: none
+   omega                                    ~/omega                                                                    ┃
 ▌  omega                                                                                                               ┃
-                                                                                                                       ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

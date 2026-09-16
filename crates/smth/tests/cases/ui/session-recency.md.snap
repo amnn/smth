@@ -57,10 +57,10 @@ order. The second row, `gamma`, should be selected initially.
 session:
   4/4 | [C-r] repo: none | [C-x] close, [C-f] flag
                                                                                ┃
+                                                                               ┃
  ⬤ runner                                                                      ┃
 ▌⬤ gamma                                                                       ┃
- ⬤ beta                                                                        ┃
- ⬤ alpha                                                                       ┃
+ ⬤ beta                                                                        │
 ────────────────────────────────────────────────────────────────────────────────
 
 
@@ -86,11 +86,11 @@ new-session candidate remains unselected.
 ```terminal
 session: a
   3/4 | [C-r] repo: none | [C-x] close, [C-f] flag
+   a                                        ~/a                                ┃
    a                                                                           ┃
 ▌⬤ alpha                                                                       ┃
  ⬤ beta                                                                        ┃
  ⬤ gamma                                                                       ┃
-                                                                               ┃
 ────────────────────────────────────────────────────────────────────────────────
 
 

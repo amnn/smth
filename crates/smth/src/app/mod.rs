@@ -130,7 +130,7 @@ impl App {
         let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
 
         loop {
-            terminal.draw(|frame| self.draw(frame, ctx.sigil))?;
+            terminal.draw(|frame| self.draw(frame, ctx.sigil, ctx.repo_root))?;
 
             match self.poll_bg() {
                 Some(Err(err)) => return Err(err),
@@ -155,7 +155,7 @@ impl App {
                 continue;
             }
 
-            match self.handle_key(key, ctx.repo_root).await {
+            match self.handle_key(key).await {
                 None => {}
                 Some(Action::Cancel) => return Ok(()),
 
@@ -245,10 +245,10 @@ impl App {
     ///
     /// The frame is split up into regions, each with its own widget. The `preview` region and its
     /// scroll bar are only visible when the preview is toggled on (defaults to visible).
-    fn draw(&mut self, f: &mut ratatui::Frame<'_>, sigil: char) {
+    fn draw(&mut self, f: &mut ratatui::Frame<'_>, sigil: char, repo_root: &Path) {
         let l = layout::Layout::new(f.area(), self.preview.visible() || self.onto.is_some());
 
-        let new_session = self.model.session_for_query(self.repo.as_ref());
+        let new_sessions = self.model.sessions_for_query(self.repo.as_ref(), repo_root);
         let agent_summary = self.model.agent_summary();
 
         // Poll the picker for its latest state, and build the data model.
@@ -267,7 +267,7 @@ impl App {
 
         let sessions = Sessions::new(
             sigil,
-            new_session.as_slice(),
+            &new_sessions,
             &items,
             snapshot.pattern().column_pattern(0),
         );
@@ -320,9 +320,7 @@ impl App {
     }
 
     /// Handle a single keyboard event, returning the consequent application action.
-    ///
-    /// Alt-based creation uses `repo_root` as the new repository's parent directory.
-    async fn handle_key(&mut self, key: KeyEvent, repo_root: &Path) -> Option<Action> {
+    async fn handle_key(&mut self, key: KeyEvent) -> Option<Action> {
         use KeyCode as KC;
         use KeyModifiers as KM;
 
@@ -361,36 +359,13 @@ impl App {
             return None;
         }
 
-        let try_new_repo = |session: Session| {
-            if alt {
-                session.try_into_new_repo(repo_root, self.model.tmux_names())
-            } else {
-                session
-            }
-        };
-
         match key.code {
-            // Accept the selected row, switching to it. If the alt modifier is set and we are
-            // creating a new plain session, then we will create a repo with it as well.
+            // Accept the selected row, switching to it.
             KC::Enter if !is_loading => {
-                return self
-                    .sessions
-                    .take_selected()
-                    .map(try_new_repo)
-                    .map(Action::Switch);
+                return self.sessions.take_selected().map(Action::Switch);
             }
 
-            // Create the selected row without switching, with the same alt modifier convention.
-            KC::Char('n') if alt && !is_loading && !self.sessions.is_live() => {
-                return self
-                    .sessions
-                    .take_selected()
-                    .map(try_new_repo)
-                    .map(Action::Create);
-            }
-
-            // Create the selected row without switching, and without necessarily creating a new
-            // repo.
+            // Create the selected row without switching.
             KC::Char('n') if ctrl && !is_loading && !self.sessions.is_live() => {
                 return self.sessions.take_selected().map(Action::Create);
             }
