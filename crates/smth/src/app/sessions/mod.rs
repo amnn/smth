@@ -22,6 +22,9 @@ use crate::app::component::row::Row;
 use crate::app::component::scrollbar;
 use crate::model::session::Session;
 
+/// Minimum rows reserved for prospective sessions, with unused rows padded above the candidates.
+pub(super) const NEW_SESSION_ROWS: usize = 1;
+
 /// Session-list component, backed by fuzzy-matched rows and prospective session candidates.
 pub(super) struct Sessions<'s> {
     sigil: char,
@@ -58,7 +61,7 @@ impl<'s> Sessions<'s> {
 
     /// Render the session rows and keep the selected session state in sync with the list.
     pub(super) fn draw(&self, f: &mut Frame<'_>, list: Rect, scroll: Rect, state: &mut State) {
-        let start = self.new.len().max(1);
+        let start = self.new.len().max(NEW_SESSION_ROWS);
         let padding = start - self.new.len();
         let mut rows = Vec::with_capacity(start + self.rest.len());
 
