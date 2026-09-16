@@ -266,7 +266,7 @@ impl App {
 
         let sessions = Sessions::new(
             sigil,
-            new_session,
+            new_session.as_slice(),
             &items,
             snapshot.pattern().column_pattern(0),
         );

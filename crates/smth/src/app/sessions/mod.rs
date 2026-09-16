@@ -22,10 +22,10 @@ use crate::app::component::row::Row;
 use crate::app::component::scrollbar;
 use crate::model::session::Session;
 
-/// Session-list component, backed by fuzzy-matched rows and an optional new session candidate.
+/// Session-list component, backed by fuzzy-matched rows and prospective session candidates.
 pub(super) struct Sessions<'s> {
     sigil: char,
-    new: Option<Session>,
+    new: &'s [Session],
     rest: &'s [Item<'s, Session>],
     pattern: &'s Pattern,
 }
@@ -39,12 +39,12 @@ pub(super) struct State {
 }
 
 impl<'s> Sessions<'s> {
-    /// Create a new `Sessions` component with `new` representing the potential new session, and
+    /// Create a new `Sessions` component with `new` representing the potential new sessions, and
     /// `rest` being the other candidates. The `pattern` is what was used to filter down to these
     /// candidates, and is used to highlight the matching parts of candidate text.
     pub(super) fn new(
         sigil: char,
-        new: Option<Session>,
+        new: &'s [Session],
         rest: &'s [Item<'s, Session>],
         pattern: &'s Pattern,
     ) -> Self {
@@ -58,64 +58,56 @@ impl<'s> Sessions<'s> {
 
     /// Render the session rows and keep the selected session state in sync with the list.
     pub(super) fn draw(&self, f: &mut Frame<'_>, list: Rect, scroll: Rect, state: &mut State) {
-        let mut rows = Vec::with_capacity(self.rest.len() + 1);
+        let start = self.new.len().max(1);
+        let padding = start - self.new.len();
+        let mut rows = Vec::with_capacity(start + self.rest.len());
 
-        state.selected = match (state.list.selected_mut(), &self.new, self.rest) {
-            // If the list is completely empty, then clear the selection. After this case, we can
-            // assume that there is at least one session between `new` and `rest`.
-            (s, None, []) => {
+        state.selected = match (state.list.selected_mut(), self.new, self.rest) {
+            // With no candidates or matches, there is nothing to select.
+            (s, [], []) => {
                 *s = None;
                 None
             }
 
-            // If the first row has been selected, but it corresponds to the empty new selection,
-            // then nudge it into the `rest` list.
-            (s @ Some(0), None, [fst, ..]) => {
-                *s = Some(1);
-                Some(fst.data.clone())
+            // Without matches, default to the last prospective candidate.
+            (s @ None, new, []) => {
+                *s = Some(start - 1);
+                new.last().cloned()
             }
 
-            // If there is no selection, and there are no `rest` sessions, set the selection to the
-            // `new` session.
-            (s @ None, Some(new), []) => {
-                *s = Some(0);
-                Some(new.clone())
-            }
-
-            // Otherwise, if there is no selection, default to the first `rest` session.
+            // Otherwise, default to the first discovered match.
             (s @ None, _, [fst, ..]) => {
-                *s = Some(1);
+                *s = Some(start);
                 Some(fst.data.clone())
             }
 
-            // In all other cases, make sure the selected item is clamped by the rows on offer.
+            // Clamp navigation to populated rows, skipping any leading padding.
             (Some(s), new, rest) => {
-                *s = rest.len().min(*s);
-                if *s == 0 {
-                    new.clone()
+                *s = (*s).clamp(padding, start + rest.len() - 1);
+                if *s < start {
+                    new.get(*s - padding).cloned()
                 } else {
-                    rest.get(*s - 1).map(|i| i.data.clone())
+                    rest.get(*s - start).map(|i| i.data.clone())
                 }
             }
         };
 
         let selected = state.list.selected();
-        if let Some(session) = &self.new {
+        rows.extend((0..padding).map(|_| Row::empty()));
+        for (i, session) in (padding..).zip(self.new) {
             rows.push(session::row(
                 self.sigil,
                 session,
-                selected == Some(0),
+                selected == Some(i),
                 false,
                 &[],
-            ))
-        } else {
-            rows.push(Row::empty())
+            ));
         }
 
         // Reuse the matcher's scratch buffer across all candidates.
         let mut matcher = Matcher::new(Config::DEFAULT);
 
-        for (i, item) in (1..).zip(self.rest) {
+        for (i, item) in (start..).zip(self.rest) {
             let mut indices = Vec::new();
             let text = item.matcher_columns[0].slice(..);
 
@@ -187,8 +179,7 @@ impl State {
 
     /// Move selection to the beginning of the list.
     ///
-    /// During rendering this may be shifted to the second element in the list if the first (the
-    /// new session candidate) is not valid.
+    /// During rendering this is nudged past any empty leading rows.
     pub(super) fn select_first(&mut self) {
         self.list.select_first();
     }
