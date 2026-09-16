@@ -34,6 +34,7 @@ use crate::app::component::prompt;
 use crate::app::component::spinner;
 use crate::app::component::spinner::Spinner;
 use crate::app::header::Header;
+use crate::app::sessions::NEW_SESSION_ROWS;
 use crate::app::sessions::Sessions;
 use crate::app::sessions::preview;
 use crate::app::sessions::preview::Preview;
@@ -100,7 +101,7 @@ impl App {
     /// `repo` is the initial base repository, `revision` optionally overrides its workspace base
     /// revision, and `model` contains the underlying data to drive the interface.
     pub fn new(repo: Option<PathBuf>, revision: Option<String>, model: Model) -> Self {
-        let select = model.recently_attached().map(|i| i + 1);
+        let select = model.recently_attached().map(|i| i + NEW_SESSION_ROWS);
         let mut preview = preview::State::new();
         preview.feed(model.sessions());
         let repo = repo.map(|repo| {
