@@ -16,8 +16,8 @@ root = "repos"
 setup = ": > .smth-ready"
 ```
 
-Reserve a destination and live names so the repository and plain candidates
-have different names. Each must be disambiguated before it is displayed.
+Reserve a suffixed destination and live names. Both candidates should disambiguate
+only their tmux names, leaving the requested repository path unchanged.
 
     :$ mkdir -p repos/switched~1
     :t new-session -d -s switched "cat"
@@ -29,7 +29,8 @@ have different names. Each must be disambiguated before it is displayed.
     :settle -d 2s
 
 Existing matches remain the default selection. The repository candidate shows
-`switched~3` and its destination, while the plain candidate shows `switched~1`.
+`switched~1` with destination `repos/switched`; the plain candidate also shows
+`switched~1`. The occupied `repos/switched~1` path does not affect either name.
 
     :k switched
     :snap
@@ -50,7 +51,8 @@ client changes session.
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; set-option -g @smth.test-switched yes"
     :k enter
-    :$ sh -c 'until test -f repos/switched~3/.smth-ready; do :; done'
+    :$ sh -c 'until test -f repos/switched/.smth-ready; do :; done'
+
     :$ sh -c 'until test "$(tmux show-options -gqv @smth.test-switched)" = yes; do :; done'
 
 The client should show the new session after repository initialization and tmux
@@ -58,8 +60,9 @@ setup complete.
 
     :t display-message -p '#{client_session}'
 
-    :$ sh -c 'test -d repos/switched~3/.jj && test -d repos/switched~3/.git && test ! -e repos/switched~1/.jj'
-    :$ sh -c 'tmux show-options -qv -t "=switched~3:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'test -d repos/switched/.jj && test -d repos/switched/.git && test ! -e repos/switched~1/.jj'
+
+    :$ sh -c 'tmux show-options -qv -t "=switched~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
 
     :t has-session -t '=switched'
     :t has-session -t '=switched~2'

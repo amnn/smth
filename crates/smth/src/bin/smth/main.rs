@@ -202,9 +202,10 @@ struct Args {
         requires = "creation",
         conflicts_with = "onto",
         long_help = "Create a fresh colocated Git-backed jj repository for --create [SESSION] or \
-                     --switch [SESSION]. Takes no argument; an omitted name uses the first \
-                     available numeric name. Uses the repository creation root and disambiguates \
-                     existing paths and tmux names rather than reusing them. Requires an empty \
+                     --switch [SESSION]. Takes no argument; requires a non-empty directory name \
+                     without path separators (not '.' or '..'). Preserves the directory name \
+                     under the repository creation root and rejects occupied paths. Only the \
+                     tmux name is sanitized and disambiguated. Requires an empty \
                      repository context; use --no-base to suppress current-directory inference."
     )]
     create_repo: bool,

@@ -151,7 +151,7 @@ still jumps to the repository candidate.
 ```terminal
 session: ta                                                                                        ┃
   4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-   ta~1                                     ~/ta~1                                            repo ┃
+   ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
 ▌⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃
@@ -169,7 +169,7 @@ session: ta                                                                     
 ```terminal
 session: ta                                                                                        ┃
   4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-   ta~1                                     ~/ta~1                                            repo ┃
+   ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
  ⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃
@@ -187,7 +187,7 @@ session: ta                                                                     
 ```terminal
 session: ta                                                                                        ┃
   4/6 | [C-r] repo: none                                                                           ┃
-▌  ta~1                                     ~/ta~1                                            repo ┃
+▌  ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
  ⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃

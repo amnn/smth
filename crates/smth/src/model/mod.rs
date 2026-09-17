@@ -10,10 +10,12 @@ pub(crate) mod session;
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::path::Component;
 use std::path::Path;
 use std::path::PathBuf;
 
 use anyhow::Context as _;
+use anyhow::bail;
 use anyhow::ensure;
 use futures::stream::FuturesUnordered;
 use futures::stream::StreamExt as _;
@@ -132,8 +134,8 @@ impl Model {
     /// Return the existing or prospective session represented by an explicit request.
     ///
     /// When `repo_root` is supplied, return a fresh repository candidate below it rather than
-    /// reusing an existing session. This requires an empty repository base. Missing names default to
-    /// empty and are disambiguated like explicitly empty names.
+    /// reusing an existing session. This requires an empty repository base and a valid, explicit
+    /// directory name whose destination is unoccupied.
     pub fn session_for_request(
         &self,
         repo_root: Option<&Path>,
@@ -143,8 +145,8 @@ impl Model {
     ) -> anyhow::Result<Session> {
         if let Some(root) = repo_root {
             ensure!(base.is_none(), "repo creation requires no base");
-            let name = name.unwrap_or_default();
-            return Ok(self.new_session(name, Base::NewRepo(root.to_owned())));
+            let name = name.context("a repository name is required")?;
+            return self.new_repo_session(name, root);
         }
 
         // If a session already exists for this base and name, return it.
@@ -358,7 +360,9 @@ impl Model {
 
             sessions.push(self.new_session(query, base))
         } else {
-            sessions.push(self.new_session(query, Base::NewRepo(repo_root.to_owned())));
+            if let Ok(session) = self.new_repo_session(query, repo_root) {
+                sessions.push(session);
+            }
             sessions.push(self.new_session(query, Base::Cwd(None)));
         }
 
@@ -368,6 +372,37 @@ impl Model {
     /// Return the exact jj workspace name for `repo`, if it is a named workspace.
     pub(crate) fn workspace_name(&self, repo: &Path) -> Option<&str> {
         self.workspace_info(repo).and_then(|w| w.name.as_deref())
+    }
+
+    /// Construct a fresh repository candidate without changing its requested directory name.
+    ///
+    /// Reject empty names, `.` and `..`, path separators, NUL, and occupied destinations.
+    fn new_repo_session(&self, name: &str, root: &Path) -> anyhow::Result<Session> {
+        let mut parts = Path::new(name).components();
+
+        match parts.next() {
+            Some(Component::Normal(_)) => {
+                ensure!(!name.contains('\0'), "repo names must not contain NUL");
+            }
+
+            None => bail!("repo names must be non-empty"),
+
+            Some(Component::Prefix(_) | Component::RootDir) => {
+                bail!("repo names must not be absolute paths",)
+            }
+
+            Some(Component::CurDir | Component::ParentDir) => {
+                bail!("repo names must not be '.' or '..'",)
+            }
+        }
+
+        if parts.next().is_some() {
+            bail!("repository names must not contain path separators");
+        }
+
+        let path = root.join(name);
+        ensure!(!path.exists(), "repo '{}' already exists", path.display());
+        Ok(self.new_session(name, Base::NewRepo(root.to_owned())))
     }
 
     /// Construct a prospective session from a name and base.
@@ -549,60 +584,67 @@ mod tests {
     }
 
     #[test]
-    fn new_repo_session_derives_destination() {
+    fn new_repo_accepts_single_normal_components() {
         let temp = tempdir().unwrap();
-        let model = Model::default();
+        for (name, expected) in [
+            ("foo.bar", "foo-bar"),
+            ("project one", "project-one"),
+            ("foo/", "foo"),
+            ("foo//", "foo"),
+            ("foo/.", "foo"),
+            ("a\\b", "a-b"),
+            ("...", "1"),
+        ] {
+            let mut model = Model::default();
+            let session = model
+                .session_for_request(Some(temp.path()), None, Some(name), jj::DEFAULT_BASE_REVSET)
+                .unwrap();
 
-        let session = model
-            .session_for_request(
-                Some(temp.path()),
-                None,
-                Some("project one"),
-                jj::DEFAULT_BASE_REVSET,
-            )
-            .unwrap();
+            assert_eq!(session.name(), expected, "{name:?}");
+            assert_eq!(session.repo(), Some(temp.path().join(name)), "{name:?}");
+            assert!(!session.is_live() && !session.can_delete(), "{name:?}");
 
-        assert_eq!(session.name(), "project-one");
-        assert_eq!(session.repo(), Some(temp.path().join("project-one")));
-        assert!(!session.can_delete());
-    }
-
-    #[test]
-    fn new_repo_session_disambiguates_empty_sanitized_name() {
-        let temp = tempdir().unwrap();
-        let model = Model::default();
-
-        for root in [temp.path().to_owned(), temp.path().join("missing")] {
-            for name in [None, Some(""), Some("...")] {
-                let session = model
-                    .session_for_request(Some(&root), None, name, jj::DEFAULT_BASE_REVSET)
-                    .unwrap();
-
-                assert_eq!(session.name(), "1");
-                assert_eq!(session.repo(), Some(root.join("1")));
+            for ch in name.chars() {
+                model.push_query(ch);
             }
+
+            let candidates = model.sessions_for_query(None, temp.path());
+            assert_eq!(candidates.len(), 2);
+            assert_eq!(candidates[0], session);
         }
     }
 
     #[test]
-    fn new_repo_session_disambiguates_empty_sanitized_name_with_collisions() {
+    fn new_repo_rejects_invalid_names() {
         let temp = tempdir().unwrap();
-        fs::create_dir(temp.path().join("1")).unwrap();
-
-        let mut model = Model::default();
-        model.seen_tmux_names.insert("2".to_owned());
-
-        let session = model
-            .session_for_request(
-                Some(temp.path()),
-                None,
-                Some("..."),
-                jj::DEFAULT_BASE_REVSET,
-            )
-            .unwrap();
-
-        assert_eq!(session.name(), "3");
-        assert_eq!(session.repo(), Some(temp.path().join("3")));
+        for name in [
+            None,
+            Some(""),
+            Some("."),
+            Some(".."),
+            Some("a/b"),
+            Some("a/../b"),
+            Some("./a"),
+            Some("/absolute"),
+            Some("nul\0"),
+        ] {
+            let mut model = Model::default();
+            assert!(
+                model
+                    .session_for_request(Some(temp.path()), None, name, jj::DEFAULT_BASE_REVSET)
+                    .is_err(),
+                "accepted invalid repository name {name:?}"
+            );
+            for ch in name.unwrap_or_default().chars() {
+                model.push_query(ch);
+            }
+            assert!(
+                model
+                    .sessions_for_query(None, temp.path())
+                    .iter()
+                    .all(|s| s.repo().is_none())
+            );
+        }
     }
 
     #[test]
@@ -635,29 +677,36 @@ mod tests {
             )
             .unwrap();
         assert_eq!(fresh.name(), "project~1");
-        assert_eq!(fresh.repo(), Some(temp.path().join("project~1")));
+        assert_eq!(fresh.repo(), Some(temp.path().join("project")));
         assert!(!fresh.is_live());
     }
 
     #[test]
-    fn new_repo_session_disambiguates_path_and_tmux_collisions() {
+    fn new_repo_session_rejects_path_collision() {
         let temp = tempdir().unwrap();
         fs::create_dir(temp.path().join("project")).unwrap();
 
-        let mut model = Model::default();
-        model.seen_tmux_names.insert("project~1".to_owned());
+        for name in ["project", "project/", "project/."] {
+            let mut model = Model::default();
+            model.seen_tmux_names.insert("project~1".to_owned());
 
-        let session = model
-            .session_for_request(
-                Some(temp.path()),
-                None,
-                Some("project"),
-                jj::DEFAULT_BASE_REVSET,
-            )
-            .unwrap();
+            let error = model
+                .session_for_request(Some(temp.path()), None, Some(name), jj::DEFAULT_BASE_REVSET)
+                .unwrap_err();
 
-        assert_eq!(session.name(), "project~2");
-        assert_eq!(session.repo(), Some(temp.path().join("project~2")));
+            assert_eq!(
+                error.to_string(),
+                format!("repo '{}' already exists", temp.path().join(name).display())
+            );
+
+            for ch in name.chars() {
+                model.push_query(ch);
+            }
+
+            let candidates = model.sessions_for_query(None, temp.path());
+            assert_eq!(candidates.len(), 1, "{name:?}");
+            assert_eq!(candidates[0].repo(), None, "{name:?}");
+        }
     }
 
     #[test]
@@ -678,47 +727,47 @@ mod tests {
     }
 
     #[test]
-    fn query_candidates_disambiguate_empty_names() {
+    fn query_candidates_disambiguate_only_session_names() {
         let temp = tempdir().unwrap();
-        fs::create_dir(temp.path().join("2")).unwrap();
-        let mut model = Model {
-            seen_tmux_names: BTreeSet::from(["1".to_owned(), "3".to_owned()]),
-            ..Model::default()
-        };
-        for ch in "...".chars() {
-            model.push_query(ch);
+        for (name, sessions, occupied, expected) in [
+            ("...", vec![], "1", "1"),
+            ("...", vec!["1", "2"], "1", "3"),
+            ("...", vec!["1", "3"], "2", "2"),
+            (
+                "project",
+                vec!["project", "project~2"],
+                "project~1",
+                "project~1",
+            ),
+        ] {
+            let existing = temp.path().join("existing");
+            fs::create_dir_all(existing.join(occupied)).unwrap();
+
+            for root in [existing, temp.path().join("missing")] {
+                let mut model = Model {
+                    seen_tmux_names: sessions.iter().map(|s| (*s).to_owned()).collect(),
+                    ..Model::default()
+                };
+
+                let requested = model
+                    .session_for_request(Some(&root), None, Some(name), jj::DEFAULT_BASE_REVSET)
+                    .unwrap();
+
+                for ch in name.chars() {
+                    model.push_query(ch);
+                }
+
+                let candidates = model.sessions_for_query(None, &root);
+                assert_eq!(candidates.len(), 2, "{name:?}, {sessions:?}");
+                assert_eq!(candidates[0], requested);
+                assert_eq!(candidates[0].name(), expected);
+                assert_eq!(candidates[0].repo(), Some(root.join(name)));
+                assert_eq!(candidates[1].name(), expected);
+                assert_eq!(candidates[1].repo(), None);
+                assert!(candidates.iter().all(|s| !s.is_live() && !s.can_delete()));
+                assert!(!root.join(name).exists());
+            }
         }
-
-        let candidates = model.sessions_for_query(None, temp.path());
-
-        assert_eq!(candidates.len(), 2);
-        assert_eq!(candidates[0].name(), "4");
-        assert_eq!(candidates[0].repo(), Some(temp.path().join("4")));
-        assert_eq!(candidates[1].name(), "2");
-        assert_eq!(candidates[1].repo(), None);
-    }
-
-    #[test]
-    fn query_candidates_disambiguate_names_and_paths() {
-        let temp = tempdir().unwrap();
-        fs::create_dir(temp.path().join("project~1")).unwrap();
-        let mut model = Model {
-            seen_tmux_names: BTreeSet::from(["project".to_owned(), "project~2".to_owned()]),
-            ..Model::default()
-        };
-        for ch in "project".chars() {
-            model.push_query(ch);
-        }
-
-        let candidates = model.sessions_for_query(None, temp.path());
-
-        assert_eq!(candidates.len(), 2);
-        assert_eq!(candidates[0].name(), "project~3");
-        assert_eq!(candidates[0].repo(), Some(temp.path().join("project~3")));
-        assert_eq!(candidates[1].name(), "project~1");
-        assert_eq!(candidates[1].repo(), None);
-        assert!(candidates.iter().all(|s| !s.is_live() && !s.can_delete()));
-        assert!(!temp.path().join("project~3").exists());
     }
 
     #[test]

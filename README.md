@@ -79,7 +79,11 @@ tmux source-file ~/.tmux.conf
 
 If the query is non-empty, the picker offers new session candidates above
 discovered sessions. This can be to create a new workspace in the current repo,
-or to create a new repo or plain tmux session, based on context.
+or to create a new repo or plain tmux session, based on context. A new repo is
+only offered for a valid, non-empty directory name with an unoccupied path.
+Directory names are preserved exactly; only tmux names are sanitized and
+disambiguated. `--create-repo` applies the same rules to explicit creation,
+rejecting missing names, path separators, `.` and `..`, and occupied paths.
 
 Live tmux sessions are ordered by when they were most recently attached to a
 tmux client, newest first. Once at least two live sessions have attachment
