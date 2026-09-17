@@ -52,8 +52,8 @@ both animations for the snapshot.
 ```terminal
 session: zeta
 ⠋ switching....epo: none
-   zeta                                     ~/zeta                                                                     ┃
-▌  zeta                                                                                                                ┃
+   zeta                                     ~/zeta                                                                repo ┃
+▌  zeta                                                                                                           tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

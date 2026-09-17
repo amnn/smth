@@ -46,7 +46,7 @@ checkout path.
 ```terminal
 session: omega
   0/2 | [C-r] repo: ~/beta, [C-o] onto: trunk()
-▌  beta/omega                               ~/beta.omega                                                               ┃
+▌  beta/omega                               ~/beta.omega                                                     workspace ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) (no description set)

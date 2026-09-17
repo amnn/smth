@@ -29,7 +29,7 @@ Type a unique session name and create it without switching.
 ```terminal
 session: zeta
   0/2 | [C-r] repo: none
-▌  zeta                                                                                                                ┃
+▌  zeta                                                                                                           tmux ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

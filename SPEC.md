@@ -97,6 +97,10 @@ selected. With no query, there are no prospective candidates. Default selection
 prefers discovered matches, then the last prospective candidate (the plain
 session when there is no repository context).
 
+Prospective rows show a dim, right-aligned `repo`, `workspace`, or `tmux` label.
+Labels take precedence over overlapping repository paths and include a space on
+either side.
+
 When reconciling existing sessions with candidate sessions, a name is generated
 for each candidate session. If it matches the name of an existing session, the
 candidate is discarded (existing sessions take precedence).

@@ -204,6 +204,14 @@ impl Session {
         matches!(&self.0, Kind::Live(kind) if !kind.alerts.is_empty())
     }
 
+    /// Return the creation base for a prospective session.
+    pub(crate) fn new_base(&self) -> Option<&Base> {
+        match &self.0 {
+            Kind::New(kind) => Some(&kind.base),
+            Kind::Live(_) | Kind::Repo(_) => None,
+        }
+    }
+
     /// Return the repository whose log should be shown in the preview pane.
     pub(crate) fn preview_repo(&self) -> Option<PathBuf> {
         match &self.0 {

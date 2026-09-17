@@ -35,7 +35,7 @@ its own path is used as the base.
 ```terminal
 session: omega
   0/2 | [C-r] repo: ~/beta.zeta, [C-o] onto: trunk()
-▌  beta-zeta/omega                          ~/beta.zeta.omega                                                          ┃
+▌  beta-zeta/omega                          ~/beta.zeta.omega                                                workspace ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt zeta@ hhhhhhhh
 │  (empty) (no description set)

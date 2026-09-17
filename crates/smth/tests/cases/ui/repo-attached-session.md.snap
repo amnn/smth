@@ -90,7 +90,7 @@ move away from the initial attached-session result and onto the discovered
 ```terminal
 session: beta
   1/7 | [C-r] repo: none
-   beta                                                                                                                │
+   beta                                                                                                           tmux │
 ▌  beta                                     ~/beta                                                                     ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
@@ -111,7 +111,7 @@ This snapshot shows the picker after clearing the query with `C-u` and typing
 ```terminal
 session: mono
   2/7 | [C-r] repo: none
-   mono                                                                                                                │
+   mono                                                                                                           tmux │
 ▌  mono                                     ~/mono                                                                     ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh

@@ -57,7 +57,7 @@ scrollbar thumb should start at the top of the scroll area.
 ```terminal
 session: long
   1/5 | [C-r] repo: none
-   long                                                                                                                │
+   long                                                                                                           tmux │
 ▌  long                                     ~/long                                                                     ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                                                ┃
@@ -78,7 +78,7 @@ scrollbar thumb should reach the bottom of the scroll area.
 ```terminal
 session: long
   1/5 | [C-r] repo: none
-   long                                                                                                                │
+   long                                                                                                           tmux │
 ▌  long                                     ~/long                                                                     ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                                                │
@@ -100,7 +100,7 @@ than inheriting the previous session's scroll position.
 ```terminal
 session: other
   1/5 | [C-r] repo: none
-   other                                                                                                               │
+   other                                                                                                          tmux │
 ▌  other                                    ~/other                                                                    ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                                                ┃

@@ -45,8 +45,8 @@ Existing matches remain the default selection. The repository candidate shows
 ```terminal
 session: switched
   2/3 | [C-r] repo: none | [C-x] close, [C-f] flag
-   switched~3                               ~/r/switched~3                                                             ┃
-   switched~1                                                                                                          ┃
+   switched~3                               ~/r/switched~3                                                        repo ┃
+   switched~1                                                                                                     tmux ┃
 ▌⬤ switched                                                                                                            │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -67,8 +67,8 @@ Navigate between both candidates, then select the repository to create.
 ```terminal
 session: switched
   2/3 | [C-r] repo: none
-▌  switched~3                               ~/r/switched~3                                                             ┃
-   switched~1                                                                                                          ┃
+▌  switched~3                               ~/r/switched~3                                                        repo ┃
+   switched~1                                                                                                     tmux ┃
  ⬤ switched                                                                                                            │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -87,8 +87,8 @@ session: switched
 ```terminal
 session: switched
   2/3 | [C-r] repo: none
-   switched~3                               ~/r/switched~3                                                             ┃
-▌  switched~1                                                                                                          ┃
+   switched~3                               ~/r/switched~3                                                        repo ┃
+▌  switched~1                                                                                                     tmux ┃
  ⬤ switched                                                                                                            │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -107,8 +107,8 @@ session: switched
 ```terminal
 session: switched
   2/3 | [C-r] repo: none
-▌  switched~3                               ~/r/switched~3                                                             ┃
-   switched~1                                                                                                          ┃
+▌  switched~3                               ~/r/switched~3                                                        repo ┃
+   switched~1                                                                                                     tmux ┃
  ⬤ switched                                                                                                            │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -166,8 +166,8 @@ a checkout, even when prospective repository and plain candidates are present.
 ```terminal
 session: switched~2
   1/5 | [C-r] repo: none | [C-x] close, [C-f] flag
-   switched~2~1                             ~/r/switched~2~1                                                           ┃
-   switched~2~1                                                                                                        ┃
+   switched~2~1                             ~/r/switched~2~1                                                      repo ┃
+   switched~2~1                                                                                                   tmux ┃
 ▌⬤ switched~2                                                                                                          ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

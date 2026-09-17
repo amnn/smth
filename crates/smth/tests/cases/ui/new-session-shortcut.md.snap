@@ -87,8 +87,8 @@ because `alp` is not an exact live session name.
 ```terminal
 session: alp
   2/8 | [C-r] repo: none
-   alp                                      ~/alp                                                                      ┃
-▌  alp                                                                                                                 │
+   alp                                      ~/alp                                                                 repo ┃
+▌  alp                                                                                                            tmux │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -108,8 +108,8 @@ disambiguated.
 ```terminal
 session: alpha
   2/8 | [C-r] repo: none
-   alpha~1                                  ~/alpha~1                                                                  ┃
-▌  alpha~1                                                                                                             │
+   alpha~1                                  ~/alpha~1                                                             repo ┃
+▌  alpha~1                                                                                                        tmux │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -129,7 +129,7 @@ the new-session row, because there is no live session named `beta`.
 ```terminal
 session: beta
   1/8 | [C-r] repo: none
-   beta                                                                                                                │
+   beta                                                                                                           tmux │
 ▌  beta                                     ~/beta                                                                     ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh

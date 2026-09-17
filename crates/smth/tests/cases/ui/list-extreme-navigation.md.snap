@@ -93,8 +93,8 @@ candidates. `M-up` jumps to the repository candidate, above the plain one.
 ```terminal
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-   et                                       ~/et                                                   ┃
-   et                                                                                              ┃
+   et                                       ~/et                                              repo ┃
+   et                                                                                         tmux ┃
 ▌⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃
  ⬤ delta                                                                                           ┃
@@ -111,8 +111,8 @@ session: et                                                                     
 ```terminal
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-   et                                       ~/et                                                   ┃
-   et                                                                                              ┃
+   et                                       ~/et                                              repo ┃
+   et                                                                                         tmux ┃
  ⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃
 ▌⬤ delta                                                                                           ┃
@@ -129,8 +129,8 @@ session: et                                                                     
 ```terminal
 session: et                                                                                        ┃
   3/6 | [C-r] repo: none                                                                           ┃
-▌  et                                       ~/et                                                   ┃
-   et                                                                                              ┃
+▌  et                                       ~/et                                              repo ┃
+   et                                                                                         tmux ┃
  ⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃
  ⬤ delta                                                                                           ┃
@@ -151,8 +151,8 @@ still jumps to the repository candidate.
 ```terminal
 session: ta                                                                                        ┃
   4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-   ta~1                                     ~/ta~1                                                 ┃
-   ta~1                                                                                            ┃
+   ta~1                                     ~/ta~1                                            repo ┃
+   ta~1                                                                                       tmux ┃
 ▌⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃
@@ -169,8 +169,8 @@ session: ta                                                                     
 ```terminal
 session: ta                                                                                        ┃
   4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
-   ta~1                                     ~/ta~1                                                 ┃
-   ta~1                                                                                            ┃
+   ta~1                                     ~/ta~1                                            repo ┃
+   ta~1                                                                                       tmux ┃
  ⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃
@@ -187,8 +187,8 @@ session: ta                                                                     
 ```terminal
 session: ta                                                                                        ┃
   4/6 | [C-r] repo: none                                                                           ┃
-▌  ta~1                                     ~/ta~1                                                 ┃
-   ta~1                                                                                            ┃
+▌  ta~1                                     ~/ta~1                                            repo ┃
+   ta~1                                                                                       tmux ┃
  ⬤ ta                                                                                              ┃
  ⬤ zeta                                                                                            ┃
  ⬤ beta                                                                                            ┃

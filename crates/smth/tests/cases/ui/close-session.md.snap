@@ -30,8 +30,8 @@ Filter to the matching sessions. The first match, `alpha`, is selected.
 ```terminal
 session: alp
   2/4 | [C-r] repo: none | [C-x] close, [C-f] flag
-   alp                                      ~/alp                                                                      ┃
-   alp                                                                                                                 ┃
+   alp                                      ~/alp                                                                 repo ┃
+   alp                                                                                                            tmux ┃
 ▌⬤ alpha                                                                                                               │
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -54,8 +54,8 @@ query, and show the refreshed list with only `alpine` remaining.
 ```terminal
 session: alp
   1/3 | [C-r] repo: none | [C-x] close, [C-f] flag
-   alp                                      ~/alp                                                                      ┃
-   alp                                                                                                                 ┃
+   alp                                      ~/alp                                                                 repo ┃
+   alp                                                                                                            tmux ┃
 ▌⬤ alpine                                                                                                              ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -89,8 +89,8 @@ rediscovery has completed, rather than retaining a removed session forever.
 ```terminal
 session: alp
   0/2 | [C-r] repo: none
-   alp                                      ~/alp                                                                      ┃
-▌  alp                                                                                                                 ┃
+   alp                                      ~/alp                                                                 repo ┃
+▌  alp                                                                                                            tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

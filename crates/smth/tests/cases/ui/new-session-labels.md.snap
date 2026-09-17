@@ -1,0 +1,145 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/new-session-labels.md
+---
+# Prospective session labels
+
+Only prospective rows have dim, right-aligned creation labels. Labels overwrite
+an overlapping repository path, with a space on either side of the label.
+
+    :bins cat jj
+
+> [!NOTE]
+> 'cat', and 'jj' are available.
+
+    :t rename-session -t 0 runner (success)
+    :t resize-window -t runner:0 -x 80 -y 14 (success)
+    :t respawn-pane -k -t runner:0.0 'smth --no-base --repo-root parent; cat' (success)
+    :pane runner:0.0
+    :settle -d 2s (settled)
+    :k prospective
+    :snap --color
+
+```terminal
+session: prospective
+  0/1 | [C-r] repo: none
+   prospective                              ~/p/prospective               repo ┃
+▌  prospective                                                            tmux ┃
+                                                                               ┃
+────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+![light](new-session-labels.md.snap.1.light.svg)
+![dark](new-session-labels.md.snap.1.dark.svg)
+
+Narrow the picker and select the repository candidate. The dim label should
+overwrite the end of its basename, leaving a separating space.
+
+    :t resize-window -t runner:0 -x 65 -y 14 (success)
+    :k up
+    :snap --color
+
+```terminal
+session: prospective
+  0/1 | [C-r] repo: none
+▌  prospective                              ~/p/prospectiv repo ┃
+   prospective                                             tmux ┃
+                                                                ┃
+─────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+![light](new-session-labels.md.snap.2.light.svg)
+![dark](new-session-labels.md.snap.2.dark.svg)
+
+The label should also take precedence when the row is not selected.
+
+    :k down
+    :snap --color
+
+```terminal
+session: prospective
+  0/1 | [C-r] repo: none
+   prospective                              ~/p/prospectiv repo ┃
+▌  prospective                                             tmux ┃
+                                                                ┃
+─────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+![light](new-session-labels.md.snap.3.light.svg)
+![dark](new-session-labels.md.snap.3.dark.svg)
+
+At an even narrower width, the complete label remains visible over the path.
+
+    :t resize-window -t runner:0 -x 52 -y 14 (success)
+    :snap --color
+
+```terminal
+session: prospective
+  0/1 | [C-r] repo: none
+   prospective                              ~ repo ┃
+▌  prospective                                tmux ┃
+                                                   ┃
+────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+![light](new-session-labels.md.snap.4.light.svg)
+![dark](new-session-labels.md.snap.4.dark.svg)
+
+Existing sessions do not acquire a creation label.
+
+    :t resize-window -t runner:0 -x 80 -y 14 (success)
+    :k C-u runner
+    :snap
+
+```terminal
+session: runner
+  1/1 | [C-r] repo: none | [C-x] close, [C-f] flag
+   runner~1                                 ~/p/runner~1                  repo ┃
+   runner~1                                                               tmux ┃
+▌⬤ runner                                                                      ┃
+────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+---
+vim: set ft=markdown:

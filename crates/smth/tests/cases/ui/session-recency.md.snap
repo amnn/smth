@@ -86,8 +86,8 @@ new-session candidate remains unselected.
 ```terminal
 session: a
   3/4 | [C-r] repo: none | [C-x] close, [C-f] flag
-   a                                        ~/a                                ┃
-   a                                                                           ┃
+   a                                        ~/a                           repo ┃
+   a                                                                      tmux ┃
 ▌⬤ alpha                                                                       ┃
  ⬤ beta                                                                        ┃
  ⬤ gamma                                                                       ┃
