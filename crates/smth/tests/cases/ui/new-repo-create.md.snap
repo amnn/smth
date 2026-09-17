@@ -62,8 +62,8 @@ the default even though the fresh-repository candidate appears first.
 ```terminal
 session: detached
   0/1 | [C-r] repo: none
-   detached                                 ~/r/detached                                                               ┃
-▌  detached                                                                                                            ┃
+   detached                                 ~/r/detached                                                          repo ┃
+▌  detached                                                                                                       tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -85,8 +85,8 @@ creation, and `C-n` creates that exact candidate.
 ```terminal
 session: detached
   0/1 | [C-r] repo: none
-▌  detached                                 ~/r/detached                                                               ┃
-   detached                                                                                                            ┃
+▌  detached                                 ~/r/detached                                                          repo ┃
+   detached                                                                                                       tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -150,8 +150,8 @@ suffix for both the candidate and the new repository session.
 ```terminal
 session: ...
   0/2 | [C-r] repo: none
-▌  1                                        ~/r/1                                                                      ┃
-   1                                                                                                                   ┃
+▌  1                                        ~/r/1                                                                 repo ┃
+   1                                                                                                              tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -186,7 +186,7 @@ must skip the empty row above it, and `C-n` creates the workspace normally.
 session: blocked
   0/3 | [C-r] repo: ~/r/detached, [C-o] onto: trunk()
                                                                                                                        ┃
-▌  detached/blocked                         ~/r/detached.blocked                                                       ┃
+▌  detached/blocked                         ~/r/detached.blocked                                             workspace ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh

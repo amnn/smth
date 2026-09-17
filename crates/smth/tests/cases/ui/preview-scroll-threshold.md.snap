@@ -64,7 +64,7 @@ scrollbar should be visible.
 ```terminal
 session: exact
   1/5 | [C-r] repo: none
-   exact                                                                                                               │
+   exact                                                                                                          tmux │
 ▌  exact                                    ~/exact                                                                    ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
@@ -85,7 +85,7 @@ scrollbar should now be visible.
 ```terminal
 session: overflow
   1/5 | [C-r] repo: none
-   overflow                                                                                                            │
+   overflow                                                                                                       tmux │
 ▌  overflow                                 ~/overflow                                                                 ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                                                ┃
@@ -106,7 +106,7 @@ preview content by one line.
 ```terminal
 session: overflow
   1/5 | [C-r] repo: none
-   overflow                                                                                                            │
+   overflow                                                                                                       tmux │
 ▌  overflow                                 ~/overflow                                                                 ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) overflow 04                                                                                                 │

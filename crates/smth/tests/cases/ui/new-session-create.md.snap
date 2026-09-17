@@ -30,7 +30,7 @@ Type a unique session name and accept the new-session row.
 ```terminal
 session: zeta
   0/2 | [C-r] repo: none
-▌  zeta                                                                                                                ┃
+▌  zeta                                                                                                           tmux ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

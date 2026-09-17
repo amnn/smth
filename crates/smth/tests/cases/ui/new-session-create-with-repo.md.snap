@@ -33,7 +33,7 @@ new-session row for `zeta`.
 ```terminal
 session: zeta
   0/3 | [C-r] repo: ~/beta, [C-o] onto: trunk()
-▌  beta/zeta                                ~/beta.zeta                                                                ┃
+▌  beta/zeta                                ~/beta.zeta                                                      workspace ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) beta commit

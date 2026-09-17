@@ -40,8 +40,8 @@ will also show `beta~1`:
 ```terminal
 session: beta                                                                                                          ┃
   3/5 | [C-r] repo: none | [C-x] close, [C-f] flag                                                                     ┃
-   beta~1                                   ~/beta~1                                                                   ┃
-   beta~1                                                                                                              ┃
+   beta~1                                   ~/beta~1                                                              repo ┃
+   beta~1                                                                                                         tmux ┃
 ▌⬤ beta                                                                                                                ┃
    beta~1                                   ~/a/beta                                                                   ┃
    beta~1                                   ~/o/beta                                                                   ┃

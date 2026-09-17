@@ -13,6 +13,7 @@ use crate::app::agent;
 use crate::app::component::row::Row;
 use crate::app::highlight::Highlight;
 use crate::app::span::push_repo_path_spans;
+use crate::model::session::Base;
 use crate::model::session::DELIM_SUFFIX;
 use crate::model::session::NAME_WIDTH;
 use crate::model::session::Session;
@@ -40,7 +41,15 @@ pub(super) fn row(
     };
 
     let row = Row::new(line);
-    let row = if let Some(agents) = session.agents() {
+    let row = if let Some(base) = session.new_base() {
+        let label = match base {
+            Base::NewRepo(_) => " repo ",
+            Base::Repo(_) => " workspace ",
+            Base::Cwd(_) => " tmux ",
+        };
+
+        row.with_overlay(Line::from(Span::raw(label).dim()).right_aligned())
+    } else if let Some(agents) = session.agents() {
         row.with_overlay(agent::summary(agents, highlighted))
     } else {
         row
