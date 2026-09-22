@@ -56,14 +56,14 @@ session:
 Type a repository name. With no discovered matches, the plain candidate remains
 the default even though the fresh-repository candidate appears first.
 
-    :k detached
+    :k foo.bar
     :snap
 
 ```terminal
-session: detached
+session: foo.bar
   0/1 | [C-r] repo: none
-   detached                                 ~/r/detached                                                          repo ┃
-▌  detached                                                                                                       tmux ┃
+   foo-bar                                  ~/r/foo.bar                                                           repo ┃
+▌  foo-bar                                                                                                        tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -83,10 +83,10 @@ creation, and `C-n` creates that exact candidate.
     :snap
 
 ```terminal
-session: detached
+session: foo.bar
   0/1 | [C-r] repo: none
-▌  detached                                 ~/r/detached                                                          repo ┃
-   detached                                                                                                       tmux ┃
+▌  foo-bar                                  ~/r/foo.bar                                                           repo ┃
+   foo-bar                                                                                                        tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -100,7 +100,8 @@ session: detached
 ```
 
     :k C-n
-    :$ sh -c 'until test -f repos/detached/.smth-ready; do :; done' (exit: 0)
+    :$ sh -c 'until test -f repos/foo.bar/.smth-ready; do :; done' (exit: 0)
+
     :settle -d 2s (settled)
 
 The picker should remain open with its query cleared, and the control-mode
@@ -134,15 +135,60 @@ runner
 The repository should be colocated, use the configured root, and be attached to
 its live tmux session.
 
-    :$ sh -c 'test -d repos/detached/.jj && test -d repos/detached/.git' (exit: 0)
-    :$ sh -c 'tmux show-options -qv -t "=detached:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'test -d repos/foo.bar/.jj && test -d repos/foo.bar/.git' (exit: 0)
+
+    :$ sh -c 'tmux show-options -qv -t "=foo-bar:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
-<ROOT>/repos/detached
+<ROOT>/repos/foo.bar
 ```
 
+Occupied paths and invalid directory names should not offer repository candidates.
+
+    :k foo.bar
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+```terminal
+session: foo.bar
+  1/2 | [C-r] repo: none | [C-x] close, [C-f] flag
+                                                                                                                       ┃
+   foo-bar~1                                                                                                      tmux ┃
+▌⬤ foo-bar                                  ~/r/foo.bar                                                                ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
+│  (empty) (no description set)
+◆  wwwwwwww root() hhhhhhhh
+
+
+
+
+
+```
+
+    :k C-u ../escape
+    :snap
+
+```terminal
+session: ../escape
+  0/2 | [C-r] repo: none
+                                                                                                                       ┃
+▌  escape                                                                                                         tmux ┃
+                                                                                                                       ┃
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+```
+
+    :k C-u
+
 A query that sanitizes to an empty name should use the first available numeric
-suffix for both the candidate and the new repository session.
+session name while preserving the directory name.
 
     :k ... up
     :snap
@@ -150,7 +196,7 @@ suffix for both the candidate and the new repository session.
 ```terminal
 session: ...
   0/2 | [C-r] repo: none
-▌  1                                        ~/r/1                                                                 repo ┃
+▌  1                                        ~/r/...                                                               repo ┃
    1                                                                                                              tmux ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -165,28 +211,30 @@ session: ...
 ```
 
     :k C-n
-    :$ sh -c 'until test -f repos/1/.smth-ready; do :; done' (exit: 0)
+    :$ sh -c 'until test -f repos/.../.smth-ready; do :; done' (exit: 0)
+
     :settle -d 2s (settled)
-    :$ sh -c 'test -d repos/1/.jj && test -d repos/1/.git' (exit: 0)
+    :$ sh -c 'test -d repos/.../.jj && test -d repos/.../.git' (exit: 0)
+
     :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
-<ROOT>/repos/1
+<ROOT>/repos/...
 ```
 
 With a repository context, only the workspace candidate is offered. Navigation
 must skip the empty row above it, and `C-n` creates the workspace normally.
 
-    :t respawn-pane -k -t runner:0.0 'smth --base repos/detached; cat' (success)
+    :t respawn-pane -k -t runner:0.0 'smth --base repos/foo.bar; cat' (success)
     :settle -d 2s (settled)
     :k blocked M-up up up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
 session: blocked
-  0/3 | [C-r] repo: ~/r/detached, [C-o] onto: trunk()
+  0/3 | [C-r] repo: ~/r/foo.bar, [C-o] onto: trunk()
                                                                                                                        ┃
-▌  detached/blocked                         ~/r/detached.blocked                                             workspace ┃
+▌  foo-bar/blocked                          ~/r/foo.bar.blocked                                              workspace ┃
                                                                                                                        ┃
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
@@ -200,13 +248,14 @@ session: blocked
 ```
 
     :k C-n
-    :$ sh -c 'until test -f repos/detached.blocked/.smth-ready; do :; done' (exit: 0)
+    :$ sh -c 'until test -f repos/foo.bar.blocked/.smth-ready; do :; done' (exit: 0)
+
     :settle -d 2s (settled)
     :snap
 
 ```terminal
 session:
-  4/4 | [C-r] repo: ~/r/detached, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/r/foo.bar, [C-o] onto: trunk() | [C-x] close, [C-f] flag
                                                                                                                        ┃
                                                                                                                        ┃
 ▌⬤ runner                                                                                                              │
@@ -227,11 +276,12 @@ session:
 runner
 ```
 
-    :$ sh -c 'test -d repos/detached.blocked/.jj && test ! -e repos/blocked' (exit: 0)
-    :$ sh -c 'tmux show-options -qv -t "=detached/blocked:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'test -d repos/foo.bar.blocked/.jj && test ! -e repos/blocked' (exit: 0)
+
+    :$ sh -c 'tmux show-options -qv -t "=foo-bar/blocked:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
-<ROOT>/repos/detached.blocked
+<ROOT>/repos/foo.bar.blocked
 ```
 
 ---

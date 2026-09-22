@@ -18,13 +18,14 @@ setup = "tmux set-option @smth.test-created yes"
 
     :t rename-session -t 0 runner
 
-The modifier takes no argument: `--create` supplies the name to sanitize. It
+The modifier takes no argument: `--create` supplies the directory name, preserved
+exactly while the tmux name is sanitized. It
 should initialize below the configured root and create a detached session with
 repository metadata and the usual setup script.
 
     :$ smth --config smth.toml --no-base --create-repo --create "project one"
 
-    :$ sh -c 'test -d config-repos/project-one/.jj && test -d config-repos/project-one/.git'
+    :$ sh -c 'test -d "config-repos/project one/.jj" && test -d "config-repos/project one/.git"'
 
     :t show-options -qv -t '=project-one:' @smth.test-created
 
@@ -34,13 +35,22 @@ repository metadata and the usual setup script.
 
     :t display-message -p '#{client_session}'
 
-Repeating the request should create another repository with a disambiguated
-name rather than reuse the existing repository or session. The modifier can
-also follow the action's name.
+Repeating the request should fail without choosing another directory. The
+modifier can also follow the action's name.
 
-    :$ smth --config smth.toml --no-base --create "project one" --create-repo
+    :$ sh -c 'smth --config smth.toml --no-base --create "project one" --create-repo 2> error; status=$?; sed "s#$PWD#<ROOT>#g" error >&2; exit "$status"'
 
-    :$ sh -c 'test -d config-repos/project-one~1/.jj && test -d config-repos/project-one/.jj'
+    :$ sh -c 'test ! -e "config-repos/project one~1" && test -d "config-repos/project one/.jj"'
+
+Dots are preserved in the path even when the sanitized tmux name collides.
+
+    :t new-session -d -s foo-bar "cat"
+    :t new-session -d -s foo-bar~1 "cat"
+    :$ smth --config smth.toml --no-base --create foo.bar --create-repo
+
+    :$ sh -c 'test -d config-repos/foo.bar/.jj && test ! -e config-repos/foo.bar~2'
+
+    :$ sh -c 'tmux show-options -qv -t "=foo-bar~2:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
 
 Configuring a repository root must not change the existing plain-session
 behavior.
@@ -56,7 +66,7 @@ plain session.
 
     :$ smth --config smth.toml --no-base --create bare --create-repo
 
-    :$ sh -c 'test -d config-repos/bare~1/.jj && test ! -e config-repos/bare'
+    :$ sh -c 'test -d config-repos/bare/.jj && test ! -e config-repos/bare~1'
 
     :t show-options -qv -t '=bare:' @smth.repo
 
@@ -66,16 +76,15 @@ A command-line root should override the configured root.
 
     :$ sh -c 'test -d cli-repos/override/.jj && test ! -e config-repos/override'
 
-Filesystem and tmux collisions should use the same `~N` disambiguation as other
-prospective sessions without modifying the existing directory.
+An occupied path should be rejected without modifying the existing directory.
 
     :$ mkdir config-repos/collision
 
     :t new-session -d -s collision~1 "cat"
 
-    :$ smth --config smth.toml --no-base --create collision --create-repo
+    :$ sh -c 'smth --config smth.toml --no-base --create collision --create-repo 2> error; status=$?; sed "s#$PWD#<ROOT>#g" error >&2; exit "$status"'
 
-    :$ sh -c 'test -d config-repos/collision~2/.jj && test ! -e config-repos/collision/.jj'
+    :$ sh -c 'test ! -e config-repos/collision~2 && test ! -e config-repos/collision/.jj'
 
 `--switch` with the modifier should perform the same initialization and name
 disambiguation before switching the client, leaving the existing session alone.
@@ -88,7 +97,8 @@ Its stdout should report the disambiguated name, not the requested one.
 
     :t display-message -p '#{client_session}'
 
-    :$ sh -c 'test -d switch-repos/switched~1/.jj && test -d switch-repos/switched~1/.git'
+    :$ sh -c 'test -d switch-repos/switched/.jj && test -d switch-repos/switched/.git'
+
     :t has-session -t '=switched'
     :t switch-client -t runner
     :pane runner:0.0
@@ -113,45 +123,56 @@ repository root does not exist yet. The root itself must not be initialized.
 
     :$ smth --config smth.toml --no-base --repo-root unnamed-repos --create ... --create-repo
 
-    :$ sh -c 'test -d unnamed-repos/1/.jj && test -d unnamed-repos/1/.git && test ! -e unnamed-repos/.jj'
+    :$ sh -c 'test -d unnamed-repos/.../.jj && test -d unnamed-repos/.../.git && test ! -e unnamed-repos/.jj'
 
-An explicitly empty name should also go through disambiguation, skipping
-existing paths and session names.
+Empty, omitted, and invalid directory names should be rejected.
 
-    :$ mkdir unnamed-repos/2
+    :$ smth --config smth.toml --no-base --create "" --create-repo
 
-    :$ smth --config smth.toml --no-base --repo-root unnamed-repos --create "" --create-repo
+    :$ smth --config smth.toml --no-base --create --create-repo
 
-    :$ sh -c 'test -d unnamed-repos/3/.jj && test ! -e unnamed-repos/2/.jj'
+    :$ smth --config smth.toml --no-base --switch --create-repo
 
-Omitting the name should use the same numeric disambiguation for detached
-creation, without changing the current session.
+    :$ smth --config smth.toml --no-base --create ../escape --create-repo
 
-    :$ smth --config smth.toml --no-base --repo-root unnamed-repos --create --create-repo
+    :$ smth --config smth.toml --no-base --create /absolute --create-repo
 
-    :$ sh -c 'test -d unnamed-repos/4/.jj && test -d unnamed-repos/4/.git'
+    :$ smth --config smth.toml --no-base --create . --create-repo
+
+    :$ smth --config smth.toml --no-base --create nested/repo --create-repo
+
+    :$ smth --config smth.toml --no-base --create .. --create-repo
+
+    :$ smth --config smth.toml --no-base --create ./relative --create-repo
+
+Single normal components are accepted with trailing separators. Backslashes are
+ordinary filename characters on Unix.
+
+    :$ smth --config smth.toml --no-base --create 'a\b' --create-repo
+
+    :$ sh -c 'test -d "config-repos/a\b/.jj" && test -d "config-repos/a\b/.git"'
+
+    :$ smth --config smth.toml --no-base --create trailing/ --create-repo
+
+    :$ sh -c 'test -d config-repos/trailing/.jj && test -d config-repos/trailing/.git'
+
+A trailing `/.` passes component validation, but jj cannot initialize that path.
+No repository or tmux session should be created.
+
+    :$ smth --config smth.toml --no-base --create dotted/. --create-repo
+
+    :$ sh -c 'test ! -e config-repos/dotted/.jj && test ! -e config-repos/dotted/.git'
+
+    :t has-session -t '=dotted'
 
     :t display-message -p '#{client_session}'
-
-Switching without a name should initialize the next available numeric
-repository, switch the client to its session, and print the selected name.
-
-    :t respawn-pane -k -t runner:0.0 'smth --config smth.toml --no-base --repo-root unnamed-repos --switch --create-repo > switch-name; tmux wait-for -S unnamed-repo; cat'
-    :t wait-for unnamed-repo
-    :$ cat switch-name
-
-    :t display-message -p '#{client_session}'
-
-    :$ sh -c 'test -d unnamed-repos/5/.jj && test -d unnamed-repos/5/.git'
-    :t switch-client -t runner
-    :pane runner:0.0
 
 Repository creation requires an empty context and rejects incompatible or
 competing actions.
 
-    :$ sh -c 'cd config-repos/project-one && smth --config ../../smth.toml --create nested --create-repo'
+    :$ sh -c 'cd "config-repos/project one" && smth --config ../../smth.toml --create nested --create-repo'
 
-    :$ smth --config smth.toml --base config-repos/project-one --create nested --create-repo
+    :$ smth --config smth.toml --base "config-repos/project one" --create nested --create-repo
 
     :$ smth --config smth.toml --no-base --onto @ --create invalid --create-repo
 

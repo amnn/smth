@@ -307,14 +307,14 @@ impl NewKind {
     /// Construct a new potential session from a query and session base.
     pub(crate) fn new(name: &str, base: Base) -> Self {
         Self {
-            name: sanitize(name),
+            name: name.to_owned(),
             base,
             suffix: None,
         }
     }
 
-    /// Tweak session's suffix until its tmux name is non-empty and its tmux name, workspace name,
-    /// and repo path are all unique.
+    /// Tweak the suffix until the tmux name is non-empty and unique. For new workspaces, also
+    /// avoid workspace name and checkout path collisions; fresh repository paths never change.
     ///
     /// `sessions` is the list of all tmux sessions found on startup, and `siblings` is the set of
     /// other workspaces associated with the same default repo as this session.
@@ -327,7 +327,7 @@ impl NewKind {
         while self.name().is_empty()
             || sessions.contains(&self.name())
             || self.workspace().is_some_and(|w| workspaces.contains(&w.1))
-            || self.repo().is_some_and(|r| r.exists())
+            || matches!(self.base, Base::Repo(_)) && self.repo().is_some_and(|r| r.exists())
         {
             self.suffix = Some(i.to_string());
             i += 1;
@@ -381,7 +381,7 @@ impl NewKind {
             Base::NewRepo(_) | Base::Cwd(_) => None,
         };
 
-        workspace_session_name(base, Some(&self.name), self.suffix.as_deref())
+        workspace_session_name(base, Some(&sanitize(&self.name)), self.suffix.as_deref())
     }
 
     /// The repository whose log should be shown before this session's workspace exists.
@@ -392,15 +392,15 @@ impl NewKind {
         }
     }
 
-    /// The repository associated with this session. Disambiguation ensures this path does not
-    /// collide with an existing repo.
+    /// The repository associated with this session. Fresh repositories preserve the requested
+    /// directory name; only new workspace paths are disambiguated.
     fn repo(&self) -> Option<PathBuf> {
         match &self.base {
             Base::Repo(_) => {
                 let (default, workspace, _) = self.workspace()?;
                 Some(default.with_added_extension(&workspace))
             }
-            Base::NewRepo(root) => Some(root.join(self.name())),
+            Base::NewRepo(root) => Some(root.join(&self.name)),
             Base::Cwd(_) => None,
         }
     }
@@ -412,7 +412,7 @@ impl NewKind {
             return None;
         };
 
-        let mut workspace = self.name.clone();
+        let mut workspace = sanitize(&self.name);
         if let Some(suffix) = &self.suffix {
             workspace.push_str(DELIM_SUFFIX);
             workspace.push_str(suffix);
@@ -650,11 +650,35 @@ mod tests {
     #[test]
     fn new_workspace_sessions_derive_names_and_paths() {
         let temp = tempdir().unwrap();
-        let default = temp.path().join("repo");
-        let session = NewKind::new("feature", Base::Repo(Repo::new(default)));
+        for (base, name, expected_name, expected_path, expected_workspace) in [
+            ("repo", "feature", "repo/feature", "repo.feature", "feature"),
+            (
+                "repo.default",
+                "feature: one.two/path\\name\n",
+                "repo-default/feature-one-two-path-name",
+                "repo.default.feature-one-two-path-name",
+                "feature-one-two-path-name",
+            ),
+        ] {
+            let default = temp.path().join(base);
+            let session = NewKind::new(name, Base::Repo(Repo::new(default.clone())));
 
-        assert_eq!(session.name(), "repo/feature");
-        assert_eq!(session.repo(), Some(temp.path().join("repo.feature")));
+            assert_eq!(session.name(), expected_name, "{name:?}");
+            assert_eq!(
+                session.repo(),
+                Some(temp.path().join(expected_path)),
+                "{name:?}"
+            );
+            assert_eq!(
+                session.workspace(),
+                Some((
+                    default.as_path(),
+                    expected_workspace.to_owned(),
+                    jj::DEFAULT_BASE_REVSET
+                )),
+                "{name:?}"
+            );
+        }
     }
 
     #[test]
@@ -670,15 +694,5 @@ mod tests {
             Some((workspace.as_path(), "feature.one"))
         );
         assert_eq!(session.name(), "repo/feature-one");
-    }
-
-    #[test]
-    fn workspace_session_names_are_sanitized() {
-        let session = NewKind::new(
-            "feature: one.two/path\\name\n",
-            Base::Repo(Repo::new(PathBuf::from("repo.default"))),
-        );
-
-        assert_eq!(session.name(), "repo-default/feature-one-two-path-name");
     }
 }
