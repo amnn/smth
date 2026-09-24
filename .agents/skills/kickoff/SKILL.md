@@ -1,16 +1,17 @@
 ---
 name: kickoff
-description: Review TODO.md and pick the next best task to start now
+description: Review GitHub issues and pick the next best task to start now
 ---
 
 ## Goal
 
-Start execution quickly by choosing the next most appropriate TODO item.
+Start execution quickly by choosing the next most appropriate GitHub issue.
 
 ## Steps
 
-1. Read `TODO.md` from the repository root.
-2. Identify open items (`- [ ]`) and in-progress hints (`- [-]`).
+1. List open GitHub issues with `gh issue list --repo amnn/smth`.
+2. Read candidate issues and their dependencies, assignees, and progress notes.
+   Exclude blocked work and avoid taking over work already in progress.
 3. Choose one concrete next task using these tie-breakers in order:
    - Prefer tasks that unblock other listed work.
    - Prefer tasks with clear acceptance criteria over vague investigations.
@@ -25,13 +26,14 @@ Start execution quickly by choosing the next most appropriate TODO item.
 
 ## Output
 
-- State the selected TODO item (quote the exact checklist line).
+- State the selected issue title and link.
 - Explain briefly why it was selected.
 - Provide a short plan in the same response.
 - End by asking for explicit go-ahead before implementation begins.
 
 ## Constraints
 
-- Do not mark TODO items complete unless the implementation is actually done.
-- Do not rewrite or reprioritize the whole TODO list unless explicitly asked.
+- Track follow-up work in GitHub issues, not a local TODO file.
+- Do not close issues unless the implementation is actually done.
+- Do not rewrite or reprioritize the whole issue backlog unless explicitly asked.
 - Do not start implementation until the user explicitly approves the plan.
