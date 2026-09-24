@@ -38,10 +38,10 @@ session.
 
 ```terminal
 session:
-  1/1 | [C-r] repo: none | [C-x] close, [C-f] flag
-                                                                                                                       ┃
-                                                                                                                       ┃
+  1/1 | [C-r] repo: none
+                                                                                                                       │
 ▌⬤ runner                                                                                                              ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -64,7 +64,7 @@ session: foo.bar
   0/1 | [C-r] repo: none
    foo-bar                                  ~/r/foo.bar                                                           repo ┃
 ▌  foo-bar                                                                                                        tmux ┃
-                                                                                                                       ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -87,7 +87,7 @@ session: foo.bar
   0/1 | [C-r] repo: none
 ▌  foo-bar                                  ~/r/foo.bar                                                           repo ┃
    foo-bar                                                                                                        tmux ┃
-                                                                                                                       ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -111,10 +111,10 @@ client should remain attached to the runner session.
 
 ```terminal
 session:
-  2/2 | [C-r] repo: none | [C-x] close, [C-f] flag
-                                                                                                                       ┃
-                                                                                                                       ┃
-▌⬤ runner                                                                                                              │
+  2/2 | [C-r] repo: none
+                                                                                                                       │
+▌⬤ runner                                                                                                              ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -150,10 +150,10 @@ Occupied paths and invalid directory names should not offer repository candidate
 
 ```terminal
 session: foo.bar
-  1/2 | [C-r] repo: none | [C-x] close, [C-f] flag
-                                                                                                                       ┃
-   foo-bar~1                                                                                                      tmux ┃
+  1/2 | [C-r] repo: none
+   foo-bar~1                                                                                                      tmux │
 ▌⬤ foo-bar                                  ~/r/foo.bar                                                                ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) (no description set)
@@ -171,9 +171,9 @@ session: foo.bar
 ```terminal
 session: ../escape
   0/2 | [C-r] repo: none
-                                                                                                                       ┃
 ▌  escape                                                                                                         tmux ┃
                                                                                                                        ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -198,7 +198,7 @@ session: ...
   0/2 | [C-r] repo: none
 ▌  1                                        ~/r/...                                                               repo ┃
    1                                                                                                              tmux ┃
-                                                                                                                       ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -233,9 +233,9 @@ must skip the empty row above it, and `C-n` creates the workspace normally.
 ```terminal
 session: blocked
   0/3 | [C-r] repo: ~/r/foo.bar, [C-o] onto: trunk()
-                                                                                                                       ┃
 ▌  foo-bar/blocked                          ~/r/foo.bar.blocked                                              workspace ┃
                                                                                                                        ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) (no description set)
@@ -255,10 +255,10 @@ session: blocked
 
 ```terminal
 session:
-  4/4 | [C-r] repo: ~/r/foo.bar, [C-o] onto: trunk() | [C-x] close, [C-f] flag
-                                                                                                                       ┃
+  4/4 | [C-r] repo: ~/r/foo.bar, [C-o] onto: trunk()
                                                                                                                        ┃
 ▌⬤ runner                                                                                                              │
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

@@ -42,11 +42,11 @@ Launch the picker and select the discovered repo entry.
 session: beta
   1/3 | [C-r] repo: none
 ▌  beta                                     ~/beta                                                                     ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) (no description set)
 ◆  wwwwwwww root() hhhhhhhh
-
 
 
 ```

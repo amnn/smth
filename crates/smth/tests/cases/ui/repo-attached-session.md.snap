@@ -67,9 +67,9 @@ session and glob-discovered repos.
 
 ```terminal
 session:
-  7/7 | [C-r] repo: none | [C-x] close, [C-f] flag
- ⬤ runner                                                                                                              │
+  7/7 | [C-r] repo: none
 ▌⬤ alpha-live                               alpha                                                                      ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) alpha commit
@@ -90,8 +90,8 @@ move away from the initial attached-session result and onto the discovered
 ```terminal
 session: beta
   1/7 | [C-r] repo: none
-   beta                                                                                                           tmux │
 ▌  beta                                     ~/beta                                                                     ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) beta commit
@@ -111,8 +111,8 @@ This snapshot shows the picker after clearing the query with `C-u` and typing
 ```terminal
 session: mono
   2/7 | [C-r] repo: none
-   mono                                                                                                           tmux │
 ▌  mono                                     ~/mono                                                                     ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) mono commit

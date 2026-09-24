@@ -15,7 +15,7 @@ workspaces can be deleted.
     :pane ui:0.0
     :settle -d 2s
 
-Filter to the default workspace repo-only entry. The header should not offer
+Filter to the default workspace repo-only entry. The footer should not offer
 `C-d` delete.
 
     :k beta

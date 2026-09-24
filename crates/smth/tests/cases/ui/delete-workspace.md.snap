@@ -43,9 +43,9 @@ Launch a fresh picker and select the workspace-backed session.
 
 ```terminal
 session: feature
-  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-d] delete, [C-x] close, [C-f] flag
-   alpha/feature~1                          ~/alpha.feature~1                                                workspace │
+  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌⬤ alpha/feature                            ~/alpha.feature                                                            ┃
+ [C-d] delete, [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) (no description set)
@@ -65,9 +65,9 @@ shortcut.
 
 ```terminal
 session: feature
-  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-y] confirm, [C-x] close, [C-f] flag
-   alpha/feature~1                          ~/alpha.feature~1                                                workspace │
+  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
+ [C-y] confirm, [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) (no description set)
@@ -119,9 +119,9 @@ picker still loads a valid log.
 
 ```terminal
 onto:
-  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-x] close, [C-f] flag
-                                                                                                                       ┃
-▌⬤ ui                                                                                                                  │
+  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+▌⬤ ui                                                                                                                  ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) alpha commit

@@ -40,13 +40,13 @@ context.
 session: feature
   0/2 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌  alpha/feature                            ~/alpha.feature                                                  workspace ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) (no description set)
 │ ○  wwwwwwww (no email set) ttttttttttttttttttt healthy@ hhhhhhhh
 ├─╯  (empty) (no description set)
 ◆  wwwwwwww root() hhhhhhhh
-
 ```
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S stale-workspace-switched" (success)

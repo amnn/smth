@@ -35,8 +35,7 @@ last row and `M-up` jumps back to the first selectable session.
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
- ⬤ ui                                                                                              ┃
+  6/6 | [C-r] repo: none                                                                           ┃
 ▌⬤ runner                                                                                          ┃
  ⬤ zeta                                                                                            ┃
  ⬤ ta                                                                                              ┃
@@ -46,6 +45,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
     :k M-down
@@ -53,8 +53,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
- ⬤ ui                                                                                              ┃
+  6/6 | [C-r] repo: none                                                                           ┃
  ⬤ runner                                                                                          ┃
  ⬤ zeta                                                                                            ┃
  ⬤ ta                                                                                              ┃
@@ -64,6 +63,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
     :k M-up
@@ -71,7 +71,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+  6/6 | [C-r] repo: none                                                                           ┃
 ▌⬤ ui                                                                                              ┃
  ⬤ runner                                                                                          ┃
  ⬤ zeta                                                                                            ┃
@@ -81,7 +81,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
 A query for `et` keeps multiple existing matches and offers both new-session
@@ -92,7 +92,7 @@ candidates. `M-up` jumps to the repository candidate, above the plain one.
 
 ```terminal
 session: et                                                                                        ┃
-  3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+  3/6 | [C-r] repo: none                                                                           ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
 ▌⬤ zeta                                                                                            ┃
@@ -102,7 +102,7 @@ session: et                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
     :k M-down
@@ -110,7 +110,7 @@ session: et                                                                     
 
 ```terminal
 session: et                                                                                        ┃
-  3/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+  3/6 | [C-r] repo: none                                                                           ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
  ⬤ zeta                                                                                            ┃
@@ -120,7 +120,7 @@ session: et                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
     :k M-up
@@ -150,7 +150,7 @@ still jumps to the repository candidate.
 
 ```terminal
 session: ta                                                                                        ┃
-  4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+  4/6 | [C-r] repo: none                                                                           ┃
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
 ▌⬤ ta                                                                                              ┃
@@ -160,7 +160,7 @@ session: ta                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
     :k M-down
@@ -168,7 +168,7 @@ session: ta                                                                     
 
 ```terminal
 session: ta                                                                                        ┃
-  4/6 | [C-r] repo: none | [C-x] close, [C-f] flag                                                 ┃
+  4/6 | [C-r] repo: none                                                                           ┃
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
  ⬤ ta                                                                                              ┃
@@ -178,7 +178,7 @@ session: ta                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
     :k M-up

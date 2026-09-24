@@ -6,6 +6,5 @@
 <text x="10" y="42" xml:space="preserve"><tspan fill="#000000">  0</tspan><tspan fill="#000000" opacity="0.7">/1 | [</tspan><tspan fill="#f8a300">C-r</tspan><tspan fill="#000000" opacity="0.7">]</tspan><tspan fill="#000000"> repo: </tspan><tspan fill="#000000" opacity="0.7">none</tspan><tspan fill="#000000">                            </tspan></text>
 <text x="10" y="60" xml:space="preserve"><tspan fill="#000000">   prospective                              </tspan><tspan fill="#000000" opacity="0.7">~ repo </tspan><tspan fill="#000000">┃</tspan></text>
 <text x="10" y="78" xml:space="preserve"><tspan fill="#b12424">▌</tspan><tspan fill="#ffffff">  prospective                               </tspan><tspan fill="#ffffff" opacity="0.7"> tmux </tspan><tspan fill="#000000">┃</tspan></text>
-<text x="10" y="96" xml:space="preserve"><tspan fill="#000000">                                                   ┃</tspan></text>
 <text x="10" y="114" xml:space="preserve"><tspan fill="#000000">────────────────────────────────────────────────────</tspan></text>
 </svg>

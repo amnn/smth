@@ -50,10 +50,10 @@ padding cell. Normalize both animations for the snapshot.
 
 ```terminal
 session:
-⠋ creating....repo: none | [C-x] close, [C-f] flag
-                                                                                                                       ┃
-                                                                                                                       ┃
-▌⬤ ui                                                                                                                  │
+⠋ creating....repo: none
+                                                                                                                       │
+▌⬤ ui                                                                                                                  ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -76,7 +76,7 @@ session: omega
 ⠋ creating....repo: none
    omega                                    ~/omega                                                               repo ┃
 ▌  omega                                                                                                          tmux ┃
-                                                                                                                       ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -105,7 +105,7 @@ session: omega
   0/3 | [C-r] repo: none
    omega                                    ~/omega                                                               repo ┃
 ▌  omega                                                                                                          tmux ┃
-                                                                                                                       ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

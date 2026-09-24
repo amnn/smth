@@ -37,11 +37,11 @@ Type a query that selects `beta`, wait for the picker to redraw, and accept it.
 session: beta
   1/3 | [C-r] repo: none
 ▌  beta                                     ~/beta                                                                     ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) beta commit
 ◆  wwwwwwww root() hhhhhhhh
-
 
 
 ```

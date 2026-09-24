@@ -55,8 +55,7 @@ live-session pips. Status indicators and counts should remain undimmed.
 
 ```terminal
 session:                                                                                           ┃
-  7/7 | [C-r] repo: none | [C-x] close, [C-f] flag                         ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
- ⬤ ui                                                                                              ┃
+  7/7 | [C-r] repo: none                                                   ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
 ▌⬤ runner                                                                                          ┃
  ⬤ waiting                                                                                 ⏸ · ▶ 2 ┃
  ⬤ succeeded                                                                               ✔ 2 · ○ ┃
@@ -66,6 +65,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
+ [C-x] close, [C-f] flag                                                                           ┃
 ```
 
 ![light](agent-attention.md.snap.1.light.svg)
@@ -81,7 +81,7 @@ should remain bright green without creating a green background cell.
 
 ```terminal
 session: succeeded                                                                                 ┃
-  1/7 | [C-r] repo: none | [C-x] close, [C-f] unflag                       ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
+  1/7 | [C-r] repo: none                                                   ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
    succeeded~1                              ~/succeeded                                       repo ┃
    succeeded~1                                                                                tmux ┃
 ▌⬤ succeeded                                                                               ✔ 2 · ○ ┃
@@ -91,7 +91,7 @@ session: succeeded                                                              
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                                   ┃
+ [C-x] close, [C-f] unflag                                                                         ┃
 ```
 
 ![light](agent-attention.md.snap.2.light.svg)
