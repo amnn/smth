@@ -21,7 +21,7 @@ guidance updates.
   subagents.
 - When the user explicitly wants a pull request reflection pass; treat that as a
   separate activity from local-session reflection.
-- Before closing a cluster of related TODO items if the work surfaced stable
+- Before closing a cluster of related issues if the work surfaced stable
   guidance that should apply in future sessions.
 
 ## Inputs to Review
@@ -33,8 +33,8 @@ Start with the strongest available evidence in this order:
 1. The current conversation, current diff, and files changed in this session.
 2. Recent local history using the version control tools available in the
    checkout.
-3. Existing repo guidance such as `AGENTS.md`, `.agents/skills/`,
-   `.agents/agents/`, and `TODO.md`.
+3. Existing repo guidance such as `AGENTS.md`, `.agents/skills/`, and
+   `.agents/agents/`, plus related GitHub issues.
 
 ### Pull Request Reflection
 
@@ -44,8 +44,9 @@ Treat pull request reflection as a separate pass from local reflection.
    "State" section.
 2. Analyze a contiguous chunk of PRs and their authoritative review feedback.
 3. Update the description to the highest PR number reviewed in that pass.
-4. Use existing repo guidance such as `AGENTS.md`, `.agents/skills/`,
-   `.agents/agents/`, and `TODO.md` as the destination for durable lessons.
+4. Use existing repo guidance such as `AGENTS.md`, `.agents/skills/`, and
+   `.agents/agents/` as the destination for durable lessons; track follow-up work
+   in GitHub issues.
 
 ## What to Look For
 
@@ -76,11 +77,12 @@ Ignore one-off preferences unless they are likely to matter again.
    - `AGENTS.md` for repo-wide standing instructions.
    - `.agents/skills/<name>/SKILL.md` for repeatable workflows.
    - `.agents/agents/<name>.md` for subagent behavior.
-   - `TODO.md` only for follow-up work that should happen later.
+   - GitHub issues for follow-up work that should happen later; reuse an
+     existing issue when it already covers the work.
 6. Update the relevant files directly.
-7. During local reflection, update `TODO.md` to match the finished work: tick
-   off items that are complete, and remove or clean up sections whose items are
-   all done.
+7. During local reflection, update related GitHub issues to reflect progress.
+   Close an issue only when its work is complete; retain unfinished scope and
+   link any new follow-up issues and dependencies.
 8. If this was a pull request reflection pass, update this file's state so the
    `latest PR analyzed` value matches the highest PR number reviewed.
 9. Summarize the evidence used, the lesson captured, and where it was encoded.
@@ -93,7 +95,7 @@ Ignore one-off preferences unless they are likely to matter again.
 - Name the files updated.
 - For pull request reflection, state the PR range reviewed and the new
   `latest PR analyzed` value.
-- Note any follow-up that still belongs in `TODO.md` instead of guidance.
+- Link any follow-up issues instead of recording unfinished work in guidance.
 
 ## Constraints
 
@@ -105,5 +107,5 @@ Ignore one-off preferences unless they are likely to matter again.
   section and keep admonitions attached to the guidance they qualify.
 - Do not mix local-session reflection progress with pull request reflection
   progress; the tracked PR number applies only to PR analysis.
-- Do not mark TODO items complete unless the corresponding implementation is
-  actually done.
+- Track unfinished work in GitHub issues, not a local TODO file.
+- Do not close issues unless the corresponding implementation is actually done.
