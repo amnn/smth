@@ -42,18 +42,17 @@ Start switching to a new session and synchronize on its blocked setup.
     :$ sh -c 'until test -f switch-ready; do :; done' (exit: 0)
     :$ sleep 0.6 (exit: 0)
 
-The query should remain visible. Once the display delay has elapsed, the
-header's left side should be overdrawn with a spinner and yellow, animated
-`switching...` label, while the remaining repo context stays visible. Normalize
-both animations for the snapshot.
+The query and header should remain unchanged. Once the display delay has
+elapsed, the last session-list row should show a right-aligned yellow `switching`
+label with a trailing spinner. Normalize the spinner for the snapshot.
 
-    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" "/switching(.{4})/."
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
 ```terminal
 session: zeta
-⠋ switching....epo: none
+  0/1 | [C-r] repo: none
    zeta                                     ~/zeta                                                                repo ┃
-▌  zeta                                                                                                           tmux ┃
+▌  zeta                                                                                                    switching ⠋ ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

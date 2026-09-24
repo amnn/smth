@@ -62,7 +62,28 @@ keys remain gated while the confirmed batch is running.
 
     :$ sh -c 'until test -f first-ready && test -f second-ready; do :; done' (exit: 0)
     :k C-u first
-    :settle -d 2s -e '1/5' -e alpha/first -e C-d (settled)
+    :settle -d 2s -e '1/5' -e alpha/first -e C-d -e deleting "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" (settled)
+
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+
+```terminal
+session: first                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   first                                    ~/first                                                               repo ┃
+   first                                                                                                          tmux ┃
+▌× alpha/first                              ~/alpha.first                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                            deleting ⠋ ┃
+ [C-y] delete 2 sessions (1 hidden), [C-d] unstage                                                                     ┃
+```
 
     :k C-d C-y C-x C-f C-n enter C-c esc C-g
     :$ test ! -f finished (exit: 0)
@@ -73,7 +94,7 @@ Release the failing command first. The picker must still wait for the other
 deletion rather than exiting early and cancelling it.
 
     :t wait-for -S first-release (success)
-    :settle (settled)
+    :settle "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" (settled)
     :$ test ! -f finished (exit: 0)
     :t wait-for -S second-release (success)
     :$ sh -c 'until test -f finished; do :; done' (exit: 0)

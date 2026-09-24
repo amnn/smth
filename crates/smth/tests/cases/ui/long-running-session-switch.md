@@ -34,12 +34,11 @@ Start switching to a new session and synchronize on its blocked setup.
     :$ sh -c 'until test -f switch-ready; do :; done'
     :$ sleep 0.6
 
-The query should remain visible. Once the display delay has elapsed, the
-header's left side should be overdrawn with a spinner and yellow, animated
-`switching...` label, while the remaining repo context stays visible. Normalize
-both animations for the snapshot.
+The query and header should remain unchanged. Once the display delay has
+elapsed, the last session-list row should show a right-aligned yellow `switching`
+label with a trailing spinner. Normalize the spinner for the snapshot.
 
-    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" "/switching(.{4})/."
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
 Release setup and wait for both the client switch and picker exit.
 

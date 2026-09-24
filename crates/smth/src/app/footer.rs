@@ -36,7 +36,7 @@ impl<'s> Footer<'s> {
         }
     }
 
-    /// Render the session actions into `area`.
+    /// Render the available session actions.
     pub(super) fn draw(&self, f: &mut Frame<'_>, area: Rect) {
         let mut line = Line::default();
         let mut prefix = " ";

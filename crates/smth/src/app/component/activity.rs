@@ -5,13 +5,12 @@
 
 use std::future::Future;
 use std::marker::PhantomData;
-use std::time::Duration;
 use std::time::Instant;
 
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
-use ratatui::text::Line;
 use ratatui::text::Span;
+use ratatui::widgets::Clear;
 use ratatui::widgets::StatefulWidget;
 use ratatui::widgets::Widget as _;
 
@@ -19,12 +18,10 @@ use crate::app::component::loader;
 use crate::app::component::spinner;
 use crate::app::component::spinner::Spinner;
 
-/// Expanding and contracting dots with one trailing padding cell for the header overdraw.
-const FRAMES: &[&str] = &[". ", ".. ", "... ", ".. "];
-const FRAME_DURATION: Duration = Duration::from_millis(250);
-const PREFIX_WIDTH: u16 = 2;
+/// Spinner and trailing padding.
+const SPINNER_REGION_WIDTH: u16 = 2;
 
-/// Progress widget for a background activity.
+/// Progress overlay at the bottom-right of its area, with one column of trailing padding.
 pub(crate) struct Activity<V>(PhantomData<fn() -> V>);
 
 /// Retained state for a background activity with owner-styled progress text.
@@ -76,43 +73,37 @@ impl<V> StatefulWidget for Activity<V> {
     type State = State<V>;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        use ratatui::layout::Constraint as C;
+        use ratatui::layout::Flex as F;
+        use ratatui::layout::Layout as L;
+
         state.loader.poll();
 
-        let area = area.intersection(buf.area);
-        let is_loading = state.is_loading();
         let now = Instant::now();
-        if !Spinner::new(is_loading).render_at(now, area, buf, &mut state.spinner) {
+        let is_loading = state.is_loading();
+        if !state.spinner.show(is_loading, now) {
             return;
         }
 
-        let offset = area.width.min(PREFIX_WIDTH);
-        if offset == PREFIX_WIDTH {
-            " ".render(Rect::new(area.x + 1, area.y, 1, area.height), buf);
+        let area = area.intersection(buf.area);
+        if area.width < SPINNER_REGION_WIDTH || area.height == 0 {
+            return;
         }
 
-        let label = Rect::new(area.x + offset, area.y, area.width - offset, area.height);
-        let ellipsis = Span::styled(
-            state.spinner.frame(now, FRAME_DURATION, FRAMES),
-            state.label.style,
+        let [row] = area.layout(&L::vertical([C::Length(1)]).flex(F::End));
+        let [label, gap, spinner, padding] = row.layout(
+            &L::horizontal([
+                // Shrink the label before the spinner and its surrounding spaces.
+                C::Max(state.label.width() as u16),
+                C::Length(row.width.saturating_sub(SPINNER_REGION_WIDTH).min(1)),
+                C::Length(1),
+                C::Length(1),
+            ])
+            .flex(F::End),
         );
-        let text = Line::from(vec![state.label.clone(), ellipsis]);
-        text.render(label, buf);
-    }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn dot_frames_only_cover_dots_and_one_padding_cell() {
-        for frame in FRAMES {
-            let dots = frame
-                .strip_suffix(' ')
-                .expect("frame should end with one padding cell");
-            assert!(!dots.is_empty());
-            assert!(dots.chars().all(|ch| ch == '.'));
-            assert_eq!(frame.chars().count(), dots.chars().count() + 1);
-        }
+        Clear.render(label.union(gap).union(spinner).union(padding), buf);
+        state.label.clone().render(label, buf);
+        Spinner::new(is_loading).render_at(now, spinner, buf, &mut state.spinner);
     }
 }

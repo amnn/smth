@@ -54,7 +54,9 @@ keys remain gated while the confirmed batch is running.
 
     :$ sh -c 'until test -f first-ready && test -f second-ready; do :; done'
     :k C-u first
-    :settle -d 2s -e '1/5' -e alpha/first -e C-d
+    :settle -d 2s -e '1/5' -e alpha/first -e C-d -e deleting "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
     :k C-d C-y C-x C-f C-n enter C-c esc C-g
     :$ test ! -f finished
@@ -65,7 +67,7 @@ Release the failing command first. The picker must still wait for the other
 deletion rather than exiting early and cancelling it.
 
     :t wait-for -S first-release
-    :settle
+    :settle "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
     :$ test ! -f finished
     :t wait-for -S second-release
     :$ sh -c 'until test -f finished; do :; done'
