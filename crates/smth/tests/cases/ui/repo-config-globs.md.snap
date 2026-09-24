@@ -48,11 +48,11 @@ test user's home directory.
 session: config
   1/4 | [C-r] repo: none
 ▌  config-repo                              ~/config-repo                                                              ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) config glob commit
 ◆  wwwwwwww root() hhhhhhhh
-
 
 
 ```
@@ -66,11 +66,11 @@ The CLI-supplied glob also discovers `cli-repo` after expanding `~`.
 session: cli
   1/4 | [C-r] repo: none
 ▌  cli-repo                                 ~/cli-repo                                                                 ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) cli glob commit
 ◆  wwwwwwww root() hhhhhhhh
-
 
 
 ```

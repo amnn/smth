@@ -47,9 +47,9 @@ Pressing `C-n` should do nothing and leave the picker open in the same state.
 
 ```terminal
 session:
-  8/8 | [C-r] repo: none | [C-x] close, [C-f] flag
- ⬤ ui                                                                                                                  ┃
-▌⬤ runner                                                                                                              │
+  8/8 | [C-r] repo: none
+▌⬤ runner                                                                                                              ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -65,9 +65,9 @@ session:
 
 ```terminal
 session:
-  8/8 | [C-r] repo: none | [C-x] close, [C-f] flag
- ⬤ ui                                                                                                                  ┃
-▌⬤ runner                                                                                                              │
+  8/8 | [C-r] repo: none
+▌⬤ runner                                                                                                              ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -87,8 +87,8 @@ because `alp` is not an exact live session name.
 ```terminal
 session: alp
   2/8 | [C-r] repo: none
-   alp                                      ~/alp                                                                 repo ┃
-▌  alp                                                                                                            tmux │
+▌  alp                                                                                                            tmux ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -108,8 +108,8 @@ disambiguated.
 ```terminal
 session: alpha
   2/8 | [C-r] repo: none
-                                                                                                                       ┃
-▌  alpha~1                                                                                                        tmux │
+▌  alpha~1                                                                                                        tmux ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -129,8 +129,8 @@ the new-session row, because there is no live session named `beta`.
 ```terminal
 session: beta
   1/8 | [C-r] repo: none
-   beta                                                                                                           tmux │
 ▌  beta                                     ~/beta                                                                     ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) beta commit

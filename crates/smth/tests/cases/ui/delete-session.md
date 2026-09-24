@@ -14,7 +14,7 @@ associated checkout for `C-d` to remove.
     :settle
 
 Filter to the matching sessions. The first match, `alpha`, is selected. The
-header should offer `C-x` close, but not `C-d` delete.
+footer should offer `C-x` close, but not `C-d` delete.
 
     :k alp
     :snap

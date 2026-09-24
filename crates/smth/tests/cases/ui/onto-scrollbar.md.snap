@@ -51,15 +51,15 @@ inverted. The scrollbar thumb should remain visible at the top edge.
 
 ```terminal
 onto:
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 05                                                                       │
 ```
 
 ![light](onto-scrollbar.md.snap.1.light.svg)
@@ -76,15 +76,15 @@ the selected reversed `line 06` row, they should be switched back for contrast.
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 05                                                                       │
 ```
 
 ![light](onto-scrollbar.md.snap.2.light.svg)
@@ -99,12 +99,12 @@ inversion moves down.
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 05                                                                       │
@@ -120,12 +120,12 @@ onto: '(empty) 'line '06
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
+@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 05                                                                       │
@@ -142,15 +142,15 @@ is the first commit in the view.
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 05                                                                       │
 ```
 
 ![light](onto-scrollbar.md.snap.5.light.svg)
@@ -169,15 +169,15 @@ this is the first of six matching commits.
 
 ```terminal
 onto: line
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 ┃
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 05                                                                       │
 ```
 
 ![light](onto-scrollbar.md.snap.6.light.svg)
@@ -191,13 +191,13 @@ widget.
 
 ```terminal
 onto: line
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              6/6 │
-│  (empty) line 03                                                                       │
+│  (empty) line 03                                                                   6/6 │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 02                                                                       ┃
+│  (empty) line 02                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) line 01                                                                       ┃
 ```
@@ -212,15 +212,15 @@ onto: line
 
 ```terminal
 onto: line
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 │
 │  (empty) line 06                                                                       ┃
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 05                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 04                                                                       │
 ```
 
 ![light](onto-scrollbar.md.snap.8.light.svg)
@@ -234,15 +234,15 @@ timeout.
 
 ```terminal
 onto: line
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       ┃
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 05                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 04                                                                       │
 ```
 
 ![light](onto-scrollbar.md.snap.9.light.svg)
@@ -258,13 +258,13 @@ should remain while the widget disappears.
 
 ```terminal
 onto: line
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 06                                                                       ┃
+│  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
-│  (empty) line 05                                                                       │
+│  (empty) line 05                                                                       ┃
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 04                                                                       │
 ```
@@ -277,10 +277,10 @@ selected and scroll it into view.
 
 ```terminal
 onto: line
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
-│  (empty) line 03                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 02                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
@@ -300,15 +300,15 @@ counter without moving the selection.
 
 ```terminal
 onto: lin
-  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
+ [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       ┃
-○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
+○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 05                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
-│  (empty) line 04                                                                       │
 ```
 
 ---

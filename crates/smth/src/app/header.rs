@@ -17,16 +17,13 @@ use crate::app::span::push_repo_path_spans;
 use crate::app::span::push_shortcut_span;
 use crate::model::agent::AgentState;
 use crate::model::session::Repo;
-use crate::model::session::Session;
 
-/// Header bar component showing counts, repo context, and available actions.
+/// Header bar component showing counts and repo context.
 pub(super) struct Header<'r> {
     /// Lifecycle state counts across all discovered live sessions.
     agents: BTreeMap<AgentState, usize>,
-    confirm_delete: bool,
     found: usize,
     repo: Option<&'r Repo>,
-    selected: Option<&'r Session>,
     total: usize,
 }
 
@@ -34,18 +31,14 @@ impl<'r> Header<'r> {
     /// Create a header from the current picker state.
     pub(super) fn new(
         agents: BTreeMap<AgentState, usize>,
-        confirm_delete: bool,
         found: usize,
         repo: Option<&'r Repo>,
-        selected: Option<&'r Session>,
         total: usize,
     ) -> Self {
         Self {
             agents,
-            confirm_delete,
             found,
             repo,
-            selected,
             total,
         }
     }
@@ -73,32 +66,6 @@ impl<'r> Header<'r> {
             line += Span::raw(repo.revision().to_owned()).dim();
         } else {
             line += Span::raw("none").dim();
-        }
-
-        let mut prefix = " | ";
-        if self.confirm_delete {
-            line += Span::raw(prefix).dim();
-            push_shortcut_span(&mut line, "C-y");
-            line += Span::raw(" confirm").light_red().bold();
-            prefix = ", ";
-        } else if self.selected.is_some_and(|s| s.can_delete()) {
-            line += Span::raw(prefix).dim();
-            push_shortcut_span(&mut line, "C-d");
-            line += Span::raw(" delete");
-            prefix = ", ";
-        }
-
-        if self.selected.is_some_and(|s| s.is_live()) {
-            line += Span::raw(prefix).dim();
-            push_shortcut_span(&mut line, "C-x");
-            line += Span::raw(" close");
-            prefix = ", ";
-        }
-
-        if let Some(flag) = self.selected.and_then(|s| s.flag()) {
-            line += Span::raw(prefix).dim();
-            push_shortcut_span(&mut line, "C-f");
-            line += Span::raw(if flag { " unflag" } else { " flag" });
         }
 
         f.render_widget(line, area);

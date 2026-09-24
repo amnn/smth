@@ -29,10 +29,10 @@ matching sessions.
 
 ```terminal
 session: gam
-  1/4 | [C-r] repo: none | [C-x] close, [C-f] flag
+  1/4 | [C-r] repo: none
 ▌⬤ gamma                                                                       ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
-
 
 
 

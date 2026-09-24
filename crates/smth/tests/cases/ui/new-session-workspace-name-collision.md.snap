@@ -35,13 +35,13 @@ of an existing sibling workspace.
 session: zeta
   0/3 | [C-r] repo: ~/beta, [C-o] onto: trunk()
 ▌  beta/zeta~1                              ~/beta.zeta~1                                                    workspace ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) beta commit
 │ ○  wwwwwwww (no email set) ttttttttttttttttttt zeta@ hhhhhhhh
 ├─╯  (empty) (no description set)
 ◆  wwwwwwww root() hhhhhhhh
-
 ```
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session" (success)

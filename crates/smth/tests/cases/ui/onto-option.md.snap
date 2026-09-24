@@ -31,10 +31,10 @@ revision supplied on the command line rather than `trunk()`.
 
 ```terminal
 session:
-  2/2 | [C-r] repo: ~/alpha, [C-o] onto: @ | [C-x] close, [C-f] flag
+  2/2 | [C-r] repo: ~/alpha, [C-o] onto: @
 ▌⬤ runner                                                                                          ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 
 

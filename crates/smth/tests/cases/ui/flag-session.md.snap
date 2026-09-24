@@ -7,7 +7,7 @@ input_file: crates/smth/tests/cases/ui/flag-session.md
 
 Live tmux sessions can carry a persistent manual flag in `@smth.flag`. A
 flagged session should show an alert-like pip with distinct colour and offer an
-`unflag` shortcut in the header.
+`unflag` shortcut in the footer.
 
     :bins jj tmux cat
 
@@ -23,7 +23,7 @@ flagged session should show an alert-like pip with distinct colour and offer an
     :pane ui:0.0
     :settle -d 2s (settled)
 
-Filter to the pre-flagged session. The header should offer `unflag`, and the
+Filter to the pre-flagged session. The footer should offer `unflag`, and the
 linked SVG snapshot should show the pip in the flag colour rather than the alert
 colour.
 
@@ -32,10 +32,10 @@ colour.
 
 ```terminal
 session: beta
-  1/4 | [C-r] repo: none | [C-x] close, [C-f] unflag
+  1/4 | [C-r] repo: none
 ▌⬤ beta                                                                                            ┃
+ [C-x] close, [C-f] unflag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 
 
@@ -46,7 +46,7 @@ session: beta
 ![light](flag-session.md.snap.1.light.svg)
 ![dark](flag-session.md.snap.1.dark.svg)
 
-Pressing `C-f` should clear the persisted tmux option and update the header to
+Pressing `C-f` should clear the persisted tmux option and update the footer to
 offer `flag` again.
 
     :k C-f
@@ -55,10 +55,10 @@ offer `flag` again.
 
 ```terminal
 session: beta
-  1/4 | [C-r] repo: none | [C-x] close, [C-f] flag
+  1/4 | [C-r] repo: none
 ▌⬤ beta                                                                                            ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 
 
@@ -79,10 +79,10 @@ Pressing `C-f` again should set the persisted tmux option back to `1`.
 
 ```terminal
 session: beta
-  1/4 | [C-r] repo: none | [C-x] close, [C-f] unflag
+  1/4 | [C-r] repo: none
 ▌⬤ beta                                                                                            ┃
+ [C-x] close, [C-f] unflag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 
 

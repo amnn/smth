@@ -35,10 +35,10 @@ After accepting the selection, the control-mode client should switch to the sele
 
 ```terminal
 session: bet
-  1/2 | [C-r] repo: none | [C-x] close, [C-f] flag
+  1/2 | [C-r] repo: none
 ▌⬤ beta                                                                        ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
-
 
 
 

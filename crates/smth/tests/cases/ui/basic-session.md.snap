@@ -30,10 +30,10 @@ should list all discovered tmux sessions.
 
 ```terminal
 session:
-  5/5 | [C-r] repo: none | [C-x] close, [C-f] flag
+  5/5 | [C-r] repo: none
 ▌⬤ runner                                                                      ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
-
 
 
 
@@ -52,10 +52,10 @@ to the `beta` session.
 
 ```terminal
 session: bet
-  1/5 | [C-r] repo: none | [C-x] close, [C-f] flag
+  1/5 | [C-r] repo: none
 ▌⬤ beta                                                                        ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
-
 
 
 

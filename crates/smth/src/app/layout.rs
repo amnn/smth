@@ -29,8 +29,8 @@ const WIDTH_MIN_VSPLIT: u16 = 160;
 /// | sessions        |l|              |
 /// | ...             |l|              |
 /// |                 | |              |
-/// |                 | |              |
-/// |                 | |              |
+/// +-----------------+ |              |
+/// | footer          | |              |
 /// +-----------------+-+--------------+
 /// ```
 ///
@@ -46,6 +46,8 @@ const WIDTH_MIN_VSPLIT: u16 = 160;
 /// | ...                    |c|
 /// |                        |r|
 /// +------------------------+-+
+/// | footer                   |
+/// +--------------------------+
 /// | separator                |
 /// +--------------------------+
 /// | preview                  |
@@ -54,6 +56,7 @@ const WIDTH_MIN_VSPLIT: u16 = 160;
 /// +--------------------------+
 /// ```
 pub(crate) struct Layout {
+    pub(crate) footer: Rect,
     pub(crate) header: Rect,
     pub(crate) loading: Rect,
     pub(crate) preview: Option<Rect>,
@@ -64,6 +67,7 @@ pub(crate) struct Layout {
 }
 
 impl Layout {
+    /// Divide the display into a session picker with its own footer and an optional preview.
     pub(crate) fn new(area: Rect, preview: bool) -> Self {
         use ratatui::layout::Constraint as C;
         use ratatui::layout::Direction as D;
@@ -81,11 +85,11 @@ impl Layout {
 
             let rows = L::default()
                 .direction(D::Vertical)
-                .constraints([C::Length(1), C::Length(1), C::Min(0)])
+                .constraints([C::Length(1), C::Length(1), C::Min(0), C::Length(1)])
                 .split(content);
 
-            let &[prompt, header, sessions] = &rows[..] else {
-                panic!("expected three rows in the layout")
+            let &[prompt, header, sessions, footer] = &rows[..] else {
+                panic!("expected four rows in the layout")
             };
 
             let cols = L::default()
@@ -98,6 +102,7 @@ impl Layout {
             };
 
             Self {
+                footer,
                 header,
                 loading,
                 preview: None,
@@ -118,11 +123,11 @@ impl Layout {
 
             let rows = L::default()
                 .direction(D::Vertical)
-                .constraints([C::Length(1), C::Length(1), C::Min(0)])
+                .constraints([C::Length(1), C::Length(1), C::Min(0), C::Length(1)])
                 .split(content);
 
-            let &[prompt, header, sessions] = &rows[..] else {
-                panic!("expected three rows in the layout")
+            let &[prompt, header, sessions, footer] = &rows[..] else {
+                panic!("expected four rows in the layout")
             };
 
             let cols = L::default()
@@ -135,6 +140,7 @@ impl Layout {
             };
 
             Self {
+                footer,
                 header,
                 loading,
                 preview: Some(preview),
@@ -159,11 +165,11 @@ impl Layout {
 
             let rows = L::default()
                 .direction(D::Vertical)
-                .constraints([C::Length(1), C::Length(1), C::Min(0)])
+                .constraints([C::Length(1), C::Length(1), C::Min(0), C::Length(1)])
                 .split(content);
 
-            let &[prompt, header, sessions] = &rows[..] else {
-                panic!("expected three rows in the layout")
+            let &[prompt, header, sessions, footer] = &rows[..] else {
+                panic!("expected four rows in the layout")
             };
 
             let cols = L::default()
@@ -176,6 +182,7 @@ impl Layout {
             };
 
             Self {
+                footer,
                 header,
                 loading,
                 preview: Some(preview),
@@ -187,7 +194,8 @@ impl Layout {
         } else {
             let rows = L::default()
                 .direction(D::Vertical)
-                .constraints([C::Min(0), C::Length(1), C::Percentage(PERC_H_PREVIEW)])
+                // Keep a session row between the prompt, header, and footer when space permits.
+                .constraints([C::Min(4), C::Length(1), C::Percentage(PERC_H_PREVIEW)])
                 .split(area);
 
             let &[content, separator, preview] = &rows[..] else {
@@ -196,11 +204,11 @@ impl Layout {
 
             let rows = L::default()
                 .direction(D::Vertical)
-                .constraints([C::Length(1), C::Length(1), C::Min(0)])
+                .constraints([C::Length(1), C::Length(1), C::Min(0), C::Length(1)])
                 .split(content);
 
-            let &[prompt, header, sessions] = &rows[..] else {
-                panic!("expected three rows in the layout")
+            let &[prompt, header, sessions, footer] = &rows[..] else {
+                panic!("expected four rows in the layout")
             };
 
             let cols = L::default()
@@ -222,6 +230,7 @@ impl Layout {
             };
 
             Self {
+                footer,
                 header,
                 loading,
                 preview: Some(preview),

@@ -2,7 +2,7 @@
 
 Live tmux sessions can carry a persistent manual flag in `@smth.flag`. A
 flagged session should show an alert-like pip with distinct colour and offer an
-`unflag` shortcut in the header.
+`unflag` shortcut in the footer.
 
     :bins jj tmux cat
 
@@ -15,14 +15,14 @@ flagged session should show an alert-like pip with distinct colour and offer an
     :pane ui:0.0
     :settle -d 2s
 
-Filter to the pre-flagged session. The header should offer `unflag`, and the
+Filter to the pre-flagged session. The footer should offer `unflag`, and the
 linked SVG snapshot should show the pip in the flag colour rather than the alert
 colour.
 
     :k beta
     :snap --color
 
-Pressing `C-f` should clear the persisted tmux option and update the header to
+Pressing `C-f` should clear the persisted tmux option and update the footer to
 offer `flag` again.
 
     :k C-f

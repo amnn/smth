@@ -34,11 +34,11 @@ whose derived destination already exists.
 session: zeta
   0/3 | [C-r] repo: ~/beta, [C-o] onto: trunk()
 ▌  beta/zeta~1                              ~/beta.zeta~1                                                    workspace ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) beta commit
 ◆  wwwwwwww root() hhhhhhhh
-
 
 
 ```

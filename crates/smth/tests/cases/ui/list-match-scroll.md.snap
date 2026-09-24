@@ -37,7 +37,7 @@ prefix.
 
 ```terminal
 session: z                                                                     ┃
-  1/3 | [C-r] repo: none | [C-x] close, [C-f] flag                             ┃
+  1/3 | [C-r] repo: none                                                       ┃
    z                                        ~/z                           repo ┃
    z                                                                      tmux ┃
 ▌⬤ alifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z   ┃
@@ -45,7 +45,7 @@ session: z                                                                     �
                                                                                ┃
                                                                                ┃
                                                                                ┃
-                                                                               ┃
+ [C-x] close, [C-f] flag                                                       ┃
 ```
 
 ![light](list-match-scroll.md.snap.1.light.svg)

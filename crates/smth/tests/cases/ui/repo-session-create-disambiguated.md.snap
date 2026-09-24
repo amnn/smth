@@ -35,11 +35,11 @@ session with the same name.
 session: beta
   2/4 | [C-r] repo: none
 ▌  beta~1                                   ~/beta                                                                     ┃
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) beta commit
 ◆  wwwwwwww root() hhhhhhhh
-
 
 
 ```

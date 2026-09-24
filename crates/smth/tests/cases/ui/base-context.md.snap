@@ -33,10 +33,10 @@ revision.
 
 ```terminal
 session:
-  2/2 | [C-r] repo: ~/alpha, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  2/2 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌⬤ runner                                                                                          ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 
 
@@ -59,10 +59,10 @@ started inside a repository.
 
 ```terminal
 session:
-  2/2 | [C-r] repo: none | [C-x] close, [C-f] flag
+  2/2 | [C-r] repo: none
 ▌⬤ runner                                                                                          ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 
 
@@ -106,10 +106,10 @@ named checkout as its base, matching current-directory inference.
 
 ```terminal
 session:
-  2/2 | [C-r] repo: ~/alpha.feature, [C-o] onto: trunk() | [C-x] close, [C-f] flag
+  2/2 | [C-r] repo: ~/alpha.feature, [C-o] onto: trunk()
 ▌⬤ runner                                                                                          ┃
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
-
 
 
 

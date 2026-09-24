@@ -55,12 +55,12 @@ order. The second row, `gamma`, should be selected initially.
 
 ```terminal
 session:
-  4/4 | [C-r] repo: none | [C-x] close, [C-f] flag
+  4/4 | [C-r] repo: none
                                                                                ┃
                                                                                ┃
  ⬤ runner                                                                      ┃
-▌⬤ gamma                                                                       ┃
- ⬤ beta                                                                        │
+▌⬤ gamma                                                                       │
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
 
 
@@ -85,12 +85,12 @@ new-session candidate remains unselected.
 
 ```terminal
 session: a
-  3/4 | [C-r] repo: none | [C-x] close, [C-f] flag
+  3/4 | [C-r] repo: none
    a                                        ~/a                           repo ┃
    a                                                                      tmux ┃
 ▌⬤ alpha                                                                       ┃
- ⬤ beta                                                                        ┃
- ⬤ gamma                                                                       ┃
+ ⬤ beta                                                                        │
+ [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
 
 

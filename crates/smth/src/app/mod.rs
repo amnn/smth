@@ -5,6 +5,7 @@
 
 mod agent;
 mod component;
+mod footer;
 mod header;
 mod highlight;
 mod layout;
@@ -33,6 +34,7 @@ use crate::app::component::block::Block;
 use crate::app::component::prompt;
 use crate::app::component::spinner;
 use crate::app::component::spinner::Spinner;
+use crate::app::footer::Footer;
 use crate::app::header::Header;
 use crate::app::sessions::NEW_SESSION_ROWS;
 use crate::app::sessions::Sessions;
@@ -284,16 +286,16 @@ impl App {
 
         let header = Header::new(
             agent_summary,
-            self.sessions.is_deleting(),
             items.len(),
             self.repo.as_ref(),
-            self.sessions.selected(),
             snapshot.item_count() as usize,
         );
 
-        // (3) Render the header, which depends on the currently selected session (so must happen
-        // after session list rendering).
+        let footer = Footer::new(self.sessions.is_deleting(), self.sessions.selected());
+
+        // (3) Render context and actions after the session list updates the selected session.
         header.draw(f, l.header);
+        footer.draw(f, l.footer);
 
         // (3.a) Render delayed activity progress over the left side of the header row.
         if let Some(activity) = &mut self.bg {
