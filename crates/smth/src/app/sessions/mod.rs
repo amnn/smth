@@ -20,6 +20,7 @@ use unicode_width::UnicodeWidthStr as _;
 use crate::app::component::list::List;
 use crate::app::component::row::Row;
 use crate::app::component::scrollbar;
+use crate::model::delete;
 use crate::model::session::Session;
 
 /// Minimum rows reserved for prospective sessions, with unused rows padded above the candidates.
@@ -31,12 +32,12 @@ pub(super) struct Sessions<'s> {
     new: &'s [Session],
     rest: &'s [Item<'s, Session>],
     pattern: &'s Pattern,
+    delete: Option<&'s delete::Model>,
 }
 
 /// Persistent selection and scroll state for the session list.
 #[derive(Default)]
 pub(super) struct State {
-    deleting: bool,
     list: ListState,
     selected: Option<Session>,
 }
@@ -50,12 +51,14 @@ impl<'s> Sessions<'s> {
         new: &'s [Session],
         rest: &'s [Item<'s, Session>],
         pattern: &'s Pattern,
+        delete: Option<&'s delete::Model>,
     ) -> Self {
         Self {
             sigil,
             new,
             rest,
             pattern,
+            delete,
         }
     }
 
@@ -119,7 +122,8 @@ impl<'s> Sessions<'s> {
             indices.dedup();
 
             let highlighted = selected == Some(i);
-            let row = session::row(self.sigil, item.data, highlighted, state.deleting, &indices);
+            let deleting = self.delete.is_some_and(|delete| delete.contains(item.data));
+            let row = session::row(self.sigil, item.data, highlighted, deleting, &indices);
 
             let margin = indices.last().copied().map(|off| right_margin(text, off));
             rows.push(row.with_right_margin(margin));
@@ -155,11 +159,6 @@ impl State {
         self.selected.as_ref().and_then(Session::flag).is_some()
     }
 
-    /// Whether the selected session is marked for deletion.
-    pub(super) fn is_deleting(&self) -> bool {
-        self.deleting
-    }
-
     /// Whether the currently selected session is live.
     pub(super) fn is_live(&self) -> bool {
         self.selected.as_ref().is_some_and(Session::is_live)
@@ -168,11 +167,6 @@ impl State {
     /// The session to preview, if one is currently selected.
     pub(super) fn preview(&self) -> Option<&Session> {
         self.selected.as_ref()
-    }
-
-    /// Cancel any pending deletion.
-    pub(super) fn reset_delete(&mut self) {
-        self.deleting = false;
     }
 
     /// Clear the selection so the next render selects the default row.
@@ -205,11 +199,6 @@ impl State {
     /// A reference to the currently selected session, if there is one.
     pub(super) fn selected(&self) -> Option<&Session> {
         self.selected.as_ref()
-    }
-
-    /// Mark the selected session for deletion.
-    pub(super) fn start_delete(&mut self) {
-        self.deleting = true;
     }
 
     /// Take the selected session.

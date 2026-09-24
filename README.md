@@ -105,7 +105,7 @@ all picker key bindings:
 
 | Key | Action |
 | --- | --- |
-| `C-d` | Delete the repository and close the session. |
+| `C-d` | Toggle the workspace's persisted pending-deletion marker. |
 | `C-f` | Flag or unflag a live session. |
 | `C-n` | Create the session if necessary without switching to it. |
 | `C-o` | Open or cancel the onto revision picker. |
@@ -113,13 +113,13 @@ all picker key bindings:
 | `C-r`, `M-r` | Set or reset the current repo. |
 | `C-u` | Clear the filter. |
 | `C-x` | Close a live session. |
-| `C-y` | Confirm a pending deletion. |
+| `C-y` | Delete all staged workspaces, including hidden ones, and close their sessions. |
 | `up`, `down`, `C-k`, `C-j` | Move selection by one row. |
 | `M-up`, `M-down`, `M-k`, `M-j` | Move selection to the first or last row. |
 | `S-up`, `S-down` | Scroll the preview pane up or down. |
 | `tab`, `S-tab` | Jump between fuzzy matches in onto mode. |
 | `enter` | Accept the onto revision, or switch to the session, creating it if necessary. |
-| `esc`, `C-g`, `C-c` | Cancel onto mode, or close the UI. |
+| `esc`, `C-g`, `C-c` | Cancel onto mode, clear staged deletions, or close the UI. |
 
 ## Troubleshooting
 

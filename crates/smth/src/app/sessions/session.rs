@@ -55,8 +55,13 @@ pub(super) fn row(
         row
     };
 
-    if highlighted && deleting {
-        return row.with_sigil(Span::raw(SIGIL_DELETE).on_light_red());
+    if deleting {
+        let sigil = Span::raw(SIGIL_DELETE);
+        return row.with_sigil(if highlighted {
+            sigil.on_light_red()
+        } else {
+            sigil.light_red()
+        });
     }
 
     let Some(flagged) = session.flag() else {
@@ -90,6 +95,8 @@ fn push_session_name_spans<'a, F: Fn(Style) -> Style>(
 
     let name_style = if deleting && highlighted {
         Style::new().on_light_red().bold()
+    } else if deleting {
+        Style::new().light_red().bold()
     } else {
         Style::new()
     };

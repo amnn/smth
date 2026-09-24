@@ -1,0 +1,206 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/delete-persisted-workspace.md
+---
+# Pending deletion belongs to the checkout
+
+Two live sessions sharing a checkout share one persisted deletion selection.
+
+    :bins jj tmux cat sh test sleep
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'sh', 'test', and 'sleep' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+
+    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
+
+    :t new-session -d -s alpha/first (success)
+    :t new-session -d -s alpha/alias (success)
+    :$ sh -c 'cd alpha.feature && tmux set-option -t alpha/first @smth.repo "$(pwd -P)" && tmux set-option -t alpha/alias @smth.repo "$(pwd -P)"' (exit: 0)
+    :t new-session -d -s ui "smth -r 'alpha*'; cat" (success)
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+    :k C-p first
+    :settle -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' (settled)
+
+    :k C-d
+    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
+
+    :snap
+
+```terminal
+session: first                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   first                                    ~/first                                                               repo ┃
+   first                                                                                                          tmux ┃
+▌× alpha/first                              ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 2 sessions (1 hidden), [C-d] unstage, [C-x] close, [C-f] flag                                            ┃
+```
+
+    :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+Both rows are staged, and the footer counts two sessions, with no hidden target.
+
+    :k C-u
+    :settle -d 2s -e '5/5' (settled)
+
+    :snap
+
+```terminal
+session:                                                                                                               ┃
+  5/5 | [C-r] repo: none                                                                                               ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌⬤ ui                                                                                                                  ┃
+ ⬤ runner                                                                                                              ┃
+ × alpha/first                              ~/alpha.feature                                                            ┃
+ × alpha/alias                              ~/alpha.feature                                                            ┃
+   alpha                                    ~/alpha                                                                    ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 2 sessions, [C-x] close, [C-f] flag                                                                      ┃
+```
+
+Kill and restart the picker without cancelling its selection. Discovery restores
+the staged state from the checkout, even when filtering to its other session.
+
+    :t switch-client -t runner (success)
+
+    :t kill-session -t ui (success)
+    :t new-session -d -s ui "smth -r 'alpha*' --query alias; cat" (success)
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+    :k C-p
+    :settle -d 2s -e alpha/alias -e '2 sessions' -e '1 hidden' -e 'C-d. unstage' (settled)
+
+    :snap
+
+```terminal
+session: alias                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+▌× alpha/alias                              ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 2 sessions (1 hidden), [C-d] unstage, [C-x] close, [C-f] flag                                            ┃
+```
+
+Toggling through the alias removes the same marker. Cancellation removes it too.
+
+    :k C-d
+    :settle -d 2s -e alpha/alias -e 'C-d. delete' (settled)
+
+    :snap
+
+```terminal
+session: alias                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+▌⬤ alpha/alias                              ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] delete, [C-x] close, [C-f] flag                                                                                 ┃
+```
+
+    :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+    :k C-d
+    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
+
+    :k esc
+    :settle -d 2s -e alpha/alias -e 'C-d. delete' (settled)
+
+    :snap
+
+```terminal
+session: alias                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+▌⬤ alpha/alias                              ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] delete, [C-x] close, [C-f] flag                                                                                 ┃
+```
+
+    :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+Confirming deletes the checkout once and closes both live sessions.
+
+    :k C-d
+    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
+
+    :k C-y
+    :$ sh -c 'i=0; while test -d alpha.feature || tmux has-session -t alpha/first 2>/dev/null || tmux has-session -t alpha/alias 2>/dev/null; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done' (exit: 0)
+
+    :settle -d 2s -e '0/3' (settled)
+
+    :k C-u
+    :settle -d 2s -e '3/3' (settled)
+
+    :snap
+
+```terminal
+session:                                                                                                               ┃
+  3/3 | [C-r] repo: none                                                                                               ┃
+                                                                                                                       ┃
+▌⬤ ui                                                                                                                  ┃
+ ⬤ runner                                                                                                              ┃
+   alpha                                    ~/alpha                                                                    ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-x] close, [C-f] flag                                                                                               ┃
+```
+
+    :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"' (exit: 0)
+
+```stdout
+default
+```
+
+    :t has-session -t alpha/first (failure)
+
+```
+can't find session: alpha/first
+```
+
+    :t has-session -t alpha/alias (failure)
+
+```
+can't find session: alpha/alias
+```
+
+    :t has-session -t ui (success)
+
+---
+vim: set ft=markdown:

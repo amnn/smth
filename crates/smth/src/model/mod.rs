@@ -4,12 +4,15 @@
 //! Application model for discovered sessions and derived session candidates.
 
 pub(crate) mod agent;
+pub(crate) mod delete;
 pub(crate) mod picker;
 pub(crate) mod serialize;
 pub(crate) mod session;
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::future::Future;
+use std::io::ErrorKind;
 use std::path::Component;
 use std::path::Path;
 use std::path::PathBuf;
@@ -17,6 +20,7 @@ use std::path::PathBuf;
 use anyhow::Context as _;
 use anyhow::bail;
 use anyhow::ensure;
+use futures::future::join_all;
 use futures::stream::FuturesUnordered;
 use futures::stream::StreamExt as _;
 use nucleo::Snapshot;
@@ -48,6 +52,9 @@ pub struct Model {
 
     /// The sessions to fuzzy find over.
     sessions: Vec<Session>,
+
+    /// Checkout deletions selected by discovery or explicit override, with affected session counts.
+    deleting: Option<delete::Model>,
 
     /// Index of the unattached session that was most recently attached to.
     recently_attached: Option<usize>,
@@ -91,6 +98,7 @@ impl Model {
         let mut model = Self {
             picker: Picker::new(query),
             sessions: Vec::new(),
+            deleting: None,
             recently_attached: None,
             seen_tmux_names: BTreeSet::new(),
             seen_workspaces: BTreeMap::new(),
@@ -99,6 +107,103 @@ impl Model {
 
         model.discover(globs, current).await?;
         Ok(model)
+    }
+
+    /// Delete selected checkouts concurrently, then concurrently close each checkout's discovered
+    /// live sessions after its removal.
+    ///
+    /// All paths must resolve to discovered named workspaces before deletion starts. Override the
+    /// discovered selection with `set_deletions` to delete only explicitly requested paths.
+    ///
+    /// This is deliberately not an `async fn`: it prepares owned targets synchronously, then
+    /// returns an `async move` future. The `use<>` bound excludes the `&self` lifetime from the
+    /// future's captures, so the app can retain the task in the background while continuing to
+    /// access and refresh the model. An `async fn` taking `&self` would retain that borrow for
+    /// the lifetime of its future, even if its body only used `self` to prepare owned targets.
+    ///
+    /// Failures are aggregated across checkouts and session closures. An error can leave a
+    /// workspace forgotten, its checkout removed, or only some associated sessions closed.
+    pub fn delete(&self) -> impl Future<Output = anyhow::Result<()>> + Send + use<> {
+        let targets: anyhow::Result<BTreeMap<_, _>> = self
+            .deleting
+            .iter()
+            .flat_map(|delete| delete.paths())
+            .map(|path| {
+                let workspace = self.workspace_name(path).with_context(|| {
+                    format!("'{}' is not a discovered named workspace", path.display())
+                })?;
+                Ok((path.clone(), (workspace.to_owned(), Vec::new())))
+            })
+            .collect();
+
+        let targets = targets.map(|mut targets| {
+            for session in &self.sessions {
+                if session.is_live()
+                    && let Some(path) = session.repo()
+                    && let Some((_, names)) = targets.get_mut(&path)
+                {
+                    names.push(session.name());
+                }
+            }
+            targets
+        });
+
+        async move {
+            let targets = targets?;
+            let results = join_all(targets.iter().map(|(path, (workspace, names))| async move {
+                // Dissociate the workspace from `jj`'s perspective.
+                jj::forget_workspace(path, workspace).await?;
+
+                // Clean up its files
+                match tokio::fs::remove_dir_all(path).await {
+                    Ok(()) => {}
+                    Err(err) if err.kind() == ErrorKind::NotFound => {}
+                    Err(err) => {
+                        return Err(err).with_context(|| {
+                            format!("failed to remove repository '{}'", path.display())
+                        });
+                    }
+                }
+
+                // Kill the sessions that were associated with this workspace.
+                let failures: Vec<_> = join_all(names.iter().map(|name| tmux::kill_session(name)))
+                    .await
+                    .into_iter()
+                    .zip(names)
+                    .filter_map(|(result, name)| result.err().map(|err| format!("{name}: {err:#}")))
+                    .collect();
+
+                ensure!(
+                    failures.is_empty(),
+                    "failed to close {} of {} sessions:\n{}",
+                    failures.len(),
+                    names.len(),
+                    failures.join("\n")
+                );
+
+                Ok(())
+            }))
+            .await;
+
+            let failures: Vec<_> = results
+                .into_iter()
+                .zip(targets.keys())
+                .filter_map(|(result, path)| {
+                    result
+                        .err()
+                        .map(|err| format!("{}: {err:#}", path.display()))
+                })
+                .collect();
+
+            ensure!(
+                failures.is_empty(),
+                "failed to delete {} of {} workspaces:\n{}",
+                failures.len(),
+                targets.len(),
+                failures.join("\n")
+            );
+            Ok(())
+        }
     }
 
     /// Return all matched sessions after the matcher has finished processing pending updates.
@@ -174,6 +279,14 @@ impl Model {
         Ok(self.new_session(name, Base::Repo(repo)))
     }
 
+    /// Replace the discovered deletion selection without changing any persisted markers.
+    ///
+    /// This replaces rather than extends pending paths. `delete` validates the selected paths
+    /// against discovered workspace metadata before performing any deletion.
+    pub fn set_deletions(&mut self, paths: BTreeSet<PathBuf>) {
+        self.deleting = delete::Model::new(paths, &self.sessions);
+    }
+
     /// Return lifecycle state counts for agents across all discovered sessions.
     pub(crate) fn agent_summary(&self) -> BTreeMap<AgentState, usize> {
         let mut summary = BTreeMap::new();
@@ -197,6 +310,7 @@ impl Model {
         current: Option<&Path>,
     ) -> anyhow::Result<()> {
         self.sessions.clear();
+        self.deleting = None;
         self.recently_attached = None;
         self.seen_tmux_names.clear();
         self.seen_workspaces.clear();
@@ -291,10 +405,23 @@ impl Model {
                 .insert(name.to_owned());
         }
 
+        let pending_deletions = join_all(self.sessions.iter().map(Session::repo_pending_deletion))
+            .await
+            .into_iter()
+            .flatten()
+            .map(Path::to_owned)
+            .collect();
+
+        self.deleting = delete::Model::new(pending_deletions, &self.sessions);
         self.picker.reset();
         self.picker.inject(self.sessions.clone());
 
         Ok(())
+    }
+
+    /// The current deletion selection, if any.
+    pub(crate) fn deleting(&self) -> Option<&delete::Model> {
+        self.deleting.as_ref()
     }
 
     /// Index of the unattached live session that was most recently attached to.
@@ -316,9 +443,10 @@ impl Model {
         started
     }
 
-    /// Refresh fuzzy matches and return the currently visible rows.
-    pub(crate) fn refresh(&mut self) -> (Status, &Snapshot<Session>, &str) {
-        self.picker.refresh()
+    /// Refresh fuzzy matches and borrow the picker and deletion data for one render pass.
+    pub(crate) fn refresh(&mut self) -> (Status, &Snapshot<Session>, &str, Option<&delete::Model>) {
+        let (status, snapshot, query) = self.picker.refresh();
+        (status, snapshot, query, self.deleting.as_ref())
     }
 
     /// Construct a repository context, normalizing it to an existing default workspace when known.
@@ -332,6 +460,16 @@ impl Model {
             .unwrap_or(path);
 
         Repo::new(path)
+    }
+
+    /// Clear all cached pending-deletion markers, completing every removal concurrently.
+    pub(crate) async fn reset_delete(&self) -> anyhow::Result<()> {
+        let Some(delete) = &self.deleting else {
+            return Ok(());
+        };
+
+        let results = join_all(delete.paths().iter().map(|path| set_deleting(path, false))).await;
+        results.into_iter().collect()
     }
 
     /// Return the discovered sessions.
@@ -367,6 +505,14 @@ impl Model {
         }
 
         sessions
+    }
+
+    /// Toggle a checkout's marker using its pending state from the last discovery.
+    pub(crate) async fn toggle_delete(&self, path: &Path) -> anyhow::Result<()> {
+        let deleting = self
+            .deleting()
+            .is_some_and(|delete| delete.paths().contains(path));
+        set_deleting(path, !deleting).await
     }
 
     /// Return the exact jj workspace name for `repo`, if it is a named workspace.
@@ -507,6 +653,29 @@ fn existing_default(workspace: &Workspace) -> Option<&Path> {
     workspace.default.as_deref().filter(|root| root.exists())
 }
 
+/// Persist whether a checkout is staged for deletion.
+async fn set_deleting(repo: &Path, deleting: bool) -> anyhow::Result<()> {
+    let marker = repo.join(".jj").join(delete::MARKER);
+    if deleting {
+        tokio::fs::File::create(&marker).await.with_context(|| {
+            format!(
+                "failed to stage workspace '{}' for deletion",
+                repo.display()
+            )
+        })?;
+    } else {
+        match tokio::fs::remove_file(&marker).await {
+            Ok(()) => {}
+            Err(err) if err.kind() == ErrorKind::NotFound => {}
+            Err(err) => {
+                return Err(err)
+                    .with_context(|| format!("failed to unstage workspace '{}'", repo.display()));
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Discover workspace metadata for every workspace associated with each repository.
 async fn workspaces<'a>(
     repos: impl IntoIterator<Item = &'a Path>,
@@ -553,6 +722,58 @@ mod tests {
         assert!(model.picker.query().is_empty());
         assert!(model.matches().is_empty());
         assert!(model.sessions_for_query(None, Path::new(".")).is_empty());
+    }
+
+    /// Explicit paths must resolve to named workspace metadata before any deletion is attempted.
+    #[tokio::test]
+    async fn delete_rejects_unknown_and_default_checkouts() {
+        let temp = tempdir().unwrap();
+        let default = temp.path().join("repo");
+        fs::create_dir(&default).unwrap();
+        let mut model = Model {
+            workspaces: BTreeMap::from([(
+                default.clone(),
+                Some(Workspace {
+                    name: None,
+                    default: None,
+                }),
+            )]),
+            ..Model::default()
+        };
+
+        for path in [temp.path().join("unknown"), default.clone()] {
+            model.set_deletions(BTreeSet::from([path.clone()]));
+            let error = model.delete().await.unwrap_err();
+            assert_eq!(
+                error.to_string(),
+                format!("'{}' is not a discovered named workspace", path.display())
+            );
+        }
+        assert!(default.is_dir());
+    }
+
+    /// Repeated toggles before rediscovery must use the cached pre-state, not the marker on disk.
+    #[tokio::test]
+    async fn deletion_toggle_uses_discovered_state() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().to_owned();
+        fs::create_dir(path.join(".jj")).unwrap();
+        let marker = path.join(".jj").join(delete::MARKER);
+        let mut model = Model::default();
+
+        model.toggle_delete(&path).await.unwrap();
+        assert!(marker.exists());
+        model.toggle_delete(&path).await.unwrap();
+        assert!(marker.exists(), "toggle must not reread the marker");
+
+        model.deleting = delete::Model::new(BTreeSet::from([path.clone()]), &[]);
+        model.toggle_delete(&path).await.unwrap();
+        assert!(!marker.exists());
+        model.toggle_delete(&path).await.unwrap();
+        assert!(
+            !marker.exists(),
+            "toggle must not recreate a removed marker"
+        );
     }
 
     fn model_with_workspace(workspace: &Path, default: PathBuf) -> Model {
@@ -820,6 +1041,55 @@ mod tests {
         assert_eq!(model.repo_context(workspace).path(), default);
     }
 
+    /// A failed removal must not cancel removal of other cached markers.
+    #[tokio::test]
+    async fn reset_delete_completes_other_removals_after_failure() {
+        let temp = tempdir().unwrap();
+        let first = temp.path().join("first");
+        let second = temp.path().join("second");
+
+        // Attempting to delete `first` will fail because its marker is a directory, but `second`
+        // should still be removed.
+        fs::create_dir_all(first.join(".jj").join(delete::MARKER)).unwrap();
+        fs::create_dir_all(second.join(".jj")).unwrap();
+        fs::write(second.join(".jj").join(delete::MARKER), "").unwrap();
+
+        let model = Model {
+            deleting: delete::Model::new(BTreeSet::from([first, second.clone()]), &[]),
+            ..Model::default()
+        };
+
+        assert!(model.reset_delete().await.is_err());
+        assert!(!second.join(".jj").join(delete::MARKER).exists());
+    }
+
+    /// Reset uses only the path cache, tolerates missing markers, and leaves other markers alone.
+    #[tokio::test]
+    async fn reset_delete_uses_cached_paths_without_session_rows() {
+        let temp = tempdir().unwrap();
+        let first = temp.path().join("first");
+        let second = temp.path().join("second");
+        let unstaged = temp.path().join("unstaged");
+
+        for path in [&first, &second, &unstaged] {
+            fs::create_dir_all(path.join(".jj")).unwrap();
+            fs::write(path.join(".jj").join(delete::MARKER), "").unwrap();
+        }
+
+        let model = Model {
+            deleting: delete::Model::new(
+                BTreeSet::from([first.clone(), second.clone(), temp.path().join("missing")]),
+                &[],
+            ),
+            ..Model::default()
+        };
+
+        model.reset_delete().await.unwrap();
+        assert!(!first.join(".jj").join(delete::MARKER).exists());
+        assert!(!second.join(".jj").join(delete::MARKER).exists());
+        assert!(unstaged.join(".jj").join(delete::MARKER).exists());
+    }
+
     #[test]
     fn session_finds_non_live_workspace() {
         let temp = tempdir().unwrap();
@@ -860,5 +1130,33 @@ mod tests {
 
         let session = model.session(None, Some("scratch")).unwrap();
         assert!(session.repo().is_none());
+    }
+
+    /// Overriding the discovered selection replaces paths and counts without touching markers.
+    #[test]
+    fn set_deletions_replaces_selection_without_persisting() {
+        let temp = tempdir().unwrap();
+        let pending = temp.path().join("repo.pending");
+        let requested = temp.path().join("repo.requested");
+
+        fs::create_dir_all(pending.join(".jj")).unwrap();
+        fs::create_dir_all(requested.join(".jj")).unwrap();
+
+        let marker = pending.join(".jj").join(delete::MARKER);
+        fs::write(&marker, "").unwrap();
+
+        let mut model = model_with_workspace(&requested, temp.path().join("repo"));
+        model.deleting = delete::Model::new(BTreeSet::from([pending]), &model.sessions);
+        model.set_deletions(BTreeSet::from([requested.clone()]));
+
+        let delete = model.deleting().unwrap();
+        assert_eq!(delete.paths(), &BTreeSet::from([requested.clone()]));
+        assert_eq!(delete.pending(), 1);
+        assert!(marker.exists());
+        assert!(!requested.join(".jj").join(delete::MARKER).exists());
+
+        model.set_deletions(BTreeSet::new());
+        assert!(model.deleting().is_none());
+        assert!(marker.exists());
     }
 }
