@@ -1,7 +1,7 @@
 # Long-running operation spinner
 
 Creating a session in the background should keep the picker responsive and show
-delayed, animated, operation-specific progress in the header until it finishes.
+delayed, operation-specific progress over the last session-list row until it finishes.
 
     :bins jj tmux cat sleep
 
@@ -33,18 +33,46 @@ blocking point.
     :$ sleep 0.6
 
 The query should be cleared when creation is dispatched. Once the display delay
-has elapsed, the header's left side should be overdrawn with a spinner and dark
-green, animated `creating...` label, while the remaining repo context stays
-visible. Each dot frame should overwrite only its visible dots and one trailing
-padding cell. Normalize both animations for the snapshot.
+has elapsed, the last session-list row should show a right-aligned green
+`creating` label and trailing spinner. The header and footer remain untouched.
+Normalize the spinner for the snapshot.
 
-    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" "/creating(.{4})/."
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+
+On a narrow terminal, progress stays above the shortcuts. One blank column
+separates the trailing spinner from the right edge of the session list.
+
+    :t resize-window -t ui:0 -x 30 -y 14
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+
+With only one session-list row, progress overwrites the row rather than reserving
+space for itself. Colour coverage verifies the overlay clears underlying styles.
+
+    :t resize-window -t ui:0 -x 30 -y 4
+    :$ sleep 0.6
+    :snap --color -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+
+The label truncates before losing the spinner or its trailing blank column.
+When only two session-list columns remain, show just the spinner and padding.
+With only one column, leave the underlying row untouched.
+
+    :t resize-window -t ui:0 -x 8 -y 4
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+
+    :t resize-window -t ui:0 -x 3 -y 4
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+
+    :t resize-window -t ui:0 -x 2 -y 4
+    :snap -d 2s
+
+    :t resize-window -t ui:0 -x 120 -y 14
+    :$ sleep 0.6
 
 Query editing and navigation should remain available, while another create
 request should be ignored until the active operation completes.
 
     :k omega C-n
-    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" "/creating(.{4})/."
+    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
 Release the setup script and synchronize on its completion before inspecting the
 picker again.

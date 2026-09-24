@@ -76,7 +76,7 @@ impl State {
     }
 
     /// Update the active period and return whether its display delay has elapsed.
-    fn show(&mut self, enabled: bool, now: Instant) -> bool {
+    pub(crate) fn show(&mut self, enabled: bool, now: Instant) -> bool {
         if !enabled {
             self.started_at = None;
             return false;

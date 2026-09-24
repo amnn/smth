@@ -290,6 +290,9 @@ impl App {
         // (2) Render session list. This also updates `self.sessions`, so that the selected index
         // and session are up-to-date and valid.
         sessions.draw(f, l.sessions, l.scroll, &mut self.sessions);
+        if let Some(state) = &mut self.bg {
+            f.render_stateful_widget(activity::Activity::new(), l.sessions, state);
+        }
 
         // (2.a) Ensure the currently selected session is fed into the preview cache. Most sessions
         // have already been fed to preview during discovery and this will do nothing, but if the
@@ -309,12 +312,6 @@ impl App {
         // (3) Render context and actions after the session list updates the selected session.
         header.draw(f, l.header);
         footer.draw(f, l.footer);
-
-        // (3.a) Render delayed activity progress over the left side of the header row.
-        if let Some(activity) = &mut self.bg {
-            let area = l.loading.union(l.header);
-            f.render_stateful_widget(activity::Activity::new(), area, activity);
-        }
 
         let Some(l_preview) = l.preview else {
             return;
