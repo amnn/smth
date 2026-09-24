@@ -1,0 +1,117 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/cli/delete-discovered-sessions.md
+---
+# Delete uses discovered sessions and closes aliases concurrently
+
+Deletion must use the live sessions discovered by the model, without listing
+sessions again. All matching session closures run concurrently and are awaited
+even when one fails.
+
+    :bins jj tmux cat sh test chmod sed
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'sh', 'test', 'chmod', and 'sed' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
+
+    :t new-session -d -s first -c alpha.feature "cat" (success)
+    :t set-option -F -t '=first:' @smth.repo '#{pane_start_path}' (success)
+    :t new-session -d -s second -c alpha.feature "cat" (success)
+    :t set-option -F -t '=second:' @smth.repo '#{pane_start_path}' (success)
+
+Log session discovery and hold each kill request behind its own barrier. The
+first kill fails; the second should still complete.
+
+    :w wrappers/tmux (written)
+```sh
+#!/bin/sh
+case "$1" in
+    list-sessions)
+        echo discovery >> "$HOME/discoveries"
+        ;;
+    kill-session)
+        name=${3#=}
+        printf '' > "$HOME/$name-ready"
+        "$HOME/../bin/tmux" wait-for "$name-release"
+        if test "$name" = first; then
+            printf '' > "$HOME/first-failed"
+            printf 'injected kill failure' >&2
+            exit 1
+        fi
+        ;;
+esac
+exec "$HOME/../bin/tmux" "$@"
+```
+
+Create another alias during workspace removal, after discovery has finished.
+It must not become a deletion target merely because it shares the checkout.
+
+    :w wrappers/jj (written)
+```sh
+#!/bin/sh
+if test "$1 $2" = 'workspace forget'; then
+    "$HOME/../bin/tmux" new-session -d -s late -c "$HOME/alpha.feature" cat
+    "$HOME/../bin/tmux" set-option -F -t '=late:' @smth.repo '#{pane_start_path}'
+fi
+exec "$HOME/../bin/jj" "$@"
+```
+
+    :$ chmod +x wrappers/tmux wrappers/jj (exit: 0)
+    :t new-session -d -s worker 'PATH="$HOME/wrappers:$PATH" smth --base alpha --delete feature 2>errors; echo $? > finished; cat' (success)
+
+Both kill requests must arrive before either is released. The checkout must
+already be removed, but the deletion command must still be running.
+
+    :$ sh -c 'until test -f first-ready && test -f second-ready; do :; done' (exit: 0)
+    :$ test ! -e alpha.feature (exit: 0)
+    :$ test ! -f finished (exit: 0)
+
+    :t wait-for -S first-release (success)
+    :$ sh -c 'until test -f first-failed; do :; done' (exit: 0)
+    :$ test ! -f finished (exit: 0)
+    :t wait-for -S second-release (success)
+    :$ sh -c 'until test -f finished; do :; done' (exit: 0)
+
+The first session remains after its injected failure, while the second closes.
+The late alias stays alive because it was not part of discovery.
+
+    :t has-session -t '=first' (success)
+    :t has-session -t '=second' (failure)
+
+```
+can't find session: second
+```
+
+    :t has-session -t '=late' (success)
+
+    :$ cat discoveries (exit: 0)
+
+```stdout
+discovery
+```
+
+    :$ cat finished (exit: 0)
+
+```stdout
+1
+```
+
+Report the failed session only after all kill requests finish. Normalize the
+temporary home path in the diagnostic.
+
+    :$ sh -c 'sed "s|$(pwd -P)/|~/|g" errors' (exit: 0)
+
+```stdout
+error: failed to delete 1 of 1 workspaces:
+~/alpha.feature: failed to close 1 of 2 sessions:
+first: error running 'tmux kill-session': injected kill failure
+```
+
+---
+vim: set ft=markdown:

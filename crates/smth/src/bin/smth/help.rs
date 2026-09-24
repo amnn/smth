@@ -281,7 +281,10 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     w.header(|w| write!(w, "Key bindings:"))?;
 
     writeln!(w)?;
-    w.def("C-d", "Delete the repository and close the session.")?;
+    w.def(
+        "C-d",
+        "Toggle the workspace's persisted pending-deletion marker.",
+    )?;
     w.def("C-f", "Flag or unflag a live session.")?;
     w.def("C-n", "Create the session without switching to it.")?;
     w.def("C-o", "Open or cancel the onto revision picker.")?;
@@ -289,7 +292,10 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
     w.def("C-r, M-r", "Set or reset the current repo.")?;
     w.def("C-u", "Clear the filter.")?;
     w.def("C-x", "Close a live session.")?;
-    w.def("C-y", "Confirm a pending deletion.")?;
+    w.def(
+        "C-y",
+        "Delete all staged workspaces, including hidden ones, and close their sessions.",
+    )?;
     w.def("up, down", "Move selection by one row.")?;
     w.def("C-k, C-j", "Move selection by one row.")?;
     w.def("M-up, M-down", "Move selection to the first or last row.")?;
@@ -300,7 +306,10 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "enter",
         "Accept the onto revision, or switch to the session, creating it if necessary.",
     )?;
-    w.def("esc, C-g, C-c", "Cancel onto mode, or close the UI.")?;
+    w.def(
+        "esc, C-g, C-c",
+        "Cancel onto mode, clear staged deletions, or close the UI.",
+    )?;
 
     Ok(())
 }

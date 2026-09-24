@@ -5,6 +5,7 @@
 
 mod agent;
 mod component;
+mod delete;
 mod footer;
 mod header;
 mod highlight;
@@ -84,8 +85,8 @@ enum Action {
     /// Close the selected tmux session without deleting any attached workspace.
     Close(Session),
 
-    /// Delete the selected session's attached workspace checkout, closing tmux if live.
-    Delete(Session),
+    /// Stage, confirm, or cancel workspace deletions.
+    Delete(delete::Action),
 
     /// Create the selected session without switching to it.
     Create(Session),
@@ -166,23 +167,6 @@ impl App {
                     self.discover(ctx.globs).await?;
                 }
 
-                Some(Action::Delete(session)) => {
-                    let repo = session.repo();
-                    if let (Some(repo), Some(current)) = (repo.as_deref(), self.repo.as_ref())
-                        && current.path() == repo
-                    {
-                        self.repo = None;
-                    }
-
-                    self.bg = Some(activity::State::new(
-                        Span::raw("deleting").reset().light_red(),
-                        async move {
-                            session.delete().await?;
-                            Ok(false)
-                        },
-                    ));
-                }
-
                 Some(Action::Create(session)) => {
                     self.model.clear_query();
                     self.sessions.select_first();
@@ -197,6 +181,34 @@ impl App {
                             Ok(false)
                         },
                     ));
+                }
+
+                Some(Action::Delete(delete::Action::Accept)) => {
+                    if let Some(current) = &self.repo
+                        && let Some(delete) = self.model.deleting()
+                        && delete.paths().contains(current.path())
+                    {
+                        self.repo = None;
+                    }
+
+                    let delete = self.model.delete();
+                    self.bg = Some(activity::State::new(
+                        Span::raw("deleting").reset().light_red(),
+                        async move {
+                            delete.await?;
+                            Ok(false)
+                        },
+                    ));
+                }
+
+                Some(Action::Delete(delete::Action::Cancel)) => {
+                    self.model.reset_delete().await?;
+                    self.discover(ctx.globs).await?;
+                }
+
+                Some(Action::Delete(delete::Action::Toggle(path))) => {
+                    self.model.toggle_delete(&path).await?;
+                    self.discover(ctx.globs).await?;
                 }
 
                 Some(Action::Switch(session)) => {
@@ -253,8 +265,8 @@ impl App {
         let new_sessions = self.model.sessions_for_query(self.repo.as_ref(), repo_root);
         let agent_summary = self.model.agent_summary();
 
-        // Poll the picker for its latest state, and build the data model.
-        let (status, snapshot, query) = self.model.refresh();
+        // Refresh once and borrow the picker and deletion data for this render pass.
+        let (status, snapshot, query, delete) = self.model.refresh();
         let items: Vec<_> = snapshot.matched_items(..).collect();
 
         let (label, query) = if let Some(onto) = &self.onto {
@@ -272,6 +284,7 @@ impl App {
             &new_sessions,
             &items,
             snapshot.pattern().column_pattern(0),
+            delete,
         );
 
         // (2) Render session list. This also updates `self.sessions`, so that the selected index
@@ -291,7 +304,7 @@ impl App {
             snapshot.item_count() as usize,
         );
 
-        let footer = Footer::new(self.sessions.is_deleting(), self.sessions.selected());
+        let footer = Footer::new(&self.sessions, delete, &items);
 
         // (3) Render context and actions after the session list updates the selected session.
         header.draw(f, l.header);
@@ -335,21 +348,6 @@ impl App {
         let ctrl = key.modifiers.contains(CTRL);
         let shift = key.modifiers.contains(SHIFT);
 
-        if self.sessions.is_deleting() {
-            self.sessions.reset_delete();
-
-            match key.code {
-                KC::Char('y') if ctrl => {
-                    return self.sessions.take_selected().map(Action::Delete);
-                }
-
-                KC::Esc => return None,
-                KC::Char('c') if ctrl => return None,
-
-                _ => {}
-            }
-        }
-
         if let Some(onto) = &mut self.onto {
             let action = onto.handle_key(key);
             match action {
@@ -359,6 +357,13 @@ impl App {
             }
 
             return None;
+        }
+
+        if !is_loading
+            && self.model.deleting().is_some()
+            && let Some(action) = delete::handle_key(key)
+        {
+            return Some(Action::Delete(action));
         }
 
         match key.code {
@@ -384,7 +389,11 @@ impl App {
             }
 
             KC::Char('d') if ctrl && !is_loading && self.sessions.can_delete() => {
-                self.sessions.start_delete();
+                return self
+                    .sessions
+                    .take_selected()
+                    .and_then(|session| session.repo())
+                    .map(|path| Action::Delete(delete::Action::Toggle(path)));
             }
 
             KC::Char('f') if ctrl && !is_loading && self.sessions.can_flag() => {

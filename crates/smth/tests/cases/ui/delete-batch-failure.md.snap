@@ -1,0 +1,102 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/delete-batch-failure.md
+---
+# Concurrent deletion and partial failure
+
+Every staged deletion should run concurrently in one pending task. A failed
+entry must not cancel the remaining deletions, and its checkout path should be
+reported after the whole batch finishes.
+
+    :bins jj tmux cat sh test chmod sed
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'sh', 'test', 'chmod', and 'sed' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+    :$ jj workspace add -R alpha --name first alpha.first (exit: 0)
+    :$ jj workspace add -R alpha --name second alpha.second (exit: 0)
+
+Wrap jj only inside the picker pane. Both forget commands announce readiness
+and wait for separate release signals. The first command fails deliberately;
+the second runs the real jj command.
+
+    :w wrappers/jj (written)
+```sh
+#!/bin/sh
+if test "$1 $2" = 'workspace forget'; then
+    for name do :; done
+    printf '' > "$HOME/$name-ready"
+    tmux wait-for "$name-release"
+    if test "$name" = first; then
+        echo 'injected deletion failure' >&2
+        exit 1
+    fi
+fi
+exec "$HOME/../bin/jj" "$@"
+```
+
+    :$ chmod +x wrappers/jj (exit: 0)
+    :t new-session -d -s ui 'PATH="$HOME/wrappers:$PATH" smth -r "alpha*" 2>errors; : > finished; cat' (success)
+    :t resize-window -t ui:0 -x 120 -y 16 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+    :k C-p first
+    :settle -d 2s -e '1/5' -e alpha/first -e C-d (settled)
+
+    :k C-d C-u second
+    :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
+
+    :k C-d
+    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
+
+    :k C-y
+
+Both commands must start before either is released, proving concurrency.
+Navigation and query editing remain available; mutation, switching, and exit
+keys remain gated while the confirmed batch is running.
+
+    :$ sh -c 'until test -f first-ready && test -f second-ready; do :; done' (exit: 0)
+    :k C-u first
+    :settle -d 2s -e '1/5' -e alpha/first -e C-d (settled)
+
+    :k C-d C-y C-x C-f C-n enter C-c esc C-g
+    :$ test ! -f finished (exit: 0)
+    :$ test -d alpha.first (exit: 0)
+    :$ test -d alpha.second (exit: 0)
+
+Release the failing command first. The picker must still wait for the other
+deletion rather than exiting early and cancelling it.
+
+    :t wait-for -S first-release (success)
+    :settle (settled)
+    :$ test ! -f finished (exit: 0)
+    :t wait-for -S second-release (success)
+    :$ sh -c 'until test -f finished; do :; done' (exit: 0)
+
+The error identifies the failed checkout and the partial failure count. Normalize
+the temporary home path in the diagnostic. The successful checkout is removed
+and the failed checkout remains registered.
+
+    :$ sh -c 'sed "s|$(pwd -P)/|~/|g" errors' (exit: 0)
+
+```stdout
+error: failed to delete 1 of 2 workspaces:
+~/alpha.first: error running 'jj workspace forget': injected deletion failure
+```
+
+    :$ test -d alpha.first (exit: 0)
+    :$ test ! -d alpha.second (exit: 0)
+    :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"' (exit: 0)
+
+```stdout
+default
+first
+```
+
+---
+vim: set ft=markdown:

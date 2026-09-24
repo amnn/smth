@@ -6,6 +6,7 @@
 mod agent;
 mod help;
 
+use std::collections::BTreeSet;
 use std::env;
 use std::path::Path;
 use std::path::PathBuf;
@@ -451,7 +452,9 @@ async fn run() -> anyhow::Result<ExitCode> {
                 .context("session not found")?;
 
             ensure!(session.can_delete(), "session cannot be deleted");
-            session.delete().await?;
+            let path = session.repo().context("session has no checkout")?;
+            model.set_deletions(BTreeSet::from([path]));
+            model.delete().await?;
             Ok(ExitCode::SUCCESS)
         }
 

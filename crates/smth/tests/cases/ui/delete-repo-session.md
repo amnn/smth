@@ -4,7 +4,7 @@
 there is no live tmux session to close. Confirming should forget the workspace
 and delete the workspace checkout.
 
-    :bins jj tmux cat sh test
+    :bins jj tmux cat sh test sleep
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml
 
@@ -18,23 +18,29 @@ and delete the workspace checkout.
     :pane ui:0.0
     :settle -d 2s
 
-Filter to the repo-only named workspace entry. The header should offer deletion
+Filter to the repo-only named workspace entry. The footer should offer deletion
 even though the selected row has no live tmux sigil.
 
     :k feature
+    :settle -d 2s -e '1/4' -e beta/feature -e 'C-d. delete'
+
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Pressing `C-d` should mark the repo entry for deletion.
 
     :k C-d
-    :settle
+    :settle -d 2s -e '1 session'
+
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Confirming should leave the picker alive, forget the workspace, and remove the
 workspace checkout.
 
     :k C-y
-    :settle -d 2s
+    :$ sh -c 'i=0; while test -d beta.feature; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done'
+
+    :settle -d 2s -e '0/3'
+
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
     :$ sh -c 'test ! -e beta.feature'

@@ -5,7 +5,6 @@
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
-use std::io::ErrorKind;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -15,6 +14,7 @@ use anyhow::ensure;
 use crate::cmd::jj;
 use crate::cmd::tmux;
 use crate::model::agent::AgentState;
+use crate::model::delete;
 use crate::model::picker::Pickable;
 use crate::path::TruncatedExt as _;
 
@@ -108,28 +108,6 @@ impl Session {
         self.ensure_tmux(cwd, setup).await
     }
 
-    /// Delete this session's named jj workspace and close it if live.
-    ///
-    /// A session without a verified named workspace is a no-op. Errors may be returned after the
-    /// workspace has been forgotten if checkout removal or session closure fails.
-    pub async fn delete(&self) -> anyhow::Result<()> {
-        let Some((repo, workspace)) = self.workspace() else {
-            return Ok(());
-        };
-
-        jj::forget_workspace(repo, workspace).await?;
-        match tokio::fs::remove_dir_all(repo).await {
-            Ok(()) => {}
-            Err(err) if err.kind() == ErrorKind::NotFound => {}
-            Err(err) => {
-                return Err(err)
-                    .with_context(|| format!("failed to remove repository '{}'", repo.display()));
-            }
-        }
-
-        self.close().await
-    }
-
     /// Return this session's manual flag state, if this entry can be flagged.
     pub fn flag(&self) -> Option<bool> {
         match &self.0 {
@@ -221,6 +199,17 @@ impl Session {
         }
     }
 
+    /// Return the deletable checkout when its pending-deletion marker exists.
+    ///
+    /// Missing or inaccessible markers are treated as not pending.
+    pub(crate) async fn repo_pending_deletion(&self) -> Option<&Path> {
+        let (repo, _) = self.workspace()?;
+        tokio::fs::try_exists(repo.join(".jj").join(delete::MARKER))
+            .await
+            .ok()?
+            .then_some(repo)
+    }
+
     /// Ensure the tmux session we are switching to is ready.
     async fn ensure_tmux(&self, cwd: &Path, setup: &str) -> anyhow::Result<()> {
         match &self.0 {
@@ -244,7 +233,7 @@ impl Session {
         }
     }
 
-    /// Return the checkout and exact jj workspace name deleted by this session.
+    /// Return this session's verified named-workspace checkout and exact jj workspace name.
     fn workspace(&self) -> Option<(&Path, &str)> {
         match &self.0 {
             Kind::Live(kind) => Some((kind.repo.as_deref()?, kind.workspace.as_deref()?)),
@@ -679,6 +668,25 @@ mod tests {
                 "{name:?}"
             );
         }
+    }
+
+    /// Only existing markers on deletable checkouts contribute pending paths.
+    #[tokio::test]
+    async fn repo_pending_deletion_requires_marker_and_named_workspace() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().to_owned();
+        let named: Session = RepoKind::new(Some("feature"), path.clone(), path.clone()).into();
+        let default: Session = RepoKind::new(None, path.clone(), path.clone()).into();
+        let prospective: Session =
+            NewKind::new("feature", Base::Repo(Repo::new(path.clone()))).into();
+
+        assert_eq!(named.repo_pending_deletion().await, None);
+        fs::create_dir(path.join(".jj")).unwrap();
+        fs::write(path.join(".jj").join(delete::MARKER), "").unwrap();
+
+        assert_eq!(named.repo_pending_deletion().await, Some(path.as_path()));
+        assert_eq!(default.repo_pending_deletion().await, None);
+        assert_eq!(prospective.repo_pending_deletion().await, None);
     }
 
     #[test]

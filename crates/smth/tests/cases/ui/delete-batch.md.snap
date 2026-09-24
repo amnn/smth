@@ -1,0 +1,337 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/delete-batch.md
+---
+# Stage and delete multiple sessions
+
+Deletion selections survive navigation and filtering, remain separate from
+persistent flags, and include hidden sessions when confirmed.
+
+    :bins jj tmux cat sh test sleep
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'sh', 'test', and 'sleep' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+    :$ jj workspace add -R alpha --name first alpha.first (exit: 0)
+    :$ jj workspace add -R alpha --name second alpha.second (exit: 0)
+    :t new-session -d -s alpha/first (success)
+    :$ sh -c 'cd alpha.first && tmux set-option -t alpha/first @smth.repo "$(pwd -P)"' (exit: 0)
+    :t set-option -t alpha/first @smth.flag 1 (success)
+    :t new-session -d -s ui "smth -r 'alpha*'; cat" (success)
+    :t resize-window -t ui:0 -x 120 -y 16 (success)
+    :pane ui:0.0
+    :settle -d 2s (settled)
+    :k C-p first
+    :settle -d 2s -e '1/5' -e alpha/first -e C-d (settled)
+
+Stage the live session, then filter to the repo-only session and stage that too.
+The footer should count both sessions and the one hidden selection.
+
+    :k C-d C-u second
+    :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
+
+    :k C-d
+    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
+
+    :snap
+
+```terminal
+session: second                                                                                                        ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   second                                   ~/second                                                              repo ┃
+   second                                                                                                         tmux ┃
+▌× alpha/second                             ~/alpha.second                                                             ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 2 sessions (1 hidden), [C-d] unstage                                                                     ┃
+```
+
+Clearing the query reveals both deletion markers, including the row without the
+cursor. Colour coverage verifies that both staged names remain distinguished.
+
+    :k C-u
+    :settle -d 2s -e '5/5' (settled)
+
+    :snap --color
+
+```terminal
+session:                                                                                                               ┃
+  5/5 | [C-r] repo: none                                                                                               ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌⬤ ui                                                                                                                  ┃
+ ⬤ runner                                                                                                              ┃
+ × alpha/first                              ~/alpha.first                                                              ┃
+   alpha                                    ~/alpha                                                                    ┃
+ × alpha/second                             ~/alpha.second                                                             ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 2 sessions, [C-x] close, [C-f] flag                                                                      ┃
+```
+
+![light](delete-batch.md.snap.2.light.svg)
+![dark](delete-batch.md.snap.2.dark.svg)
+
+Toggling the second session off leaves only the hidden first session staged;
+toggling it back on restores the batch.
+
+    :k second
+    :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
+
+    :k C-d
+    :settle -d 2s -e '1 session' -e '1 hidden' (settled)
+
+    :snap
+
+```terminal
+session: second                                                                                                        ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   second                                   ~/second                                                              repo ┃
+   second                                                                                                         tmux ┃
+▌  alpha/second                             ~/alpha.second                                                             ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 1 session (1 hidden), [C-d] delete                                                                       ┃
+```
+
+    :k C-d
+    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
+
+    :snap
+
+```terminal
+session: second                                                                                                        ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   second                                   ~/second                                                              repo ┃
+   second                                                                                                         tmux ┃
+▌× alpha/second                             ~/alpha.second                                                             ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 2 sessions (1 hidden), [C-d] unstage                                                                     ┃
+```
+
+Each cancellation key clears the entire selection without exiting or deleting
+anything. Cancellation also restores the live session's persistent flag. A
+flag toggle and its discovery refresh must not discard the staged selection.
+
+    :k esc
+    :settle -d 2s -e '^session:' -e 'C-d. delete' (settled)
+
+    :k C-u first
+    :settle -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' -e unflag (settled)
+
+    :snap
+
+```terminal
+session: first                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   first                                    ~/first                                                               repo ┃
+   first                                                                                                          tmux ┃
+▌⬤ alpha/first                              ~/alpha.first                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
+```
+
+    :k C-d C-f
+    :settle -d 2s -e '1 session' -e 'C-f. flag' (settled)
+
+    :k C-f
+    :settle -d 2s -e '1 session' -e unflag (settled)
+
+    :snap
+
+```terminal
+session: first                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   first                                    ~/first                                                               repo ┃
+   first                                                                                                          tmux ┃
+▌× alpha/first                              ~/alpha.first                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 1 session, [C-d] unstage, [C-x] close, [C-f] unflag                                                      ┃
+```
+
+    :k C-c
+    :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag (settled)
+
+    :snap
+
+```terminal
+session: first                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   first                                    ~/first                                                               repo ┃
+   first                                                                                                          tmux ┃
+▌⬤ alpha/first                              ~/alpha.first                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
+```
+
+    :k C-d
+    :settle -d 2s -e '1 session' (settled)
+
+    :k C-g
+    :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag (settled)
+
+    :snap
+
+```terminal
+session: first                                                                                                         ┃
+  1/5 | [C-r] repo: none                                                                                               ┃
+   first                                    ~/first                                                               repo ┃
+   first                                                                                                          tmux ┃
+▌⬤ alpha/first                              ~/alpha.first                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
+```
+
+    :t show-option -t alpha/first -v @smth.flag (success)
+
+```
+1
+```
+    :$ test -d alpha.first (exit: 0)
+    :$ test -d alpha.second (exit: 0)
+
+Stage both again, then hide every selected session. Confirming must delete both,
+not the currently selected prospective session. A second confirmation while the
+batch is running must not schedule another batch.
+
+    :k C-d C-u second
+    :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
+
+    :k C-d C-u unmatched
+    :settle -d 2s -e '2 sessions' -e '2 hidden' (settled)
+
+    :snap
+
+```terminal
+session: unmatched                                                                                                     ┃
+  0/5 | [C-r] repo: none                                                                                               ┃
+   unmatched                                ~/unmatched                                                           repo ┃
+▌  unmatched                                                                                                      tmux ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-y] delete 2 sessions (2 hidden)                                                                                    ┃
+```
+
+    :k C-y C-y
+    :$ sh -c 'i=0; while test -d alpha.first || test -d alpha.second; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done' (exit: 0)
+
+    :settle -d 2s -e '0/3' (settled)
+
+    :k C-u
+    :settle -d 2s -e '3/3' (settled)
+
+    :snap
+
+```terminal
+session:                                                                                                               ┃
+  3/3 | [C-r] repo: none                                                                                               ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌⬤ ui                                                                                                                  ┃
+ ⬤ runner                                                                                                              ┃
+   alpha                                    ~/alpha                                                                    ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-x] close, [C-f] flag                                                                                               ┃
+```
+
+    :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"' (exit: 0)
+
+```stdout
+default
+```
+    :t has-session -t alpha/first (failure)
+
+```
+can't find session: alpha/first
+```
+
+    :t has-session -t ui (success)
+
+---
+vim: set ft=markdown:
