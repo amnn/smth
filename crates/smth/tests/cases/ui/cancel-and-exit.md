@@ -35,10 +35,14 @@ session actions and the gap between them, even at extremely narrow widths.
     :settle -d 2s -e '1/4' -e alpha/feature -e '1 session'
 
 Open onto mode over the staged deletion. C-g closes onto mode but leaves the
-marker in place. A second C-g clears the marker, and a third keeps the app open.
+marker in place. Only the onto cancellation hint is shown while onto mode is
+active, even with a deletion staged. A second C-g clears the marker, and a third
+keeps the app open.
 
     :k C-o
     :settle -d 2s -e '^onto:'
+
+    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
     :k C-g
     :settle -d 2s -e '^session:' -e '1 session'
