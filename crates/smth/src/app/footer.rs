@@ -60,6 +60,10 @@ impl<'s> Footer<'s> {
             area = left;
         }
 
+        if matches!(mode, Some(Mode::Onto)) {
+            return;
+        }
+
         let mut line = Line::default();
         let mut prefix = " ";
         let selected = self.sessions.selected();

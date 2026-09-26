@@ -53,7 +53,7 @@ inverted. The scrollbar thumb should remain visible at the top edge.
 onto:
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
@@ -78,7 +78,7 @@ the selected reversed `line 06` row, they should be switched back for contrast.
 onto: '(empty) 'line '06
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
@@ -101,7 +101,7 @@ inversion moves down.
 onto: '(empty) 'line '06
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
@@ -122,7 +122,7 @@ onto: '(empty) 'line '06
 onto: '(empty) 'line '06
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
@@ -144,7 +144,7 @@ is the first commit in the view.
 onto: '(empty) 'line '06
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
@@ -171,7 +171,7 @@ this is the first of six matching commits.
 onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 ┃
 │  (empty) child                                                                         ┃
@@ -193,7 +193,7 @@ widget.
 onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) line 03                                                                   6/6 │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
@@ -214,7 +214,7 @@ onto: line
 onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 │
 │  (empty) line 06                                                                       ┃
@@ -236,7 +236,7 @@ timeout.
 onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       ┃
@@ -260,7 +260,7 @@ should remain while the widget disappears.
 onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
@@ -279,7 +279,7 @@ selected and scroll it into view.
 onto: line
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 02                                                                       │
@@ -302,7 +302,7 @@ counter without moving the selection.
 onto: lin
   4/4 | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌⬤ runner                                                                                ┃
- [C-x] close, [C-f] flag                                                 onto [C-g] cancel
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       ┃
