@@ -60,7 +60,7 @@ Pressing `C-d` should mark the repo entry for deletion.
 session: feature
   1/4 | [C-r] repo: none
 ▌× beta/feature                             ~/beta.feature                                                             ┃
- [C-y] delete 1 session, [C-d] unstage
+ [C-d] unstage                                                                       delete [C-y] 1 session [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) feature commit

@@ -93,7 +93,7 @@ the selected row's preview (`beta`).
 onto:
   5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌  beta                                     ~/beta                                       ┃
-
+                                                                         onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) alpha commit

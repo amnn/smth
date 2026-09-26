@@ -56,7 +56,7 @@ session: second                                                                 
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 2 sessions (1 hidden), [C-d] unstage                                                                     ┃
+ [C-d] unstage                                                          delete [C-y] 2 sessions (1 hidden) [C-g] cancel┃
 ```
 
 Clearing the query reveals both deletion markers, including the row without the
@@ -83,7 +83,7 @@ session:                                                                        
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 2 sessions, [C-x] close, [C-f] flag                                                                      ┃
+ [C-x] close, [C-f] flag                                                           delete [C-y] 2 sessions [C-g] cancel┃
 ```
 
 ![light](delete-batch.md.snap.2.light.svg)
@@ -116,7 +116,7 @@ session: second                                                                 
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 1 session (1 hidden), [C-d] delete                                                                       ┃
+ [C-d] delete                                                            delete [C-y] 1 session (1 hidden) [C-g] cancel┃
 ```
 
     :k C-d
@@ -140,14 +140,14 @@ session: second                                                                 
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 2 sessions (1 hidden), [C-d] unstage                                                                     ┃
+ [C-d] unstage                                                          delete [C-y] 2 sessions (1 hidden) [C-g] cancel┃
 ```
 
-Each cancellation key clears the entire selection without exiting or deleting
-anything. Cancellation also restores the live session's persistent flag. A
-flag toggle and its discovery refresh must not discard the staged selection.
+C-g clears the entire selection without exiting or deleting anything, revealing
+the live session's persistent flag again. A flag toggle and its discovery refresh
+must not discard the staged selection.
 
-    :k esc
+    :k C-g
     :settle -d 2s -e '^session:' -e 'C-d. delete' (settled)
 
     :k C-u first
@@ -198,10 +198,10 @@ session: first                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 1 session, [C-d] unstage, [C-x] close, [C-f] unflag                                                      ┃
+ [C-d] unstage, [C-x] close, [C-f] unflag                                           delete [C-y] 1 session [C-g] cancel┃
 ```
 
-    :k C-c
+    :k C-g
     :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag (settled)
 
     :snap
@@ -288,7 +288,7 @@ session: unmatched                                                              
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 2 sessions (2 hidden)                                                                                    ┃
+                                                                        delete [C-y] 2 sessions (2 hidden) [C-g] cancel┃
 ```
 
     :k C-y C-y

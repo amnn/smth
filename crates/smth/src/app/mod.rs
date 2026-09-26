@@ -308,10 +308,18 @@ impl App {
         );
 
         let footer = Footer::new(&self.sessions, delete, &items);
+        let is_loading = self.bg.as_ref().is_some_and(|a| a.is_loading());
+        let mode = if self.onto.is_some() {
+            Some(footer::Mode::Onto)
+        } else if !is_loading && delete.is_some() {
+            Some(footer::Mode::Delete)
+        } else {
+            None
+        };
 
         // (3) Render context and actions after the session list updates the selected session.
         header.draw(f, l.header);
-        footer.draw(f, l.footer);
+        footer.draw(f, l.footer, mode);
 
         let Some(l_preview) = l.preview else {
             return;
@@ -345,6 +353,13 @@ impl App {
         let ctrl = key.modifiers.contains(CTRL);
         let shift = key.modifiers.contains(SHIFT);
 
+        // App exit takes precedence over internal modal state, but not an active mutation.
+        match key.code {
+            KC::Esc if !is_loading => return Some(Action::Cancel),
+            KC::Char('c') if ctrl && !is_loading => return Some(Action::Cancel),
+            _ => {}
+        }
+
         if let Some(onto) = &mut self.onto {
             let action = onto.handle_key(key);
             match action {
@@ -372,12 +387,6 @@ impl App {
             // Create the selected row without switching.
             KC::Char('n') if ctrl && !is_loading && !self.sessions.is_live() => {
                 return self.sessions.take_selected().map(Action::Create);
-            }
-
-            // Cancel
-            KC::Esc if !is_loading => return Some(Action::Cancel),
-            KC::Char('c' | 'g') if ctrl && !is_loading => {
-                return Some(Action::Cancel);
             }
 
             // Session actions

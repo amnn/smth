@@ -1,0 +1,217 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/cancel-and-exit.md
+---
+# Cancel internal state without exiting
+
+C-g cancels the innermost mode, then pending deletions, and otherwise does
+nothing. C-c and Esc exit the picker without clearing persisted deletions.
+
+    :bins jj tmux cat test grep
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'test', and 'grep' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+
+    :t rename-session -t 0 runner (success)
+    :$ jj git init alpha (exit: 0)
+
+    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
+
+    :t new-session -d -s ui "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S first-exited; cat" (success)
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :pane ui:0.0
+    :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. delete' (settled)
+
+    :k C-p C-d
+    :settle -d 2s -e '1 session' (settled)
+
+    :snap
+
+```terminal
+session: feature                                                                                                       ┃
+  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+▌× alpha/feature                            ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] unstage                                                                      delete [C-y] 1 session [C-g] cancel┃
+```
+
+On a narrow terminal, the right-hand deletion controls take precedence over
+session actions and the gap between them, even at extremely narrow widths.
+
+    :t resize-window -t ui:0 -x 30 -y 4 (success)
+    :snap
+
+```terminal
+session: feature             │
+  1/4 | [C-r] repo: ~/alpha, │
+▌× alpha/feature             │
+delete [C-y] 1 session [C-g] ┃
+```
+
+    :t resize-window -t ui:0 -x 2 -y 4 (success)
+    :snap
+
+```terminal
+se
+
+▌×
+de
+```
+
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :settle -d 2s -e '1/4' -e alpha/feature -e '1 session' (settled)
+
+Open onto mode over the staged deletion. C-g closes onto mode but leaves the
+marker in place. A second C-g clears the marker, and a third keeps the app open.
+
+    :k C-o
+    :settle -d 2s -e '^onto:' (settled)
+
+    :k C-g
+    :settle -d 2s -e '^session:' -e '1 session' (settled)
+
+    :snap
+
+```terminal
+session: feature                                                                                                       ┃
+  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+▌× alpha/feature                            ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] unstage                                                                      delete [C-y] 1 session [C-g] cancel┃
+```
+
+    :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+    :k C-g
+    :settle -d 2s -e alpha/feature -e 'C-d. delete' (settled)
+
+    :snap
+
+```terminal
+session: feature                                                                                                       ┃
+  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+▌  alpha/feature                            ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] delete                                                                                                          ┃
+```
+
+    :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+    :k C-g backspace
+    :settle -d 2s -e '^session: featur\s' (settled)
+
+    :k e
+    :settle -d 2s -e '^session: feature\s' (settled)
+
+    :snap
+
+```terminal
+session: feature                                                                                                       ┃
+  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+▌  alpha/feature                            ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] delete                                                                                                          ┃
+```
+
+Stage again and exit with C-c. The exit signal synchronizes the assertion that
+the marker survived, and the restarted picker shows the selection again.
+
+    :k C-d
+    :settle -d 2s -e '1 session' (settled)
+
+    :k C-c
+    :t wait-for first-exited (success)
+
+    :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+    :t respawn-pane -k -t ui:0.0 "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S second-exited; cat" (success)
+    :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. unstage' (settled)
+
+    :k C-p
+    :settle -d 2s -e '1 session' (settled)
+
+    :snap
+
+```terminal
+session: feature                                                                                                       ┃
+  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+▌× alpha/feature                            ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] unstage                                                                      delete [C-y] 1 session [C-g] cancel┃
+```
+
+Esc exits even from onto mode, leaving the marker intact.
+
+    :k C-o
+    :settle -d 2s -e '^onto:' (settled)
+
+    :k esc
+    :t wait-for second-exited (success)
+
+    :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+C-c also exits from onto mode, rather than cancelling it.
+
+    :t respawn-pane -k -t ui:0.0 "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S third-exited; cat" (success)
+    :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. unstage' (settled)
+
+    :k C-o
+    :settle -d 2s -e '^onto:' (settled)
+
+    :k C-c
+    :t wait-for third-exited (success)
+
+    :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+Finally, Esc exits directly from session mode with the same persistence.
+
+    :t respawn-pane -k -t ui:0.0 "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S fourth-exited; cat" (success)
+    :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. unstage' (settled)
+
+    :k esc
+    :t wait-for fourth-exited (success)
+
+    :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+    :$ test -d alpha.feature (exit: 0)
+
+---
+vim: set ft=markdown:
