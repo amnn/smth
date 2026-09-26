@@ -46,7 +46,7 @@ session: first                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 2 sessions (1 hidden), [C-d] unstage, [C-x] close, [C-f] flag                                            ┃
+ [C-d] unstage, [C-x] close, [C-f] flag                                 delete [C-y] 2 sessions (1 hidden) [C-g] cancel┃
 ```
 
     :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
@@ -70,7 +70,7 @@ session:                                                                        
    alpha                                    ~/alpha                                                                    ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 2 sessions, [C-x] close, [C-f] flag                                                                      ┃
+ [C-x] close, [C-f] flag                                                           delete [C-y] 2 sessions [C-g] cancel┃
 ```
 
 Kill and restart the picker without cancelling its selection. Discovery restores
@@ -100,7 +100,7 @@ session: alias                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-y] delete 2 sessions (1 hidden), [C-d] unstage, [C-x] close, [C-f] flag                                            ┃
+ [C-d] unstage, [C-x] close, [C-f] flag                                 delete [C-y] 2 sessions (1 hidden) [C-g] cancel┃
 ```
 
 Toggling through the alias removes the same marker. Cancellation removes it too.
@@ -130,7 +130,7 @@ session: alias                                                                  
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
 
-    :k esc
+    :k C-g
     :settle -d 2s -e alpha/alias -e 'C-d. delete' (settled)
 
     :snap

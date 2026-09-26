@@ -107,6 +107,7 @@ all picker key bindings:
 | --- | --- |
 | `C-d` | Toggle the workspace's persisted pending-deletion marker. |
 | `C-f` | Flag or unflag a live session. |
+| `C-g` | Cancel onto mode, or clear staged deletions. |
 | `C-n` | Create the session if necessary without switching to it. |
 | `C-o` | Open or cancel the onto revision picker. |
 | `C-p` | Toggle the preview pane outside onto mode. |
@@ -119,7 +120,7 @@ all picker key bindings:
 | `S-up`, `S-down` | Scroll the preview pane up or down. |
 | `tab`, `S-tab` | Jump between fuzzy matches in onto mode. |
 | `enter` | Accept the onto revision, or switch to the session, creating it if necessary. |
-| `esc`, `C-g`, `C-c` | Cancel onto mode, clear staged deletions, or close the UI. |
+| `esc`, `C-c` | Close the UI without clearing staged deletions. |
 
 ## Troubleshooting
 

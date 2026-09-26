@@ -125,8 +125,7 @@ impl State {
             KC::Enter => return Some(Action::Accept),
 
             // Cancel
-            KC::Esc => return Some(Action::Cancel),
-            KC::Char('c' | 'g' | 'o') if key.modifiers.contains(CTRL) => {
+            KC::Char('g' | 'o') if key.modifiers.contains(CTRL) => {
                 return Some(Action::Cancel);
             }
 

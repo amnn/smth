@@ -24,8 +24,7 @@ pub(super) fn handle_key(key: KeyEvent) -> Option<Action> {
     let ctrl = key.modifiers.contains(KeyModifiers::CONTROL);
     match key.code {
         KeyCode::Char('y') if ctrl => Some(Action::Accept),
-        KeyCode::Esc => Some(Action::Cancel),
-        KeyCode::Char('c' | 'g') if ctrl => Some(Action::Cancel),
+        KeyCode::Char('g') if ctrl => Some(Action::Cancel),
         _ => None,
     }
 }

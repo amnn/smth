@@ -62,7 +62,7 @@ Toggling through the alias removes the same marker. Cancellation removes it too.
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden'
 
-    :k esc
+    :k C-g
     :settle -d 2s -e alpha/alias -e 'C-d. delete'
 
     :snap

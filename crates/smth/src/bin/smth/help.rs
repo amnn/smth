@@ -286,6 +286,7 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "Toggle the workspace's persisted pending-deletion marker.",
     )?;
     w.def("C-f", "Flag or unflag a live session.")?;
+    w.def("C-g", "Cancel onto mode, or clear staged deletions.")?;
     w.def("C-n", "Create the session without switching to it.")?;
     w.def("C-o", "Open or cancel the onto revision picker.")?;
     w.def("C-p", "Toggle the preview pane outside onto mode.")?;
@@ -307,8 +308,8 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "Accept the onto revision, or switch to the session, creating it if necessary.",
     )?;
     w.def(
-        "esc, C-g, C-c",
-        "Cancel onto mode, clear staged deletions, or close the UI.",
+        "esc, C-c",
+        "Close the UI without clearing staged deletions.",
     )?;
 
     Ok(())

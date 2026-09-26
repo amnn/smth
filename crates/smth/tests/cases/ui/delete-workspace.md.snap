@@ -67,7 +67,7 @@ shortcut.
 session: feature
   1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
- [C-y] delete 1 session, [C-d] unstage, [C-x] close, [C-f] flag
+ [C-d] unstage, [C-x] close, [C-f] flag                                              delete [C-y] 1 session [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) (no description set)
@@ -121,7 +121,7 @@ picker still loads a valid log.
 onto:
   5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌⬤ ui                                                                                                                  ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag                                                                               onto [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) alpha commit

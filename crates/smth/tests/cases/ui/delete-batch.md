@@ -56,11 +56,11 @@ toggling it back on restores the batch.
 
     :snap
 
-Each cancellation key clears the entire selection without exiting or deleting
-anything. Cancellation also restores the live session's persistent flag. A
-flag toggle and its discovery refresh must not discard the staged selection.
+C-g clears the entire selection without exiting or deleting anything, revealing
+the live session's persistent flag again. A flag toggle and its discovery refresh
+must not discard the staged selection.
 
-    :k esc
+    :k C-g
     :settle -d 2s -e '^session:' -e 'C-d. delete'
 
     :k C-u first
@@ -76,7 +76,7 @@ flag toggle and its discovery refresh must not discard the staged selection.
 
     :snap
 
-    :k C-c
+    :k C-g
     :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag
 
     :snap
