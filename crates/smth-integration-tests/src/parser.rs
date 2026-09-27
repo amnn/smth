@@ -97,6 +97,7 @@ pub(crate) enum LineKind {
     Settle {
         count: NonZeroUsize,
         duration: Duration,
+        expect: Vec<Regex>,
         filters: Vec<Filter>,
     },
 
@@ -105,6 +106,7 @@ pub(crate) enum LineKind {
         count: NonZeroUsize,
         duration: Duration,
         color: bool,
+        expect: Vec<Regex>,
         filters: Vec<Filter>,
     },
 
@@ -127,6 +129,10 @@ struct SettleArgs {
         value_parser = parse_duration
     )]
     duration: Duration,
+
+    /// Require every regex to match the filtered pane text before it can settle.
+    #[arg(short = 'e', long, value_name = "REGEX")]
+    expect: Vec<Regex>,
 
     /// Regex replacement filters applied to each captured pane sample.
     #[arg(value_name = "FILTER")]
@@ -152,6 +158,10 @@ struct SnapArgs {
     /// Emit linked light and dark SVG snapshots preserving terminal colours.
     #[arg(long = "color")]
     color: bool,
+
+    /// Require every regex to match the filtered pane text before it can settle.
+    #[arg(short = 'e', long, value_name = "REGEX")]
+    expect: Vec<Regex>,
 
     /// Regex replacement filters applied to each captured pane sample.
     #[arg(value_name = "FILTER")]
@@ -293,6 +303,7 @@ impl LineKind {
                 LineKind::Settle {
                     count: args.count,
                     duration: args.duration,
+                    expect: args.expect,
                     filters: filters?,
                 }
             }
@@ -305,6 +316,7 @@ impl LineKind {
                     count: args.count,
                     duration: args.duration,
                     color: args.color,
+                    expect: args.expect,
                     filters: filters?,
                 }
             }
@@ -602,6 +614,26 @@ mod tests {
         ));
     }
 
+    /// An expected screen condition is compiled independently of replacement filters.
+    #[test]
+    fn parses_settle_expectation() {
+        insta::assert_debug_snapshot!(Script::parse(
+            &[
+                "    :settle -e 'delete 2 sessions' -e '1 hidden' /foo/x",
+                ""
+            ]
+            .join("\n")
+        ));
+    }
+
+    /// Snapshots accept expectations together with colour and replacement filters.
+    #[test]
+    fn parses_snap_expectation() {
+        insta::assert_debug_snapshot!(Script::parse(
+            &["    :snap -e ready -e waiting --color /waiting/X", ""].join("\n")
+        ));
+    }
+
     #[test]
     fn parses_snap_with_color_flag() {
         insta::assert_debug_snapshot!(Script::parse(&["    :snap --color /foo/x", ""].join("\n")));
@@ -646,5 +678,19 @@ mod tests {
         insta::assert_debug_snapshot!(Script::parse(
             &["    :settle --color /foo/x", ""].join("\n")
         ));
+    }
+
+    /// Invalid expectation regexes are reported as directive parsing errors.
+    #[test]
+    fn rejects_invalid_settle_expectation() {
+        insta::assert_debug_snapshot!(Script::parse(
+            &["    :settle -e ready -e '['", ""].join("\n")
+        ));
+    }
+
+    /// Snapshots reject invalid expectation regexes.
+    #[test]
+    fn rejects_invalid_snap_expectation() {
+        insta::assert_debug_snapshot!(Script::parse(&["    :snap -e ready -e '['", ""].join("\n")));
     }
 }

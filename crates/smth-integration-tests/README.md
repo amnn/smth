@@ -34,11 +34,16 @@ Supported directives:
   - Anything that doesn't match the above is sent literally with `tmux send-keys -l`,
     including tmux names such as `Enter` and option-like text such as `-l`.
     Use lowercase `enter` for the actual key press.
-- `:settle [-c <count>] [-d <duration>] [dregexdgrapheme ...]`
+- `:settle [-e <regex>]... [-c <count>] [-d <duration>] [dregexdgrapheme ...]`
   - Wait for the current pane to settle without appending a snapshot.
   - Accepts the same settle options and filters as `:snap`, but does not accept `--color`.
-- `:s` / `:snap [--color] [-c <count>] [-d <duration>] [dregexdgrapheme ...]`
+- `:s` / `:snap [--color] [-e <regex>]... [-c <count>] [-d <duration>] [dregexdgrapheme ...]`
   - Capture current pane and append it in a fenced `terminal` code block.
+  - `-e` / `--expect` can be repeated. Every regex must match the same filtered pane
+    text throughout the consecutive matching captures. If any regex does not match,
+    the streak resets. A timeout reports all required regexes. With no expectations,
+    only stability is checked. The snapshot renders the exact frame that satisfied
+    every condition, including when `--color` is used.
   - `--color` additionally writes linked light and dark SVG snapshots.
   - `-c` / `--count` sets the required consecutive matching captures and
     defaults to `5`.
@@ -66,6 +71,23 @@ inspecting state. For example, install a one-shot hook before a session switch:
 ```
 
 For creation without switching, wait for the expected session or file instead.
+
+Side effects can precede rediscovery and rendering. Before taking a UI snapshot or
+sending an action that depends on refreshed selection, also wait for the expected
+screen state, for example:
+
+```text
+:k C-d
+:snap -d 2s -e '2 sessions' -e '1 hidden'
+```
+
+Use `:settle --expect` instead when waiting before a subsequent action rather than
+capturing a snapshot.
+
+Use a condition that distinguishes the new state from the old one. This also
+applies to query changes before acting on a selected match. `--expect` is opt-in;
+plain `:settle` still checks only stability, and increasing its timeout does not
+make it wait for an operation to complete.
 
 ## Run tests
 

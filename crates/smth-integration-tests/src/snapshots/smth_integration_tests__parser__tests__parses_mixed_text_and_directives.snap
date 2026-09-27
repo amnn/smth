@@ -93,6 +93,7 @@ Script {
             kind: Settle {
                 count: 2,
                 duration: 500ms,
+                expect: [],
                 filters: [
                     Filter {
                         patt: Regex(
@@ -109,6 +110,7 @@ Script {
                 count: 5,
                 duration: 1s,
                 color: false,
+                expect: [],
                 filters: [
                     Filter {
                         patt: Regex(
