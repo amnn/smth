@@ -9,6 +9,7 @@ Script {
                 count: 5,
                 duration: 100ms,
                 color: false,
+                expect: [],
                 filters: [
                     Filter {
                         patt: Regex(

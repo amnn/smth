@@ -15,9 +15,10 @@ use std::time::Duration;
 
 use anyhow::Context as _;
 use anyhow::anyhow;
-use anyhow::ensure;
+use anyhow::bail;
 use futures::future;
 use nonempty::NonEmpty;
+use regex::Regex;
 use textwrap::Options;
 use tokio::time;
 use tracing::instrument;
@@ -275,9 +276,10 @@ impl Runner {
             LineKind::Settle {
                 count,
                 duration,
+                expect,
                 filters,
             } => {
-                self.eval_settle(w, line.raw, *count, *duration, filters)
+                self.eval_settle(w, line.raw, *count, *duration, expect, filters)
                     .await?;
             }
 
@@ -285,11 +287,12 @@ impl Runner {
                 count,
                 duration,
                 color,
+                expect,
                 filters,
             } => {
                 writeln!(w, "{}", line.raw)?;
                 writeln!(w)?;
-                self.eval_snap(w, *count, *duration, *color, filters)
+                self.eval_snap(w, *count, *duration, *color, expect, filters)
                     .await?;
             }
         }
@@ -349,17 +352,18 @@ impl Runner {
     }
 
     /// Wait for the pane to reach a settled state within `deadline`. Repeatedly takes snapshots
-    /// until `count` consecutive snapshots match.
+    /// until `count` consecutive snapshots match and satisfy every screen condition.
     async fn eval_settle(
         &self,
         w: &mut impl fmt::Write,
         raw: &str,
         count: NonZeroUsize,
         duration: Duration,
+        expect: &[Regex],
         filters: &[parser::Filter],
     ) -> fmt::Result {
         write!(w, "{raw}")?;
-        match self.settle(count, duration, filters).await {
+        match self.settle(count, duration, expect, filters).await {
             Ok(_) => writeln!(w, " (settled)"),
             Err(e) => {
                 writeln!(w, "\n")?;
@@ -414,17 +418,18 @@ impl Runner {
     }
 
     /// Capture the current pane in a settled state within `deadline`. Repeatedly takes snapshots
-    /// until `count` consecutive snapshots match.
+    /// until `count` consecutive snapshots match and satisfy every screen condition.
     async fn eval_snap(
         &mut self,
         w: &mut impl fmt::Write,
         count: NonZeroUsize,
         duration: Duration,
         color: bool,
+        expect: &[Regex],
         filters: &[parser::Filter],
     ) -> fmt::Result {
         self.snap_ix += 1;
-        match self.settle(count, duration, filters).await {
+        match self.settle(count, duration, expect, filters).await {
             Ok(frame) => {
                 write_fenced_block(w, "terminal", frame.text())?;
                 if color {
@@ -556,11 +561,12 @@ impl Runner {
     /// Capture the current pane in a settled state within `duration`.
     ///
     /// A settled state implies that a streak of `count` snapshots all observed the same state,
-    /// after filters have been applied.
+    /// after filters have been applied, each satisfying every expected regex.
     async fn settle(
         &self,
         count: NonZeroUsize,
         duration: Duration,
+        expect: &[Regex],
         filters: &[parser::Filter],
     ) -> anyhow::Result<Frame> {
         const INTERVAL: Duration = Duration::from_millis(25);
@@ -578,6 +584,11 @@ impl Runner {
             let pane = frame.text().to_owned();
 
             match &mut capture {
+                _ if expect.iter().any(|pattern| !pattern.is_match(&pane)) => {
+                    capture = None;
+                    streak = 0;
+                }
+
                 _ if pane.trim().is_empty() => {
                     // Ignore empty captures, they usually indicate that tmux hasn't initialized
                     // the pane yet.
@@ -603,11 +614,15 @@ impl Runner {
             }
 
             time::sleep(INTERVAL).await;
-            ensure!(
-                time::Instant::now() <= deadline,
-                "pane did not stabilize in {}ms",
-                duration.as_millis()
-            );
+            if time::Instant::now() > deadline {
+                let duration = duration.as_millis();
+                if expect.is_empty() {
+                    bail!("pane did not stabilize in {duration}ms");
+                } else {
+                    let patterns: Vec<_> = expect.iter().map(Regex::as_str).collect();
+                    bail!("pane did not stabilize matching all of {patterns:?} in {duration}ms");
+                }
+            }
         }
     }
 

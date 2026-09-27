@@ -1,0 +1,31 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[\"    :settle -e 'delete 2 sessions' -e '1 hidden' /foo/x\",\n\"\"].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Settle {
+                count: 5,
+                duration: 1s,
+                expect: [
+                    Regex(
+                        "delete 2 sessions",
+                    ),
+                    Regex(
+                        "1 hidden",
+                    ),
+                ],
+                filters: [
+                    Filter {
+                        patt: Regex(
+                            "foo",
+                        ),
+                        paint: "x",
+                    },
+                ],
+            },
+            raw: "    :settle -e 'delete 2 sessions' -e '1 hidden' /foo/x",
+        },
+    ],
+}

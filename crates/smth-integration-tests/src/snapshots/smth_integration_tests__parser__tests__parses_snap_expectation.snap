@@ -1,0 +1,32 @@
+---
+source: crates/smth-integration-tests/src/parser.rs
+expression: "Script::parse(&[\"    :snap -e ready -e waiting --color /waiting/X\",\n\"\"].join(\"\\n\"))"
+---
+Script {
+    lines: [
+        Line {
+            kind: Snap {
+                count: 5,
+                duration: 1s,
+                color: true,
+                expect: [
+                    Regex(
+                        "ready",
+                    ),
+                    Regex(
+                        "waiting",
+                    ),
+                ],
+                filters: [
+                    Filter {
+                        patt: Regex(
+                            "waiting",
+                        ),
+                        paint: "X",
+                    },
+                ],
+            },
+            raw: "    :snap -e ready -e waiting --color /waiting/X",
+        },
+    ],
+}
