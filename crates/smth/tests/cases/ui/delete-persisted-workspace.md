@@ -10,10 +10,14 @@ the hidden alias, while only one marker file is written to their shared checkout
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
-    :$ jj workspace add -R alpha --name feature alpha.feature
-    :t new-session -d -s alpha/first
-    :t new-session -d -s alpha/alias
-    :$ sh -c 'cd alpha.feature && tmux set-option -t alpha/first @smth.repo "$(pwd -P)" && tmux set-option -t alpha/alias @smth.repo "$(pwd -P)"'
+    :$ smth --base alpha --create feature
+
+The CLI reuses one live session per checkout. Rename it and attach a second
+alias manually to construct the shared-checkout state this case needs.
+
+    :t rename-session -t alpha/feature alpha/first
+    :t new-session -d -s alpha/alias -c alpha.feature "cat"
+    :t set-option -F -t '=alpha/alias:' @smth.repo '#{pane_start_path}'
     :t new-session -d -s ui "smth -r 'alpha*'; cat"
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0

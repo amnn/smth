@@ -10,12 +10,10 @@ deleted path.
     :$ jj git init beta
     :$ jj describe -R beta -m "beta commit"
 
-Create a named workspace and a live tmux session carrying the same repository
-metadata that `smth` records.
+Create a named workspace and its live session through the CLI before removing
+the default registration below.
 
-    :$ jj workspace add -R beta --name zeta beta.zeta
-    :t new-session -d -s beta/zeta -c beta.zeta "cat"
-    :t set-option -F -t '=beta/zeta:' @smth.repo '#{pane_start_path}'
+    :$ smth --base beta --create zeta
 
 Forget the default workspace registration while leaving its checkout and the
 repository store in place. Workspace discovery can still identify `zeta`, but

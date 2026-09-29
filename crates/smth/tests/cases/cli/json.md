@@ -9,17 +9,17 @@ to the default checkout. This gives inspection both live and repo-only identitie
     :b jj cat sh sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
+    :$ smth --no-base --create-repo --create alpha
+
     :$ jj workspace add -R alpha --name feature alpha.feature
 
-Create a live session attached to the default checkout, flag it, and publish an
-agent state that requires attention. The runner session remains a plain live
+Rename the default checkout's live session, flag it, and publish an agent state
+that requires attention. The runner session remains a plain live
 session, while the named workspace is a non-live candidate discovered by the
 glob.
 
-    :t new-session -d -s alpha-live -c alpha "cat"
-    :t set-option -F -t '=alpha-live:' @smth.repo '#{pane_start_path}'
-    :t set-option -t '=alpha-live:' @smth.flag 1
+    :t rename-session -t alpha alpha-live
+    :$ smth --base alpha --flag
     :t set-option -p -t alpha-live:0.0 @smth.agent.state waiting
     :$ sh -c 'smth --no-base --repo "alpha*" --json | sed "s#$PWD#<ROOT>#g"'
 

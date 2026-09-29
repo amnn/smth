@@ -11,11 +11,10 @@ to `first` so later query changes can hide staged entries.
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
-    :$ jj workspace add -R alpha --name first alpha.first
+    :$ smth --base alpha --create first
+
     :$ jj workspace add -R alpha --name second alpha.second
-    :t new-session -d -s alpha/first
-    :$ sh -c 'cd alpha.first && tmux set-option -t alpha/first @smth.repo "$(pwd -P)"'
-    :t set-option -t alpha/first @smth.flag 1
+    :$ smth --base alpha --flag first
     :t new-session -d -s ui "smth -r 'alpha*'; cat"
     :t resize-window -t ui:0 -x 120 -y 16
     :p ui:0.0

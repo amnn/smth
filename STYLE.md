@@ -148,6 +148,16 @@ do not leave readers to infer the assertion from key presses or captured output.
 A shared explanation can cover a short sequence when it clearly identifies the
 expected result of each step.
 
+Prefer `smth`'s non-interactive CLI for ordinary setup when it simplifies
+repository/workspace creation, tmux session creation, metadata assignment, or
+staging. The goal is simpler, higher-level setup, not using `smth` everywhere;
+keep direct setup when a CLI-based equivalent needs extra shell plumbing or
+manual metadata manipulation without reducing complexity.
+For example, use `smth --base alpha --create feature` for a live workspace-backed
+session. Keep direct `jj` or `tmux` setup when the test needs repo-only entries,
+custom history, aliases, stale or malformed metadata, or other state the CLI
+cannot construct. Do not pre-create the state whose creation the test asserts.
+
 Prefer short forms for integration-test directives and their flags, such as
 `:$`, `:t`, and `:snap -d 2s -e ready`. This rule applies to the test runner's
 syntax, not the binaries invoked by directives or quoted shell commands.

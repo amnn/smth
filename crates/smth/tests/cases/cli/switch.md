@@ -12,7 +12,6 @@ creation without adding workspaces.
     :t rename-session -t 0 runner
     :$ jj git init alpha
     :$ jj describe -R alpha -m "base commit"
-    :$ jj workspace add -R alpha --name feature alpha.feature
     :$ jj workspace add -R alpha --name other alpha.other
 
 Create a live feature session with agent attention in its second window. A
@@ -20,8 +19,9 @@ named-workspace base with no operand should infer `feature`, and switching to an
 existing live target should select its first attention window. Stdout should
 contain only the session name, not the window target.
 
-    :t new-session -d -s feature-live -c alpha.feature "cat"
-    :t set-option -F -t '=feature-live:' @smth.repo '#{pane_start_path}'
+    :$ smth --base alpha --create feature
+
+    :t rename-session -t alpha/feature feature-live
     :t new-window -d -t feature-live:1 -c alpha.feature "cat"
     :t set-option -p -t feature-live:1.0 @smth.agent.state waiting
     :t respawn-pane -k -t runner:0.0 'smth --base alpha.feature --switch > switch-name; tmux wait-for -S switched-feature; cat'

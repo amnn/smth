@@ -21,10 +21,10 @@ needed.
 Launch live sessions for `alpha` and `gamma`, while `beta` and `delta` remain
 repo-only entries discovered through the CLI globs.
 
-    :t new-session -d -s alpha "cat"
-    :t set-option -t alpha @smth.repo alpha
-    :t new-session -d -s gamma "cat"
-    :t set-option -t gamma @smth.repo gamma
+    :$ smth --base alpha --create
+
+    :$ smth --base gamma --create
+
     :t new-session -d -s ui "smth -r 'alpha' -r 'beta' -r 'gamma' -r 'delta'"
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0
@@ -50,10 +50,13 @@ disambiguated.
     :k ha
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
-Completing the name of the non-live `beta` repo removes the disambiguation from
-the new-session row, because there is no live session named `beta`.
+Search for the non-live `beta` repo and select the prospective plain-session
+row again. Its name should have no suffix because no live session is named
+`beta`; selecting the candidate keeps that assertion visible in the snapshot.
 
     :k C-u beta
+    :settle -d 2s -e '^session: beta' -e '1/6'
+    :k M-up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ---

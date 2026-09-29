@@ -9,21 +9,16 @@ tmux session, forget the workspace, and remove the workspace directory.
     :$ jj git init alpha
     :$ jj describe -R alpha -m "alpha commit"
 
-First create a workspace-backed session through `smth`, so the session has the
-same metadata as normal user-created workspace sessions.
+Create the workspace-backed session through the CLI, giving it normal session
+metadata without driving a second picker just for setup.
 
-    :t new-session -d -s create "smth -r alpha; cat"
-    :t resize-window -t create:0 -x 120 -y 12
-    :p create:0.0
-    :settle -d 2s
-    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-workspace-session"
-    :k alpha C-r C-u feature enter
-    :t wait-for created-workspace-session
-    :settle -d 2s
+    :$ smth --base alpha --create feature
 
-Launch a fresh picker and select the workspace-backed session.
+Launch the picker with the named checkout as its base and select its live
+session. The header should normalize that context to the default workspace,
+which must remain usable after the named checkout is deleted.
 
-    :t new-session -d -s ui "smth -r \"$HOME/alpha*\"; cat"
+    :t new-session -d -s ui "smth --base alpha.feature -r \"$HOME/alpha*\"; cat"
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0
     :settle -d 2s

@@ -26,10 +26,18 @@ needed.
 Launch live sessions for `alpha` and `gamma`, while `beta` and `delta` remain
 repo-only entries discovered through the CLI globs.
 
-    :t new-session -d -s alpha "cat" (success)
-    :t set-option -t alpha @smth.repo alpha (success)
-    :t new-session -d -s gamma "cat" (success)
-    :t set-option -t gamma @smth.repo gamma (success)
+    :$ smth --base alpha --create (exit: 0)
+
+```stdout
+alpha
+```
+
+    :$ smth --base gamma --create (exit: 0)
+
+```stdout
+gamma
+```
+
     :t new-session -d -s ui "smth -r 'alpha' -r 'beta' -r 'gamma' -r 'delta'" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
     :p ui:0.0
@@ -42,7 +50,7 @@ Pressing `C-n` should do nothing and leave the picker open in the same state.
 
 ```terminal
 session:
-  8/8 | [C-r] repo: none
+  6/6 | [C-r] repo: none
 ▌■ runner                                                                                                              ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -60,7 +68,7 @@ session:
 
 ```terminal
 session:
-  8/8 | [C-r] repo: none
+  6/6 | [C-r] repo: none
 ▌■ runner                                                                                                              ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -81,7 +89,7 @@ because `alp` is not an exact live session name.
 
 ```terminal
 session: alp
-  2/8 | [C-r] repo: none
+  1/6 | [C-r] repo: none
 ▌  alp                                                                                                            tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -102,7 +110,7 @@ disambiguated.
 
 ```terminal
 session: alpha
-  2/8 | [C-r] repo: none
+  1/6 | [C-r] repo: none
 ▌  alpha~1                                                                                                        tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -115,21 +123,24 @@ session: alpha
 
 ```
 
-Completing the name of the non-live `beta` repo removes the disambiguation from
-the new-session row, because there is no live session named `beta`.
+Search for the non-live `beta` repo and select the prospective plain-session
+row again. Its name should have no suffix because no live session is named
+`beta`; selecting the candidate keeps that assertion visible in the snapshot.
 
     :k C-u beta
+    :settle -d 2s -e '^session: beta' -e '1/6' (settled)
+    :k M-up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
 session: beta
-  1/8 | [C-r] repo: none
-▌  beta                                     ~/beta                                                                     ┃
+  1/6 | [C-r] repo: none
+▌  beta                                                                                                           tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-@  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
-│  (empty) beta commit
-◆  wwwwwwww root() hhhhhhhh
+
+
+
 
 
 
