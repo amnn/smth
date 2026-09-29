@@ -9,10 +9,7 @@ A stable old screen must not satisfy an expectation for the next state, even
 with a single required capture. All expectations must match the same frame;
 matching only `waiting` is not enough. Release the waiting pane asynchronously.
 
-    :bins echo sleep
-
-> [!NOTE]
-> 'echo', and 'sleep' are available.
+    :bins echo sleep (available)
 
     :t new-window -d -n expected 'echo waiting; tmux wait-for -S old-ready; tmux wait-for release; echo ready; sleep 10' (success)
     :pane 0:expected.0

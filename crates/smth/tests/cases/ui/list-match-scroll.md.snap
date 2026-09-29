@@ -9,10 +9,7 @@ When a fuzzy match lands beyond the visible width of a long session row, the row
 content should scroll horizontally far enough to keep the last matched character
 visible.
 
-    :bins cat jj mkdir
-
-> [!NOTE]
-> 'cat', 'jj', and 'mkdir' are available.
+    :bins cat jj mkdir (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

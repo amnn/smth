@@ -15,10 +15,7 @@ This scenario verifies the preview scrollbar threshold with the fixed
 The helper script below writes numbered commits into each repo so the test data
 is generated consistently.
 
-    :bins jj cat python3
-
-> [!NOTE]
-> 'jj', 'cat', and 'python3' are available.
+    :bins jj cat python3 (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -10,10 +10,7 @@ input_file: crates/smth-integration-tests/tests/cases/runner/sh.md
 Successful shell commands should append an exit annotation and then write stdout inside a fenced
 code block.
 
-    :b echo
-
-> [!NOTE]
-> 'echo' is available.
+    :b echo (available)
 
     :$ echo hello from sh (exit: 0)
 
@@ -36,10 +33,7 @@ isolated environment and produce a WARNING callout.
 Failing shell commands should append a non-zero exit annotation and then write stderr inside a
 fenced code block.
 
-    :b sh
-
-> [!NOTE]
-> 'sh' is available.
+    :b sh (available)
 
     :$ sh -c "printf 'hello from stderr\n' >&2; exit 1" (exit: 1)
 
@@ -52,10 +46,7 @@ hello from stderr
 When a command exits non-zero and writes both streams, stdout should be shown first and stderr
 should be shown second.
 
-    :b sh
-
-> [!NOTE]
-> 'sh' is available.
+    :b sh (available)
 
     :$ sh -c "printf 'hello from stdout\n'; printf 'hello from stderr\n' >&2; exit 7" (exit: 7)
 
@@ -71,10 +62,7 @@ hello from stderr
 
 When a command exits zero and writes both streams, only stdout should be shown in the transcript.
 
-    :b sh
-
-> [!NOTE]
-> 'sh' is available.
+    :b sh (available)
 
     :$ sh -c "printf 'hello from stdout\n'; printf 'hello from stderr\n' >&2; exit 0" (exit: 0)
 
@@ -86,10 +74,7 @@ hello from stdout
 
 Successful shell commands without stdout should only produce the annotated raw line.
 
-    :b true
-
-> [!NOTE]
-> 'true' is available.
+    :b true (available)
 
     :$ true (exit: 0)
 

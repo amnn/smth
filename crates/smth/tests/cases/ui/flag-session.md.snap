@@ -9,10 +9,7 @@ Live tmux sessions can carry a persistent manual flag in `@smth.flag`. A
 flagged session should show an alert-like pip with distinct colour and offer an
 `unflag` shortcut in the footer.
 
-    :bins jj tmux cat
-
-> [!NOTE]
-> 'jj', 'tmux', and 'cat' are available.
+    :bins jj tmux cat (available)
 
     :t rename-session -t 0 runner (success)
     :t new-session -d -s alpha "cat" (success)

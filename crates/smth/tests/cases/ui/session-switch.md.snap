@@ -9,10 +9,7 @@ This scenario launches `smth` in the runner's attached tmux pane and verifies
 that pressing Enter on a live session switches that client to the selected
 session.
 
-    :bins jj cat tmux
-
-> [!NOTE]
-> 'jj', 'cat', and 'tmux' are available.
+    :bins jj cat tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -10,10 +10,7 @@ input_file: crates/smth-integration-tests/tests/cases/runner/keys.md
 The runner should send text keys literally, then named keys like `enter`, to the current active
 pane.
 
-    :bins cat python3 scripts/tmcap
-
-> [!NOTE]
-> 'cat', 'python3', and 'scripts/tmcap' are available.
+    :bins cat python3 scripts/tmcap (available)
 
     :t new-window -d -n keys 'tmcap keys' (success)
     :p 0:keys.0

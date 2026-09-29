@@ -10,10 +10,7 @@ unfocused agent newly enters an attention-worthy state. Publishing idle, running
 or exit should clear that pane's pending notification after updating its metadata.
 Interpolated values must remain data through every shell level.
 
-    :bins sh cat
-
-> [!NOTE]
-> 'sh', and 'cat' are available.
+    :bins sh cat (available)
 
     :t set-window-option -g monitor-bell on (success)
 

@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/cli/create-repo.md
 `--create-repo` should modify `--create` and `--switch` to initialize a fresh
 colocated repository before creating its tmux session.
 
-    :bins jj tmux cat sh sed mkdir
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', 'sed', and 'mkdir' are available.
+    :bins jj tmux cat sh sed mkdir (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

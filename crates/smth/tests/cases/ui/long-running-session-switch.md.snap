@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/long-running-session-switch.md
 Switching to a session that takes time to create should show progress until the
 client switches and the picker exits.
 
-    :bins jj tmux cat sleep
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', and 'sleep' are available.
+    :bins jj tmux cat sleep (available)
 
     :t rename-session -t 0 runner (success)
     :t resize-window -t runner:0 -x 120 -y 14 (success)

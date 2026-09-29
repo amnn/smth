@@ -9,10 +9,7 @@ Explicit base options should seed the same repository context that is normally
 inferred from the current working directory. Named workspaces retain their
 identity while the picker uses the default workspace as its repository family.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/delete-batch.md
 Deletion selections survive navigation and filtering, remain separate from
 persistent flags, and include hidden sessions when confirmed.
 
-    :bins jj tmux cat sh test sleep
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', 'test', and 'sleep' are available.
+    :bins jj tmux cat sh test sleep (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

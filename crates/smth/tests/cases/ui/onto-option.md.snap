@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/onto-option.md
 An explicit `--onto` revision should seed the interactive repository context
 without opening the revision picker.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

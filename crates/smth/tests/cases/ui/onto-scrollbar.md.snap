@@ -9,10 +9,7 @@ This scenario verifies that the onto picker selects and inverts the working-copy
 commit, navigates commits independently from fuzzy matching, jumps between
 matches, and scrolls an overflowing current-repo log.
 
-    :bins jj cat python3 sleep
-
-> [!NOTE]
-> 'jj', 'cat', 'python3', and 'sleep' are available.
+    :bins jj cat python3 sleep (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/cli/delete.md
 `--delete` resolves a discovered named-workspace session, forgets and removes
 its checkout, then closes every live session attached to that checkout.
 
-    :bins jj tmux cat test touch
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'test', and 'touch' are available.
+    :bins jj tmux cat test touch (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

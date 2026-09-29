@@ -5,7 +5,6 @@
 
 use std::ffi::OsStr;
 use std::fmt;
-use std::fmt::Write as _;
 use std::fs;
 use std::num::NonZeroUsize;
 use std::path::Path;
@@ -125,53 +124,26 @@ impl Runner {
     }
 
     /// Resolve requested binaries into the runner environment and report gaps.
-    async fn eval_bins(&self, w: &mut impl fmt::Write, args: &[String]) -> fmt::Result {
+    async fn eval_bins(&self, w: &mut impl fmt::Write, raw: &str, args: &[String]) -> fmt::Result {
+        write!(w, "{raw}")?;
         let futures = args.iter().map(|arg| self.env.bin(arg));
         let results = future::join_all(futures).await;
+        let failures: Vec<_> = args
+            .iter()
+            .zip(results)
+            .filter_map(|(arg, result)| result.err().map(|error| (arg, error)))
+            .collect();
 
-        let mut success = vec![];
-        let mut failure = vec![];
-        for (arg, result) in args.iter().zip(results) {
-            match result {
-                Ok(_) => success.push(arg.as_str()),
-                Err(error) => failure.push((arg.as_str(), format!("{error:#}"))),
-            }
+        if failures.is_empty() {
+            return writeln!(w, " (available)");
         }
 
-        let mut add_space = false;
-        match &success[..] {
-            [] => {}
-            [bin] => {
-                write_callout(w, "NOTE", &[&format!("'{bin}' is available.")])?;
-                add_space = true;
-            }
-
-            [heads @ .., last] => {
-                let mut line = String::new();
-
-                let mut prefix = "";
-                for bin in heads {
-                    line.push_str(prefix);
-                    write!(line, "'{bin}'")?;
-                    prefix = ", ";
-                }
-
-                write!(line, ", and '{last}' are available.")?;
-                write_callout(w, "NOTE", &[&line])?;
-                add_space = true;
-            }
-        }
-
-        for (bin, err) in &failure {
-            if add_space {
-                writeln!(w)?;
-            }
-
-            let line = format!("'{bin}' is unavailable: {err}");
+        writeln!(w)?;
+        for (bin, error) in failures {
+            writeln!(w)?;
+            let line = format!("'{bin}' is unavailable: {error:#}");
             write_callout(w, "WARNING", &[&line])?;
-            add_space = true;
         }
-
         Ok(())
     }
 
@@ -243,9 +215,7 @@ impl Runner {
             }
 
             LineKind::Bins { args } => {
-                writeln!(w, "{}", line.raw)?;
-                writeln!(w)?;
-                self.eval_bins(w, args).await?;
+                self.eval_bins(w, line.raw, args).await?;
             }
 
             LineKind::Sh { args } => {

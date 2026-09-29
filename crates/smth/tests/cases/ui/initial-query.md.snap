@@ -7,10 +7,7 @@ input_file: crates/smth/tests/cases/ui/initial-query.md
 
 The `--query` flag should seed the interactive filter before the picker draws.
 
-    :bins jj cat tmux
-
-> [!NOTE]
-> 'jj', 'cat', and 'tmux' are available.
+    :bins jj cat tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

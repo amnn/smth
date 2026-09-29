@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/cancel-and-exit.md
 C-g cancels the innermost mode, then pending deletions, and otherwise does
 nothing. C-c and Esc exit the picker without clearing persisted deletions.
 
-    :bins jj tmux cat test grep
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'test', and 'grep' are available.
+    :bins jj tmux cat test grep (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

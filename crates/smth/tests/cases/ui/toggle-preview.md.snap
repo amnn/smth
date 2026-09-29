@@ -7,10 +7,7 @@ input_file: crates/smth/tests/cases/ui/toggle-preview.md
 
 This scenario verifies that `C-p` toggles the preview pane.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

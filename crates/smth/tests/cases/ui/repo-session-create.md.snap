@@ -10,10 +10,7 @@ have a live tmux session. Pressing Enter on that entry should create a detached
 tmux session for the repo, attach `@smth.repo` metadata, and switch the current
 client to it.
 
-    :bins jj tmux
-
-> [!NOTE]
-> 'jj', and 'tmux' are available.
+    :bins jj tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

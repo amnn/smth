@@ -13,6 +13,10 @@ Test cases live in `tests/cases/**/*.md`.
 
 Supported directives:
 
+- `:b` / `:bins <binary...>`
+  - Make host binaries available in the sandboxed PATH.
+  - Success appends `(available)` to the directive; failures produce warning
+    callouts for unavailable binaries, without success callouts.
 - `:$` / `:sh <cmd...>`
   - Run a host command via Rust `Command`.
   - Arguments are parsed with `shlex`.

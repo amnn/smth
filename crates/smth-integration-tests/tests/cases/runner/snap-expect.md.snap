@@ -9,10 +9,7 @@ A conditional snapshot waits past the stable old screen and captures the same
 frame that satisfied every condition. Matching only `waiting` is not enough.
 Release the waiting pane asynchronously.
 
-    :bins echo sleep
-
-> [!NOTE]
-> 'echo', and 'sleep' are available.
+    :bins echo sleep (available)
 
     :t new-window -d -n expected 'echo waiting; tmux wait-for -S snap-old-ready; tmux wait-for snap-release; echo snapshot-ready; sleep 10' (success)
 

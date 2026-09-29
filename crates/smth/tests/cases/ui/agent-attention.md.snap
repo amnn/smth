@@ -11,10 +11,7 @@ harnesses should use the same attention pip styling as a tmux bell; running and
 idle harnesses should not. A manual flag on a session that also has agent
 attention should retain the existing attention-over-flag precedence.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

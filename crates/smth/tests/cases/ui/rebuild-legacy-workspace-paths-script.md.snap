@@ -10,10 +10,7 @@ workspaces already exist. The recovery script should rebuild that index, and
 `smth` should then use the recorded default workspace as the base when creating
 a new workspace from a named workspace checkout.
 
-    :bins jj tmux sh sed python3
-
-> [!NOTE]
-> 'jj', 'tmux', 'sh', 'sed', and 'python3' are available.
+    :bins jj tmux sh sed python3 (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

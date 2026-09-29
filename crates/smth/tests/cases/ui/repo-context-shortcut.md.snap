@@ -9,10 +9,7 @@ This scenario launches `smth` from inside the `alpha` repository so the
 picker starts with a repo context inferred from `cwd`, then uses `C-r` both on
 an unfiltered repo row and on a row selected from a multi-match query.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

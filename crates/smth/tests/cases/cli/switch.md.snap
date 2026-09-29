@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/cli/switch.md
 `--switch` should share create semantics, then switch the invoking tmux client
 to the strictly resolved target and print its actual session name.
 
-    :bins jj tmux cat sh sed
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', and 'sed' are available.
+    :bins jj tmux cat sh sed (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -9,10 +9,7 @@ A stale default jj workspace should not prevent creating a new repo-backed
 session. `smth` should allow jj to update the stale working copy automatically
 as part of workspace creation.
 
-    :bins jj tmux sh sed cat
-
-> [!NOTE]
-> 'jj', 'tmux', 'sh', 'sed', and 'cat' are available.
+    :bins jj tmux sh sed cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

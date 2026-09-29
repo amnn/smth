@@ -7,10 +7,7 @@ input_file: crates/smth/tests/cases/ui/delete-persisted-workspace.md
 
 Two live sessions sharing a checkout share one persisted deletion selection.
 
-    :bins jj tmux cat sh test sleep
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', 'test', and 'sleep' are available.
+    :bins jj tmux cat sh test sleep (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

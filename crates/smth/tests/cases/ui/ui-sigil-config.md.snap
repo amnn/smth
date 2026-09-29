@@ -7,10 +7,7 @@ input_file: crates/smth/tests/cases/ui/ui-sigil-config.md
 
 A custom UI sigil should replace the default live tmux session marker.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

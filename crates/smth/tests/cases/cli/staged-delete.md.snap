@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/cli/staged-delete.md
 Create named workspaces in two repository families and an unrelated workspace
 that must survive the batch. Use the public CLI to create normal session state.
 
-    :bins jj tmux cat sh sed test
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', 'sed', and 'test' are available.
+    :bins jj tmux cat sh sed test (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)

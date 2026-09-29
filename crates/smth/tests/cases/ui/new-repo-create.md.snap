@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/new-repo-create.md
 The picker should offer a fresh-repository candidate above the ordinary plain
 candidate. `C-n` creates the selected candidate while retaining the picker.
 
-    :bins jj tmux cat sh sed
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', and 'sed' are available.
+    :bins jj tmux cat sh sed (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w .config/smth/smth.toml (written)

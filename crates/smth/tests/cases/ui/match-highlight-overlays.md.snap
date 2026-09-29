@@ -10,10 +10,7 @@ a session row. This case matches characters in the live session name, the dim
 repo parent path, and the plain repo basename; the linked SVG snapshot preserves
 those combined styles.
 
-    :bins jj cat mkdir
-
-> [!NOTE]
-> 'jj', 'cat', and 'mkdir' are available.
+    :bins jj cat mkdir (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

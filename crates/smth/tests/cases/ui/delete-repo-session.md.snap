@@ -9,10 +9,7 @@ input_file: crates/smth/tests/cases/ui/delete-repo-session.md
 there is no live tmux session to close. Confirming should forget the workspace
 and delete the workspace checkout.
 
-    :bins jj tmux cat sh test sleep
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', 'test', and 'sleep' are available.
+    :bins jj tmux cat sh test sleep (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

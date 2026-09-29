@@ -9,10 +9,7 @@ This scenario creates one quiet tmux session and one session with a bell alert,
 then launches `smth`. The markdown transcript remains textual, and the linked
 SVG snapshots cover row styling.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -11,10 +11,7 @@ the ephemeral plain-session row is selectable below the repository candidate
 when the query is non-empty, with names disambiguated from live sessions as
 needed.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 
