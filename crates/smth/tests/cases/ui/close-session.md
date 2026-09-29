@@ -4,14 +4,13 @@
 workspace, then refreshes the session list without closing the app or resetting
 the query.
 
-    :bins jj tmux cat sleep
-
+    :b jj tmux cat sleep
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"
     :t new-session -d -s alpine "cat"
     :t new-session -d -s ui "smth; cat"
     :t resize-window -t ui:0 -x 120 -y 14
-    :pane ui:0.0
+    :p ui:0.0
     :settle
 
 Filter to the matching sessions. The first match, `alpha`, is selected.

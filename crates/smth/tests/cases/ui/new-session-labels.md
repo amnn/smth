@@ -3,12 +3,11 @@
 Only prospective rows have dim, right-aligned creation labels. Labels overwrite
 an overlapping repository path, with a space on either side of the label.
 
-    :bins cat jj
-
+    :b cat jj
     :t rename-session -t 0 runner
     :t resize-window -t runner:0 -x 80 -y 14
     :t respawn-pane -k -t runner:0.0 'smth --no-base --repo-root parent; cat'
-    :pane runner:0.0
+    :p runner:0.0
     :settle -d 2s
     :k prospective
     :snap --color

@@ -6,10 +6,8 @@ the ephemeral plain-session row is selectable below the repository candidate
 when the query is non-empty, with names disambiguated from live sessions as
 needed.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
     :$ jj describe -R alpha -m "alpha commit"
@@ -29,7 +27,7 @@ repo-only entries discovered through the CLI globs.
     :t set-option -t gamma @smth.repo gamma
     :t new-session -d -s ui "smth -r 'alpha' -r 'beta' -r 'gamma' -r 'delta'"
     :t resize-window -t ui:0 -x 120 -y 12
-    :pane ui:0.0
+    :p ui:0.0
     :settle
 
 Initially the query is empty, so no new-session candidate is available.

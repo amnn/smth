@@ -3,14 +3,12 @@
 Ctrl+n on the ephemeral new-session row creates the session without switching
 the current tmux client or closing the picker.
 
-    :bins jj tmux
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Type a unique session name and create it without switching.

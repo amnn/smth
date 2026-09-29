@@ -8,17 +8,15 @@ input_file: crates/smth/tests/cases/ui/current-repo-header.md
 This scenario launches `smth` from inside a repository directory to verify
 the picker header shows the repo inferred from the current working directory.
 
-    :bins jj cat (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj cat (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
     :$ jj describe -R alpha -m "alpha commit" (exit: 0)
     :t new-session -d -s alpha-live "cat" (success)
     :t new-session -d -s ui "cd alpha && smth" (success)
     :t resize-window -t ui:0 -x 80 -y 10 (success)
-    :pane ui:0.0
+    :p ui:0.0
 
 This snapshot shows the initial picker state, including the current repo in the
 header.

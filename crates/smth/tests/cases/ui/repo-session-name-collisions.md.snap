@@ -10,10 +10,8 @@ candidate should use the same suffix needed to avoid live tmux session names.
 Repo candidates are distinguished by their paths rather than by increasing
 suffixes.
 
-    :bins jj tmux mkdir cat (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux mkdir cat (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ mkdir -p alpha omega (exit: 0)
     :$ jj git init alpha/beta (exit: 0)
@@ -29,7 +27,7 @@ will also show `beta~1`:
 
     :t new-session -d -s ui "smth -r '*/beta'" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
     :k C-p beta
     :snap

@@ -3,9 +3,8 @@
 Create named workspaces in two repository families and an unrelated workspace
 that must survive the batch. Use the public CLI to create normal session state.
 
-    :bins jj tmux cat sh sed test
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
+    :b jj tmux cat sh sed test
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ smth -B --repo-root . --create-repo -c alpha
 

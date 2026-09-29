@@ -6,7 +6,6 @@ Successful shell commands should append an exit annotation and then write stdout
 code block.
 
     :b echo
-
     :$ echo hello from sh
 
 ## Command not in bins fails to execute
@@ -22,7 +21,6 @@ Failing shell commands should append a non-zero exit annotation and then write s
 fenced code block.
 
     :b sh
-
     :$ sh -c "printf 'hello from stderr\n' >&2; exit 1"
 
 ## Command writes both streams and fails
@@ -31,7 +29,6 @@ When a command exits non-zero and writes both streams, stdout should be shown fi
 should be shown second.
 
     :b sh
-
     :$ sh -c "printf 'hello from stdout\n'; printf 'hello from stderr\n' >&2; exit 7"
 
 ## Command writes both streams and succeeds
@@ -39,7 +36,6 @@ should be shown second.
 When a command exits zero and writes both streams, only stdout should be shown in the transcript.
 
     :b sh
-
     :$ sh -c "printf 'hello from stdout\n'; printf 'hello from stderr\n' >&2; exit 0"
 
 ## Successful shell command can be silent
@@ -47,7 +43,6 @@ When a command exits zero and writes both streams, only stdout should be shown i
 Successful shell commands without stdout should only produce the annotated raw line.
 
     :b true
-
     :$ true
 
 ---

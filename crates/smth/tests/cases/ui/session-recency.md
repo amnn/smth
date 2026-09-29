@@ -4,10 +4,8 @@ Live tmux sessions should be ordered by tmux's `session_last_attached` value.
 The picker should initially select the second-most-recent live session so
 pressing Enter can switch back to the previous session.
 
-    :bins jj cat sh sleep tmux
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat sh sleep tmux
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"
     :t new-session -d -s beta "cat"
@@ -23,7 +21,7 @@ because tmux reports attachment times with one-second resolution.
     :t switch-client -t gamma
     :$ sleep 1
     :t switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
 
 The non-interactive list should put attached sessions in descending recency
 order and leave the never-attached `alpha` session last.

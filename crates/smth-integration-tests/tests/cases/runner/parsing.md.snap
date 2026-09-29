@@ -10,7 +10,7 @@ input_file: crates/smth-integration-tests/tests/cases/runner/parsing.md
 Shlex failures should be preserved as parser errors and emitted as WARNING callouts by the
 runner.
 
-    :sh "unterminated
+    :$ "unterminated
 
 > [!WARNING]
 > Parser error: invalid shell arguments
@@ -41,7 +41,7 @@ Invalid regular expressions in `:snap` should become parser errors with diagnost
 
 Shift modifier should not apply directly to text keys.
 
-    :keys S-a
+    :k S-a
 
 > [!WARNING]
 > Parser error: 'S-' only applies to arrow keys
@@ -50,12 +50,12 @@ Shift modifier should not apply directly to text keys.
 
 Shift modifier should only apply to arrow keys.
 
-    :keys S-enter
+    :k S-enter
 
 > [!WARNING]
 > Parser error: 'S-' only applies to arrow keys
 
-    :keys S-tab
+    :k S-tab
 
 > [!WARNING]
 > Parser error: 'S-' only applies to arrow keys

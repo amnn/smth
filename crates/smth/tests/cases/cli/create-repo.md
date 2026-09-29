@@ -3,10 +3,8 @@
 `--create-repo` should modify `--create` and `--switch` to initialize a fresh
 colocated repository before creating its tmux session.
 
-    :bins jj tmux cat sh sed mkdir
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux cat sh sed mkdir
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml
 ```toml
 [repo]
@@ -26,7 +24,6 @@ repository metadata and the usual setup script.
     :$ smth --config smth.toml --no-base --create-repo --create "project one"
 
     :$ sh -c 'test -d "config-repos/project one/.jj" && test -d "config-repos/project one/.git"'
-
     :t show-options -qv -t '=project-one:' @smth.test-created
 
     :$ sh -c 'tmux show-options -qv -t "=project-one:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
@@ -49,7 +46,6 @@ Dots are preserved in the path even when the sanitized tmux name collides.
     :$ smth --config smth.toml --no-base --create foo.bar --create-repo
 
     :$ sh -c 'test -d config-repos/foo.bar/.jj && test ! -e config-repos/foo.bar~2'
-
     :$ sh -c 'tmux show-options -qv -t "=foo-bar~2:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
 
 Configuring a repository root must not change the existing plain-session
@@ -58,7 +54,6 @@ behavior.
     :$ smth --config smth.toml --no-base --create bare
 
     :t show-options -qv -t '=bare:' @smth.repo
-
     :$ sh -c 'test ! -e config-repos/bare'
 
 Adding `--create-repo` must disambiguate instead of reusing or converting the
@@ -67,7 +62,6 @@ plain session.
     :$ smth --config smth.toml --no-base --create bare --create-repo
 
     :$ sh -c 'test -d config-repos/bare/.jj && test ! -e config-repos/bare~1'
-
     :t show-options -qv -t '=bare:' @smth.repo
 
 A command-line root should override the configured root.
@@ -79,9 +73,7 @@ A command-line root should override the configured root.
 An occupied path should be rejected without modifying the existing directory.
 
     :$ mkdir config-repos/collision
-
     :t new-session -d -s collision~1 "cat"
-
     :$ sh -c 'smth --config smth.toml --no-base --create collision --create-repo 2> error; status=$?; sed "s#$PWD#<ROOT>#g" error >&2; exit "$status"'
 
     :$ sh -c 'test ! -e config-repos/collision~2 && test ! -e config-repos/collision/.jj'
@@ -98,10 +90,9 @@ Its stdout should report the disambiguated name, not the requested one.
     :t display-message -p '#{client_session}'
 
     :$ sh -c 'test -d switch-repos/switched/.jj && test -d switch-repos/switched/.git'
-
     :t has-session -t '=switched'
     :t switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
 
 Without either root setting, creation should default to the process working
 directory.
@@ -113,7 +104,6 @@ globs = []
 ```
 
     :$ mkdir fallback
-
     :$ sh -c 'cd fallback && smth --config ../no-root.toml --no-base --create local --create-repo'
 
     :$ sh -c 'test -d fallback/local/.jj && test -d fallback/local/.git'
@@ -151,7 +141,6 @@ ordinary filename characters on Unix.
     :$ smth --config smth.toml --no-base --create 'a\b' --create-repo
 
     :$ sh -c 'test -d "config-repos/a\b/.jj" && test -d "config-repos/a\b/.git"'
-
     :$ smth --config smth.toml --no-base --create trailing/ --create-repo
 
     :$ sh -c 'test -d config-repos/trailing/.jj && test -d config-repos/trailing/.git'
@@ -162,7 +151,6 @@ No repository or tmux session should be created.
     :$ smth --config smth.toml --no-base --create dotted/. --create-repo
 
     :$ sh -c 'test ! -e config-repos/dotted/.jj && test ! -e config-repos/dotted/.git'
-
     :t has-session -t '=dotted'
 
     :t display-message -p '#{client_session}'

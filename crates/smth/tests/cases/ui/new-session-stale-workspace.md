@@ -4,9 +4,8 @@ A stale default jj workspace should not prevent creating a new repo-backed
 session. `smth` should allow jj to update the stale working copy automatically
 as part of workspace creation.
 
-    :bins jj tmux sh sed cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
+    :b jj tmux sh sed cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
 
 Create a default workspace with tracked content and a second, healthy workspace.
 Rewriting the default workspace's commit from the second workspace leaves its
@@ -19,7 +18,7 @@ working copy stale.
     :$ jj restore -R alpha.healthy --into 'default@' --from 'root()'
     :t new-session -d -s ui "cd alpha && smth; cat"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Type a new workspace name while the stale default workspace is the current repo

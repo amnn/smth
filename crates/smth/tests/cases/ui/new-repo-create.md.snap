@@ -8,9 +8,8 @@ input_file: crates/smth/tests/cases/ui/new-repo-create.md
 The picker should offer a fresh-repository candidate above the ordinary plain
 candidate. `C-n` creates the selected candidate while retaining the picker.
 
-    :bins jj tmux cat sh sed (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :b jj tmux cat sh sed (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w .config/smth/smth.toml (written)
 
 ```toml
@@ -24,7 +23,7 @@ setup = ": > .smth-ready"
     :t rename-session -t 0 runner (success)
     :t resize-window -t runner:0 -x 120 -y 14 (success)
     :t respawn-pane -k -t runner:0.0 'smth --no-base; cat' (success)
-    :pane runner:0.0
+    :p runner:0.0
     :settle -d 2s (settled)
 
 With an empty query, navigation skips both reserved rows and stays on a live
@@ -98,7 +97,6 @@ session: foo.bar
 
     :k C-n
     :$ sh -c 'until test -f repos/foo.bar/.smth-ready; do :; done' (exit: 0)
-
     :settle -d 2s (settled)
 
 The picker should remain open with its query cleared, and the control-mode
@@ -133,7 +131,6 @@ The repository should be colocated, use the configured root, and be attached to
 its live tmux session.
 
     :$ sh -c 'test -d repos/foo.bar/.jj && test -d repos/foo.bar/.git' (exit: 0)
-
     :$ sh -c 'tmux show-options -qv -t "=foo-bar:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
@@ -209,10 +206,8 @@ session: ...
 
     :k C-n
     :$ sh -c 'until test -f repos/.../.smth-ready; do :; done' (exit: 0)
-
     :settle -d 2s (settled)
     :$ sh -c 'test -d repos/.../.jj && test -d repos/.../.git' (exit: 0)
-
     :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
@@ -246,7 +241,6 @@ session: blocked
 
     :k C-n
     :$ sh -c 'until test -f repos/foo.bar.blocked/.smth-ready; do :; done' (exit: 0)
-
     :settle -d 2s (settled)
     :snap
 
@@ -274,7 +268,6 @@ runner
 ```
 
     :$ sh -c 'test -d repos/foo.bar.blocked/.jj && test ! -e repos/blocked' (exit: 0)
-
     :$ sh -c 'tmux show-options -qv -t "=foo-bar/blocked:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout

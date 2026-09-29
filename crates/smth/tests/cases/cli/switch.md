@@ -3,10 +3,8 @@
 `--switch` should share create semantics, then switch the invoking tmux client
 to the strictly resolved target and print its actual session name.
 
-    :bins jj tmux cat sh sed
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux cat sh sed
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
     :$ jj describe -R alpha -m "base commit"
@@ -33,7 +31,7 @@ switches. A colliding plain session should force a disambiguated name in both
 stdout and the selected client session.
 
     :t switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
     :t new-session -d -s alpha "cat"
     :t respawn-pane -k -t runner:0.0 'smth --base alpha --switch > switch-name; tmux wait-for -S switched-default; cat'
     :t wait-for switched-default
@@ -45,7 +43,7 @@ An explicit operand overrides the workspace inferred by a named base. Existing
 checkouts receive tmux sessions without creating new workspaces.
 
     :t switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
     :t respawn-pane -k -t runner:0.0 'smth --base alpha.feature --switch other > switch-name; tmux wait-for -S switched-other; cat'
     :t wait-for switched-other
     :$ cat switch-name
@@ -55,7 +53,7 @@ checkouts receive tmux sessions without creating new workspaces.
 A missing named workspace should be created at `--onto`, then switched to.
 
     :t switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
     :t respawn-pane -k -t runner:0.0 'smth --base alpha --onto @ --switch fresh > switch-name; tmux wait-for -S switched-fresh; cat'
     :t wait-for switched-fresh
     :$ cat switch-name
@@ -63,7 +61,7 @@ A missing named workspace should be created at `--onto`, then switched to.
     :t display-message -p '#{client_session}:#{window_index}'
 
     :t switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
     :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\n\"" | sed -n "/fresh/p"'
 
 Plain targets should be created in the empty base namespace and switched to in
@@ -76,7 +74,7 @@ the same way.
     :t display-message -p '#{client_session}:#{window_index}'
 
     :t switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
 
 If checkout creation fails, switching should fail without printing a session
 name.

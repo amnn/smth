@@ -10,12 +10,9 @@ workspaces already exist. The recovery script should rebuild that index, and
 `smth` should then use the recorded default workspace as the base when creating
 a new workspace from a named workspace checkout.
 
-    :bins jj tmux sh sed python3 (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
-    :copy ../../scripts/fix-jj-workspace-index.py fix-jj-workspace-index.py (copied)
-
+    :b jj tmux sh sed python3 (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :cp ../../scripts/fix-jj-workspace-index.py fix-jj-workspace-index.py (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init beta (exit: 0)
     :$ jj workspace add -R beta --name zeta beta.zeta (exit: 0)
@@ -30,7 +27,7 @@ zeta	beta.zeta
 
     :t new-session -d -s ui "cd beta.zeta && smth" (success)
     :t resize-window -t ui:0 -x 120 -y 10 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
 
 Type a new workspace name. Because the script restored workspace roots, the new

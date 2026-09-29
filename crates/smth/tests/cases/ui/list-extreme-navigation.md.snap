@@ -9,10 +9,8 @@ input_file: crates/smth/tests/cases/ui/list-extreme-navigation.md
 list. Empty prospective rows are not selectable, while both repository and
 plain-session candidates are selectable.
 
-    :bins jj cat (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj cat (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :t new-session -d -s beta "cat" (success)
     :t new-session -d -s delta "cat" (success)
@@ -20,7 +18,7 @@ plain-session candidates are selectable.
     :t new-session -d -s zeta "cat" (success)
     :t new-session -d -s ui "smth" (success)
     :t resize-window -t ui:0 -x 100 -y 12 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle (settled)
 
 Hide the preview so the session list has enough room to show several entries.

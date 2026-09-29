@@ -4,10 +4,8 @@
 list. Empty prospective rows are not selectable, while both repository and
 plain-session candidates are selectable.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s beta "cat"
     :t new-session -d -s delta "cat"
@@ -15,7 +13,7 @@ plain-session candidates are selectable.
     :t new-session -d -s zeta "cat"
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 100 -y 12
-    :pane ui:0.0
+    :p ui:0.0
     :settle
 
 Hide the preview so the session list has enough room to show several entries.

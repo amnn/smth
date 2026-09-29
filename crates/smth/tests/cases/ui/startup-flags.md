@@ -4,10 +4,8 @@ The fzf-style startup flags should let scripts seed the initial query, skip the
 UI when exactly one discovered session matches, and run a non-interactive fuzzy
 filter.
 
-    :bins jj cat tmux
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat tmux
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s beta "printf 'beta target'; cat"
     :t new-session -d -s gamma "printf 'gamma target'; cat"
@@ -17,17 +15,15 @@ matching discovered session.
 
     :$ tmux respawn-pane -k 'smth --query beta --select-1; cat'
     :settle -d 2s
-
     :t display-message -p '#{client_session}'
 
     :$ tmux switch-client -t runner
-    :pane runner:0.0
+    :p runner:0.0
 
 `--exit-0` should exit without opening the UI when the initial query has no
 matches, even though an interactive picker could offer a new-session row.
 
     :$ smth --query zzz --exit-0
-
     :t display-message -p '#{client_session}'
 
 `--filter` should avoid the UI, print matching sessions, and not switch on its
@@ -42,7 +38,6 @@ session matches.
 
     :$ tmux respawn-pane -k 'smth --query gamm --filter --select-1; cat'
     :settle -d 2s
-
     :t display-message -p '#{client_session}'
 
 A non-interactive filter with no matches should report a failed selection.

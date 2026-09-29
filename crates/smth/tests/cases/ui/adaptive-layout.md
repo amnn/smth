@@ -4,10 +4,8 @@ This scenario verifies that the picker redraws when the terminal width changes.
 At narrow widths the session list and preview are stacked vertically; once the
 terminal is wide enough they switch to a side-by-side layout.
 
-    :bins jj cat tmux sh
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat tmux sh
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
     :$ jj describe -R alpha -m "alpha commit"
@@ -15,7 +13,7 @@ terminal is wide enough they switch to a side-by-side layout.
     :$ sh -c 'cd alpha && tmux set-option -t alpha @smth.repo "$(pwd -P)"'
     :t new-session -d -s ui "smth -r alpha"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 This snapshot shows the narrow stacked layout, including the horizontal

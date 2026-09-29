@@ -4,10 +4,8 @@ This scenario selects a bookmarked commit from the onto picker and verifies that
 accepting it returns to session mode with the semantic bookmark in the header,
 without the push-status marker rendered by `jj`.
 
-    :bins git jj tmux sh sleep grep
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b git jj tmux sh sleep grep
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj config set --user user.name "Test User"
     :$ jj config set --user user.email test@example.com
@@ -26,7 +24,7 @@ without the push-status marker rendered by `jj`.
     :$ jj describe -R alpha -m "working copy"
     :t new-session -d -s ui "cd alpha && smth -r ../alpha"
     :t resize-window -t ui:0 -x 90 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Open the onto picker and wait for its working-copy row to load. Abandon that
@@ -37,7 +35,6 @@ mode.
     :k C-o
     :settle -d 2s
     :$ sh -c 'until tmux capture-pane -p -t ui:0 | grep -q "working copy"; do sleep 0.01; done'
-
     :$ jj abandon -R alpha -r @
     :k enter
     :$ sh -c 'until pane=$(tmux capture-pane -p -t ui:0) && ! printf "%s\n" "$pane" | grep -q "working copy" && printf "%s\n" "$pane" | grep -q "base commit"; do sleep 0.01; done'
@@ -55,7 +52,6 @@ base commit rather than the previous `trunk()` default.
 
     :k feature C-n
     :$ sh -c 'until tmux has-session -t alpha/feature 2>/dev/null; do sleep 0.01; done'
-
     :$ jj log -R alpha.feature -r @- --ignore-working-copy --no-graph --color never --template description
 
 ---

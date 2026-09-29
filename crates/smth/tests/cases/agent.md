@@ -3,8 +3,7 @@
 The agent subcommand should publish each supported lifecycle state to the
 invoking tmux pane's `@smth.agent.state` user option.
 
-    :bins env
-
+    :b env
     :$ smth agent idle
     :t show-options -pqv @smth.agent.state
 

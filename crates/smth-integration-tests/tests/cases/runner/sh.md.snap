@@ -11,7 +11,6 @@ Successful shell commands should append an exit annotation and then write stdout
 code block.
 
     :b echo (available)
-
     :$ echo hello from sh (exit: 0)
 
 ```stdout
@@ -34,7 +33,6 @@ Failing shell commands should append a non-zero exit annotation and then write s
 fenced code block.
 
     :b sh (available)
-
     :$ sh -c "printf 'hello from stderr\n' >&2; exit 1" (exit: 1)
 
 ```stderr
@@ -47,7 +45,6 @@ When a command exits non-zero and writes both streams, stdout should be shown fi
 should be shown second.
 
     :b sh (available)
-
     :$ sh -c "printf 'hello from stdout\n'; printf 'hello from stderr\n' >&2; exit 7" (exit: 7)
 
 ```stdout
@@ -63,7 +60,6 @@ hello from stderr
 When a command exits zero and writes both streams, only stdout should be shown in the transcript.
 
     :b sh (available)
-
     :$ sh -c "printf 'hello from stdout\n'; printf 'hello from stderr\n' >&2; exit 0" (exit: 0)
 
 ```stdout
@@ -75,7 +71,6 @@ hello from stdout
 Successful shell commands without stdout should only produce the annotated raw line.
 
     :b true (available)
-
     :$ true (exit: 0)
 
 ---

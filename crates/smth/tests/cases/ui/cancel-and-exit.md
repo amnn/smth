@@ -3,23 +3,17 @@
 C-g cancels the innermost mode, then pending deletions, and otherwise does
 nothing. C-c and Esc exit the picker without clearing persisted deletions.
 
-    :bins jj tmux cat test grep
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux cat test grep
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
-
     :$ jj workspace add -R alpha --name feature alpha.feature
-
     :t new-session -d -s ui "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S first-exited; cat"
     :t resize-window -t ui:0 -x 120 -y 12
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. delete'
-
     :k C-p C-d
     :settle -d 2s -e '1 session'
-
     :snap
 
 On a narrow terminal, the right-hand deletion controls take precedence over
@@ -41,29 +35,22 @@ keeps the app open.
 
     :k C-o
     :settle -d 2s -e '^onto:'
-
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
     :k C-g
     :settle -d 2s -e '^session:' -e '1 session'
-
     :snap
 
     :$ test -f alpha.feature/.jj/.smth-pending-delete
-
     :k C-g
     :settle -d 2s -e alpha/feature -e 'C-d. delete'
-
     :snap
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete
-
     :k C-g backspace
     :settle -d 2s -e '^session: featur\s'
-
     :k e
     :settle -d 2s -e '^session: feature\s'
-
     :snap
 
 Stage again and exit with C-c. The exit signal synchronizes the assertion that
@@ -79,45 +66,35 @@ the marker survived, and the restarted picker shows the selection again.
 
     :t respawn-pane -k -t ui:0.0 "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S second-exited; cat"
     :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. unstage'
-
     :k C-p
     :settle -d 2s -e '1 session'
-
     :snap
 
 Esc exits even from onto mode, leaving the marker intact.
 
     :k C-o
     :settle -d 2s -e '^onto:'
-
     :k esc
     :t wait-for second-exited
-
     :$ test -f alpha.feature/.jj/.smth-pending-delete
 
 C-c also exits from onto mode, rather than cancelling it.
 
     :t respawn-pane -k -t ui:0.0 "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S third-exited; cat"
     :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. unstage'
-
     :k C-o
     :settle -d 2s -e '^onto:'
-
     :k C-c
     :t wait-for third-exited
-
     :$ test -f alpha.feature/.jj/.smth-pending-delete
 
 Finally, Esc exits directly from session mode with the same persistence.
 
     :t respawn-pane -k -t ui:0.0 "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S fourth-exited; cat"
     :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. unstage'
-
     :k esc
     :t wait-for fourth-exited
-
     :$ test -f alpha.feature/.jj/.smth-pending-delete
-
     :$ test -d alpha.feature
 
 ---

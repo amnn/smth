@@ -9,16 +9,14 @@ Selecting the ephemeral new-session row uses the current repo context when
 creating a new named session, so the new session starts in that repo and records
 `@smth.repo` metadata.
 
-    :bins jj tmux (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init beta (exit: 0)
     :$ jj describe -R beta -m "beta commit" (exit: 0)
     :t new-session -d -s ui "smth -r beta" (success)
     :t resize-window -t ui:0 -x 120 -y 10 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
 
 Select the discovered repo, set it as the current repo context, then accept the

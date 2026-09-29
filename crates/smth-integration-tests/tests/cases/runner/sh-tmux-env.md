@@ -4,8 +4,7 @@ Host shell commands should receive `TMUX` and `TMUX_PANE` values matching the
 runner's current pane target, so tmux commands run through `:$` behave like
 commands launched from that pane.
 
-    :bins tmux cat
-
+    :b tmux cat
     :t rename-session -t 0 runner
     :t new-session -d -s beta "cat"
     :t list-clients -F '#{client_session}:#{pane_id}'
@@ -21,7 +20,7 @@ to the runner's current pane.
 Changing the active runner pane via the synchronized pane directive should also
 change the `TMUX_PANE` value seen by subsequent shell directives.
 
-    :pane beta:0.0
+    :p beta:0.0
     :$ tmux display-message -p '#{pane_id}'
 
 ---

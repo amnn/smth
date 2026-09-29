@@ -4,10 +4,8 @@ This scenario launches `smth` from inside the `alpha` repository so the
 picker starts with a repo context inferred from `cwd`, then uses `C-r` both on
 an unfiltered repo row and on a row selected from a multi-match query.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
     :$ jj describe -R alpha -m "alpha commit"
@@ -17,7 +15,7 @@ an unfiltered repo row and on a row selected from a multi-match query.
     :$ jj describe -R gamma -m "gamma commit"
     :t new-session -d -s ui "cd alpha && smth -r '../alpha' -r '../beta' -r '../gamma'"
     :t resize-window -t ui:0 -x 90 -y 10
-    :pane ui:0.0
+    :p ui:0.0
 
 This snapshot shows the initial picker state with the current repo inferred
 from `cwd`.

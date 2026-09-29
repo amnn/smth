@@ -3,17 +3,16 @@
 This scenario creates several plain tmux sessions with no repo metadata and
 then launches `smth`.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"
     :t new-session -d -s beta "cat"
     :t new-session -d -s gamma "cat"
+
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 80 -y 10
-    :pane ui:0.0
+    :p ui:0.0
 
 This snapshot shows the initial picker state before any query is typed, so it
 should list all discovered tmux sessions.

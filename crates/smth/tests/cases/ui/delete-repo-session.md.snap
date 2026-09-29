@@ -9,10 +9,8 @@ input_file: crates/smth/tests/cases/ui/delete-repo-session.md
 there is no live tmux session to close. Confirming should forget the workspace
 and delete the workspace checkout.
 
-    :bins jj tmux cat sh test sleep (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux cat sh test sleep (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init beta (exit: 0)
     :$ jj describe -R beta -m "beta commit" (exit: 0)
@@ -20,7 +18,7 @@ and delete the workspace checkout.
     :$ jj describe -R beta.feature -m "feature commit" (exit: 0)
     :t new-session -d -s ui "smth -r 'beta*'; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
 
 Filter to the repo-only named workspace entry. The footer should offer deletion
@@ -28,7 +26,6 @@ even though the selected row has no live tmux sigil.
 
     :k feature
     :settle -d 2s -e '1/4' -e beta/feature -e 'C-d. delete' (settled)
-
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
@@ -50,7 +47,6 @@ Pressing `C-d` should mark the repo entry for deletion.
 
     :k C-d
     :settle -d 2s -e '1 session' (settled)
-
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
@@ -76,9 +72,7 @@ workspace checkout.
 
     :k C-y
     :$ sh -c 'i=0; while test -d beta.feature; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done' (exit: 0)
-
     :settle -d 2s -e '0/3' (settled)
-
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal

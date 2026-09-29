@@ -8,10 +8,8 @@ input_file: crates/smth/tests/cases/ui/delete-batch.md
 Deletion selections survive navigation and filtering, remain separate from
 persistent flags, and include hidden sessions when confirmed.
 
-    :bins jj tmux cat sh test sleep (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux cat sh test sleep (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
     :$ jj workspace add -R alpha --name first alpha.first (exit: 0)
@@ -21,7 +19,7 @@ persistent flags, and include hidden sessions when confirmed.
     :t set-option -t alpha/first @smth.flag 1 (success)
     :t new-session -d -s ui "smth -r 'alpha*'; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 16 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
     :k C-p first
     :settle -d 2s -e '1/5' -e alpha/first -e C-d (settled)
@@ -31,10 +29,8 @@ The footer should count both sessions and the one hidden selection.
 
     :k C-d C-u second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
-
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
-
     :snap
 
 ```terminal
@@ -61,7 +57,6 @@ cursor. Colour coverage verifies that both staged names remain distinguished.
 
     :k C-u
     :settle -d 2s -e '5/5' (settled)
-
     :snap --color
 
 ```terminal
@@ -91,10 +86,8 @@ toggling it back on restores the batch.
 
     :k second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
-
     :k C-d
     :settle -d 2s -e '1 session' -e '1 hidden' (settled)
-
     :snap
 
 ```terminal
@@ -118,7 +111,6 @@ session: second                                                                 
 
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
-
     :snap
 
 ```terminal
@@ -146,10 +138,8 @@ must not discard the staged selection.
 
     :k C-g
     :settle -d 2s -e '^session:' -e 'C-d. delete' (settled)
-
     :k C-u first
     :settle -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' -e unflag (settled)
-
     :snap
 
 ```terminal
@@ -173,10 +163,8 @@ session: first                                                                  
 
     :k C-d C-f
     :settle -d 2s -e '1 session' -e 'C-f. flag' (settled)
-
     :k C-f
     :settle -d 2s -e '1 session' -e unflag (settled)
-
     :snap
 
 ```terminal
@@ -200,7 +188,6 @@ session: first                                                                  
 
     :k C-g
     :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag (settled)
-
     :snap
 
 ```terminal
@@ -224,10 +211,8 @@ session: first                                                                  
 
     :k C-d
     :settle -d 2s -e '1 session' (settled)
-
     :k C-g
     :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag (settled)
-
     :snap
 
 ```terminal
@@ -254,6 +239,7 @@ session: first                                                                  
 ```
 1
 ```
+
     :$ test -d alpha.first (exit: 0)
     :$ test -d alpha.second (exit: 0)
 
@@ -263,10 +249,8 @@ batch is running must not schedule another batch.
 
     :k C-d C-u second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
-
     :k C-d C-u unmatched
     :settle -d 2s -e '2 sessions' -e '2 hidden' (settled)
-
     :snap
 
 ```terminal
@@ -290,12 +274,10 @@ session: unmatched                                                              
 
     :k C-y C-y
     :$ sh -c 'i=0; while test -d alpha.first || test -d alpha.second; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done' (exit: 0)
-
     :settle -d 2s -e '0/3' (settled)
 
     :k C-u
     :settle -d 2s -e '3/3' (settled)
-
     :snap
 
 ```terminal
@@ -322,6 +304,7 @@ session:                                                                        
 ```stdout
 default
 ```
+
     :t has-session -t alpha/first (failure)
 
 ```

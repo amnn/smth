@@ -3,13 +3,10 @@
 A custom session setup script runs in the new session's tmux context and repo
 working directory, so setup commands can rely on default tmux targets and cwd.
 
-    :bins jj tmux cat test
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux cat test
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init beta
-
     :w .config/smth/smth.toml
 ```toml
 [tmux]
@@ -24,9 +21,8 @@ Launch the picker and select the discovered repo entry.
 
     :t new-session -d -s ui "smth -r beta"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle
-
     :k beta
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 

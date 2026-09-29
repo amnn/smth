@@ -8,8 +8,7 @@ input_file: crates/smth/tests/cases/ui/long-running-operation-spinner.md
 Creating a session in the background should keep the picker responsive and show
 delayed, operation-specific progress over the last session-list row until it finishes.
 
-    :bins jj tmux cat sleep (available)
-
+    :b jj tmux cat sleep (available)
     :t rename-session -t 0 runner (success)
 
 Block the session setup script so the create operation stays in flight long
@@ -27,7 +26,7 @@ tmux wait-for spinner-release
 
     :t new-session -d -s ui "smth; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 14 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
 
 Start creating a detached session, then wait until its setup script reaches the

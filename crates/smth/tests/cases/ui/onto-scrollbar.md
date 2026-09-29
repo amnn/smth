@@ -4,10 +4,8 @@ This scenario verifies that the onto picker selects and inverts the working-copy
 commit, navigates commits independently from fuzzy matching, jumps between
 matches, and scrolls an overflowing current-repo log.
 
-    :bins jj cat python3 sleep
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat python3 sleep
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w scripts/mklog.py
 
 ```python
@@ -31,7 +29,7 @@ for i in range(1, count + 1):
     :t new-session -d -s plain "cat"
     :t new-session -d -s ui "cd long && smth -r ../long"
     :t resize-window -t ui:0 -x 90 -y 10
-    :pane ui:0.0
+    :p ui:0.0
 
 Press `C-o` to render the current repo log in the onto picker. The child commit
 appears first, but the working-copy commit marked `@` should start selected and
@@ -75,7 +73,6 @@ this is the first of six matching commits.
 
     :k C-u line
     :settle
-
     :k tab
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
@@ -101,7 +98,6 @@ should remain while the widget disappears.
 
     :k tab
     :$ sleep 1.1
-
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Repeatedly pressing `Down` past the other end should leave the root commit

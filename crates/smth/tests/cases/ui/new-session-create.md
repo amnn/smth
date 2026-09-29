@@ -4,14 +4,12 @@ Selecting the ephemeral new-session row creates a session named by the query.
 Without repo context, the new tmux session inherits the current working
 directory and has no repo metadata.
 
-    :bins jj tmux
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Type a unique session name and accept the new-session row.

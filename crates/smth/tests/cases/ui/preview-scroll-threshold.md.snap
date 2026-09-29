@@ -15,10 +15,8 @@ This scenario verifies the preview scrollbar threshold with the fixed
 The helper script below writes numbered commits into each repo so the test data
 is generated consistently.
 
-    :bins jj cat python3 (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj cat python3 (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w scripts/mklog.py (written)
 ```python
 from subprocess import run
@@ -49,7 +47,7 @@ if __name__ == "__main__":
     :t new-session -d -s plain "cat" (success)
     :t new-session -d -s ui "smth -r exact -r overflow" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
-    :pane ui:0.0
+    :p ui:0.0
 
 This snapshot shows a preview that exactly fits the viewport, so no preview
 scrollbar should be visible.

@@ -5,7 +5,7 @@
 Shlex failures should be preserved as parser errors and emitted as WARNING callouts by the
 runner.
 
-    :sh "unterminated
+    :$ "unterminated
 
 ## Unknown directive
 
@@ -24,15 +24,15 @@ Invalid regular expressions in `:snap` should become parser errors with diagnost
 
 Shift modifier should not apply directly to text keys.
 
-    :keys S-a
+    :k S-a
 
 ## Invalid shift-modified non-shiftable key
 
 Shift modifier should only apply to arrow keys.
 
-    :keys S-enter
+    :k S-enter
 
-    :keys S-tab
+    :k S-tab
 
 ---
 vim: set ft=markdown:

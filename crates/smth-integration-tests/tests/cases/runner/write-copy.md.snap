@@ -10,8 +10,7 @@ input_file: crates/smth-integration-tests/tests/cases/runner/write-copy.md
 The `:write` directive should write the next fenced block into the sandbox so later commands can
 read it.
 
-    :bins cat python3 (available)
-
+    :b cat python3 (available)
     :write nested/hello.txt (written)
 
 ```text
@@ -31,8 +30,7 @@ from write
 The `:copy` directive should make it easy to bring a repo fixture into the sandbox without shelling
 out.
 
-    :copy scripts/tmcap nested/tmcap (copied)
-
+    :cp scripts/tmcap nested/tmcap (copied)
     :$ python3 -c "print(open('nested/tmcap').readline().strip())" (exit: 0)
 
 ```stdout

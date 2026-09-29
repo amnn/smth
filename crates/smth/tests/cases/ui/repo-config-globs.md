@@ -4,16 +4,13 @@ Repository globs from config should expand a leading `~` and stack with globs
 supplied on the command line, so both sources can surface repo-backed picker
 entries.
 
-    :bins jj
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init config-repo
     :$ jj describe -R config-repo -m "config glob commit"
     :$ jj git init cli-repo
     :$ jj describe -R cli-repo -m "cli glob commit"
-
     :w .config/smth/smth.toml
 
 ```toml
@@ -27,7 +24,7 @@ its tilde before `smth` receives it.
 
     :t new-session -d -s ui "smth -r '~/cli-repo'"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle
 
 The config-supplied glob discovers `config-repo` after expanding `~` to the

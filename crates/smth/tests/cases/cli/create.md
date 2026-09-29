@@ -3,10 +3,8 @@
 `--create` should ensure repo-backed and plain sessions exist without switching
 the current tmux client, and report the actual tmux name it selected.
 
-    :bins jj tmux cat sh sed mkdir
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux cat sh sed mkdir
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml
 ```toml
 [tmux]
