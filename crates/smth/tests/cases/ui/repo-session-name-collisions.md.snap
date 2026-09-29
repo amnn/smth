@@ -10,6 +10,9 @@ candidate should use the same suffix needed to avoid live tmux session names.
 Repo candidates are distinguished by their paths rather than by increasing
 suffixes.
 
+Create `alpha/beta` and `omega/beta`, then reserve `beta` with a plain live
+session. Neither repository has an attached session of its own.
+
     :b jj tmux mkdir cat (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)

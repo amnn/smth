@@ -11,6 +11,10 @@ harnesses should use the same attention pip styling as a tmux bell; running and
 idle harnesses should not. A manual flag on a session that also has agent
 attention should retain the existing attention-over-flag precedence.
 
+Create one session per lifecycle state, with extra panes and windows in the
+waiting, succeeded, and running sessions to exercise aggregation. Flag the
+succeeded session so attention and manual-flag styling compete on the same row.
+
     :b jj cat (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)

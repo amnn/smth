@@ -8,6 +8,9 @@ input_file: crates/smth/tests/cases/ui/list-navigation-aliases.md
 `C-j` and `C-k` move down and up by one row, while `M-j` and `M-k`
 jump to the last and first selectable rows in the session list.
 
+Create four plain sessions so single-row movement and jumps to either end have
+different destinations in the unfiltered picker.
+
     :b jj cat (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)

@@ -3,6 +3,9 @@
 `--close` should kill only a strictly resolved live tmux session and preserve
 all jj workspace state and checkout directories.
 
+Create an `alpha` repository with `feature` and `other` workspaces so closure can
+be checked separately from checkout deletion and workspace registration.
+
     :b jj tmux cat sh sed test
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

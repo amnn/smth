@@ -26,6 +26,10 @@ cannot normalize it to a default workspace.
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0
     :settle -d 2s
+
+Before deletion, the header should use `beta.zeta` as its fallback context and
+the selected live workspace should offer deletion despite the missing default.
+
     :k zeta
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 

@@ -4,6 +4,9 @@ Explicit base options should seed the same repository context that is normally
 inferred from the current working directory. Named workspaces retain their
 identity while the picker uses the default workspace as its repository family.
 
+Create a default `alpha` checkout and a named `feature` workspace without live
+sessions, so each launch can select its base independently of tmux metadata.
+
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

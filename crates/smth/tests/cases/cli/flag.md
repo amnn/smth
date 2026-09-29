@@ -3,6 +3,10 @@
 Flat lifecycle flags should resolve live sessions by repository family and
 workspace identity rather than by a guessed tmux name.
 
+Create default, `feature`, `idle`, and `other` checkouts in one repository.
+Leave `idle` without a live session to distinguish missing live targets from
+registered workspaces.
+
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

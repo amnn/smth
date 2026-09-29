@@ -3,6 +3,10 @@
 Deletion selections survive navigation and filtering, remain separate from
 persistent flags, and include hidden sessions when confirmed.
 
+Create two named workspaces: `first` has a flagged live session, while `second`
+is discoverable only through the repository glob. Hide the preview and filter
+to `first` so later query changes can hide staged entries.
+
     :b jj tmux cat sh test sleep
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
@@ -41,6 +45,9 @@ toggling it back on restores the batch.
     :k C-d
     :snap -d 2s -e '1 session' -e '1 hidden'
 
+Restaging the visible second workspace restores the two-session count, with
+only the first workspace hidden by the query.
+
     :k C-d
     :snap -d 2s -e '2 sessions' -e '1 hidden'
 
@@ -53,13 +60,20 @@ must not discard the staged selection.
     :k C-u first
     :snap -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' -e unflag
 
+Stage the live workspace and toggle its persistent flag off and on. The footer
+should still count one deletion while offering `unflag` again.
+
     :k C-d C-f
     :settle -d 2s -e '1 session' -e 'C-f. flag'
     :k C-f
     :snap -d 2s -e '1 session' -e unflag
 
+Cancelling the batch restores the ordinary delete hint without losing the flag.
+
     :k C-g
     :snap -d 2s -e alpha/first -e 'C-d. delete' -e unflag
+
+Repeat staging and cancellation to verify the same state can be reached again.
 
     :k C-d
     :settle -d 2s -e '1 session'
@@ -79,6 +93,9 @@ batch is running must not schedule another batch.
     :settle -d 2s -e '1/5' -e alpha/second -e C-d
     :k C-d C-u unmatched
     :snap -d 2s -e '2 sessions' -e '2 hidden'
+
+After confirmation and rediscovery, clearing the query should show only the
+three surviving entries, with no deletion footer or named workspaces remaining.
 
     :k C-y C-y
     :$ sh -c 'i=0; while test -d alpha.first || test -d alpha.second; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done'

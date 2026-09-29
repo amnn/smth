@@ -8,6 +8,9 @@ input_file: crates/smth/tests/cases/ui/new-repo-create.md
 The picker should offer a fresh-repository candidate above the ordinary plain
 candidate. `C-n` creates the selected candidate while retaining the picker.
 
+Configure `repos` as the creation root and have session setup write a readiness
+file. Launch outside any repository so both kinds of candidate are available.
+
     :b jj tmux cat sh sed (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w .config/smth/smth.toml (written)
@@ -238,6 +241,9 @@ session: blocked
 
 
 ```
+
+After workspace creation finishes, the query should be cleared and the picker
+should remain in the runner session, still using `foo.bar` as its context.
 
     :k C-n
     :$ sh -c 'until test -f repos/foo.bar.blocked/.smth-ready; do :; done' (exit: 0)

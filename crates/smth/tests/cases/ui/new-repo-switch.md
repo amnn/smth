@@ -3,6 +3,9 @@
 `enter` on the fresh-repository candidate should initialize the displayed
 checkout, create its session, and switch the invoking client.
 
+Configure `repos` as the root and write a readiness file from session setup so
+assertions can wait for initialization rather than just a stable picker screen.
+
     :b jj tmux cat sh sed mkdir
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w .config/smth/smth.toml
@@ -34,7 +37,9 @@ Existing matches remain the default selection. The repository candidate shows
     :k switched
     :snap
 
-Navigate between both candidates, then select the repository to create.
+Navigate between both candidates, then select the repository to create. The
+three snapshots should show the repository candidate selected, then the plain
+candidate, then the repository again, without changing either candidate's name.
 
     :k M-up
     :snap

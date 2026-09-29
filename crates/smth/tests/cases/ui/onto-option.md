@@ -3,6 +3,9 @@
 An explicit `--onto` revision should seed the interactive repository context
 without opening the revision picker.
 
+Initialize `alpha` with a described working-copy commit, then launch from outside
+it so repository and revision context must come from explicit CLI options.
+
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

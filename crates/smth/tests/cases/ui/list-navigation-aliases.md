@@ -3,6 +3,9 @@
 `C-j` and `C-k` move down and up by one row, while `M-j` and `M-k`
 jump to the last and first selectable rows in the session list.
 
+Create four plain sessions so single-row movement and jumps to either end have
+different destinations in the unfiltered picker.
+
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

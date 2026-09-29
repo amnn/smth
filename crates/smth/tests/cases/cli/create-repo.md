@@ -3,6 +3,10 @@
 `--create-repo` should modify `--create` and `--switch` to initialize a fresh
 colocated repository before creating its tmux session.
 
+Configure a repository root and a setup script that marks each new session.
+The runner stays attached so detached creation can be distinguished from a
+client switch.
+
     :b jj tmux cat sh sed mkdir
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml

@@ -3,6 +3,9 @@
 Default jj workspace checkouts are not deletable from `smth`; only named
 workspaces can be deleted.
 
+Initialize only the default `beta` checkout, with no live session attached, and
+make it discoverable through the picker's repository glob.
+
     :b jj tmux cat test
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

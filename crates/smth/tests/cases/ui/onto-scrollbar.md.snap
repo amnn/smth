@@ -9,6 +9,10 @@ This scenario verifies that the onto picker selects and inverts the working-copy
 commit, navigates commits independently from fuzzy matching, jumps between
 matches, and scrolls an overflowing current-repo log.
 
+Build six numbered commits plus a child, then move the working copy back to
+`line 06`. The child remains above it, distinguishing initial working-copy
+selection from simply selecting the first row; the history exceeds the pane.
+
     :b jj cat python3 sleep (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w scripts/mklog.py (written)
