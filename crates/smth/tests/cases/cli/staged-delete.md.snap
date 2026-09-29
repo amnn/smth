@@ -1,0 +1,183 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/cli/staged-delete.md
+---
+# Persistent staged deletion from the CLI
+
+Create named workspaces in two repository families and an unrelated workspace
+that must survive the batch. Use the public CLI to create normal session state.
+
+    :bins jj tmux cat sh sed test
+
+> [!NOTE]
+> 'jj', 'tmux', 'cat', 'sh', 'sed', and 'test' are available.
+
+    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :t rename-session -t 0 runner (success)
+    :$ smth -B --repo-root . --create-repo -c alpha (exit: 0)
+
+```stdout
+alpha
+```
+
+    :$ smth -B --repo-root . --create-repo -c beta (exit: 0)
+
+```stdout
+beta
+```
+
+    :$ smth -b alpha -c first (exit: 0)
+
+```stdout
+alpha/first
+```
+
+    :$ smth -b beta -c second (exit: 0)
+
+```stdout
+beta/second
+```
+
+    :$ smth -b alpha -c kept (exit: 0)
+
+```stdout
+alpha/kept
+```
+
+Staging is idempotent, does not remove the checkout, and is visible to structured
+inspection. The second request must not toggle the marker off.
+
+    :$ smth -b alpha --stage-delete first (exit: 0)
+    :$ smth -b alpha --stage-delete first (exit: 0)
+    :$ test -f alpha.first/.jj/.smth-pending-delete (exit: 0)
+    :$ sh -c 'smth -r "alpha*" -q first --json | sed "s|$(pwd -P)|<ROOT>|g"' (exit: 0)
+
+```stdout
+[
+  {
+    "base": "<ROOT>/alpha",
+    "name": "first",
+    "path": "<ROOT>/alpha.first",
+    "tmux": "alpha/first",
+    "live": true,
+    "deletable": true,
+    "pending_deletion": true,
+    "flagged": false
+  }
+]
+```
+
+Unstaging is also idempotent and preserves the checkout and live session.
+
+    :$ smth -b alpha --unstage-delete first (exit: 0)
+    :$ smth -b alpha --unstage-delete first (exit: 0)
+    :$ test ! -f alpha.first/.jj/.smth-pending-delete (exit: 0)
+    :$ test -d alpha.first (exit: 0)
+    :t has-session -t '=alpha/first' (success)
+
+Stage both families again, then close the first session. Repository discovery
+must still find its marker when the batch is executed.
+
+    :$ smth -b alpha --stage-delete first (exit: 0)
+    :$ smth -b beta --stage-delete second (exit: 0)
+    :$ smth -b alpha --close first (exit: 0)
+
+Batch execution rejects either explicit base option, with no side effects.
+
+    :$ smth -b alpha --delete-staged (exit: 2)
+
+```stderr
+error: the argument '--base <REPO>' cannot be used with '--delete-staged'
+
+Usage: smth --base <REPO>
+
+For more information, try 'help'.
+```
+
+    :$ smth -B --delete-staged (exit: 2)
+
+```stderr
+error: the argument '--no-base' cannot be used with '--delete-staged'
+
+Usage: smth --no-base
+
+For more information, try 'help'.
+```
+
+    :$ test -f alpha.first/.jj/.smth-pending-delete (exit: 0)
+    :$ test -f beta.second/.jj/.smth-pending-delete (exit: 0)
+
+Even when invoked inside alpha, deletion has no inferred base: all discovered
+staged workspaces are removed, including beta's live session. The unmarked
+workspace and both default checkouts survive. An empty selection is a no-op.
+
+    :$ sh -c 'cd alpha && smth -r "../alpha*" --delete-staged' (exit: 0)
+    :$ test ! -e alpha.first (exit: 0)
+    :$ test ! -e beta.second (exit: 0)
+    :t has-session -t '=beta/second' (failure)
+
+```
+can't find session: beta/second
+```
+
+    :$ test -d alpha.kept (exit: 0)
+    :t has-session -t '=alpha/kept' (success)
+    :$ test -d alpha (exit: 0)
+    :$ test -d beta (exit: 0)
+    :$ smth --delete-staged (exit: 0)
+
+Plain sessions, default checkouts, missing targets, and incompatible actions
+must not create markers or execute any deletions.
+
+    :$ smth -B --stage-delete runner (exit: 1)
+
+```stderr
+error: session cannot be deleted
+```
+
+    :$ smth -b alpha --stage-delete default (exit: 1)
+
+```stderr
+error: session not found
+```
+
+    :$ smth -b alpha --unstage-delete missing (exit: 1)
+
+```stderr
+error: session not found
+```
+
+    :$ smth --stage-delete (exit: 2)
+
+```stderr
+error: a value is required for '--stage-delete <SESSION>' but none was supplied
+
+For more information, try 'help'.
+```
+
+    :$ smth --stage-delete kept --delete-staged (exit: 2)
+
+```stderr
+error: the argument '--stage-delete <SESSION>' cannot be used with '--delete-staged'
+
+Usage: smth --stage-delete <SESSION>
+
+For more information, try 'help'.
+```
+
+    :$ smth --delete-staged -q kept (exit: 2)
+
+```stderr
+error: the argument '--delete-staged' cannot be used with '--query <STR>'
+
+Usage: smth --delete-staged
+
+For more information, try 'help'.
+```
+
+    :$ test ! -f alpha/.jj/.smth-pending-delete (exit: 0)
+    :$ test ! -f alpha.kept/.jj/.smth-pending-delete (exit: 0)
+
+---
+vim: set ft=markdown:

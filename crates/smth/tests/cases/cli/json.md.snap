@@ -40,6 +40,7 @@ glob.
     "tmux": "runner",
     "live": true,
     "deletable": false,
+    "pending_deletion": false,
     "flagged": false
   },
   {
@@ -48,6 +49,7 @@ glob.
     "tmux": "alpha-live",
     "live": true,
     "deletable": false,
+    "pending_deletion": false,
     "flagged": true,
     "attention": [
       "0"
@@ -62,7 +64,8 @@ glob.
     "path": "<ROOT>/alpha.feature",
     "tmux": "alpha/feature",
     "live": false,
-    "deletable": true
+    "deletable": true,
+    "pending_deletion": false
   }
 ]
 ```
@@ -80,7 +83,8 @@ an unmatched query should emit an empty JSON array even with `--exit-0`.
     "path": "<ROOT>/alpha.feature",
     "tmux": "alpha/feature",
     "live": false,
-    "deletable": true
+    "deletable": true,
+    "pending_deletion": false
   }
 ]
 ```

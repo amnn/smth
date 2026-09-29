@@ -98,6 +98,46 @@ follow sessions with attachment history in name order. Inspect the values with:
 tmux list-sessions -F '#{session_name}:#{session_last_attached}'
 ```
 
+## Staged workspace deletion
+
+Deletion staging is shared by the CLI and picker. It is stored in each named
+workspace's `.jj/.smth-pending-delete` file, so it survives picker exit and is
+shared by all sessions attached to the same checkout. Default workspaces and
+plain tmux sessions cannot be staged.
+
+In the picker, use `C-d` to stage or unstage the selected checkout, navigate or
+filter to select more, then press `C-y` to delete the entire staged selection,
+including hidden matches. Counts describe affected session rows; each checkout
+is deleted only once. `C-g` cancels onto mode first, then clears staged markers.
+Esc and `C-c` exit without clearing them. Mutating actions are disabled while a
+background operation runs, and the footer hides their shortcuts.
+
+From the CLI:
+
+```sh
+smth --base /path/to/repo --stage-delete feature
+smth --base /path/to/repo --unstage-delete feature
+smth --repo '/path/to/checkouts/*' --json
+smth --repo '/path/to/checkouts/*' --delete-staged
+```
+
+Stage and unstage are idempotent. JSON records expose `pending_deletion`, which
+lets scripts inspect the selection before acting. `--delete-staged` has no base
+context: it rejects both `--base` and `--no-base`, does not infer a base from the
+current directory, and executes all staged checkouts found through configured
+repository globs, `--repo` globs, and live tmux sessions. Markers in undiscovered
+checkouts remain untouched. Keep discovery settings consistent between inspection
+and execution; use globs to include checkouts whose sessions have been closed.
+
+Execution forgets each jj workspace, removes its checkout, and closes its
+associated discovered live sessions. Workspaces and session closures run
+concurrently, and failures are collected after all tasks finish. A failed
+operation may already have removed its checkout or closed some sessions; inspect
+the reported targets before retrying. With no staged checkouts, execution succeeds
+without doing anything. **CLI deletion does not prompt and removes checkout
+contents.** `--delete SESSION` still immediately deletes only that explicit target,
+without consuming an unrelated staged selection.
+
 ## Key bindings
 
 `smth -h` prints brief CLI help. `smth --help` prints complete help, including

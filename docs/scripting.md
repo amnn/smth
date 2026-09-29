@@ -44,6 +44,8 @@ workspace path to pass to `--base`; plain sessions omit `base`. The `name` field
 contains a named-workspace or plain-session operand and is omitted for a default
 checkout. `path` is omitted when no checkout exists, `flagged` appears only for
 live sessions, and `attention` and `agents` are omitted when empty.
+`pending_deletion` reports the checkout's persisted staging marker, independently
+of whether the session is live or manually flagged.
 
 Use the `base` and `name` fields together when constructing a lifecycle
 command. Do not substitute a discovery glob or derive a target from the tmux
@@ -64,7 +66,18 @@ fall back to the interactive picker.
 - `-x`, `--close [SESSION]` kills a matching live tmux session without removing
   its checkout or workspace registration.
 - `-d`, `--delete SESSION` forgets and removes a matching discovered named
-  workspace session, then closes it when live.
+  workspace checkout, then closes its discovered live sessions.
+- `--stage-delete SESSION` persistently stages a named workspace, idempotently.
+- `--unstage-delete SESSION` removes its marker, also idempotently.
+- `--delete-staged` deletes every discovered staged checkout and closes its
+  discovered live sessions. It rejects `--base` and `--no-base` and never infers
+  a base from cwd. Discovery still uses configured globs, `--repo`, and live
+  sessions; undiscovered markers are unaffected. An empty selection succeeds.
+
+Staging is shared with the picker and survives exit. CLI deletion never prompts;
+inspect the selection with `--json` using the same discovery settings first.
+See [staged workspace deletion](../README.md#staged-workspace-deletion) for the
+TUI flow, persistence, and partial-failure behavior.
 
 Create and switch print the actual tmux session name on stdout after success,
 whether creating or reusing the session. A failed operation does not print a

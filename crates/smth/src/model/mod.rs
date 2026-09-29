@@ -599,6 +599,10 @@ impl Model {
             tmux: session.name(),
             live: session.is_live(),
             deletable: session.can_delete(),
+            pending_deletion: self
+                .deleting
+                .as_ref()
+                .is_some_and(|delete| delete.contains(session)),
             flagged: session.flag(),
             attention: session.attention_windows().cloned().unwrap_or_default(),
             agents,
@@ -648,13 +652,11 @@ impl Model {
     }
 }
 
-/// Return the recorded default workspace root when it still exists.
-fn existing_default(workspace: &Workspace) -> Option<&Path> {
-    workspace.default.as_deref().filter(|root| root.exists())
-}
-
 /// Persist whether a checkout is staged for deletion.
-async fn set_deleting(repo: &Path, deleting: bool) -> anyhow::Result<()> {
+///
+/// Callers must validate that the checkout can be deleted. This operation is idempotent;
+/// rediscovery refreshes the in-memory deletion selection afterward.
+pub async fn set_deleting(repo: &Path, deleting: bool) -> anyhow::Result<()> {
     let marker = repo.join(".jj").join(delete::MARKER);
     if deleting {
         tokio::fs::File::create(&marker).await.with_context(|| {
@@ -674,6 +676,11 @@ async fn set_deleting(repo: &Path, deleting: bool) -> anyhow::Result<()> {
         }
     }
     Ok(())
+}
+
+/// Return the recorded default workspace root when it still exists.
+fn existing_default(workspace: &Workspace) -> Option<&Path> {
+    workspace.default.as_deref().filter(|root| root.exists())
 }
 
 /// Discover workspace metadata for every workspace associated with each repository.

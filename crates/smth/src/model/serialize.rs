@@ -34,6 +34,9 @@ pub struct SerializedSession {
     /// Whether this entry represents a named workspace that can be deleted.
     pub deletable: bool,
 
+    /// Whether this checkout has a persisted pending-deletion marker.
+    pub pending_deletion: bool,
+
     /// Manual flag state for live sessions; omitted for non-live candidates.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flagged: Option<bool>,
