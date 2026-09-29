@@ -17,9 +17,16 @@ before the wrappers introduce a failure and a late alias.
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
-    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
-    :t new-session -d -s first -c alpha.feature "cat" (success)
-    :t set-option -F -t '=first:' @smth.repo '#{pane_start_path}' (success)
+    :$ smth --base alpha --create feature (exit: 0)
+
+```stdout
+alpha/feature
+```
+
+Rename the CLI-created session and add the second alias manually: another CLI
+create would reuse the first session rather than create a second deletion target.
+
+    :t rename-session -t alpha/feature first (success)
     :t new-session -d -s second -c alpha.feature "cat" (success)
     :t set-option -F -t '=second:' @smth.repo '#{pane_start_path}' (success)
 

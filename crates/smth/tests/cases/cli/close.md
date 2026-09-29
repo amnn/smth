@@ -9,20 +9,21 @@ be checked separately from checkout deletion and workspace registration.
     :b jj tmux cat sh sed test
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
+    :$ smth --no-base --create-repo --create alpha
+
+    :t rename-session -t alpha alpha-live
+
+Rename the default session above to exercise identity independent of its tmux
+name. Pre-create the exact `feature` workspace before reserving its natural tmux
+name: otherwise creating a missing workspace would disambiguate its checkout too.
+The CLI should only disambiguate the live session attached to this workspace.
+
     :$ jj workspace add -R alpha --name feature alpha.feature
-    :$ jj workspace add -R alpha --name other alpha.other
-
-Create repo-backed sessions for the default and both named workspaces, plus a
-plain session that collides with the natural feature tmux name.
-
     :t new-session -d -s alpha/feature "cat"
-    :t new-session -d -s alpha/feature~1 -c alpha.feature "cat"
-    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_start_path}'
-    :t new-session -d -s alpha/other -c alpha.other "cat"
-    :t set-option -F -t '=alpha/other:' @smth.repo '#{pane_start_path}'
-    :t new-session -d -s alpha-live -c alpha "cat"
-    :t set-option -F -t '=alpha-live:' @smth.repo '#{pane_start_path}'
+    :$ smth --base alpha --create feature
+
+    :$ smth --base alpha --create other
+
     :t new-session -d -s scratch "cat"
 
 A named-workspace base should infer `feature` and close the disambiguated

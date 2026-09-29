@@ -7,13 +7,12 @@ terminal is wide enough they switch to a side-by-side layout.
 Attach a live `alpha` session to a repository with a described commit, giving
 the preview recognizable content as the picker is resized.
 
-    :b jj cat tmux sh
+    :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
+    :$ smth --no-base --create-repo --create alpha
+
     :$ jj describe -R alpha -m "alpha commit"
-    :t new-session -d -s alpha cat
-    :$ sh -c 'cd alpha && tmux set-option -t alpha @smth.repo "$(pwd -P)"'
     :t new-session -d -s ui "smth -r alpha"
     :t resize-window -t ui:0 -x 120 -y 10
     :p ui:0.0

@@ -6,27 +6,32 @@ its checkout, then closes every live session attached to that checkout.
 Create `feature` and `other` workspaces in `alpha`; `feature` will have live
 aliases, while `other` remains discoverable without a live session.
 
-    :b jj tmux cat test touch
+    :b jj tmux cat test
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
-    :$ jj workspace add -R alpha --name feature alpha.feature
     :$ jj workspace add -R alpha --name other alpha.other
 
 Create a plain collision and a disambiguated repo-backed feature session. Strict
-metadata should ensure deletion closes only the latter.
+metadata should ensure deletion closes only the latter. Pre-create `feature`
+before reserving its tmux name so only the session name, not the workspace name,
+needs disambiguation.
 
+    :$ jj workspace add -R alpha --name feature alpha.feature
     :t new-session -d -s alpha/feature "cat"
-    :t new-session -d -s alpha/feature~1 -c alpha.feature "cat"
-    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_start_path}'
+    :$ smth --base alpha --create feature
+
+The CLI reuses an existing session for a checkout, so add the second live alias
+manually to exercise deletion of every session sharing that checkout.
+
     :t new-session -d -s feature-alias -c alpha.feature "cat"
     :t set-option -F -t '=feature-alias:' @smth.repo '#{pane_start_path}'
-    :t new-session -d -s scratch "cat"
+    :$ smth --no-base --create scratch
 
 Stage the unrelated workspace. Explicit CLI deletion must replace the discovered
 pending selection, not include it or clear its marker.
 
-    :$ touch alpha.other/.jj/.smth-pending-delete
+    :$ smth --base alpha --repo "alpha*" --stage-delete other
     :$ smth --base alpha --repo "alpha*" --delete feature
     :t has-session -t '=alpha/feature~1'
 

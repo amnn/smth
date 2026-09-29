@@ -14,21 +14,20 @@ tmux session, forget the workspace, and remove the workspace directory.
     :$ jj git init alpha (exit: 0)
     :$ jj describe -R alpha -m "alpha commit" (exit: 0)
 
-First create a workspace-backed session through `smth`, so the session has the
-same metadata as normal user-created workspace sessions.
+Create the workspace-backed session through the CLI, giving it normal session
+metadata without driving a second picker just for setup.
 
-    :t new-session -d -s create "smth -r alpha; cat" (success)
-    :t resize-window -t create:0 -x 120 -y 12 (success)
-    :p create:0.0
-    :settle -d 2s (settled)
-    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-workspace-session" (success)
-    :k alpha C-r C-u feature enter
-    :t wait-for created-workspace-session (success)
-    :settle -d 2s (settled)
+    :$ smth --base alpha --create feature (exit: 0)
 
-Launch a fresh picker and select the workspace-backed session.
+```stdout
+alpha/feature
+```
 
-    :t new-session -d -s ui "smth -r \"$HOME/alpha*\"; cat" (success)
+Launch the picker with the named checkout as its base and select its live
+session. The header should normalize that context to the default workspace,
+which must remain usable after the named checkout is deleted.
+
+    :t new-session -d -s ui "smth --base alpha.feature -r \"$HOME/alpha*\"; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
     :p ui:0.0
     :settle -d 2s (settled)
@@ -37,7 +36,7 @@ Launch a fresh picker and select the workspace-backed session.
 
 ```terminal
 session: feature
-  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌■ alpha/feature                            ~/alpha.feature                                                            ┃
  [C-d] delete, [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -58,7 +57,7 @@ shortcut.
 
 ```terminal
 session: feature
-  1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
  [C-d] unstage, [C-x] close, [C-f] flag                                              delete [C-y] 1 session [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -110,7 +109,7 @@ picker still loads a valid log.
 
 ```terminal
 onto:
-  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  4/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌■ ui                                                                                                                  ┃
                                                                                                        onto [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

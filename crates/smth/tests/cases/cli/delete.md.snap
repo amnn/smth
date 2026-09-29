@@ -11,27 +11,40 @@ its checkout, then closes every live session attached to that checkout.
 Create `feature` and `other` workspaces in `alpha`; `feature` will have live
 aliases, while `other` remains discoverable without a live session.
 
-    :b jj tmux cat test touch (available)
+    :b jj tmux cat test (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
-    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
     :$ jj workspace add -R alpha --name other alpha.other (exit: 0)
 
 Create a plain collision and a disambiguated repo-backed feature session. Strict
-metadata should ensure deletion closes only the latter.
+metadata should ensure deletion closes only the latter. Pre-create `feature`
+before reserving its tmux name so only the session name, not the workspace name,
+needs disambiguation.
 
+    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
     :t new-session -d -s alpha/feature "cat" (success)
-    :t new-session -d -s alpha/feature~1 -c alpha.feature "cat" (success)
-    :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_start_path}' (success)
+    :$ smth --base alpha --create feature (exit: 0)
+
+```stdout
+alpha/feature~1
+```
+
+The CLI reuses an existing session for a checkout, so add the second live alias
+manually to exercise deletion of every session sharing that checkout.
+
     :t new-session -d -s feature-alias -c alpha.feature "cat" (success)
     :t set-option -F -t '=feature-alias:' @smth.repo '#{pane_start_path}' (success)
-    :t new-session -d -s scratch "cat" (success)
+    :$ smth --no-base --create scratch (exit: 0)
+
+```stdout
+scratch
+```
 
 Stage the unrelated workspace. Explicit CLI deletion must replace the discovered
 pending selection, not include it or clear its marker.
 
-    :$ touch alpha.other/.jj/.smth-pending-delete (exit: 0)
+    :$ smth --base alpha --repo "alpha*" --stage-delete other (exit: 0)
     :$ smth --base alpha --repo "alpha*" --delete feature (exit: 0)
     :t has-session -t '=alpha/feature~1' (failure)
 
