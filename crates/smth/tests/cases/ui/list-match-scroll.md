@@ -4,6 +4,9 @@ When a fuzzy match lands beyond the visible width of a long session row, the row
 content should scroll horizontally far enough to keep the last matched character
 visible.
 
+Attach `alpha` to a repository whose basename exceeds the pane width and ends
+in a unique `z`, placing the query's only match beyond the initially visible text.
+
     :b cat jj mkdir
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

@@ -7,6 +7,10 @@ input_file: crates/smth/tests/cases/ui/delete-persisted-workspace.md
 
 Two live sessions sharing a checkout share one persisted deletion selection.
 
+Attach `alpha/first` and `alpha/alias` to the same named `feature` workspace.
+Filter to `first` and stage it: the footer should count both sessions, including
+the hidden alias, while only one marker file is written to their shared checkout.
+
     :b jj tmux cat sh test sleep (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
@@ -109,6 +113,10 @@ session: alias                                                                  
 ```
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+Restage through the alias, then cancel. The ordinary delete hint should return
+and the shared marker should disappear, just as it did when toggling off.
+
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
     :k C-g
@@ -131,7 +139,9 @@ session: alias                                                                  
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
 
-Confirming deletes the checkout once and closes both live sessions.
+Confirming deletes the checkout once and closes both live sessions. Clearing
+the query afterward should reveal only the three surviving entries, without
+staged markers or a deletion footer.
 
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)

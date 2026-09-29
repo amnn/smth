@@ -8,6 +8,10 @@ input_file: crates/smth/tests/cases/ui/session-setup-config.md
 A custom session setup script runs in the new session's tmux context and repo
 working directory, so setup commands can rely on default tmux targets and cwd.
 
+Create a discoverable `beta` repository without a live session. Configure setup
+to write files, rename the initial window, and open a second window; those side
+effects identify both the target session and the directory used by setup.
+
     :b jj tmux cat test (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
@@ -22,7 +26,8 @@ tmux new-window -n shell ': > new-window-touched; cat'
 '''
 ```
 
-Launch the picker and select the discovered repo entry.
+Launch the picker and select the discovered repo entry. The snapshot should
+show `beta` without a live-session marker before accepting it triggers setup.
 
     :t new-session -d -s ui "smth -r beta" (success)
     :t resize-window -t ui:0 -x 120 -y 10 (success)

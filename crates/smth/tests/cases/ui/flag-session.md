@@ -4,6 +4,9 @@ Live tmux sessions can carry a persistent manual flag in `@smth.flag`. A
 flagged session should show an alert-like pip with distinct colour and offer an
 `unflag` shortcut in the footer.
 
+Create an ordinary `alpha` session and a pre-flagged `beta` session, neither with
+repository metadata, to isolate manual flag rendering and toggling.
+
     :b jj tmux cat
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"

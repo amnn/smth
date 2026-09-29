@@ -9,6 +9,10 @@ Deletion must use the live sessions discovered by the model, without listing
 sessions again. All matching session closures run concurrently and are awaited
 even when one fails.
 
+Create one named workspace and attach two differently named sessions to its
+checkout. These are the initial aliases that discovery must retain as targets
+before the wrappers introduce a failure and a late alias.
+
     :b jj tmux cat sh test chmod sed (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)

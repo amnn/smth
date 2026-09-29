@@ -3,6 +3,9 @@
 `--json` should describe live tmux sessions and discovered repository checkout
 candidates with identities suitable for strict lifecycle commands.
 
+Create `alpha` and its named `feature` workspace, then attach a live session only
+to the default checkout. This gives inspection both live and repo-only identities.
+
     :b jj cat sh sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

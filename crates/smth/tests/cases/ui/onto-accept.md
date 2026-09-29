@@ -4,6 +4,10 @@ This scenario selects a bookmarked commit from the onto picker and verifies that
 accepting it returns to session mode with the semantic bookmark in the header,
 without the push-status marker rendered by `jj`.
 
+Push a `base` bookmark to a local bare remote, then move it to a new commit
+without pushing again. Add a working-copy commit above it so the test can first
+invalidate the loaded selection, then choose the locally advanced bookmark.
+
     :b git jj tmux sh sleep grep
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

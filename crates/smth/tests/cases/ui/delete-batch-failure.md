@@ -4,6 +4,9 @@ Every staged deletion should run concurrently in one pending task. A failed
 entry must not cancel the remaining deletions, and its checkout path should be
 reported after the whole batch finishes.
 
+Create two named workspaces with no live sessions, so the batch exercises
+concurrent checkout removal independently of session-closing behavior.
+
     :b jj tmux cat sh test chmod sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

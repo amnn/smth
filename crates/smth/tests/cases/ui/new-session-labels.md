@@ -3,6 +3,10 @@
 Only prospective rows have dim, right-aligned creation labels. Labels overwrite
 an overlapping repository path, with a space on either side of the label.
 
+Launch without repository context and use `parent` as the repository root. The
+query `prospective` produces both creation candidates; at the initial width,
+the colour snapshot should show their dim labels alongside the destination.
+
     :b cat jj
     :t rename-session -t 0 runner
     :t resize-window -t runner:0 -x 80 -y 14

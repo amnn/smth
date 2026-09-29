@@ -3,6 +3,9 @@
 Plain live tmux sessions are closeable, but not deletable: there is no
 associated checkout for `C-d` to remove.
 
+Create `alpha` and `alpine` without repository metadata, then launch a picker
+that can filter to both plain sessions.
+
     :b jj tmux cat
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"

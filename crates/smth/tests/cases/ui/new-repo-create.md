@@ -3,6 +3,9 @@
 The picker should offer a fresh-repository candidate above the ordinary plain
 candidate. `C-n` creates the selected candidate while retaining the picker.
 
+Configure `repos` as the creation root and have session setup write a readiness
+file. Launch outside any repository so both kinds of candidate are available.
+
     :b jj tmux cat sh sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w .config/smth/smth.toml
@@ -85,6 +88,9 @@ must skip the empty row above it, and `C-n` creates the workspace normally.
     :settle -d 2s
     :k blocked M-up up up
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+
+After workspace creation finishes, the query should be cleared and the picker
+should remain in the runner session, still using `foo.bar` as its context.
 
     :k C-n
     :$ sh -c 'until test -f repos/foo.bar.blocked/.smth-ready; do :; done'

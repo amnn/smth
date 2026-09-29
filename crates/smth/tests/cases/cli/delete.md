@@ -3,6 +3,9 @@
 `--delete` resolves a discovered named-workspace session, forgets and removes
 its checkout, then closes every live session attached to that checkout.
 
+Create `feature` and `other` workspaces in `alpha`; `feature` will have live
+aliases, while `other` remains discoverable without a live session.
+
     :b jj tmux cat test touch
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

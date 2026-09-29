@@ -8,6 +8,10 @@ input_file: crates/smth/tests/cases/ui/delete-batch.md
 Deletion selections survive navigation and filtering, remain separate from
 persistent flags, and include hidden sessions when confirmed.
 
+Create two named workspaces: `first` has a flagged live session, while `second`
+is discoverable only through the repository glob. Hide the preview and filter
+to `first` so later query changes can hide staged entries.
+
     :b jj tmux cat sh test sleep (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
@@ -106,6 +110,9 @@ session: second                                                                 
  [C-d] delete                                                            delete [C-y] 1 session (1 hidden) [C-g] cancel┃
 ```
 
+Restaging the visible second workspace restores the two-session count, with
+only the first workspace hidden by the query.
+
     :k C-d
     :snap -d 2s -e '2 sessions' -e '1 hidden'
 
@@ -156,6 +163,9 @@ session: first                                                                  
  [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
 ```
 
+Stage the live workspace and toggle its persistent flag off and on. The footer
+should still count one deletion while offering `unflag` again.
+
     :k C-d C-f
     :settle -d 2s -e '1 session' -e 'C-f. flag' (settled)
     :k C-f
@@ -180,6 +190,8 @@ session: first                                                                  
  [C-d] unstage, [C-x] close, [C-f] unflag                                           delete [C-y] 1 session [C-g] cancel┃
 ```
 
+Cancelling the batch restores the ordinary delete hint without losing the flag.
+
     :k C-g
     :snap -d 2s -e alpha/first -e 'C-d. delete' -e unflag
 
@@ -201,6 +213,8 @@ session: first                                                                  
                                                                                                                        ┃
  [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
 ```
+
+Repeat staging and cancellation to verify the same state can be reached again.
 
     :k C-d
     :settle -d 2s -e '1 session' (settled)
@@ -262,6 +276,9 @@ session: unmatched                                                              
                                                                                                                        ┃
                                                                         delete [C-y] 2 sessions (2 hidden) [C-g] cancel┃
 ```
+
+After confirmation and rediscovery, clearing the query should show only the
+three surviving entries, with no deletion footer or named workspaces remaining.
 
     :k C-y C-y
     :$ sh -c 'i=0; while test -d alpha.first || test -d alpha.second; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done' (exit: 0)

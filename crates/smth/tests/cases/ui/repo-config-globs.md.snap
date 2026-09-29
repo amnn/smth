@@ -9,6 +9,9 @@ Repository globs from config should expand a leading `~` and stack with globs
 supplied on the command line, so both sources can surface repo-backed picker
 entries.
 
+Create separate repositories for the config and CLI globs, with recognizable
+commit descriptions, and put only `config-repo` in the configuration file.
+
     :b jj (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)

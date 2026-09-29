@@ -7,7 +7,10 @@ input_file: crates/smth-integration-tests/tests/cases/runner/settle-expect.md
 
 A stable old screen must not satisfy an expectation for the next state, even
 with a single required capture. All expectations must match the same frame;
-matching only `waiting` is not enough. Release the waiting pane asynchronously.
+matching only `waiting` is not enough. Create a pane that prints `waiting`,
+blocks on a tmux signal, then prints `ready` when released asynchronously.
+Keep `:settle` separate here because it is the directive under test; the following
+snapshot should contain both lines, confirming that settling waited for release.
 
     :b echo sleep (available)
     :t new-window -d -n expected 'echo waiting; tmux wait-for -S old-ready; tmux wait-for release; echo ready; sleep 10' (success)

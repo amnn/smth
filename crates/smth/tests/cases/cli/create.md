@@ -3,6 +3,10 @@
 `--create` should ensure repo-backed and plain sessions exist without switching
 the current tmux client, and report the actual tmux name it selected.
 
+Configure setup to mark newly created sessions. Give `alpha` distinct base and
+tip commits plus an existing `feature` workspace, distinguishing session-only
+creation from workspace creation at a requested revision.
+
     :b jj tmux cat sh sed mkdir
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml

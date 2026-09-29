@@ -4,6 +4,9 @@ This scenario verifies that the picker redraws when the terminal width changes.
 At narrow widths the session list and preview are stacked vertically; once the
 terminal is wide enough they switch to a side-by-side layout.
 
+Attach a live `alpha` session to a repository with a described commit, giving
+the preview recognizable content as the picker is resized.
+
     :b jj cat tmux sh
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

@@ -8,6 +8,10 @@ input_file: crates/smth/tests/cases/ui/cancel-and-exit.md
 C-g cancels the innermost mode, then pending deletions, and otherwise does
 nothing. C-c and Esc exit the picker without clearing persisted deletions.
 
+Create a discoverable `feature` workspace and launch the picker filtered to it.
+Keep its pane alive after exit and signal each exit so persistence checks cannot
+race the picker. Staging the workspace should show a one-session deletion footer.
+
     :b jj tmux cat test grep (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
@@ -48,6 +52,8 @@ session: feature             │
 delete [C-y] 1 session [C-g] ┃
 ```
 
+At two columns, the footer must clip safely rather than overflow the pane.
+
     :t resize-window -t ui:0 -x 2 -y 4 (success)
     :snap
 
@@ -84,6 +90,8 @@ onto:
 
 ```
 
+The first cancellation returns to session mode with the deletion still staged.
+
     :k C-g
     :snap -d 2s -e '^session:' -e '1 session'
 
@@ -103,6 +111,9 @@ session: feature                                                                
 ```
 
     :$ test -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+The second cancellation clears the deletion, restoring the ordinary delete hint.
+
     :k C-g
     :snap -d 2s -e alpha/feature -e 'C-d. delete'
 
@@ -122,6 +133,10 @@ session: feature                                                                
 ```
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
+
+With nothing left to cancel, C-g leaves the picker open and its query editable.
+Deleting and retyping the final character should restore the original query.
+
     :k C-g backspace
     :settle -d 2s -e '^session: featur\s' (settled)
     :k e

@@ -7,6 +7,9 @@ input_file: crates/smth/tests/cases/ui/toggle-preview.md
 
 This scenario verifies that `C-p` toggles the preview pane.
 
+Create a discoverable `alpha` repository with a described commit and open the
+picker at a width where hiding the preview visibly expands the session list.
+
     :b jj cat (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
@@ -38,7 +41,7 @@ session:
 ![light](toggle-preview.md.snap.1.light.svg)
 ![dark](toggle-preview.md.snap.1.dark.svg)
 
-Pressing `C-p` should hide the preview and allow the list to use the full width.
+Pressing `C-p` should hide the preview and allow the list to use the full height.
 
     :k C-p
     :snap

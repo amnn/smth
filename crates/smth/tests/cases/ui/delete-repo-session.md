@@ -4,6 +4,9 @@
 there is no live tmux session to close. Confirming should forget the workspace
 and delete the workspace checkout.
 
+Create `beta` and its named `feature` workspace with distinct descriptions, but
+no attached tmux sessions. The repository glob supplies both picker entries.
+
     :b jj tmux cat sh test sleep
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

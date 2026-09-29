@@ -9,6 +9,9 @@ The fzf-style startup flags should let scripts seed the initial query, skip the
 UI when exactly one discovered session matches, and run a non-interactive fuzzy
 filter.
 
+Create `beta` and `gamma` as plain live sessions, giving the startup queries
+known single-match, multi-match, and no-match targets.
+
     :b jj cat tmux (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)

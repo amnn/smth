@@ -142,6 +142,12 @@ to preserve the portability of the code.
 
 ### Markdown Snapshot Cases
 
+Explain what each setup phase creates and why those fixtures matter to the
+scenario. Before a non-trivial snapshot, describe what it should show and why;
+do not leave readers to infer the assertion from key presses or captured output.
+A shared explanation can cover a short sequence when it clearly identifies the
+expected result of each step.
+
 Prefer short forms for integration-test directives and their flags, such as
 `:$`, `:t`, and `:snap -d 2s -e ready`. This rule applies to the test runner's
 syntax, not the binaries invoked by directives or quoted shell commands.

@@ -5,6 +5,10 @@ unfocused agent newly enters an attention-worthy state. Publishing idle, running
 or exit should clear that pane's pending notification after updating its metadata.
 Interpolated values must remain data through every shell level.
 
+Enable tmux bell monitoring and configure notification commands to append to
+files. The nested shell command records interpolated notification fields; the
+clear command records the pane's published state, exposing update ordering.
+
     :b sh cat
     :t set-window-option -g monitor-bell on
     :w .config/smth/smth.toml

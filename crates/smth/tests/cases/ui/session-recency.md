@@ -28,8 +28,8 @@ order and leave the never-attached `alpha` session last.
 
     :$ smth --filter
 
-Launch the picker in the runner pane with enough height to show the complete
-order. The second row, `gamma`, should be selected initially.
+Launch the picker in the runner pane. The snapshot should show `runner`
+followed by the initially selected second-most-recent session, `gamma`.
 
     :t resize-window -t runner:0 -x 80 -y 20
     :$ tmux respawn-pane -k 'smth; : > query-picker-exited; cat'

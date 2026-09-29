@@ -2,6 +2,9 @@
 
 This scenario verifies that `C-p` toggles the preview pane.
 
+Create a discoverable `alpha` repository with a described commit and open the
+picker at a width where hiding the preview visibly expands the session list.
+
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
@@ -15,7 +18,7 @@ The preview should be visible initially.
 
     :snap --color
 
-Pressing `C-p` should hide the preview and allow the list to use the full width.
+Pressing `C-p` should hide the preview and allow the list to use the full height.
 
     :k C-p
     :snap

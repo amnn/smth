@@ -5,6 +5,9 @@ a session row. This case matches characters in the live session name, the dim
 repo parent path, and the plain repo basename; the linked SVG snapshot preserves
 those combined styles.
 
+Attach the live session `tone~one` to `code/blue`, giving the query distinct
+name, parent-path, and basename spans to cross in a single row.
+
     :b jj cat mkdir
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

@@ -4,6 +4,9 @@
 workspace, then refreshes the session list without closing the app or resetting
 the query.
 
+Create two plain sessions, `alpha` and `alpine`, so the same query has a surviving
+match after the first close and no existing match after the second.
+
     :b jj tmux cat sleep
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"

@@ -2,6 +2,9 @@
 
 The `--query` flag should seed the interactive filter before the picker draws.
 
+Create distinct `beta` and `gamma` sessions, then launch with `gam` so only
+`gamma` matches the initial query.
+
     :b jj cat tmux
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner

@@ -2,8 +2,9 @@
 
 ## Captures stable pane content
 
-If repeated pane captures settle to five identical filtered snapshots before
-the timeout, the settled capture should be emitted as the snapshot.
+Create a pane that prints `hello stable` and signals readiness before sleeping.
+With the capture count reduced to one, the snapshot should show `hello XXXXXX`:
+the replacement filter paints only `stable`, leaving the greeting unchanged.
 
     :b echo sleep python3
     :t new-window -d -n stable 'echo "hello stable"; tmux wait-for -S ready-stable; sleep 10'

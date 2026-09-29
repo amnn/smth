@@ -3,6 +3,10 @@
 `--switch` should share create semantics, then switch the invoking tmux client
 to the strictly resolved target and print its actual session name.
 
+Create `alpha` with `feature` and `other` workspaces. Attach only `feature`
+initially, leaving the default and `other` checkouts available for session
+creation without adding workspaces.
+
     :b jj tmux cat sh sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
