@@ -225,7 +225,7 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
 
     w.def(
         "ui.sigil",
-        "Character used to mark live tmux sessions in the picker.",
+        "Character used to mark live tmux sessions in the picker. Defaults to ■.",
     )?;
 
     writeln!(w)?;
@@ -269,7 +269,7 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         writeln!(out, "  '''")?;
         writeln!(out)?;
         writeln!(out, "  [ui]")?;
-        writeln!(out, "  sigil = \"●\"")
+        writeln!(out, "  sigil = \"■\"")
     })?;
 
     Ok(())

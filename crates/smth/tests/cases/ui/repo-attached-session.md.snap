@@ -68,7 +68,7 @@ session and glob-discovered repos.
 ```terminal
 session:
   7/7 | [C-r] repo: none
-▌⬤ alpha-live                               alpha                                                                      ┃
+▌■ alpha-live                               alpha                                                                      ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh

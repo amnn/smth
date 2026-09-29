@@ -33,11 +33,11 @@ Hide the preview so the selected row movement is easy to inspect.
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
-▌⬤ runner                                                                                          ┃
- ⬤ zeta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
- ⬤ beta                                                                                            ┃
- ⬤ alpha                                                                                           ┃
+▌■ runner                                                                                          ┃
+ ■ zeta                                                                                            ┃
+ ■ gamma                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -53,11 +53,11 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
- ⬤ runner                                                                                          ┃
-▌⬤ zeta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
- ⬤ beta                                                                                            ┃
- ⬤ alpha                                                                                           ┃
+ ■ runner                                                                                          ┃
+▌■ zeta                                                                                            ┃
+ ■ gamma                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -73,11 +73,11 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
-▌⬤ runner                                                                                          ┃
- ⬤ zeta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
- ⬤ beta                                                                                            ┃
- ⬤ alpha                                                                                           ┃
+▌■ runner                                                                                          ┃
+ ■ zeta                                                                                            ┃
+ ■ gamma                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -93,11 +93,11 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
- ⬤ runner                                                                                          ┃
- ⬤ zeta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
- ⬤ beta                                                                                            ┃
-▌⬤ alpha                                                                                           ┃
+ ■ runner                                                                                          ┃
+ ■ zeta                                                                                            ┃
+ ■ gamma                                                                                           ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -113,12 +113,12 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
-▌⬤ ui                                                                                              ┃
- ⬤ runner                                                                                          ┃
- ⬤ zeta                                                                                            ┃
- ⬤ gamma                                                                                           ┃
- ⬤ beta                                                                                            ┃
- ⬤ alpha                                                                                           ┃
+▌■ ui                                                                                              ┃
+ ■ runner                                                                                          ┃
+ ■ zeta                                                                                            ┃
+ ■ gamma                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ alpha                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

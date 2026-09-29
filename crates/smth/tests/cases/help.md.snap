@@ -262,6 +262,7 @@ Configuration:
                     and working directory, so commands can use default tmux
                     targets and relative paths.
   ui.sigil          Character used to mark live tmux sessions in the picker.
+                    Defaults to ■.
 
 Example:
   Below is an example configuration that makes use of every available
@@ -298,7 +299,7 @@ Example:
   '''
 
   [ui]
-  sigil = "●"
+  sigil = "■"
 
 ```
 

@@ -58,8 +58,8 @@ session:
   4/4 | [C-r] repo: none
                                                                                ┃
                                                                                ┃
- ⬤ runner                                                                      ┃
-▌⬤ gamma                                                                       │
+ ■ runner                                                                      ┃
+▌■ gamma                                                                       │
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
 
@@ -88,8 +88,8 @@ session: a
   3/4 | [C-r] repo: none
    a                                        ~/a                           repo ┃
    a                                                                      tmux ┃
-▌⬤ alpha                                                                       ┃
- ⬤ beta                                                                        │
+▌■ alpha                                                                       ┃
+ ■ beta                                                                        │
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
 

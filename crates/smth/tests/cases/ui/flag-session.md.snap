@@ -33,7 +33,7 @@ colour.
 ```terminal
 session: beta
   1/4 | [C-r] repo: none
-▌⬤ beta                                                                                            ┃
+▌■ beta                                                                                            ┃
  [C-x] close, [C-f] unflag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ offer `flag` again.
 ```terminal
 session: beta
   1/4 | [C-r] repo: none
-▌⬤ beta                                                                                            ┃
+▌■ beta                                                                                            ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -80,7 +80,7 @@ Pressing `C-f` again should set the persisted tmux option back to `1`.
 ```terminal
 session: beta
   1/4 | [C-r] repo: none
-▌⬤ beta                                                                                            ┃
+▌■ beta                                                                                            ┃
  [C-x] close, [C-f] unflag
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 

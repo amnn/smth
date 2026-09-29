@@ -31,7 +31,7 @@ Filter to the matching sessions. The first match, `alpha`, is selected.
 session: alp
   2/4 | [C-r] repo: none
    alp                                                                                                            tmux │
-▌⬤ alpha                                                                                                               ┃
+▌■ alpha                                                                                                               ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -55,7 +55,7 @@ query, and show the refreshed list with only `alpine` remaining.
 session: alp
   1/3 | [C-r] repo: none
    alp                                                                                                            tmux │
-▌⬤ alpine                                                                                                              ┃
+▌■ alpine                                                                                                              ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

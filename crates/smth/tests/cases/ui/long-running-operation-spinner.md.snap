@@ -51,7 +51,7 @@ Normalize the spinner for the snapshot.
 session:
   2/2 | [C-r] repo: none
                                                                                                                        │
-▌⬤ ui                                                                                                       creating ⠋ ┃
+▌■ ui                                                                                                       creating ⠋ ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ separates the trailing spinner from the right edge of the session list.
 session:
   2/2 | [C-r] repo: none
                              │
-▌⬤ ui             creating ⠋ ┃
+▌■ ui             creating ⠋ ┃
 
 ──────────────────────────────
 
@@ -97,7 +97,7 @@ space for itself. Colour coverage verifies the overlay clears underlying styles.
 ```terminal
 session:
   2/2 | [C-r] repo: none
-▌⬤ ui             creating ⠋ ┃
+▌■ ui             creating ⠋ ┃
 
 ```
 

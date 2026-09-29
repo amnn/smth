@@ -56,12 +56,12 @@ live-session pips. Status indicators and counts should remain undimmed.
 ```terminal
 session:                                                                                           ┃
   7/7 | [C-r] repo: none                                                   ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
-▌⬤ runner                                                                                          ┃
- ⬤ waiting                                                                                 ⏸ · ▶ 2 ┃
- ⬤ succeeded                                                                               ✔ 2 · ○ ┃
- ⬤ running                                                                                     ▶ 2 ┃
- ⬤ idle                                                                                          ○ ┃
- ⬤ failed                                                                                        × ┃
+▌■ runner                                                                                          ┃
+ ■ waiting                                                                                 ⏸ · ▶ 2 ┃
+ ■ succeeded                                                                               ✔ 2 · ○ ┃
+ ■ running                                                                                     ▶ 2 ┃
+ ■ idle                                                                                          ○ ┃
+ ■ failed                                                                                        × ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -84,7 +84,7 @@ session: succeeded                                                              
   1/7 | [C-r] repo: none                                                   ⏸ · × · ✔ 2 · ▶ 4 · ○ 2 ┃
    succeeded~1                              ~/succeeded                                       repo ┃
    succeeded~1                                                                                tmux ┃
-▌⬤ succeeded                                                                               ✔ 2 · ○ ┃
+▌■ succeeded                                                                               ✔ 2 · ○ ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

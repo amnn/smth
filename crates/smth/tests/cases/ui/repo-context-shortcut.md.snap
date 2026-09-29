@@ -35,7 +35,7 @@ from `cwd`.
 ```terminal
 session:
   5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
-▌⬤ runner                                                                                ┃
+▌■ runner                                                                                ┃
  [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
 

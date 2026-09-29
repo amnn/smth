@@ -40,7 +40,7 @@ session.
 session:
   1/1 | [C-r] repo: none
                                                                                                                        │
-▌⬤ runner                                                                                                              ┃
+▌■ runner                                                                                                              ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -113,7 +113,7 @@ client should remain attached to the runner session.
 session:
   2/2 | [C-r] repo: none
                                                                                                                        │
-▌⬤ runner                                                                                                              ┃
+▌■ runner                                                                                                              ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -152,7 +152,7 @@ Occupied paths and invalid directory names should not offer repository candidate
 session: foo.bar
   1/2 | [C-r] repo: none
    foo-bar~1                                                                                                      tmux │
-▌⬤ foo-bar                                  ~/r/foo.bar                                                                ┃
+▌■ foo-bar                                  ~/r/foo.bar                                                                ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
@@ -257,7 +257,7 @@ session: blocked
 session:
   4/4 | [C-r] repo: ~/r/foo.bar, [C-o] onto: trunk()
                                                                                                                        ┃
-▌⬤ runner                                                                                                              │
+▌■ runner                                                                                                              │
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
