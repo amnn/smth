@@ -49,8 +49,7 @@ keys remain gated while the confirmed batch is running.
 
     :$ sh -c 'until test -f first-ready && test -f second-ready; do :; done'
     :k C-u first
-    :settle -d 2s -e '1/5' -e alpha/first -e deleting "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
-    :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+    :snap -d 2s -e '1/5' -e alpha/first -e deleting "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
     :k C-d C-y C-x C-f C-n enter C-c esc C-g
     :$ test ! -f finished

@@ -25,16 +25,14 @@ Pressing `C-f` should clear the persisted tmux option and update the footer to
 offer `flag` again.
 
     :k C-f
-    :settle -d 2s
-    :snap --color
+    :snap -d 2s --color
 
     :t display-message -p -t beta '#{@smth.flag}'
 
 Pressing `C-f` again should set the persisted tmux option back to `1`.
 
     :k C-f
-    :settle -d 2s
-    :snap --color
+    :snap -d 2s --color
 
     :t display-message -p -t beta '#{@smth.flag}'
 

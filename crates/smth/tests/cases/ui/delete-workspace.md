@@ -34,7 +34,6 @@ Requesting deletion should mark the selected session and show the confirm
 shortcut.
 
     :k C-d
-    :settle
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Before confirming, add a sibling workspace so the refreshed picker can verify
@@ -60,8 +59,7 @@ default workspace. Clear the preserved session query, then verify that the onto
 picker still loads a valid log.
 
     :k C-u C-o
-    :settle -d 2s
-    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+    :snap -d 2s "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 Cancel the onto picker and switch to the surviving sibling workspace.
 

@@ -241,8 +241,7 @@ session: blocked
 
     :k C-n
     :$ sh -c 'until test -f repos/foo.bar.blocked/.smth-ready; do :; done' (exit: 0)
-    :settle -d 2s (settled)
-    :snap
+    :snap -d 2s
 
 ```terminal
 session:

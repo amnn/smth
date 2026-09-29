@@ -22,8 +22,7 @@ Two live sessions sharing a checkout share one persisted deletion selection.
     :k C-p first
     :settle -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' (settled)
     :k C-d
-    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
-    :snap
+    :snap -d 2s -e '2 sessions' -e '1 hidden'
 
 ```terminal
 session: first                                                                                                         ┃
@@ -45,8 +44,7 @@ session: first                                                                  
 Both rows are staged, and the footer counts two sessions, with no hidden target.
 
     :k C-u
-    :settle -d 2s -e '5/5' (settled)
-    :snap
+    :snap -d 2s -e '5/5'
 
 ```terminal
 session:                                                                                                               ┃
@@ -73,8 +71,7 @@ the staged state from the checkout, even when filtering to its other session.
     :p ui:0.0
     :settle -d 2s (settled)
     :k C-p
-    :settle -d 2s -e alpha/alias -e '2 sessions' -e '1 hidden' -e 'C-d. unstage' (settled)
-    :snap
+    :snap -d 2s -e alpha/alias -e '2 sessions' -e '1 hidden' -e 'C-d. unstage'
 
 ```terminal
 session: alias                                                                                                         ┃
@@ -94,8 +91,7 @@ session: alias                                                                  
 Toggling through the alias removes the same marker. Cancellation removes it too.
 
     :k C-d
-    :settle -d 2s -e alpha/alias -e 'C-d. delete' (settled)
-    :snap
+    :snap -d 2s -e alpha/alias -e 'C-d. delete'
 
 ```terminal
 session: alias                                                                                                         ┃
@@ -116,8 +112,7 @@ session: alias                                                                  
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
     :k C-g
-    :settle -d 2s -e alpha/alias -e 'C-d. delete' (settled)
-    :snap
+    :snap -d 2s -e alpha/alias -e 'C-d. delete'
 
 ```terminal
 session: alias                                                                                                         ┃
@@ -145,8 +140,7 @@ Confirming deletes the checkout once and closes both live sessions.
     :settle -d 2s -e '0/3' (settled)
 
     :k C-u
-    :settle -d 2s -e '3/3' (settled)
-    :snap
+    :snap -d 2s -e '3/3'
 
 ```terminal
 session:                                                                                                               ┃

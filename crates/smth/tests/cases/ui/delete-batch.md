@@ -25,15 +25,13 @@ The footer should count both sessions and the one hidden selection.
     :k C-d C-u second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d
     :k C-d
-    :settle -d 2s -e '2 sessions' -e '1 hidden'
-    :snap
+    :snap -d 2s -e '2 sessions' -e '1 hidden'
 
 Clearing the query reveals both deletion markers, including the row without the
 cursor. Colour coverage verifies that both staged names remain distinguished.
 
     :k C-u
-    :settle -d 2s -e '5/5'
-    :snap --color
+    :snap -d 2s -e '5/5' --color
 
 Toggling the second session off leaves only the hidden first session staged;
 toggling it back on restores the batch.
@@ -41,12 +39,10 @@ toggling it back on restores the batch.
     :k second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d
     :k C-d
-    :settle -d 2s -e '1 session' -e '1 hidden'
-    :snap
+    :snap -d 2s -e '1 session' -e '1 hidden'
 
     :k C-d
-    :settle -d 2s -e '2 sessions' -e '1 hidden'
-    :snap
+    :snap -d 2s -e '2 sessions' -e '1 hidden'
 
 C-g clears the entire selection without exiting or deleting anything, revealing
 the live session's persistent flag again. A flag toggle and its discovery refresh
@@ -55,24 +51,20 @@ must not discard the staged selection.
     :k C-g
     :settle -d 2s -e '^session:' -e 'C-d. delete'
     :k C-u first
-    :settle -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' -e unflag
-    :snap
+    :snap -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' -e unflag
 
     :k C-d C-f
     :settle -d 2s -e '1 session' -e 'C-f. flag'
     :k C-f
-    :settle -d 2s -e '1 session' -e unflag
-    :snap
+    :snap -d 2s -e '1 session' -e unflag
 
     :k C-g
-    :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag
-    :snap
+    :snap -d 2s -e alpha/first -e 'C-d. delete' -e unflag
 
     :k C-d
     :settle -d 2s -e '1 session'
     :k C-g
-    :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag
-    :snap
+    :snap -d 2s -e alpha/first -e 'C-d. delete' -e unflag
 
     :t show-option -t alpha/first -v @smth.flag
 
@@ -86,16 +78,14 @@ batch is running must not schedule another batch.
     :k C-d C-u second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d
     :k C-d C-u unmatched
-    :settle -d 2s -e '2 sessions' -e '2 hidden'
-    :snap
+    :snap -d 2s -e '2 sessions' -e '2 hidden'
 
     :k C-y C-y
     :$ sh -c 'i=0; while test -d alpha.first || test -d alpha.second; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done'
     :settle -d 2s -e '0/3'
 
     :k C-u
-    :settle -d 2s -e '3/3'
-    :snap
+    :snap -d 2s -e '3/3'
 
     :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"'
 

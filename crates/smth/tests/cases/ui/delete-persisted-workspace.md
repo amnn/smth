@@ -17,16 +17,14 @@ Two live sessions sharing a checkout share one persisted deletion selection.
     :k C-p first
     :settle -d 2s -e '1/5' -e alpha/first -e 'C-d. delete'
     :k C-d
-    :settle -d 2s -e '2 sessions' -e '1 hidden'
-    :snap
+    :snap -d 2s -e '2 sessions' -e '1 hidden'
 
     :$ test -f alpha.feature/.jj/.smth-pending-delete
 
 Both rows are staged, and the footer counts two sessions, with no hidden target.
 
     :k C-u
-    :settle -d 2s -e '5/5'
-    :snap
+    :snap -d 2s -e '5/5'
 
 Kill and restart the picker without cancelling its selection. Discovery restores
 the staged state from the checkout, even when filtering to its other session.
@@ -38,21 +36,18 @@ the staged state from the checkout, even when filtering to its other session.
     :p ui:0.0
     :settle -d 2s
     :k C-p
-    :settle -d 2s -e alpha/alias -e '2 sessions' -e '1 hidden' -e 'C-d. unstage'
-    :snap
+    :snap -d 2s -e alpha/alias -e '2 sessions' -e '1 hidden' -e 'C-d. unstage'
 
 Toggling through the alias removes the same marker. Cancellation removes it too.
 
     :k C-d
-    :settle -d 2s -e alpha/alias -e 'C-d. delete'
-    :snap
+    :snap -d 2s -e alpha/alias -e 'C-d. delete'
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden'
     :k C-g
-    :settle -d 2s -e alpha/alias -e 'C-d. delete'
-    :snap
+    :snap -d 2s -e alpha/alias -e 'C-d. delete'
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete
 
@@ -65,8 +60,7 @@ Confirming deletes the checkout once and closes both live sessions.
     :settle -d 2s -e '0/3'
 
     :k C-u
-    :settle -d 2s -e '3/3'
-    :snap
+    :snap -d 2s -e '3/3'
 
     :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"'
 

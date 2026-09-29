@@ -17,8 +17,7 @@ revision.
     :t new-session -d -s ui "smth --base alpha.feature"
     :t resize-window -t ui:0 -x 100 -y 10
     :p ui:0.0
-    :settle -d 2s
-    :snap
+    :snap -d 2s
 
 `--no-base` should suppress current-directory inference even when the picker is
 started inside a repository.
@@ -29,8 +28,7 @@ started inside a repository.
     :t new-session -d -s ui-none "cd alpha && smth --no-base"
     :t resize-window -t ui-none:0 -x 100 -y 10
     :p ui-none:0.0
-    :settle -d 2s
-    :snap
+    :snap -d 2s
 
 The two base selectors are mutually exclusive, and an explicit path outside a
 jj repository is rejected instead of silently falling back to the current
@@ -50,8 +48,7 @@ named checkout as its base, matching current-directory inference.
     :t new-session -d -s ui-fallback "smth --base alpha.feature; cat"
     :t resize-window -t ui-fallback:0 -x 100 -y 10
     :p ui-fallback:0.0
-    :settle -d 2s
-    :snap
+    :snap -d 2s
 
 ---
 vim: set ft=markdown:
