@@ -47,7 +47,7 @@ Existing matches remain the default selection. The repository candidate shows
 session: switched
   2/3 | [C-r] repo: none
    switched~1                                                                                                     tmux │
-▌⬤ switched                                                                                                            ┃
+▌■ switched                                                                                                            ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ a checkout, even when prospective repository and plain candidates are present.
 session: switched~2
   1/5 | [C-r] repo: none
    switched~2~1                                                                                                   tmux │
-▌⬤ switched~2                                                                                                          ┃
+▌■ switched~2                                                                                                          ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

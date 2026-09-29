@@ -108,7 +108,7 @@ impl SmthConfig {
 
 impl Default for UiConfig {
     fn default() -> Self {
-        Self { sigil: '⬤' }
+        Self { sigil: '■' }
     }
 }
 

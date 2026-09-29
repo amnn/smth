@@ -17,7 +17,7 @@ its built-in defaults. A path passed with `--config` must exist.
 | `repo.globs`          | `[]`    | Discover jj repositories from glob patterns.          |
 | `repo.root`           | `.`     | Parent directory for newly created repositories.      |
 | `tmux.setup`          | `""`    | Run a shell script after creating a tmux session.     |
-| `ui.sigil`            | `"⬤"`   | Mark live tmux sessions with this character.          |
+| `ui.sigil`            | `"■"`   | Mark live tmux sessions with this character.          |
 
 ### Notifications
 
@@ -83,7 +83,8 @@ tmux new-window -n editor 'nvim .'
 ### Picker sigil
 
 Use `[ui].sigil` to choose the single character that marks live tmux sessions
-in the picker:
+in the picker. The default is the filled square (`■`); an override can
+use a different character:
 
 ```toml
 [ui]
@@ -121,5 +122,5 @@ tmux new-window -n editor 'nvim .'
 '''
 
 [ui]
-sigil = "●"
+sigil = "■"
 ```

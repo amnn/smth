@@ -42,7 +42,7 @@ session: onecb                                                                  
   1/3 | [C-r] repo: none                                                                           ┃
    onecb                                    ~/onecb                                           repo ┃
    onecb                                                                                      tmux ┃
-▌⬤ tone~one                                 c/blue                                                 ┃
+▌■ tone~one                                 c/blue                                                 ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -64,7 +64,7 @@ session: onecb                                                                  
   1/3 | [C-r] repo: none                                                                           ┃
 ▌  onecb                                    ~/onecb                                           repo ┃
    onecb                                                                                      tmux ┃
- ⬤ tone~one                                 c/blue                                                 ┃
+ ■ tone~one                                 c/blue                                                 ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -87,7 +87,7 @@ session: oneob                                                                  
   1/3 | [C-r] repo: none                                                                           ┃
    oneob                                    ~/oneob                                           repo ┃
    oneob                                                                                      tmux ┃
-▌⬤ tone~one                                 co/blue                                                ┃
+▌■ tone~one                                 co/blue                                                ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

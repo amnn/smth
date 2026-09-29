@@ -128,7 +128,7 @@ Existing sessions do not acquire a creation label.
 session: runner
   1/1 | [C-r] repo: none
    runner~1                                                               tmux │
-▌⬤ runner                                                                      ┃
+▌■ runner                                                                      ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────
 

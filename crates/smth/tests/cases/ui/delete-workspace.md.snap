@@ -44,7 +44,7 @@ Launch a fresh picker and select the workspace-backed session.
 ```terminal
 session: feature
   1/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
-▌⬤ alpha/feature                            ~/alpha.feature                                                            ┃
+▌■ alpha/feature                            ~/alpha.feature                                                            ┃
  [C-d] delete, [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
@@ -120,7 +120,7 @@ picker still loads a valid log.
 ```terminal
 onto:
   5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
-▌⬤ ui                                                                                                                  ┃
+▌■ ui                                                                                                                  ┃
                                                                                                        onto [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh

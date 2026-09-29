@@ -36,11 +36,11 @@ last row and `M-up` jumps back to the first selectable session.
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
-▌⬤ runner                                                                                          ┃
- ⬤ zeta                                                                                            ┃
- ⬤ ta                                                                                              ┃
- ⬤ delta                                                                                           ┃
- ⬤ beta                                                                                            ┃
+▌■ runner                                                                                          ┃
+ ■ zeta                                                                                            ┃
+ ■ ta                                                                                              ┃
+ ■ delta                                                                                           ┃
+ ■ beta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -54,11 +54,11 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
- ⬤ runner                                                                                          ┃
- ⬤ zeta                                                                                            ┃
- ⬤ ta                                                                                              ┃
- ⬤ delta                                                                                           ┃
-▌⬤ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+ ■ zeta                                                                                            ┃
+ ■ ta                                                                                              ┃
+ ■ delta                                                                                           ┃
+▌■ beta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -72,12 +72,12 @@ session:                                                                        
 ```terminal
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
-▌⬤ ui                                                                                              ┃
- ⬤ runner                                                                                          ┃
- ⬤ zeta                                                                                            ┃
- ⬤ ta                                                                                              ┃
- ⬤ delta                                                                                           ┃
- ⬤ beta                                                                                            ┃
+▌■ ui                                                                                              ┃
+ ■ runner                                                                                          ┃
+ ■ zeta                                                                                            ┃
+ ■ ta                                                                                              ┃
+ ■ delta                                                                                           ┃
+ ■ beta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -95,9 +95,9 @@ session: et                                                                     
   3/6 | [C-r] repo: none                                                                           ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
-▌⬤ zeta                                                                                            ┃
- ⬤ beta                                                                                            ┃
- ⬤ delta                                                                                           ┃
+▌■ zeta                                                                                            ┃
+ ■ beta                                                                                            ┃
+ ■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -113,9 +113,9 @@ session: et                                                                     
   3/6 | [C-r] repo: none                                                                           ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
- ⬤ zeta                                                                                            ┃
- ⬤ beta                                                                                            ┃
-▌⬤ delta                                                                                           ┃
+ ■ zeta                                                                                            ┃
+ ■ beta                                                                                            ┃
+▌■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -131,9 +131,9 @@ session: et                                                                     
   3/6 | [C-r] repo: none                                                                           ┃
 ▌  et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
- ⬤ zeta                                                                                            ┃
- ⬤ beta                                                                                            ┃
- ⬤ delta                                                                                           ┃
+ ■ zeta                                                                                            ┃
+ ■ beta                                                                                            ┃
+ ■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -153,10 +153,10 @@ session: ta                                                                     
   4/6 | [C-r] repo: none                                                                           ┃
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
-▌⬤ ta                                                                                              ┃
- ⬤ zeta                                                                                            ┃
- ⬤ beta                                                                                            ┃
- ⬤ delta                                                                                           ┃
+▌■ ta                                                                                              ┃
+ ■ zeta                                                                                            ┃
+ ■ beta                                                                                            ┃
+ ■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -171,10 +171,10 @@ session: ta                                                                     
   4/6 | [C-r] repo: none                                                                           ┃
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
- ⬤ ta                                                                                              ┃
- ⬤ zeta                                                                                            ┃
- ⬤ beta                                                                                            ┃
-▌⬤ delta                                                                                           ┃
+ ■ ta                                                                                              ┃
+ ■ zeta                                                                                            ┃
+ ■ beta                                                                                            ┃
+▌■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -189,10 +189,10 @@ session: ta                                                                     
   4/6 | [C-r] repo: none                                                                           ┃
 ▌  ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
- ⬤ ta                                                                                              ┃
- ⬤ zeta                                                                                            ┃
- ⬤ beta                                                                                            ┃
- ⬤ delta                                                                                           ┃
+ ■ ta                                                                                              ┃
+ ■ zeta                                                                                            ┃
+ ■ beta                                                                                            ┃
+ ■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

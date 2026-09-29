@@ -72,8 +72,8 @@ session:                                                                        
   5/5 | [C-r] repo: none                                                                                               ┃
                                                                                                                        ┃
                                                                                                                        ┃
-▌⬤ ui                                                                                                                  ┃
- ⬤ runner                                                                                                              ┃
+▌■ ui                                                                                                                  ┃
+ ■ runner                                                                                                              ┃
  × alpha/first                              ~/alpha.first                                                              ┃
    alpha                                    ~/alpha                                                                    ┃
  × alpha/second                             ~/alpha.second                                                             ┃
@@ -160,7 +160,7 @@ session: first                                                                  
   1/5 | [C-r] repo: none                                                                                               ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
-▌⬤ alpha/first                              ~/alpha.first                                                              ┃
+▌■ alpha/first                              ~/alpha.first                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -211,7 +211,7 @@ session: first                                                                  
   1/5 | [C-r] repo: none                                                                                               ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
-▌⬤ alpha/first                              ~/alpha.first                                                              ┃
+▌■ alpha/first                              ~/alpha.first                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -238,7 +238,7 @@ session: first                                                                  
   1/5 | [C-r] repo: none                                                                                               ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
-▌⬤ alpha/first                              ~/alpha.first                                                              ┃
+▌■ alpha/first                              ~/alpha.first                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -306,8 +306,8 @@ session:                                                                        
   3/3 | [C-r] repo: none                                                                                               ┃
                                                                                                                        ┃
                                                                                                                        ┃
-▌⬤ ui                                                                                                                  ┃
- ⬤ runner                                                                                                              ┃
+▌■ ui                                                                                                                  ┃
+ ■ runner                                                                                                              ┃
    alpha                                    ~/alpha                                                                    ┃
                                                                                                                        ┃
                                                                                                                        ┃

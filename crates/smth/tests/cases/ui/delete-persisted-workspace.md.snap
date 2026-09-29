@@ -63,8 +63,8 @@ session:                                                                        
   5/5 | [C-r] repo: none                                                                                               ┃
                                                                                                                        ┃
                                                                                                                        ┃
-▌⬤ ui                                                                                                                  ┃
- ⬤ runner                                                                                                              ┃
+▌■ ui                                                                                                                  ┃
+ ■ runner                                                                                                              ┃
  × alpha/first                              ~/alpha.feature                                                            ┃
  × alpha/alias                              ~/alpha.feature                                                            ┃
    alpha                                    ~/alpha                                                                    ┃
@@ -113,7 +113,7 @@ Toggling through the alias removes the same marker. Cancellation removes it too.
 ```terminal
 session: alias                                                                                                         ┃
   1/5 | [C-r] repo: none                                                                                               ┃
-▌⬤ alpha/alias                              ~/alpha.feature                                                            ┃
+▌■ alpha/alias                              ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -138,7 +138,7 @@ session: alias                                                                  
 ```terminal
 session: alias                                                                                                         ┃
   1/5 | [C-r] repo: none                                                                                               ┃
-▌⬤ alpha/alias                              ~/alpha.feature                                                            ┃
+▌■ alpha/alias                              ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -171,8 +171,8 @@ Confirming deletes the checkout once and closes both live sessions.
 session:                                                                                                               ┃
   3/3 | [C-r] repo: none                                                                                               ┃
                                                                                                                        ┃
-▌⬤ ui                                                                                                                  ┃
- ⬤ runner                                                                                                              ┃
+▌■ ui                                                                                                                  ┃
+ ■ runner                                                                                                              ┃
    alpha                                    ~/alpha                                                                    ┃
                                                                                                                        ┃
                                                                                                                        ┃
