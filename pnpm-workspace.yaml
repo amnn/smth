@@ -1,6 +1,9 @@
 packages:
   - "extensions/*"
 
+# Keep pnpm's lockfile enabled independently of npm's package-lock setting.
+lockfile: true
+
 allowBuilds:
   "@google/genai": false
   esbuild: true
