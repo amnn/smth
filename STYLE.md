@@ -142,7 +142,19 @@ to preserve the portability of the code.
 
 ### Markdown Snapshot Cases
 
-In markdown-driven snapshot cases, leave a blank line after directives that
-produce rendered transcript output before writing the next directive. For
-example, put a blank line between `:bins` and a following `:copy` so the note
-emitted by `:bins` does not crowd the next command in the checked-in snapshot.
+Prefer short forms for integration-test directives and their flags, such as
+`:$`, `:t`, and `:snap -d 2s -e ready`. This rule applies to the test runner's
+syntax, not the binaries invoked by directives or quoted shell commands.
+Keep long forms when testing those forms explicitly.
+
+Between consecutive directives, leave one blank line after multi-line rendered
+output, including snapshots, fenced stdout or stderr, and warning callouts.
+This applies to expected failures as well as successful commands; judge the
+rendered transcript, not just the exit status or output stream.
+
+Keep closely related directives adjacent when they produce no multi-line
+output, such as binary and fixture setup or key presses followed by settling.
+A blank line may separate logical phases even when commands are silent—for
+example, setup from assertions or one completed interaction from the next.
+Do not collapse these useful groupings mechanically. Keep ordinary paragraph
+and code-block separation.

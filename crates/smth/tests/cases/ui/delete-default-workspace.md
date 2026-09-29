@@ -3,16 +3,14 @@
 Default jj workspace checkouts are not deletable from `smth`; only named
 workspaces can be deleted.
 
-    :bins jj tmux cat test
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux cat test
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init beta
     :$ jj describe -R beta -m "beta commit"
     :t new-session -d -s ui "smth -r beta; cat"
     :t resize-window -t ui:0 -x 120 -y 12
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Filter to the default workspace repo-only entry. The footer should not offer

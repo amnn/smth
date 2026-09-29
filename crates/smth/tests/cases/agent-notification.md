@@ -5,10 +5,8 @@ unfocused agent newly enters an attention-worthy state. Publishing idle, running
 or exit should clear that pane's pending notification after updating its metadata.
 Interpolated values must remain data through every shell level.
 
-    :bins sh cat
-
+    :b sh cat
     :t set-window-option -g monitor-bell on
-
     :w .config/smth/smth.toml
 
 ```toml
@@ -84,7 +82,6 @@ repeated waiting update should not.
     :$ cat cleared
 
     :$ cat notifications
-
     :$ smth agent waiting
     :$ smth agent waiting
     :$ cat notifications
@@ -100,7 +97,6 @@ even without an intervening idle or running update.
     :$ cat cleared
 
     :$ cat notifications
-
     :$ smth agent succeeded
     :$ cat notifications
 
@@ -133,7 +129,6 @@ clear = [
 
     :$ smth agent waiting
     :$ cat notifications
-
     :t display-message -p '#{window_bell_flag}'
 
 A bell-only configuration should enable notifications and emit a terminal bell
@@ -202,7 +197,6 @@ clear = [
 
     :$ smth agent exit
     :t show-options -pqv @smth.agent.state
-
     :$ cat cleared
 
 ---

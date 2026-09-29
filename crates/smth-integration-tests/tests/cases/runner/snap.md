@@ -5,12 +5,10 @@
 If repeated pane captures settle to five identical filtered snapshots before
 the timeout, the settled capture should be emitted as the snapshot.
 
-    :bins echo sleep python3
-
+    :b echo sleep python3
     :t new-window -d -n stable 'echo "hello stable"; tmux wait-for -S ready-stable; sleep 10'
     :p 0:stable.0
     :t resize-window -x 80 -y 2 -t 0:stable
-
     :t wait-for ready-stable
     :snap -c 1 /stable/X
 
@@ -22,7 +20,6 @@ surrounding literal text should remain unchanged.
     :t new-window -d -n groups 'echo "id=123 user=alice"; tmux wait-for -S ready-groups; sleep 10'
     :p 0:groups.0
     :t resize-window -x 80 -y 2 -t 0:groups
-
     :t wait-for ready-groups
     :snap -c 1 "/id=([0-9]+) user=([a-z]+)/é"
 
@@ -34,7 +31,6 @@ painted once.
     :t new-window -d -n nested 'echo "token=abcd"; tmux wait-for -S ready-nested; sleep 10'
     :p 0:nested.0
     :t resize-window -x 80 -y 2 -t 0:nested
-
     :t wait-for ready-nested
     :snap -c 1 /token=(a(bc)d)/é
 
@@ -59,7 +55,6 @@ run(["tmux", "wait-for", "-S", "ready-color"], check=True)
     :t new-window -d -n color 'python3 scripts/rainbow.py; sleep 10'
     :p 0:color.0
     :t resize-window -x 80 -y 2 -t 0:color
-
     :t wait-for ready-color
     :snap --color -c 1 /colorized/X
 
@@ -71,7 +66,6 @@ terminal block when the pane settles.
     :t new-window -d -n settle 'echo "hello settle"; tmux wait-for -S ready-settle; sleep 10'
     :p 0:settle.0
     :t resize-window -x 80 -y 2 -t 0:settle
-
     :t wait-for ready-settle
     :settle -c 1 /settle/X
 
@@ -96,7 +90,6 @@ for i in range(1000000):
     :t new-window -d -n unstable 'python3 scripts/unstable.py'
     :p 0:unstable.0
     :t resize-window -x 80 -y 2 -t 0:unstable
-
     :t wait-for ready-unstable
     :snap -d 200ms
 

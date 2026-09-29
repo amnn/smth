@@ -4,10 +4,8 @@ This scenario creates one quiet tmux session and one session with a bell alert,
 then launches `smth`. The markdown transcript remains textual, and the linked
 SVG snapshots cover row styling.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t set-option -g visual-bell both
     :t set-window-option -g monitor-bell on
     :t rename-session -t 0 runner
@@ -15,7 +13,7 @@ SVG snapshots cover row styling.
     :t new-session -d -s quiet "cat"
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 80 -y 10
-    :pane ui:0.0
+    :p ui:0.0
 
 The alert row should carry light-yellow pip styling in the linked SVG snapshot.
 

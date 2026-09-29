@@ -4,17 +4,15 @@ If the current repo context comes from stale tmux metadata and is not actually a
 jj repo, accepting a new session should use that path as the tmux working
 directory without attempting workspace creation or attaching repo metadata.
 
-    :bins jj tmux mkdir cat sh sed
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux mkdir cat sh sed
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ mkdir plain
     :t new-session -d -s plain "cat"
     :t set-option -t plain @smth.repo plain
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Select the live session with stale repo metadata, set it as the current repo

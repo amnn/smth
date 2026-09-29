@@ -9,17 +9,15 @@ When a new repo-backed session would create a workspace whose name already
 exists, the workspace name is disambiguated before rendering and creation. The
 session name and workspace path are both derived from the disambiguated name.
 
-    :bins jj tmux sh sed (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux sh sed (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init beta (exit: 0)
     :$ jj workspace add -R beta --name zeta beta.zeta (exit: 0)
     :$ jj describe -R beta -m "beta commit" (exit: 0)
     :t new-session -d -s ui "smth -r beta" (success)
     :t resize-window -t ui:0 -x 120 -y 10 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
 
 Select the default repo, set it as the current repo context, then type the name

@@ -8,9 +8,8 @@ input_file: crates/smth/tests/cases/ui/new-repo-switch.md
 `enter` on the fresh-repository candidate should initialize the displayed
 checkout, create its session, and switch the invoking client.
 
-    :bins jj tmux cat sh sed mkdir (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :b jj tmux cat sh sed mkdir (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w .config/smth/smth.toml (written)
 
 ```toml
@@ -30,7 +29,7 @@ only their tmux names, leaving the requested repository path unchanged.
     :t rename-session -t 0 runner (success)
     :t resize-window -t runner:0 -x 120 -y 14 (success)
     :t respawn-pane -k -t runner:0.0 'smth --no-base; cat' (success)
-    :pane runner:0.0
+    :p runner:0.0
     :settle -d 2s (settled)
 
 Existing matches remain the default selection. The repository candidate shows
@@ -125,7 +124,6 @@ client changes session.
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; set-option -g @smth.test-switched yes" (success)
     :k enter
     :$ sh -c 'until test -f repos/switched/.smth-ready; do :; done' (exit: 0)
-
     :$ sh -c 'until test "$(tmux show-options -gqv @smth.test-switched)" = yes; do :; done' (exit: 0)
 
 The client should show the new session after repository initialization and tmux
@@ -138,7 +136,6 @@ switched~1
 ```
 
     :$ sh -c 'test -d repos/switched/.jj && test -d repos/switched/.git && test ! -e repos/switched~1/.jj' (exit: 0)
-
     :$ sh -c 'tmux show-options -qv -t "=switched~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
@@ -159,7 +156,7 @@ a checkout, even when prospective repository and plain candidates are present.
     :t switch-client -t runner (success)
     :t new-session -d -s fallback -c '#{pane_start_path}' 'smth --no-base --query switched~2; cat' (success)
     :t resize-window -t fallback:0 -x 120 -y 14 (success)
-    :pane fallback:0.0
+    :p fallback:0.0
     :settle -d 2s (settled)
     :snap
 

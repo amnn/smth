@@ -8,10 +8,8 @@ input_file: crates/smth/tests/cases/cli/create-repo.md
 `--create-repo` should modify `--create` and `--switch` to initialize a fresh
 colocated repository before creating its tmux session.
 
-    :bins jj tmux cat sh sed mkdir (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux cat sh sed mkdir (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w smth.toml (written)
 ```toml
 [repo]
@@ -35,7 +33,6 @@ project-one
 ```
 
     :$ sh -c 'test -d "config-repos/project one/.jj" && test -d "config-repos/project one/.git"' (exit: 0)
-
     :t show-options -qv -t '=project-one:' @smth.test-created (success)
 
 ```
@@ -82,7 +79,6 @@ foo-bar~2
 ```
 
     :$ sh -c 'test -d config-repos/foo.bar/.jj && test ! -e config-repos/foo.bar~2' (exit: 0)
-
     :$ sh -c 'tmux show-options -qv -t "=foo-bar~2:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
@@ -99,7 +95,6 @@ bare
 ```
 
     :t show-options -qv -t '=bare:' @smth.repo (success)
-
     :$ sh -c 'test ! -e config-repos/bare' (exit: 0)
 
 Adding `--create-repo` must disambiguate instead of reusing or converting the
@@ -112,7 +107,6 @@ bare~1
 ```
 
     :$ sh -c 'test -d config-repos/bare/.jj && test ! -e config-repos/bare~1' (exit: 0)
-
     :t show-options -qv -t '=bare:' @smth.repo (success)
 
 A command-line root should override the configured root.
@@ -128,9 +122,7 @@ override
 An occupied path should be rejected without modifying the existing directory.
 
     :$ mkdir config-repos/collision (exit: 0)
-
     :t new-session -d -s collision~1 "cat" (success)
-
     :$ sh -c 'smth --config smth.toml --no-base --create collision --create-repo 2> error; status=$?; sed "s#$PWD#<ROOT>#g" error >&2; exit "$status"' (exit: 1)
 
 ```stderr
@@ -159,10 +151,9 @@ switched~1
 ```
 
     :$ sh -c 'test -d switch-repos/switched/.jj && test -d switch-repos/switched/.git' (exit: 0)
-
     :t has-session -t '=switched' (success)
     :t switch-client -t runner (success)
-    :pane runner:0.0
+    :p runner:0.0
 
 Without either root setting, creation should default to the process working
 directory.
@@ -174,7 +165,6 @@ globs = []
 ```
 
     :$ mkdir fallback (exit: 0)
-
     :$ sh -c 'cd fallback && smth --config ../no-root.toml --no-base --create local --create-repo' (exit: 0)
 
 ```stdout
@@ -260,7 +250,6 @@ a-b
 ```
 
     :$ sh -c 'test -d "config-repos/a\b/.jj" && test -d "config-repos/a\b/.git"' (exit: 0)
-
     :$ smth --config smth.toml --no-base --create trailing/ --create-repo (exit: 0)
 
 ```stdout
@@ -280,7 +269,6 @@ Caused by: No such file or directory (os error 2)
 ```
 
     :$ sh -c 'test ! -e config-repos/dotted/.jj && test ! -e config-repos/dotted/.git' (exit: 0)
-
     :t has-session -t '=dotted' (failure)
 
 ```

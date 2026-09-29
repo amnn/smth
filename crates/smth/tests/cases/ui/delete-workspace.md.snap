@@ -8,10 +8,8 @@ input_file: crates/smth/tests/cases/ui/delete-workspace.md
 Deleting a live session that is attached to a named jj workspace should kill the
 tmux session, forget the workspace, and remove the workspace directory.
 
-    :bins jj tmux cat test sh (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux cat test sh (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
     :$ jj describe -R alpha -m "alpha commit" (exit: 0)
@@ -21,7 +19,7 @@ same metadata as normal user-created workspace sessions.
 
     :t new-session -d -s create "smth -r alpha; cat" (success)
     :t resize-window -t create:0 -x 120 -y 12 (success)
-    :pane create:0.0
+    :p create:0.0
     :settle -d 2s (settled)
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-workspace-session" (success)
     :k alpha C-r C-u feature enter
@@ -32,9 +30,8 @@ Launch a fresh picker and select the workspace-backed session.
 
     :t new-session -d -s ui "smth -r \"$HOME/alpha*\"; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
-
     :k feature
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
@@ -90,7 +87,6 @@ workspace list, and delete the workspace directory.
     :k C-y
     :t wait-for deleted-workspace-session (success)
     :settle -d 2s (settled)
-
     :t has-session -t alpha/feature (failure)
 
 ```
@@ -136,7 +132,6 @@ Cancel the onto picker and switch to the surviving sibling workspace.
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S switched-sibling" (success)
     :k enter
     :t wait-for switched-sibling (success)
-
     :t display-message -p '#{client_session}' (success)
 
 ```

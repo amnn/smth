@@ -8,17 +8,15 @@ input_file: crates/smth/tests/cases/ui/new-session-workspace-path-collision.md
 When a new repo-backed session would create a workspace at an already-existing
 path, the workspace name is disambiguated so the derived path is available.
 
-    :bins jj tmux mkdir sh sed (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux mkdir sh sed (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init beta (exit: 0)
     :$ mkdir beta.zeta (exit: 0)
     :$ jj describe -R beta -m "beta commit" (exit: 0)
     :t new-session -d -s ui "smth -r beta" (success)
     :t resize-window -t ui:0 -x 120 -y 10 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
 
 Select the default repo, set it as the current repo context, then type the name

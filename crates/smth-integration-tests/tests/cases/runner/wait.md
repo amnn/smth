@@ -4,7 +4,7 @@ Tmux's control-mode `%end` acknowledges a command before asynchronous work has
 necessarily finished. A following host directive must wait for the command
 queue to resume, not just for that acknowledgement.
 
-    :bins tmux sleep cat
+    :b tmux sleep cat
 
 A foreground `run-shell` must finish writing its file before the host reads it.
 

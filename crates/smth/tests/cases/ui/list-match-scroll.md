@@ -4,10 +4,8 @@ When a fuzzy match lands beyond the visible width of a long session row, the row
 content should scroll horizontally far enough to keep the last matched character
 visible.
 
-    :bins cat jj mkdir
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b cat jj mkdir
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ mkdir -p code/alpha-supercalifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z
     :$ jj git init code/alpha-supercalifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z
@@ -15,7 +13,7 @@ visible.
     :t set-option -t alpha @smth.repo code/alpha-supercalifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 80 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle
 
 Hide the preview, then search for the unique trailing `z`. The matched live

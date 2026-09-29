@@ -17,7 +17,7 @@ A target that does not exist should produce a warning with error details from tm
 
 Window-level targets should still resolve to one pane selection.
 
-    :tmux split-window -d
+    :t split-window -d
     :pane 0
 
 ## Explicit pane id target is unambiguous
@@ -36,7 +36,7 @@ Pane-index targets should resolve directly to that pane.
 
 After removing a pane, selecting that removed pane id should fail with a warning.
 
-    :tmux kill-pane -t 0.1
+    :t kill-pane -t 0.1
     :pane %1
 
 ## Window target still resolves after pane removal

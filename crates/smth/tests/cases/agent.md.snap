@@ -8,8 +8,7 @@ input_file: crates/smth/tests/cases/agent.md
 The agent subcommand should publish each supported lifecycle state to the
 invoking tmux pane's `@smth.agent.state` user option.
 
-    :bins env (available)
-
+    :b env (available)
     :$ smth agent idle (exit: 0)
     :t show-options -pqv @smth.agent.state (success)
 

@@ -6,10 +6,8 @@ harnesses should use the same attention pip styling as a tmux bell; running and
 idle harnesses should not. A manual flag on a session that also has agent
 attention should retain the existing attention-over-flag precedence.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s waiting "cat"
     :t set-option -p -t waiting:0.0 @smth.agent.state waiting
@@ -32,9 +30,10 @@ attention should retain the existing attention-over-flag precedence.
     :t set-option -p -t running:0.1 @smth.agent.state running
     :t new-session -d -s idle "cat"
     :t set-option -p -t idle:0.0 @smth.agent.state idle
+
     :t new-session -d -s ui "smth; cat"
     :t resize-window -t ui:0 -x 100 -y 12
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Hide the preview so every session is visible in one snapshot. The linked colour

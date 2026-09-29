@@ -8,10 +8,8 @@ input_file: crates/smth/tests/cases/cli/switch.md
 `--switch` should share create semantics, then switch the invoking tmux client
 to the strictly resolved target and print its actual session name.
 
-    :bins jj tmux cat sh sed (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux cat sh sed (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
     :$ jj describe -R alpha -m "base commit" (exit: 0)
@@ -46,7 +44,7 @@ switches. A colliding plain session should force a disambiguated name in both
 stdout and the selected client session.
 
     :t switch-client -t runner (success)
-    :pane runner:0.0
+    :p runner:0.0
     :t new-session -d -s alpha "cat" (success)
     :t respawn-pane -k -t runner:0.0 'smth --base alpha --switch > switch-name; tmux wait-for -S switched-default; cat' (success)
     :t wait-for switched-default (success)
@@ -66,7 +64,7 @@ An explicit operand overrides the workspace inferred by a named base. Existing
 checkouts receive tmux sessions without creating new workspaces.
 
     :t switch-client -t runner (success)
-    :pane runner:0.0
+    :p runner:0.0
     :t respawn-pane -k -t runner:0.0 'smth --base alpha.feature --switch other > switch-name; tmux wait-for -S switched-other; cat' (success)
     :t wait-for switched-other (success)
     :$ cat switch-name (exit: 0)
@@ -84,7 +82,7 @@ alpha/other:0
 A missing named workspace should be created at `--onto`, then switched to.
 
     :t switch-client -t runner (success)
-    :pane runner:0.0
+    :p runner:0.0
     :t respawn-pane -k -t runner:0.0 'smth --base alpha --onto @ --switch fresh > switch-name; tmux wait-for -S switched-fresh; cat' (success)
     :t wait-for switched-fresh (success)
     :$ cat switch-name (exit: 0)
@@ -100,7 +98,7 @@ alpha/fresh:0
 ```
 
     :t switch-client -t runner (success)
-    :pane runner:0.0
+    :p runner:0.0
     :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\n\"" | sed -n "/fresh/p"' (exit: 0)
 
 ```stdout
@@ -125,7 +123,7 @@ scratch:0
 ```
 
     :t switch-client -t runner (success)
-    :pane runner:0.0
+    :p runner:0.0
 
 If checkout creation fails, switching should fail without printing a session
 name.

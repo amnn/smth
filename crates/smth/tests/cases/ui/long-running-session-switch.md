@@ -3,8 +3,7 @@
 Switching to a session that takes time to create should show progress until the
 client switches and the picker exits.
 
-    :bins jj tmux cat sleep
-
+    :b jj tmux cat sleep
     :t rename-session -t 0 runner
     :t resize-window -t runner:0 -x 120 -y 14
 

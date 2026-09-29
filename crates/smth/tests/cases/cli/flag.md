@@ -3,10 +3,8 @@
 Flat lifecycle flags should resolve live sessions by repository family and
 workspace identity rather than by a guessed tmux name.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
     :$ jj workspace add -R alpha --name feature alpha.feature
@@ -20,19 +18,12 @@ plain-session namespace. Record each pane's configured start path: its process
 may not yet report a current directory while starting.
 
     :t new-session -d -s alpha/feature "cat"
-
     :t new-session -d -s alpha/feature~1 -c alpha.feature "cat"
-
     :t set-option -F -t '=alpha/feature~1:' @smth.repo '#{pane_start_path}'
-
     :t new-session -d -s alpha-live -c alpha "cat"
-
     :t set-option -F -t '=alpha-live:' @smth.repo '#{pane_start_path}'
-
     :t new-session -d -s alpha/other -c alpha.other "cat"
-
     :t set-option -F -t '=alpha/other:' @smth.repo '#{pane_start_path}'
-
     :t new-session -d -s scratch "cat"
 
 Flagging `feature` must update only the repo-backed session, not the colliding
@@ -50,7 +41,6 @@ it is omitted, while an explicit operand overrides that inferred workspace.
 
     :$ smth --base alpha.feature --unflag
     :t show-options -qv -t '=alpha/feature~1:' @smth.flag
-
     :$ smth --base alpha.feature --flag other
     :t show-options -qv -t '=alpha/other:' @smth.flag
 

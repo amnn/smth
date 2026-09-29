@@ -3,8 +3,7 @@
 Creating a session in the background should keep the picker responsive and show
 delayed, operation-specific progress over the last session-list row until it finishes.
 
-    :bins jj tmux cat sleep
-
+    :b jj tmux cat sleep
     :t rename-session -t 0 runner
 
 Block the session setup script so the create operation stays in flight long
@@ -22,7 +21,7 @@ tmux wait-for spinner-release
 
     :t new-session -d -s ui "smth; cat"
     :t resize-window -t ui:0 -x 120 -y 14
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Start creating a detached session, then wait until its setup script reaches the

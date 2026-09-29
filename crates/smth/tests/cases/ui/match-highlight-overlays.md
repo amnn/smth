@@ -5,10 +5,8 @@ a session row. This case matches characters in the live session name, the dim
 repo parent path, and the plain repo basename; the linked SVG snapshot preserves
 those combined styles.
 
-    :bins jj cat mkdir
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat mkdir
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ mkdir code
     :$ jj git init code/blue
@@ -17,7 +15,7 @@ those combined styles.
     :t set-option -t tone~one @smth.repo code/blue
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 100 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle
 
 Hide the preview so the color snapshot focuses on the list row. The query

@@ -3,17 +3,15 @@
 When a new repo-backed session would create a workspace at an already-existing
 path, the workspace name is disambiguated so the derived path is available.
 
-    :bins jj tmux mkdir sh sed
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj tmux mkdir sh sed
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init beta
     :$ mkdir beta.zeta
     :$ jj describe -R beta -m "beta commit"
     :t new-session -d -s ui "smth -r beta"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Select the default repo, set it as the current repo context, then type the name

@@ -10,10 +10,8 @@ have a live tmux session. Pressing Enter on that entry should create a detached
 tmux session for the repo, attach `@smth.repo` metadata, and switch the current
 client to it.
 
-    :bins jj tmux (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init beta (exit: 0)
     :$ jj describe -R beta -m "beta commit" (exit: 0)
@@ -22,7 +20,7 @@ Launch the picker in a live tmux client and make the repo discoverable.
 
     :t new-session -d -s ui "smth -r beta" (success)
     :t resize-window -t ui:0 -x 120 -y 10 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
 
 Type a query that selects `beta`, wait for the picker to redraw, and accept it.

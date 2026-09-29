@@ -9,10 +9,8 @@ Every staged deletion should run concurrently in one pending task. A failed
 entry must not cancel the remaining deletions, and its checkout path should be
 reported after the whole batch finishes.
 
-    :bins jj tmux cat sh test chmod sed (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux cat sh test chmod sed (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
     :$ jj workspace add -R alpha --name first alpha.first (exit: 0)
@@ -40,17 +38,14 @@ exec "$HOME/../bin/jj" "$@"
     :$ chmod +x wrappers/jj (exit: 0)
     :t new-session -d -s ui 'PATH="$HOME/wrappers:$PATH" smth -r "alpha*" 2>errors; : > finished; cat' (success)
     :t resize-window -t ui:0 -x 120 -y 16 (success)
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s (settled)
     :k C-p first
     :settle -d 2s -e '1/5' -e alpha/first -e C-d (settled)
-
     :k C-d C-u second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
-
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
-
     :k C-y
 
 Both commands must start before either is released, proving concurrency.
@@ -60,7 +55,6 @@ keys remain gated while the confirmed batch is running.
     :$ sh -c 'until test -f first-ready && test -f second-ready; do :; done' (exit: 0)
     :k C-u first
     :settle -d 2s -e '1/5' -e alpha/first -e deleting "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" (settled)
-
     :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
 ```terminal
@@ -93,6 +87,7 @@ deletion rather than exiting early and cancelling it.
     :t wait-for -S first-release (success)
     :settle "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" (settled)
     :$ test ! -f finished (exit: 0)
+
     :t wait-for -S second-release (success)
     :$ sh -c 'until test -f finished; do :; done' (exit: 0)
 

@@ -16,9 +16,8 @@ it obvious what was normalized:
 - `w` replaces `jj` change IDs that follow the preview graph markers.
 - `h` replaces short hexadecimal commit IDs.
 
-    :bins jj git cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
+    :b jj git cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
 
 Create an `alpha` repo that will be attached to a live tmux session.
 
@@ -47,7 +46,7 @@ repo discovery enabled for `alpha`, `beta`, and `mono*`.
     :t set-option -t alpha-live @smth.repo alpha
     :t new-session -d -s ui "smth -r 'alpha' -r 'beta' -r 'mono*'"
     :t resize-window -t ui:0 -x 120 -y 12
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Move from the recency-selected previous session to `alpha-live`. This snapshot

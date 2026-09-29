@@ -4,10 +4,8 @@ This scenario launches `smth` in the runner's attached tmux pane and verifies
 that pressing Enter on a live session switches that client to the selected
 session.
 
-    :bins jj cat tmux
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat tmux
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s beta "printf 'beta target'; cat"
     :t resize-window -t runner:0 -x 80 -y 10
@@ -27,7 +25,6 @@ After accepting the selection, the control-mode client should switch to the sele
 
     :k enter
     :settle -d 2s
-
     :t display-message -p '#{client_session}'
 
 ---

@@ -9,14 +9,11 @@ Deletion must use the live sessions discovered by the model, without listing
 sessions again. All matching session closures run concurrently and are awaited
 even when one fails.
 
-    :bins jj tmux cat sh test chmod sed (available)
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
-
+    :b jj tmux cat sh test chmod sed (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)
     :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
-
     :t new-session -d -s first -c alpha.feature "cat" (success)
     :t set-option -F -t '=first:' @smth.repo '#{pane_start_path}' (success)
     :t new-session -d -s second -c alpha.feature "cat" (success)
@@ -72,6 +69,7 @@ already be removed, but the deletion command must still be running.
     :t wait-for -S first-release (success)
     :$ sh -c 'until test -f first-failed; do :; done' (exit: 0)
     :$ test ! -f finished (exit: 0)
+
     :t wait-for -S second-release (success)
     :$ sh -c 'until test -f finished; do :; done' (exit: 0)
 
@@ -86,7 +84,6 @@ can't find session: second
 ```
 
     :t has-session -t '=late' (success)
-
     :$ cat discoveries (exit: 0)
 
 ```stdout

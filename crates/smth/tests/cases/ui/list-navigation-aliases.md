@@ -3,10 +3,8 @@
 `C-j` and `C-k` move down and up by one row, while `M-j` and `M-k`
 jump to the last and first selectable rows in the session list.
 
-    :bins jj cat
-
-    :copy tests/fixtures/jjconfig.toml .jjconfig.toml
-
+    :b jj cat
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"
     :t new-session -d -s beta "cat"
@@ -14,7 +12,7 @@ jump to the last and first selectable rows in the session list.
     :t new-session -d -s zeta "cat"
     :t new-session -d -s ui "smth"
     :t resize-window -t ui:0 -x 100 -y 12
-    :pane ui:0.0
+    :p ui:0.0
     :settle -d 2s
 
 Hide the preview so the selected row movement is easy to inspect.

@@ -3,14 +3,13 @@
 Plain live tmux sessions are closeable, but not deletable: there is no
 associated checkout for `C-d` to remove.
 
-    :bins jj tmux cat
-
+    :b jj tmux cat
     :t rename-session -t 0 runner
     :t new-session -d -s alpha "cat"
     :t new-session -d -s alpine "cat"
     :t new-session -d -s ui "smth; cat"
     :t resize-window -t ui:0 -x 120 -y 10
-    :pane ui:0.0
+    :p ui:0.0
     :settle
 
 Filter to the matching sessions. The first match, `alpha`, is selected. The
