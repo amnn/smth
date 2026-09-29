@@ -1,6 +1,6 @@
 ---
 name: smth
-description: Inspect and safely control smth tmux sessions and jj workspaces through smth's non-interactive CLI. Use when listing, finding, creating, switching, closing, deleting, flagging, or unflagging smth sessions, creating fresh repositories, or managing repo-backed agent workspaces.
+description: Inspect and safely control smth tmux sessions and jj workspaces through smth's non-interactive CLI. Use when listing, finding, creating, switching, closing, staging or executing workspace deletions, deleting, flagging, or unflagging smth sessions, creating fresh repositories, or managing repo-backed agent workspaces.
 license: Apache-2.0
 compatibility: Requires the smth binary, tmux, and jj on PATH; switching requires an invoking tmux client.
 ---
@@ -28,7 +28,7 @@ result is `[]`. Each record includes:
   checkout;
 - `path`: actual checkout path, omitted when no checkout exists;
 - `tmux`: resolved tmux name, including any collision suffix;
-- `live` and `deletable` lifecycle state, plus `flagged` for live sessions;
+- `live`, `deletable`, and `pending_deletion` lifecycle state, plus `flagged` for live sessions;
 - `attention`: window names requiring attention, omitted when empty;
 - `agents`: agent lifecycle state counts, omitted when empty.
 
@@ -49,6 +49,8 @@ smth --base "$base" --create "$name"
 smth --base "$base" --switch "$name"
 smth --base "$base" --close "$name"
 smth --base "$base" --delete "$name"
+smth --base "$base" --stage-delete "$name"
+smth --base "$base" --unstage-delete "$name"
 ```
 
 Omit the optional operand for the default checkout, where `name` is absent:
@@ -87,7 +89,11 @@ fall back to the TUI.
   the checkout and jj workspace registration.
 - **Delete:** require a repo-backed named workspace with `deletable: true`.
   This forgets the workspace, removes its checkout, and closes its verified live
-  session.
+  sessions attached to the checkout.
+- **Stage or unstage deletion:** require a repo-backed named workspace with
+  `deletable: true`. These idempotent operations only change its persisted marker.
+  The picker shares the selection: C-d toggles staging, C-y executes the batch,
+  and C-g clears it after cancelling onto mode. Exiting does not clear markers.
 
 Use `--onto REV` with create or switch only when a missing named workspace
 should start at a specific revision. It has no effect on existing checkouts.
@@ -134,9 +140,36 @@ deletable named workspace. Do not repeat `--create-repo` to return to it.
 Placement does not enable discovery: use `[repo].globs` or `--repo GLOB` to find
 the checkout after its session is closed.
 
+## Execute staged deletions
+
+Inspect `smth --json` with the same configuration and `--repo` globs that will
+be used for execution. Group records with `pending_deletion: true` by `path`:
+multiple live aliases can refer to one checkout. Show the user every affected
+checkout and session, not just the subset matching a query.
+
+```sh
+smth --repo "$glob" --json
+smth --repo "$glob" --delete-staged
+```
+
+`--delete-staged` has no base context. Never add `--base` or `--no-base`; both
+are rejected, and cwd does not supply an inferred base. It executes **all**
+staged checkouts discovered through configured globs, explicit globs, and live
+sessions, including unrelated repository families. Undiscovered markers remain
+untouched. Include closed checkouts with globs; do not mistake a query-filtered
+inspection for the complete execution scope. With no staged checkouts it is a
+successful no-op.
+
+All deletion tasks are awaited, but failures may leave workspaces forgotten,
+checkouts removed, or only some sessions closed. Inspect again after an error;
+do not blindly repeat a destructive command against a changed selection.
+
 ## Deletion confirmation
 
 Deletion is irreversible and the CLI does not prompt. Ask the user for explicit
-confirmation immediately before `--delete` unless their current request already
-clearly asks to delete or remove that workspace. A request to close, stop, hide,
-or leave a session is not permission to delete it; use `--close` instead.
+confirmation immediately before `--delete` or `--delete-staged` unless
+their current request already clearly authorizes deleting every affected
+checkout. A staging request or an existing marker alone is not execution
+authorization. For a batch, enumerate the full discovered selection before
+seeking confirmation. A request to close, stop, hide, or leave a session is not
+permission to delete it; use `--close` instead.

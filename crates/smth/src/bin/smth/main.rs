@@ -26,6 +26,7 @@ use smth::Model;
 use smth::cmd::jj;
 use smth::cmd::tmux;
 use smth::config::SmthConfig;
+use smth::set_deleting;
 
 /// Non-interactive root operation selected after parsing flat CLI options.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -53,6 +54,15 @@ enum Action {
 
     /// Delete the target named workspace session and close it if live.
     Delete(String),
+
+    /// Persistently stage a named workspace for deletion.
+    StageDelete(String),
+
+    /// Remove a named workspace from the persisted deletion selection.
+    UnstageDelete(String),
+
+    /// Delete every staged checkout found by discovery, without a base context.
+    DeleteStaged,
 }
 
 /// Parsed command-line options for interactive and non-interactive operation.
@@ -75,6 +85,9 @@ enum Action {
             "switch",
             "close",
             "delete",
+            "stage_delete",
+            "unstage_delete",
+            "delete_staged",
         ])
         .multiple(false)
 ))]
@@ -249,6 +262,41 @@ struct Args {
     )]
     delete: Option<String>,
 
+    /// Persistently stage a named workspace for deletion.
+    #[arg(
+        long,
+        value_name = "SESSION",
+        conflicts_with_all = ["query", "select_1", "exit_0"],
+        long_help = "Stage a matching named workspace for deletion without deleting it. The marker \
+                     is stored in its checkout and shared with the picker and all session aliases. \
+                     Repeated staging is idempotent; use --delete-staged or C-y in the picker to \
+                     execute staged deletions. Default workspaces and plain sessions cannot be staged."
+    )]
+    stage_delete: Option<String>,
+
+    /// Remove a named workspace's pending-deletion marker.
+    #[arg(
+        long,
+        value_name = "SESSION",
+        conflicts_with_all = ["query", "select_1", "exit_0"],
+        long_help = "Remove a matching named workspace's persisted deletion marker without deleting \
+                     its checkout or closing sessions. Repeated unstaging is idempotent."
+    )]
+    unstage_delete: Option<String>,
+
+    /// Delete all discovered staged workspaces without prompting.
+    #[arg(
+        long,
+        conflicts_with_all = ["base", "no_base", "query", "select_1", "exit_0"],
+        long_help = "Delete all staged checkouts discovered through configured repository globs, \
+                     --repo globs, and live tmux sessions. There is no base context: --base and \
+                     --no-base are rejected, and the current directory is not used to infer one. \
+                     Each workspace is forgotten and removed, and its discovered live sessions \
+                     are closed. All deletions are awaited and failures are reported together. \
+                     No staged checkouts is a successful no-op. This command does not prompt."
+    )]
+    delete_staged: bool,
+
     /// Additional repository globs to surface alongside existing tmux sessions.
     #[arg(
         short = 'r',
@@ -304,6 +352,12 @@ impl Args {
             Some(Action::Close(session.clone()))
         } else if let Some(session) = &self.delete {
             Some(Action::Delete(session.clone()))
+        } else if let Some(session) = &self.stage_delete {
+            Some(Action::StageDelete(session.clone()))
+        } else if let Some(session) = &self.unstage_delete {
+            Some(Action::UnstageDelete(session.clone()))
+        } else if self.delete_staged {
+            Some(Action::DeleteStaged)
         } else {
             None
         }
@@ -312,11 +366,11 @@ impl Args {
     /// The base repository for the current smth invocation.
     ///
     /// Controlled by the `--base` and `--no-base` flags, or inferred from the current working
-    /// directory. If `--base` is supplied, it must be a path inside a jj repo. If `--no-base` is
-    /// supplied, the base is empty even if the current working directory is inside a jj repo.
-    /// Otherwise, a base is set if the current working directory is inside a jj repo.
+    /// directory. If `--base` is supplied, it must be a path inside a jj repo. If `--no-base` or
+    /// `--delete-staged` is supplied, the base is empty even if the current working directory is
+    /// inside a jj repo. Otherwise, a base is set if the current working directory is inside a jj repo.
     fn base(&self, cwd: &Path) -> anyhow::Result<Option<PathBuf>> {
-        if self.no_base {
+        if self.no_base || self.delete_staged {
             return Ok(None);
         }
 
@@ -454,6 +508,22 @@ async fn run() -> anyhow::Result<ExitCode> {
             ensure!(session.can_delete(), "session cannot be deleted");
             let path = session.repo().context("session has no checkout")?;
             model.set_deletions(BTreeSet::from([path]));
+            model.delete().await?;
+            Ok(ExitCode::SUCCESS)
+        }
+
+        Some(Action::StageDelete(name) | Action::UnstageDelete(name)) => {
+            let session = model
+                .session(current.as_deref(), Some(name))
+                .context("session not found")?;
+
+            ensure!(session.can_delete(), "session cannot be deleted");
+            let path = session.repo().context("session has no checkout")?;
+            set_deleting(&path, matches!(action, Some(Action::StageDelete(_)))).await?;
+            Ok(ExitCode::SUCCESS)
+        }
+
+        Some(Action::DeleteStaged) => {
             model.delete().await?;
             Ok(ExitCode::SUCCESS)
         }

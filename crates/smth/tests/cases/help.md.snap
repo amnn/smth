@@ -19,28 +19,32 @@ Commands:
   help   Print this message or the help of the given subcommand(s)
 
 Options:
-  -h                        Print brief help
-      --help                Print complete help
-      --config <PATH>       Path to a custom config file
-  -b, --base <REPO>         Repository or workspace to use as the base context
-  -B, --no-base             Force an empty repository context
-  -o, --onto <REV>          Revision used as the base for newly created workspaces
-  -q, --query <STR>         Seed the initial query
-  -1, --select-1            Automatically switch when the initial query has only one match
-  -0, --exit-0              Exit without opening the UI if the initial query has no matches
-  -f, --filter              Filter non-interactively using the initial query
-      --json                Print structured information about discovered entries
-      --flag [<SESSION>]    Mark a live session as flagged
-      --unflag [<SESSION>]  Clear a live session's flag
-  -c, --create [<SESSION>]  Ensure a session exists without switching to it
-      --create-repo         Create a fresh repository for the session requested by --create or
-                            --switch
-  -s, --switch [<SESSION>]  Ensure a session exists and switch to it
-  -x, --close [<SESSION>]   Close a live session without deleting its checkout
-  -d, --delete <SESSION>    Delete a named workspace session and close it if live
-  -r, --repo <GLOB>         Additional repository globs to surface alongside existing tmux sessions
-      --repo-root <PATH>    Parent directory for newly created repositories
-  -V, --version             Print version
+  -h                              Print brief help
+      --help                      Print complete help
+      --config <PATH>             Path to a custom config file
+  -b, --base <REPO>               Repository or workspace to use as the base context
+  -B, --no-base                   Force an empty repository context
+  -o, --onto <REV>                Revision used as the base for newly created workspaces
+  -q, --query <STR>               Seed the initial query
+  -1, --select-1                  Automatically switch when the initial query has only one match
+  -0, --exit-0                    Exit without opening the UI if the initial query has no matches
+  -f, --filter                    Filter non-interactively using the initial query
+      --json                      Print structured information about discovered entries
+      --flag [<SESSION>]          Mark a live session as flagged
+      --unflag [<SESSION>]        Clear a live session's flag
+  -c, --create [<SESSION>]        Ensure a session exists without switching to it
+      --create-repo               Create a fresh repository for the session requested by --create or
+                                  --switch
+  -s, --switch [<SESSION>]        Ensure a session exists and switch to it
+  -x, --close [<SESSION>]         Close a live session without deleting its checkout
+  -d, --delete <SESSION>          Delete a named workspace session and close it if live
+      --stage-delete <SESSION>    Persistently stage a named workspace for deletion
+      --unstage-delete <SESSION>  Remove a named workspace's pending-deletion marker
+      --delete-staged             Delete all discovered staged workspaces without prompting
+  -r, --repo <GLOB>               Additional repository globs to surface alongside existing tmux
+                                  sessions
+      --repo-root <PATH>          Parent directory for newly created repositories
+  -V, --version                   Print version
 ```
 
 The agent command help should describe the exit action and every lifecycle state.
@@ -164,6 +168,24 @@ Options:
           Delete a matching named-workspace session from the selected repository family. The
           workspace is forgotten from jj, its checkout is removed, and the tmux session is closed
           when live, without an interactive confirmation prompt.
+
+      --stage-delete <SESSION>
+          Stage a matching named workspace for deletion without deleting it. The marker is stored in
+          its checkout and shared with the picker and all session aliases. Repeated staging is
+          idempotent; use --delete-staged or C-y in the picker to execute staged deletions. Default
+          workspaces and plain sessions cannot be staged.
+
+      --unstage-delete <SESSION>
+          Remove a matching named workspace's persisted deletion marker without deleting its
+          checkout or closing sessions. Repeated unstaging is idempotent.
+
+      --delete-staged
+          Delete all staged checkouts discovered through configured repository globs, --repo globs,
+          and live tmux sessions. There is no base context: --base and --no-base are rejected, and
+          the current directory is not used to infer one. Each workspace is forgotten and removed,
+          and its discovered live sessions are closed. All deletions are awaited and failures are
+          reported together. No staged checkouts is a successful no-op. This command does not
+          prompt.
 
   -r, --repo <GLOB>
           Additional repository globs to surface alongside existing tmux sessions. Pass once per
