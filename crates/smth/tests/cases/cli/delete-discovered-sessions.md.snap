@@ -9,10 +9,7 @@ Deletion must use the live sessions discovered by the model, without listing
 sessions again. All matching session closures run concurrently and are awaited
 even when one fails.
 
-    :bins jj tmux cat sh test chmod sed
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', 'test', 'chmod', and 'sed' are available.
+    :bins jj tmux cat sh test chmod sed (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

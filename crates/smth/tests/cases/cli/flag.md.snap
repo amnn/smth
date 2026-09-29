@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/cli/flag.md
 Flat lifecycle flags should resolve live sessions by repository family and
 workspace identity rather than by a guessed tmux name.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

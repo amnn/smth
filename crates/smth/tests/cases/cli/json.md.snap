@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/cli/json.md
 `--json` should describe live tmux sessions and discovered repository checkout
 candidates with identities suitable for strict lifecycle commands.
 
-    :bins jj cat sh sed
-
-> [!NOTE]
-> 'jj', 'cat', 'sh', and 'sed' are available.
+    :bins jj cat sh sed (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -9,10 +9,7 @@ This scenario selects a bookmarked commit from the onto picker and verifies that
 accepting it returns to session mode with the semantic bookmark in the header,
 without the push-status marker rendered by `jj`.
 
-    :bins git jj tmux sh sleep grep
-
-> [!NOTE]
-> 'git', 'jj', 'tmux', 'sh', 'sleep', and 'grep' are available.
+    :bins git jj tmux sh sleep grep (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

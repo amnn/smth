@@ -17,10 +17,7 @@ movement easy to read in snapshots.
 The helper script below writes numbered commits into a repo so these
 long-preview fixtures stay compact and readable.
 
-    :bins jj cat python3
-
-> [!NOTE]
-> 'jj', 'cat', and 'python3' are available.
+    :bins jj cat python3 (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

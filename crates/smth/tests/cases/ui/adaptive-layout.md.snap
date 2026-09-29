@@ -9,10 +9,7 @@ This scenario verifies that the picker redraws when the terminal width changes.
 At narrow widths the session list and preview are stacked vertically; once the
 terminal is wide enough they switch to a side-by-side layout.
 
-    :bins jj cat tmux sh
-
-> [!NOTE]
-> 'jj', 'cat', 'tmux', and 'sh' are available.
+    :bins jj cat tmux sh (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

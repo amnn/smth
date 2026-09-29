@@ -9,10 +9,7 @@ The fzf-style startup flags should let scripts seed the initial query, skip the
 UI when exactly one discovered session matches, and run a non-interactive fuzzy
 filter.
 
-    :bins jj cat tmux
-
-> [!NOTE]
-> 'jj', 'cat', and 'tmux' are available.
+    :bins jj cat tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

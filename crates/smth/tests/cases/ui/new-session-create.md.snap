@@ -9,10 +9,7 @@ Selecting the ephemeral new-session row creates a session named by the query.
 Without repo context, the new tmux session inherits the current working
 directory and has no repo metadata.
 
-    :bins jj tmux
-
-> [!NOTE]
-> 'jj', and 'tmux' are available.
+    :bins jj tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

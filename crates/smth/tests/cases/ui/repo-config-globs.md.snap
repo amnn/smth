@@ -9,10 +9,7 @@ Repository globs from config should expand a leading `~` and stack with globs
 supplied on the command line, so both sources can surface repo-backed picker
 entries.
 
-    :bins jj
-
-> [!NOTE]
-> 'jj' is available.
+    :bins jj (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

@@ -10,10 +10,7 @@ input_file: crates/smth-integration-tests/tests/cases/runner/write-copy.md
 The `:write` directive should write the next fenced block into the sandbox so later commands can
 read it.
 
-    :bins cat python3
-
-> [!NOTE]
-> 'cat', and 'python3' are available.
+    :bins cat python3 (available)
 
     :write nested/hello.txt (written)
 

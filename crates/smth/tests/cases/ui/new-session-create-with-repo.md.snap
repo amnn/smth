@@ -9,10 +9,7 @@ Selecting the ephemeral new-session row uses the current repo context when
 creating a new named session, so the new session starts in that repo and records
 `@smth.repo` metadata.
 
-    :bins jj tmux
-
-> [!NOTE]
-> 'jj', and 'tmux' are available.
+    :bins jj tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

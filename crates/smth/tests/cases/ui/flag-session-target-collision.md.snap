@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/flag-session-target-collision.md
 Flagging a session should target the selected tmux session even when the current
 session has a window whose name prefixes the selected session name.
 
-    :bins jj tmux cat
-
-> [!NOTE]
-> 'jj', 'tmux', and 'cat' are available.
+    :bins jj tmux cat (available)
 
     :t rename-session -t 0 runner (success)
     :t new-session -d -s nvim "cat" (success)

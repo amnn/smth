@@ -10,10 +10,7 @@ candidate should use the same suffix needed to avoid live tmux session names.
 Repo candidates are distinguished by their paths rather than by increasing
 suffixes.
 
-    :bins jj tmux mkdir cat
-
-> [!NOTE]
-> 'jj', 'tmux', 'mkdir', and 'cat' are available.
+    :bins jj tmux mkdir cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

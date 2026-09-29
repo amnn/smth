@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/delete-default-workspace.md
 Default jj workspace checkouts are not deletable from `smth`; only named
 workspaces can be deleted.
 
-    :bins jj tmux cat test
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', and 'test' are available.
+    :bins jj tmux cat test (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

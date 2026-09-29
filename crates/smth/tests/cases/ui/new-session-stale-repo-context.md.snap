@@ -9,10 +9,7 @@ If the current repo context comes from stale tmux metadata and is not actually a
 jj repo, accepting a new session should use that path as the tmux working
 directory without attempting workspace creation or attaching repo metadata.
 
-    :bins jj tmux mkdir cat sh sed
-
-> [!NOTE]
-> 'jj', 'tmux', 'mkdir', 'cat', 'sh', and 'sed' are available.
+    :bins jj tmux mkdir cat sh sed (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

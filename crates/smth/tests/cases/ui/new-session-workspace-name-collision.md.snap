@@ -9,10 +9,7 @@ When a new repo-backed session would create a workspace whose name already
 exists, the workspace name is disambiguated before rendering and creation. The
 session name and workspace path are both derived from the disambiguated name.
 
-    :bins jj tmux sh sed
-
-> [!NOTE]
-> 'jj', 'tmux', 'sh', and 'sed' are available.
+    :bins jj tmux sh sed (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

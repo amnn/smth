@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/current-repo-header.md
 This scenario launches `smth` from inside a repository directory to verify
 the picker header shows the repo inferred from the current working directory.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

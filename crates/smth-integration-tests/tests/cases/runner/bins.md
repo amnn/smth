@@ -2,19 +2,19 @@
 
 ## One binary succeeds
 
-A single valid binary in `:b` should produce a NOTE callout and no WARNING callout.
+A single valid binary in `:b` should append `(available)` to the directive without a callout.
 
     :b ls
 
 ## Two binaries succeed
 
-Exactly two valid binaries in one directive should both be reported as available.
+Two valid binaries should produce the same compact success annotation.
 
     :b ls cat
 
 ## Three binaries succeed
 
-With 2+ valid binaries, the success message should join them correctly and mention every one.
+Larger successful requests should remain a single line, without listing the binaries again.
 
     :b ls cat echo
 
@@ -32,20 +32,19 @@ Multiple invalid binaries in one directive should produce multiple WARNING callo
 
 ## Mixed success and failure
 
-One directive should emit both NOTE and WARNING callouts when it mixes valid and invalid binaries.
+Mixed results should report only failures as warnings, without an availability annotation.
 
     :b ls definitely-not-a-real-binary
 
 ## Mixed multiple success and multiple failure
 
-One directive with multiple valid and invalid binaries should emit one NOTE and multiple WARNING
-callouts.
+Multiple failures should each produce a warning, without additional success callouts.
 
     :b ls cat definitely-not-a-real-binary another-not-a-real-binary
 
 ## Empty bins directive is a no-op
 
-`:b` with no arguments should be accepted, and only the raw directive line should be echoed.
+`:b` with no arguments should be accepted and report `(available)` without doing any work.
 
     :b
 

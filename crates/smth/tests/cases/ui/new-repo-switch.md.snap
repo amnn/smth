@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/new-repo-switch.md
 `enter` on the fresh-repository candidate should initialize the displayed
 checkout, create its session, and switch the invoking client.
 
-    :bins jj tmux cat sh sed mkdir
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', 'sh', 'sed', and 'mkdir' are available.
+    :bins jj tmux cat sh sed mkdir (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w .config/smth/smth.toml (written)

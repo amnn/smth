@@ -9,10 +9,7 @@ input_file: crates/smth/tests/cases/ui/list-extreme-navigation.md
 list. Empty prospective rows are not selectable, while both repository and
 plain-session candidates are selectable.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

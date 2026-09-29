@@ -21,10 +21,7 @@ it obvious what was normalized:
 - `w` replaces `jj` change IDs that follow the preview graph markers.
 - `h` replaces short hexadecimal commit IDs.
 
-    :bins jj git cat
-
-> [!NOTE]
-> 'jj', 'git', and 'cat' are available.
+    :bins jj git cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

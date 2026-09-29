@@ -9,10 +9,7 @@ Live tmux sessions should be ordered by tmux's `session_last_attached` value.
 The picker should initially select the second-most-recent live session so
 pressing Enter can switch back to the previous session.
 
-    :bins jj cat sh sleep tmux
-
-> [!NOTE]
-> 'jj', 'cat', 'sh', 'sleep', and 'tmux' are available.
+    :bins jj cat sh sleep tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

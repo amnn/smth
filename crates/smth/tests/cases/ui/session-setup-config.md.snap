@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/session-setup-config.md
 A custom session setup script runs in the new session's tmux context and repo
 working directory, so setup commands can rely on default tmux targets and cwd.
 
-    :bins jj tmux cat test
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', and 'test' are available.
+    :bins jj tmux cat test (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

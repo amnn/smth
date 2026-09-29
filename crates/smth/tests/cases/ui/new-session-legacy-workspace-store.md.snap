@@ -10,10 +10,7 @@ Legacy jj repositories can have an empty workspace store index. In that state,
 session should use the selected workspace path itself as the base for creating a
 new workspace.
 
-    :bins jj tmux sh sed
-
-> [!NOTE]
-> 'jj', 'tmux', 'sh', and 'sed' are available.
+    :bins jj tmux sh sed (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

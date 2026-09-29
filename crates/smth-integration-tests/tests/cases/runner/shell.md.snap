@@ -9,10 +9,7 @@ input_file: crates/smth-integration-tests/tests/cases/runner/shell.md
 
 The default pane prompt should be stable across test environments.
 
-    :bins env
-
-> [!NOTE]
-> 'env' is available.
+    :bins env (available)
 
     :tmux respawn-pane -k -t 0.0 'env ENV=$HOME/.shrc PS1="sh$ " /bin/sh -i' (success)
 

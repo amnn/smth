@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/new-session-create-detached.md
 Ctrl+n on the ephemeral new-session row creates the session without switching
 the current tmux client or closing the picker.
 
-    :bins jj tmux
-
-> [!NOTE]
-> 'jj', and 'tmux' are available.
+    :bins jj tmux (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

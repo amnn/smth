@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/long-running-operation-spinner.md
 Creating a session in the background should keep the picker responsive and show
 delayed, operation-specific progress over the last session-list row until it finishes.
 
-    :bins jj tmux cat sleep
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', and 'sleep' are available.
+    :bins jj tmux cat sleep (available)
 
     :t rename-session -t 0 runner (success)
 

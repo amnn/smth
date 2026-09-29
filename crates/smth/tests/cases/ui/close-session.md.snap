@@ -9,10 +9,7 @@ input_file: crates/smth/tests/cases/ui/close-session.md
 workspace, then refreshes the session list without closing the app or resetting
 the query.
 
-    :bins jj tmux cat sleep
-
-> [!NOTE]
-> 'jj', 'tmux', 'cat', and 'sleep' are available.
+    :bins jj tmux cat sleep (available)
 
     :t rename-session -t 0 runner (success)
     :t new-session -d -s alpha "cat" (success)

@@ -8,10 +8,7 @@ input_file: crates/smth/tests/cases/ui/list-navigation-aliases.md
 `C-j` and `C-k` move down and up by one row, while `M-j` and `M-k`
 jump to the last and first selectable rows in the session list.
 
-    :bins jj cat
-
-> [!NOTE]
-> 'jj', and 'cat' are available.
+    :bins jj cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 

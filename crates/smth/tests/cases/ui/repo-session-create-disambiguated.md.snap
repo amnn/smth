@@ -9,10 +9,7 @@ When a discovered repo's default session name is already used by an unrelated
 live tmux session, selecting the repo should create and switch to a disambiguated
 session name using a tilde suffix.
 
-    :bins jj tmux cat
-
-> [!NOTE]
-> 'jj', 'tmux', and 'cat' are available.
+    :bins jj tmux cat (available)
 
     :copy tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 
