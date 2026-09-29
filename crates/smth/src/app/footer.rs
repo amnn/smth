@@ -44,7 +44,13 @@ impl<'s> Footer<'s> {
     }
 
     /// Render session actions beside an optional right-aligned modal cancellation hint.
-    pub(super) fn draw(&self, f: &mut Frame<'_>, mut area: Rect, mode: Option<Mode>) {
+    pub(super) fn draw(
+        &self,
+        f: &mut Frame<'_>,
+        mut area: Rect,
+        mode: Option<Mode>,
+        is_loading: bool,
+    ) {
         use ratatui::layout::Constraint as C;
         use ratatui::layout::Layout as L;
 
@@ -60,7 +66,7 @@ impl<'s> Footer<'s> {
             area = left;
         }
 
-        if matches!(mode, Some(Mode::Onto)) {
+        if is_loading || matches!(mode, Some(Mode::Onto)) {
             return;
         }
 

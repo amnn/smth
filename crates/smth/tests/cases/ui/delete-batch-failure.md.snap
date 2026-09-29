@@ -62,7 +62,7 @@ keys remain gated while the confirmed batch is running.
 
     :$ sh -c 'until test -f first-ready && test -f second-ready; do :; done' (exit: 0)
     :k C-u first
-    :settle -d 2s -e '1/5' -e alpha/first -e C-d -e deleting "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" (settled)
+    :settle -d 2s -e '1/5' -e alpha/first -e deleting "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋" (settled)
 
     :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
@@ -82,7 +82,7 @@ session: first                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                             deleting ⠋ ┃
- [C-d] unstage                                                                                                         ┃
+                                                                                                                       ┃
 ```
 
     :k C-d C-y C-x C-f C-n enter C-c esc C-g

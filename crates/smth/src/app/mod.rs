@@ -319,7 +319,7 @@ impl App {
 
         // (3) Render context and actions after the session list updates the selected session.
         header.draw(f, l.header);
-        footer.draw(f, l.footer, mode);
+        footer.draw(f, l.footer, mode, is_loading);
 
         let Some(l_preview) = l.preview else {
             return;

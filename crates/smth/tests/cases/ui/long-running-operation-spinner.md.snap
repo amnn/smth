@@ -52,7 +52,7 @@ session:
   2/2 | [C-r] repo: none
                                                                                                                        │
 ▌⬤ ui                                                                                                       creating ⠋ ┃
- [C-x] close, [C-f] flag
+
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -75,7 +75,7 @@ session:
   2/2 | [C-r] repo: none
                              │
 ▌⬤ ui             creating ⠋ ┃
- [C-x] close, [C-f] flag
+
 ──────────────────────────────
 
 
@@ -98,7 +98,7 @@ space for itself. Colour coverage verifies the overlay clears underlying styles.
 session:
   2/2 | [C-r] repo: none
 ▌⬤ ui             creating ⠋ ┃
- [C-x] close, [C-f] flag
+
 ```
 
 ![light](long-running-operation-spinner.md.snap.3.light.svg)
@@ -115,7 +115,7 @@ With only one column, leave the underlying row untouched.
 session:
   2/2 |
 crea ⠋ ┃
- [C-x] c
+
 ```
 
     :t resize-window -t ui:0 -x 3 -y 4 (success)
@@ -125,7 +125,7 @@ crea ⠋ ┃
 ses
   2
 ⠋ ┃
- [C
+
 ```
 
     :t resize-window -t ui:0 -x 2 -y 4 (success)
@@ -135,7 +135,7 @@ ses
 se
 
 ▌┃
- [
+
 ```
 
     :t resize-window -t ui:0 -x 120 -y 14 (success)
