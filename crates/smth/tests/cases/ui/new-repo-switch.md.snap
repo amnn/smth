@@ -157,8 +157,7 @@ a checkout, even when prospective repository and plain candidates are present.
     :t new-session -d -s fallback -c '#{pane_start_path}' 'smth --no-base --query switched~2; cat' (success)
     :t resize-window -t fallback:0 -x 120 -y 14 (success)
     :p fallback:0.0
-    :settle -d 2s (settled)
-    :snap
+    :snap -d 2s
 
 ```terminal
 session: switched~2

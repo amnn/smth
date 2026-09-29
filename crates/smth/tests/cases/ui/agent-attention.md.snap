@@ -46,7 +46,6 @@ snapshots distinguish lifecycle states and attention, flag, and ordinary
 live-session pips. Status indicators and counts should remain undimmed.
 
     :k C-p
-    :settle (settled)
     :snap --color
 
 ```terminal

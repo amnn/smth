@@ -21,7 +21,6 @@ footer should offer `C-x` close, but not `C-d` delete.
 Pressing `C-d` should do nothing for a plain live tmux session.
 
     :k C-d
-    :settle
     :snap --color
 
 The session should still exist, and the picker should still be running.

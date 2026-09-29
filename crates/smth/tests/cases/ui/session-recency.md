@@ -33,8 +33,7 @@ order. The second row, `gamma`, should be selected initially.
 
     :t resize-window -t runner:0 -x 80 -y 20
     :$ tmux respawn-pane -k 'smth; : > query-picker-exited; cat'
-    :settle -d 2s
-    :snap
+    :snap -d 2s
 
 Typing a query that has multiple matches should reset the cursor to the first
 existing fuzzy match rather than preserving the initial selection's row. The

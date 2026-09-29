@@ -45,8 +45,7 @@ order. The second row, `gamma`, should be selected initially.
 
     :t resize-window -t runner:0 -x 80 -y 20 (success)
     :$ tmux respawn-pane -k 'smth; : > query-picker-exited; cat' (exit: 0)
-    :settle -d 2s (settled)
-    :snap
+    :snap -d 2s
 
 ```terminal
 session:

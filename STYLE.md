@@ -147,6 +147,12 @@ Prefer short forms for integration-test directives and their flags, such as
 syntax, not the binaries invoked by directives or quoted shell commands.
 Keep long forms when testing those forms explicitly.
 
+When `:settle` is immediately followed by `:snap`, combine them into one
+`:snap`, preserving the required duration, count, expectations, and filters
+along with snapshot options such as `--color`. Snapshots already wait for a
+stable matching frame and capture that same frame. Keep a separate `:settle`
+when it guards a subsequent action, or when testing settling itself.
+
 Between consecutive directives, leave one blank line after multi-line rendered
 output, including snapshots, fenced stdout or stderr, and warning callouts.
 This applies to expected failures as well as successful commands; judge the

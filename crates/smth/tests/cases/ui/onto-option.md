@@ -15,8 +15,7 @@ revision supplied on the command line rather than `trunk()`.
     :t new-session -d -s ui "smth --base alpha --onto @"
     :t resize-window -t ui:0 -x 100 -y 10
     :p ui:0.0
-    :settle -d 2s
-    :snap
+    :snap -d 2s
 
 An explicit revision is invalid when `--no-base` suppresses repository context
 or when no repository can be inferred.

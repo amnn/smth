@@ -41,7 +41,6 @@ snapshots distinguish lifecycle states and attention, flag, and ordinary
 live-session pips. Status indicators and counts should remain undimmed.
 
     :k C-p
-    :settle
     :snap --color
 
 Filter to a session with successful agent responses. The header summary should

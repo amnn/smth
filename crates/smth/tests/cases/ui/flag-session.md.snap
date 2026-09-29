@@ -46,8 +46,7 @@ Pressing `C-f` should clear the persisted tmux option and update the footer to
 offer `flag` again.
 
     :k C-f
-    :settle -d 2s (settled)
-    :snap --color
+    :snap -d 2s --color
 
 ```terminal
 session: beta
@@ -70,8 +69,7 @@ session: beta
 Pressing `C-f` again should set the persisted tmux option back to `1`.
 
     :k C-f
-    :settle -d 2s (settled)
-    :snap --color
+    :snap -d 2s --color
 
 ```terminal
 session: beta

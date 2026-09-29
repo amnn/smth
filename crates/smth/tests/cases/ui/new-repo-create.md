@@ -88,8 +88,7 @@ must skip the empty row above it, and `C-n` creates the workspace normally.
 
     :k C-n
     :$ sh -c 'until test -f repos/foo.bar.blocked/.smth-ready; do :; done'
-    :settle -d 2s
-    :snap
+    :snap -d 2s
 
     :t display-message -p '#{client_session}'
 

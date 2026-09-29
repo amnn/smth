@@ -30,8 +30,7 @@ The footer should count both sessions and the one hidden selection.
     :k C-d C-u second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
     :k C-d
-    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
-    :snap
+    :snap -d 2s -e '2 sessions' -e '1 hidden'
 
 ```terminal
 session: second                                                                                                        ┃
@@ -56,8 +55,7 @@ Clearing the query reveals both deletion markers, including the row without the
 cursor. Colour coverage verifies that both staged names remain distinguished.
 
     :k C-u
-    :settle -d 2s -e '5/5' (settled)
-    :snap --color
+    :snap -d 2s -e '5/5' --color
 
 ```terminal
 session:                                                                                                               ┃
@@ -87,8 +85,7 @@ toggling it back on restores the batch.
     :k second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
     :k C-d
-    :settle -d 2s -e '1 session' -e '1 hidden' (settled)
-    :snap
+    :snap -d 2s -e '1 session' -e '1 hidden'
 
 ```terminal
 session: second                                                                                                        ┃
@@ -110,8 +107,7 @@ session: second                                                                 
 ```
 
     :k C-d
-    :settle -d 2s -e '2 sessions' -e '1 hidden' (settled)
-    :snap
+    :snap -d 2s -e '2 sessions' -e '1 hidden'
 
 ```terminal
 session: second                                                                                                        ┃
@@ -139,8 +135,7 @@ must not discard the staged selection.
     :k C-g
     :settle -d 2s -e '^session:' -e 'C-d. delete' (settled)
     :k C-u first
-    :settle -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' -e unflag (settled)
-    :snap
+    :snap -d 2s -e '1/5' -e alpha/first -e 'C-d. delete' -e unflag
 
 ```terminal
 session: first                                                                                                         ┃
@@ -164,8 +159,7 @@ session: first                                                                  
     :k C-d C-f
     :settle -d 2s -e '1 session' -e 'C-f. flag' (settled)
     :k C-f
-    :settle -d 2s -e '1 session' -e unflag (settled)
-    :snap
+    :snap -d 2s -e '1 session' -e unflag
 
 ```terminal
 session: first                                                                                                         ┃
@@ -187,8 +181,7 @@ session: first                                                                  
 ```
 
     :k C-g
-    :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag (settled)
-    :snap
+    :snap -d 2s -e alpha/first -e 'C-d. delete' -e unflag
 
 ```terminal
 session: first                                                                                                         ┃
@@ -212,8 +205,7 @@ session: first                                                                  
     :k C-d
     :settle -d 2s -e '1 session' (settled)
     :k C-g
-    :settle -d 2s -e alpha/first -e 'C-d. delete' -e unflag (settled)
-    :snap
+    :snap -d 2s -e alpha/first -e 'C-d. delete' -e unflag
 
 ```terminal
 session: first                                                                                                         ┃
@@ -250,8 +242,7 @@ batch is running must not schedule another batch.
     :k C-d C-u second
     :settle -d 2s -e '1/5' -e alpha/second -e C-d (settled)
     :k C-d C-u unmatched
-    :settle -d 2s -e '2 sessions' -e '2 hidden' (settled)
-    :snap
+    :snap -d 2s -e '2 sessions' -e '2 hidden'
 
 ```terminal
 session: unmatched                                                                                                     ┃
@@ -277,8 +268,7 @@ session: unmatched                                                              
     :settle -d 2s -e '0/3' (settled)
 
     :k C-u
-    :settle -d 2s -e '3/3' (settled)
-    :snap
+    :snap -d 2s -e '3/3'
 
 ```terminal
 session:                                                                                                               ┃

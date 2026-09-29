@@ -22,7 +22,6 @@ Filter to the default workspace repo-only entry. The footer should not offer
 Pressing `C-d` should do nothing.
 
     :k C-d
-    :settle
     :snap --color "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 The default checkout and picker session should both remain.

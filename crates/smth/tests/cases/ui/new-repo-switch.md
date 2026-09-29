@@ -72,8 +72,7 @@ a checkout, even when prospective repository and plain candidates are present.
     :t new-session -d -s fallback -c '#{pane_start_path}' 'smth --no-base --query switched~2; cat'
     :t resize-window -t fallback:0 -x 120 -y 14
     :p fallback:0.0
-    :settle -d 2s
-    :snap
+    :snap -d 2s
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S switched-existing"
     :k enter

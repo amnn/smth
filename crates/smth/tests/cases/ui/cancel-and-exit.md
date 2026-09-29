@@ -13,8 +13,7 @@ nothing. C-c and Esc exit the picker without clearing persisted deletions.
     :p ui:0.0
     :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. delete'
     :k C-p C-d
-    :settle -d 2s -e '1 session'
-    :snap
+    :snap -d 2s -e '1 session'
 
 On a narrow terminal, the right-hand deletion controls take precedence over
 session actions and the gap between them, even at extremely narrow widths.
@@ -34,24 +33,20 @@ active, even with a deletion staged. A second C-g clears the marker, and a third
 keeps the app open.
 
     :k C-o
-    :settle -d 2s -e '^onto:'
-    :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
+    :snap -d 2s -e '^onto:' "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
     :k C-g
-    :settle -d 2s -e '^session:' -e '1 session'
-    :snap
+    :snap -d 2s -e '^session:' -e '1 session'
 
     :$ test -f alpha.feature/.jj/.smth-pending-delete
     :k C-g
-    :settle -d 2s -e alpha/feature -e 'C-d. delete'
-    :snap
+    :snap -d 2s -e alpha/feature -e 'C-d. delete'
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete
     :k C-g backspace
     :settle -d 2s -e '^session: featur\s'
     :k e
-    :settle -d 2s -e '^session: feature\s'
-    :snap
+    :snap -d 2s -e '^session: feature\s'
 
 Stage again and exit with C-c. The exit signal synchronizes the assertion that
 the marker survived, and the restarted picker shows the selection again.
@@ -67,8 +62,7 @@ the marker survived, and the restarted picker shows the selection again.
     :t respawn-pane -k -t ui:0.0 "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S second-exited; cat"
     :settle -d 2s -e '1/4' -e alpha/feature -e 'C-d. unstage'
     :k C-p
-    :settle -d 2s -e '1 session'
-    :snap
+    :snap -d 2s -e '1 session'
 
 Esc exits even from onto mode, leaving the marker intact.
 

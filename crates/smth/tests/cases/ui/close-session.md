@@ -22,7 +22,6 @@ Pressing `C-x` should kill `alpha`, keep `smth` running, preserve the `alp`
 query, and show the refreshed list with only `alpine` remaining.
 
     :k C-x
-    :settle
     :snap
 
     :t has-session -t alpha
@@ -36,7 +35,6 @@ rediscovery has completed, rather than retaining a removed session forever.
     :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S closed-last-match"
     :k C-x
     :t wait-for closed-last-match
-    :settle
     :snap
 
     :t has-session -t alpine
