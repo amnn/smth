@@ -1,6 +1,8 @@
 # Scripting
 
-`smth` accepts fzf-style startup flags for scripted bindings.
+`smth` accepts fzf-style startup flags for scripted bindings. For interactive
+workflows and common lifecycle examples, see the [session-management
+guide](session-management.md).
 
 Repository context is selected independently from discovery:
 
@@ -76,8 +78,8 @@ fall back to the interactive picker.
 
 Staging is shared with the picker and survives exit. CLI deletion never prompts;
 inspect the selection with `--json` using the same discovery settings first.
-See [staged workspace deletion](../README.md#staged-workspace-deletion) for the
-TUI flow, persistence, and partial-failure behavior.
+See [staged workspace deletion](session-management.md#delete)
+for the TUI flow, persistence, and partial-failure behavior.
 
 Create and switch print the actual tmux session name on stdout after success,
 whether creating or reusing the session. A failed operation does not print a
@@ -105,14 +107,16 @@ agent attention, matching interactive picker behavior.
 
 Add the no-argument `--create-repo` modifier to `--create [NAME]` or
 `--switch [NAME]` to initialize a fresh repository before creating its session.
-An omitted name is treated as empty for disambiguation. The resolved repository
-context must be empty. Use `--no-base` when current-directory inference would
-otherwise select a repository; passing `--base` is invalid, and `--onto` does
-not apply. The destination is `<repo-root>/<resolved-name>`. Repeated requests
-create new repositories rather than reuse existing sessions or checkouts;
-existing directories are never initialized. It creates a missing repository
-root, runs `jj git init --colocate` for the destination, starts tmux in that
-checkout, records the checkout as repository metadata, and runs `tmux.setup`.
+A non-empty directory name is required; path separators, `.` and `..` are
+rejected. The resolved repository context must be empty. Use `--no-base` when
+current-directory inference would otherwise select a repository; passing
+`--base` is invalid, and `--onto` does not apply. The destination is
+`<repo-root>/<NAME>` with the directory name preserved exactly; only the tmux
+name is sanitized and disambiguated. Occupied paths are rejected, including on
+repeated requests; existing directories are never initialized. It creates a
+missing repository root, runs `jj git init --colocate` for the destination,
+starts tmux in that checkout, records the checkout as repository metadata, and
+runs `tmux.setup`.
 
 Delete requires both a repository base and an explicit named workspace session.
 It rejects plain sessions and the default workspace. Use `--repo` to surface a
