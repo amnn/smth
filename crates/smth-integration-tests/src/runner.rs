@@ -218,8 +218,8 @@ impl Runner {
                 self.eval_bins(w, line.raw, args).await?;
             }
 
-            LineKind::Sh { args } => {
-                self.eval_sh(w, line.raw, args).await?;
+            LineKind::Shell { quiet, args } => {
+                self.eval_shell(w, line.raw, *quiet, args).await?;
             }
 
             // Handled in the main loop (this function's caller), so it can gather the file
@@ -342,11 +342,15 @@ impl Runner {
         }
     }
 
-    /// Run a host command inside the runner environment and render its output.
-    async fn eval_sh(
+    /// Run a host command inside the runner environment and render its outcome.
+    ///
+    /// When `quiet` is true, suppress successful output but retain exit annotations and
+    /// failure diagnostics.
+    async fn eval_shell(
         &self,
         w: &mut impl fmt::Write,
         raw: &str,
+        quiet: bool,
         args: &NonEmpty<String>,
     ) -> fmt::Result {
         write!(w, "{raw}")?;
@@ -364,6 +368,10 @@ impl Runner {
                     writeln!(w, " (exit: {code})")?;
                 } else {
                     writeln!(w, " (exit: killed)")?;
+                }
+
+                if quiet && output.status.success() {
+                    return Ok(());
                 }
 
                 if !output.stdout.is_empty() {

@@ -17,16 +17,23 @@ Supported directives:
   - Make host binaries available in the sandboxed PATH.
   - Success appends `(available)` to the directive; failures produce warning
     callouts for unavailable binaries, without success callouts.
-- `:$` / `:sh <cmd...>`
-  - Run a host command via Rust `Command`.
-  - Arguments are parsed with `shlex`.
+- `:$` / `:shell [-q|--quiet] <cmd...>`
+  - Run a host command via Rust `Command`. `:sh` is not supported.
+  - Arguments are parsed with `shlex`. Directive flags go before the executable;
+    flags after it remain executable arguments.
+  - The directive and exit annotation always appear. By default, stdout is rendered
+    when present, and stderr is rendered on failure.
+  - `-q` / `--quiet` suppresses successful output, not execution or internal capture
+    of stdout/stderr. For example, `:$ -q smth --base alpha --create feature` runs
+    setup without showing its successful output.
+  - Non-zero exits still render captured stdout/stderr; spawn errors remain visible.
 - `:t` / `:tmux <args...>`
   - Run a tmux command on the test socket.
   - Wait for the command queue to resume before continuing, including foreground
     `run-shell` jobs and `wait-for`. Background jobs still need explicit synchronization.
 - `:p` / `:pane <target>`
   - Set current pane target (default is `zz-smth-ui-runner:0.0`).
-  - Use this instead of `:tmux switch-client ...` when later `:keys`, `:sh`, or
+  - Use this instead of `:tmux switch-client ...` when later `:keys`, `:shell`, or
     `:snap` directives should operate on the new pane; `:pane` waits for the
     control-mode pane notification to settle before the next directive runs.
 - `:k` / `:keys <tokens...>`

@@ -13,7 +13,8 @@ Script {
             raw: "",
         },
         Line {
-            kind: Sh {
+            kind: Shell {
+                quiet: false,
                 args: NonEmpty {
                     head: "cargo",
                     tail: [

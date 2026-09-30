@@ -14,13 +14,8 @@ to the default checkout. This gives inspection both live and repo-only identitie
     :b jj sh sed (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
-    :$ smth --no-base --create-repo --create alpha (exit: 0)
-
-```stdout
-alpha
-```
-
-    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
+    :$ -q smth --no-base --create-repo --create alpha (exit: 0)
+    :$ -q jj workspace add -R alpha --name feature alpha.feature (exit: 0)
 
 Rename the default checkout's live session, flag it, and publish an agent state
 that requires attention. The runner session remains a plain live
@@ -28,7 +23,7 @@ session, while the named workspace is a non-live candidate discovered by the
 glob.
 
     :t rename-session -t alpha alpha-live (success)
-    :$ smth --base alpha --flag (exit: 0)
+    :$ -q smth --base alpha --flag (exit: 0)
     :t set-option -p -t alpha-live:0.0 @smth.agent.state waiting (success)
     :$ sh -c 'smth --no-base --repo "alpha*" --json | sed "s#$PWD#<ROOT>#g"' (exit: 0)
 

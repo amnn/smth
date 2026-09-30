@@ -76,7 +76,7 @@ pub(crate) enum LineKind {
     Bins { args: Vec<String> },
 
     /// Run a host command.
-    Sh { args: NonEmpty<String> },
+    Shell { quiet: bool, args: NonEmpty<String> },
 
     /// Write a file beneath the test home directory from the following fenced block.
     Write { path: PathBuf },
@@ -137,6 +137,19 @@ struct SettleArgs {
     /// Regex replacement filters applied to each captured pane sample.
     #[arg(value_name = "FILTER")]
     filters: Vec<String>,
+}
+
+/// Parsed arguments for `:shell`.
+#[derive(clap::Parser)]
+#[command(trailing_var_arg = true)]
+struct ShellArgs {
+    /// Omit successful command output from the transcript.
+    #[arg(short = 'q', long = "quiet")]
+    quiet: bool,
+
+    /// Command and arguments to execute.
+    #[arg(required = true)]
+    args: Vec<String>,
 }
 
 /// Parsed arguments for `:snap`.
@@ -261,9 +274,15 @@ impl LineKind {
         Ok(match cmd {
             "b" | "bins" => LineKind::Bins { args },
 
-            "$" | "sh" => LineKind::Sh {
-                args: NonEmpty::from_vec(args).context("':sh' expects at least one argument")?,
-            },
+            "$" | "shell" => {
+                let args =
+                    ShellArgs::try_parse_from(std::iter::once(":shell".to_owned()).chain(args))?;
+                LineKind::Shell {
+                    quiet: args.quiet,
+                    args: NonEmpty::from_vec(args.args)
+                        .context("':shell' expects at least one argument")?,
+                }
+            }
 
             "w" | "write" => LineKind::Write {
                 path: {
@@ -502,7 +521,7 @@ mod tests {
     #[test]
     fn captures_bad_shlex_as_error() {
         insta::assert_debug_snapshot!(Script::parse(
-            &[r#"    :sh "unterminated"#, r#""#].join("\n")
+            &[r#"    :shell "unterminated"#, r#""#].join("\n")
         ));
     }
 
@@ -544,7 +563,7 @@ mod tests {
 
     #[test]
     fn leaves_unindented_colon_lines_as_text() {
-        insta::assert_debug_snapshot!(Script::parse(&[":sh echo nope", ""].join("\n")));
+        insta::assert_debug_snapshot!(Script::parse(&[":shell echo nope", ""].join("\n")));
     }
 
     #[test]
