@@ -79,8 +79,8 @@ Wait+Screen /✔/
 # caption: Green ✔ means the agent finished successfully.
 Sleep 3s
 
-# The current session is above the previously visited session. Selecting it takes
-# us to Pi's response, not the shell from which we opened the picker.
+# The current session is above the initially selected unattached session.
+# Selecting it takes us to Pi's response, not the shell that opened the picker.
 Up
 # caption: Jump straight to the window needing attention.
 Sleep 2s

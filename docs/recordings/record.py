@@ -51,9 +51,10 @@ class Recording:
         self.tmux = shutil.which("tmux")
         self.pi = shutil.which("pi")
         self.ffmpeg = shutil.which("ffmpeg")
+        self.ttyd = shutil.which("ttyd")
 
-        if not self.tmux or not self.pi or not self.ffmpeg:
-            raise RuntimeError("tmux, pi, and ffmpeg must be available on PATH")
+        if not self.tmux or not self.pi or not self.ffmpeg or not self.ttyd:
+            raise RuntimeError("tmux, pi, ffmpeg, and ttyd must be available on PATH")
 
         self.env = os.environ.copy()
         for key in (
@@ -115,17 +116,31 @@ class Recording:
         )
 
         # Discover closed checkouts too, without any user setup or notification hooks.
-        write(self.home / ".config/smth/smth.toml", '[repo]\nglobs = ["~/Code/*"]\n')
+        write(
+            self.home / ".config/smth/smth.toml",
+            '[repo]\nroot = "~/Code"\nglobs = ["~/Code/*"]\n',
+        )
+
         bin(self.root / "bin/tmux", [self.tmux, "-S", self.socket], forward_args=True)
+
+        # Treat macOS Option as Meta so VHS Alt+r reaches the picker as M-r.
+        bin(
+            self.root / "bin/ttyd",
+            [self.ttyd, "-t", "macOptionIsMeta=true"],
+            forward_args=True,
+        )
+
         bin(
             self.root / "bin/ffmpeg",
             [sys.executable, self.source / "docs/recordings/captions.py", self.ffmpeg],
             forward_args=True,
         )
+
         bin(
             self.root / "bin/demo-busy",
             [sys.executable, self.source / "docs/recordings/record.py", "--busy"],
         )
+
         (self.root / "bin/smth").symlink_to(self.source / "target/debug/smth")
 
     def start_tmux(self):
@@ -256,6 +271,10 @@ class Recording:
 
     def start_pi(self):
         """Launch only pi-smth against the loopback model once its configuration is ready."""
+        # These sessions host agents in the multi-agent scene.
+        for workspace in ("docs", "experiment"):
+            self.run("smth", "--base", self.home / "Code/smth", "--create", workspace)
+
         log_path = self.root / "model.log"
         with log_path.open("w") as log:
             self.model = subprocess.Popen(
@@ -404,20 +423,32 @@ def main():
     for signum in (signal.SIGHUP, signal.SIGTERM):
         signal.signal(signum, stop)
     with tempfile.TemporaryDirectory(prefix="smth-recording.", dir="/tmp") as temporary:
-        recording = Recording(source, Path(temporary).resolve())
-        try:
-            recording.configure()
-            recording.start_tmux()
-            recording.create_workspaces()
+        outputs = []
+        for name in (
+            "session-switching",
+            "agent-attention",
+            "session-context",
+            "session-new-repo",
+            "session-new-workspace",
+            "session-new-tmux",
+            "session-create",
+            "session-close",
+            "session-delete",
+        ):
+            recording = Recording(source, Path(temporary).resolve() / name)
+            try:
+                recording.configure()
+                recording.start_tmux()
+                recording.create_workspaces()
 
-            switching = recording.record("session-switching")
-            recording.start_pi()
-            attention = recording.record("agent-attention")
+                if name == "agent-attention":
+                    recording.start_pi()
+                outputs.append(recording.record(name))
+            finally:
+                recording.close()
 
-            for output in (switching, attention):
-                shutil.copyfile(output, source / "docs/assets" / output.name)
-        finally:
-            recording.close()
+        for output in outputs:
+            shutil.copyfile(output, source / "docs/assets" / output.name)
 
 
 if __name__ == "__main__":

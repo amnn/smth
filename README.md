@@ -32,7 +32,7 @@ new ones backed by **jujutsu** (jj) repositories and workspaces.
 
 [cli]: docs/scripting.md
 [keys]: #key-bindings
-[ord]: #session-ordering
+[ord]: docs/session-management.md#session-ordering-and-switching
 [pi]: docs/agent-integration.md#pi-extension
 
 ## Installation
@@ -66,6 +66,7 @@ tmux source-file ~/.tmux.conf
 
 ### Next Steps
 
+- [Manage sessions][sessions]: switch, create, close, and delete workspaces.
 - [Configure `smth`][cfg], including [repository discovery][repo].
 - [Connect agents][agent] so `smth` can track their statuses.
 - [Configure notifications][note] to signal when sessions need attention.
@@ -74,93 +75,41 @@ tmux source-file ~/.tmux.conf
 [cfg]: docs/configuration.md
 [note]: docs/notifications.md
 [repo]: docs/configuration.md#repository-discovery
+[sessions]: docs/session-management.md
 
-## Session ordering
+## Session management
 
-If the query is non-empty, the picker offers new session candidates above
-discovered sessions. This can be to create a new workspace in the current repo,
-or to create a new repo or plain tmux session, based on context. A new repo is
-only offered for a valid, non-empty directory name with an unoccupied path.
-Directory names are preserved exactly; only tmux names are sanitized and
-disambiguated. `--create-repo` applies the same rules to explicit creation,
-rejecting missing names, path separators, `.` and `..`, and occupied paths.
+The [session-management guide][sessions] covers session and checkout types,
+[ordering and previous-session switching][ord], creation, closing without
+deleting, and [staged workspace deletion][delete].
+See the [key bindings][keys] below and [scripting][cli] for the full command
+reference.
 
-Live tmux sessions are ordered by when they were most recently attached to a
-tmux client, newest first. Once at least two live sessions have attachment
-history, the picker initially selects the second newest so pressing `enter`
-returns to the previous session.
-
-`smth` reads tmux's built-in `session_last_attached` value, so switches made
-outside `smth` also affect the order. Sessions that have never been attached
-follow sessions with attachment history in name order. Inspect the values with:
-
-```sh
-tmux list-sessions -F '#{session_name}:#{session_last_attached}'
-```
-
-## Staged workspace deletion
-
-Deletion staging is shared by the CLI and picker. It is stored in each named
-workspace's `.jj/.smth-pending-delete` file, so it survives picker exit and is
-shared by all sessions attached to the same checkout. Default workspaces and
-plain tmux sessions cannot be staged.
-
-In the picker, use `C-d` to stage or unstage the selected checkout, navigate or
-filter to select more, then press `C-y` to delete the entire staged selection,
-including hidden matches. Counts describe affected session rows; each checkout
-is deleted only once. `C-g` cancels onto mode first, then clears staged markers.
-Esc and `C-c` exit without clearing them. Mutating actions are disabled while a
-background operation runs, and the footer hides their shortcuts.
-
-From the CLI:
-
-```sh
-smth --base /path/to/repo --stage-delete feature
-smth --base /path/to/repo --unstage-delete feature
-smth --repo '/path/to/checkouts/*' --json
-smth --repo '/path/to/checkouts/*' --delete-staged
-```
-
-Stage and unstage are idempotent. JSON records expose `pending_deletion`, which
-lets scripts inspect the selection before acting. `--delete-staged` has no base
-context: it rejects both `--base` and `--no-base`, does not infer a base from the
-current directory, and executes all staged checkouts found through configured
-repository globs, `--repo` globs, and live tmux sessions. Markers in undiscovered
-checkouts remain untouched. Keep discovery settings consistent between inspection
-and execution; use globs to include checkouts whose sessions have been closed.
-
-Execution forgets each jj workspace, removes its checkout, and closes its
-associated discovered live sessions. Workspaces and session closures run
-concurrently, and failures are collected after all tasks finish. A failed
-operation may already have removed its checkout or closed some sessions; inspect
-the reported targets before retrying. With no staged checkouts, execution succeeds
-without doing anything. **CLI deletion does not prompt and removes checkout
-contents.** `--delete SESSION` still immediately deletes only that explicit target,
-without consuming an unrelated staged selection.
+[delete]: docs/session-management.md#delete
 
 ## Key bindings
 
-`smth -h` prints brief CLI help. `smth --help` prints complete help, including
-all picker key bindings:
+`C-` means Control, `M-` means Alt/Meta, and `S-` means Shift. `smth -h` prints
+brief CLI help; `smth --help` includes the complete picker key list.
 
 | Key | Action |
 | --- | --- |
 | `C-d` | Toggle the workspace's persisted pending-deletion marker. |
 | `C-f` | Flag or unflag a live session. |
 | `C-g` | Cancel onto mode, or clear staged deletions. |
-| `C-n` | Create the session if necessary without switching to it. |
+| `C-n` | Create a non-live session without switching to it. |
 | `C-o` | Open or cancel the onto revision picker. |
 | `C-p` | Toggle the preview pane outside onto mode. |
 | `C-r`, `M-r` | Set or reset the current repo. |
 | `C-u` | Clear the filter. |
 | `C-x` | Close a live session. |
-| `C-y` | Delete all staged workspaces, including hidden ones, and close their sessions. |
+| `C-y` | Confirm deletion of all staged workspaces, including hidden ones, and close their sessions. |
 | `up`, `down`, `C-k`, `C-j` | Move selection by one row. |
 | `M-up`, `M-down`, `M-k`, `M-j` | Move selection to the first or last row. |
 | `S-up`, `S-down` | Scroll the preview pane up or down. |
 | `tab`, `S-tab` | Jump between fuzzy matches in onto mode. |
 | `enter` | Accept the onto revision, or switch to the session, creating it if necessary. |
-| `esc`, `C-c` | Close the UI without clearing staged deletions. |
+| `esc`, `C-c` | Close the UI without clearing staged deletions, unless a background operation is running. |
 
 ## Troubleshooting
 
