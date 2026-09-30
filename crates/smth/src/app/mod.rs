@@ -3,6 +3,7 @@
 
 //! Picker UI state, rendering, and input handling.
 
+mod actions;
 mod agent;
 mod component;
 mod delete;
@@ -30,6 +31,8 @@ use ratatui::backend::CrosstermBackend;
 use ratatui::style::Stylize as _;
 use ratatui::text::Span;
 
+use crate::app::actions::AvailableActions;
+use crate::app::actions::Mode;
 use crate::app::component::activity;
 use crate::app::component::block::Block;
 use crate::app::component::prompt;
@@ -54,6 +57,7 @@ pub struct App {
     /// Active background activity, including a completed result awaiting handling.
     bg: Option<activity::State<bool>>,
 
+    actions: AvailableActions,
     onto: Option<onto::State>,
     repo: Option<Repo>,
     spinner: spinner::State,
@@ -118,6 +122,7 @@ impl App {
 
         Self {
             bg: None,
+            actions: AvailableActions::default(),
             onto: None,
             repo,
             spinner: spinner::State::new(),
@@ -307,19 +312,17 @@ impl App {
             snapshot.item_count() as usize,
         );
 
-        let footer = Footer::new(&self.sessions, delete, &items);
-        let is_loading = self.bg.as_ref().is_some_and(|a| a.is_loading());
-        let mode = if self.onto.is_some() {
-            Some(footer::Mode::Onto)
-        } else if !is_loading && delete.is_some() {
-            Some(footer::Mode::Delete)
-        } else {
-            None
-        };
+        let footer = Footer::new(delete, &items);
+        self.actions = AvailableActions::new(
+            &self.sessions,
+            self.bg.as_ref().is_some_and(activity::State::is_loading),
+            self.onto.is_some(),
+            delete,
+        );
 
         // (3) Render context and actions after the session list updates the selected session.
         header.draw(f, l.header);
-        footer.draw(f, l.footer, mode, is_loading);
+        footer.draw(f, l.footer, &self.actions);
 
         let Some(l_preview) = l.preview else {
             return;
@@ -348,15 +351,14 @@ impl App {
         const CTRL: KM = KM::CONTROL;
         const SHIFT: KM = KM::SHIFT;
 
-        let is_loading = self.bg.as_ref().is_some_and(activity::State::is_loading);
         let alt = key.modifiers.contains(ALT);
         let ctrl = key.modifiers.contains(CTRL);
         let shift = key.modifiers.contains(SHIFT);
 
         // App exit takes precedence over internal modal state, but not an active mutation.
         match key.code {
-            KC::Esc if !is_loading => return Some(Action::Cancel),
-            KC::Char('c') if ctrl && !is_loading => return Some(Action::Cancel),
+            KC::Esc if self.actions.exit => return Some(Action::Cancel),
+            KC::Char('c') if ctrl && self.actions.exit => return Some(Action::Cancel),
             _ => {}
         }
 
@@ -371,8 +373,7 @@ impl App {
             return None;
         }
 
-        if !is_loading
-            && self.model.deleting().is_some()
+        if matches!(self.actions.mode, Some(Mode::Delete))
             && let Some(action) = delete::handle_key(key)
         {
             return Some(Action::Delete(action));
@@ -380,21 +381,21 @@ impl App {
 
         match key.code {
             // Accept the selected row, switching to it.
-            KC::Enter if !is_loading => {
+            KC::Enter if self.actions.switch => {
                 return self.sessions.take_selected().map(Action::Switch);
             }
 
             // Create the selected row without switching.
-            KC::Char('n') if ctrl && !is_loading && !self.sessions.is_live() => {
+            KC::Char('n') if ctrl && self.actions.create => {
                 return self.sessions.take_selected().map(Action::Create);
             }
 
             // Session actions
-            KC::Char('x') if ctrl && !is_loading && self.sessions.is_live() => {
+            KC::Char('x') if ctrl && self.actions.close => {
                 return self.sessions.take_selected().map(Action::Close);
             }
 
-            KC::Char('d') if ctrl && !is_loading && self.sessions.can_delete() => {
+            KC::Char('d') if ctrl && self.actions.delete.is_some() => {
                 return self
                     .sessions
                     .take_selected()
@@ -402,7 +403,7 @@ impl App {
                     .map(|path| Action::Delete(delete::Action::Toggle(path)));
             }
 
-            KC::Char('f') if ctrl && !is_loading && self.sessions.can_flag() => {
+            KC::Char('f') if ctrl && self.actions.flag.is_some() => {
                 return self.sessions.take_selected().map(Action::ToggleFlag);
             }
 
