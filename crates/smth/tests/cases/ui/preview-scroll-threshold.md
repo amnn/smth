@@ -13,6 +13,7 @@ is generated consistently.
     :b jj cat python3
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w scripts/mklog.py
+
 ```python
 from subprocess import run
 from sys import argv

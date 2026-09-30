@@ -5,6 +5,7 @@ A custom UI sigil should replace the default live tmux session marker.
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w .config/smth/smth.toml
+
 ```toml
 [ui]
 sigil = "*"

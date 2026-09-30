@@ -25,6 +25,7 @@ Log session discovery and hold each kill request behind its own barrier. The
 first kill fails; the second should still complete.
 
     :w wrappers/tmux
+
 ```sh
 #!/bin/sh
 case "$1" in
@@ -49,6 +50,7 @@ Create another alias during workspace removal, after discovery has finished.
 It must not become a deletion target merely because it shares the checkout.
 
     :w wrappers/jj
+
 ```sh
 #!/bin/sh
 if test "$1 $2" = 'workspace forget'; then

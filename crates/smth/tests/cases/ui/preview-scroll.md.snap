@@ -20,6 +20,7 @@ long-preview fixtures stay compact and readable.
     :b jj cat python3 (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w scripts/mklog.py (written)
+
 ```python
 from subprocess import run
 from sys import argv

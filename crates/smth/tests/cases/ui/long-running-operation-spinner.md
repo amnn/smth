@@ -10,6 +10,7 @@ Block the session setup script so the create operation stays in flight long
 enough to observe its loading state.
 
     :w .config/smth/smth.toml
+
 ```toml
 [tmux]
 setup = '''

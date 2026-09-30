@@ -12,6 +12,7 @@ effects identify both the target session and the directory used by setup.
     :t rename-session -t 0 runner
     :$ jj git init beta
     :w .config/smth/smth.toml
+
 ```toml
 [tmux]
 setup = '''
