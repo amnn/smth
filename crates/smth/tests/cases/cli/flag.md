@@ -10,10 +10,9 @@ registered workspaces.
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ smth --no-base --create-repo --create alpha
-
+    :$ -q smth --no-base --create-repo --create alpha
     :t rename-session -t alpha alpha-live
-    :$ jj workspace add -R alpha --name idle alpha.idle
+    :$ -q jj workspace add -R alpha --name idle alpha.idle
 
 Create a plain session whose name collides with the natural repo-backed name,
 then attach the real feature workspace to a disambiguated tmux session. Also
@@ -23,12 +22,10 @@ coverage of identity resolution independent of the natural tmux name.
 Pre-create `feature` before reserving its tmux name so the CLI disambiguates
 only the live session, not the workspace and checkout being flagged.
 
-    :$ jj workspace add -R alpha --name feature alpha.feature
+    :$ -q jj workspace add -R alpha --name feature alpha.feature
     :t new-session -d -s alpha/feature "cat"
-    :$ smth --base alpha --create feature
-
-    :$ smth --base alpha --create other
-
+    :$ -q smth --base alpha --create feature
+    :$ -q smth --base alpha --create other
     :t new-session -d -s scratch "cat"
 
 Flagging `feature` must update only the repo-backed session, not the colliding
