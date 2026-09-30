@@ -10,6 +10,7 @@ client switch.
     :b jj tmux cat sh sed mkdir
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml
+
 ```toml
 [repo]
 root = "config-repos"
@@ -102,6 +103,7 @@ Without either root setting, creation should default to the process working
 directory.
 
     :w no-root.toml
+
 ```toml
 [repo]
 globs = []

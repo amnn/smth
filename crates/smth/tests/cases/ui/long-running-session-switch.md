@@ -11,6 +11,7 @@ Block session setup so the switch remains in flight long enough to observe its
 loading state.
 
     :w .config/smth/smth.toml
+
 ```toml
 [tmux]
 setup = '''

@@ -19,6 +19,7 @@ and wait for separate release signals. The first command fails deliberately;
 the second runs the real jj command.
 
     :w wrappers/jj
+
 ```sh
 #!/bin/sh
 if test "$1 $2" = 'workspace forget'; then

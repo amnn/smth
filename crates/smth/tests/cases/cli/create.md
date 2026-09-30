@@ -10,6 +10,7 @@ creation from workspace creation at a requested revision.
     :b jj tmux cat sh sed mkdir
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml
+
 ```toml
 [tmux]
 setup = "tmux set-option @smth.test-created yes"

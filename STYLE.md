@@ -180,6 +180,9 @@ output, including snapshots, fenced stdout or stderr, and warning callouts.
 This applies to expected failures as well as successful commands; judge the
 rendered transcript, not just the exit status or output stream.
 
+Leave one blank line between a `:w` (or `:write`) directive and the fenced block
+containing the file's contents.
+
 Keep closely related directives adjacent when they produce no multi-line
 output, such as binary and fixture setup or key presses followed by settling.
 A blank line may separate logical phases even when commands are silent—for
