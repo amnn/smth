@@ -9,7 +9,7 @@ This scenario launches `smth` from inside the `alpha` repository so the
 picker starts with a repo context inferred from `cwd`, then uses `C-r` both on
 an unfiltered repo row and on a row selected from a multi-match query.
 
-    :b jj cat (available)
+    :b jj (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)

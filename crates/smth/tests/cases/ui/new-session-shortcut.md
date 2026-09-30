@@ -6,7 +6,7 @@ the ephemeral plain-session row is selectable below the repository candidate
 when the query is non-empty, with names disambiguated from live sessions as
 needed.
 
-    :b jj cat
+    :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha

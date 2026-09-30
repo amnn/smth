@@ -7,7 +7,7 @@ and delete the workspace checkout.
 Create `beta` and its named `feature` workspace with distinct descriptions, but
 no attached tmux sessions. The repository glob supplies both picker entries.
 
-    :b jj tmux cat sh test sleep
+    :b jj tmux cat sh sleep
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init beta

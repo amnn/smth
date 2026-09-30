@@ -6,7 +6,7 @@ Create a pane that prints `hello stable` and signals readiness before sleeping.
 With the capture count reduced to one, the snapshot should show `hello XXXXXX`:
 the replacement filter paints only `stable`, leaving the greeting unchanged.
 
-    :b echo sleep python3
+    :b sleep python3
     :t new-window -d -n stable 'echo "hello stable"; tmux wait-for -S ready-stable; sleep 10'
     :p 0:stable.0
     :t resize-window -x 80 -y 2 -t 0:stable

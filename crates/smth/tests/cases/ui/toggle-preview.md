@@ -5,7 +5,7 @@ This scenario verifies that `C-p` toggles the preview pane.
 Create a discoverable `alpha` repository with a described commit and open the
 picker at a width where hiding the preview visibly expands the session list.
 
-    :b jj cat
+    :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha
