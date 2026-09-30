@@ -154,11 +154,6 @@ impl State {
         self.selected.as_ref().is_some_and(Session::can_delete)
     }
 
-    /// Whether the currently selected session can be flagged or unflagged.
-    pub(super) fn can_flag(&self) -> bool {
-        self.selected.as_ref().and_then(Session::flag).is_some()
-    }
-
     /// Whether the currently selected session is live.
     pub(super) fn is_live(&self) -> bool {
         self.selected.as_ref().is_some_and(Session::is_live)

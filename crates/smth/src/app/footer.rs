@@ -10,51 +10,30 @@ use ratatui::style::Stylize as _;
 use ratatui::text::Line;
 use ratatui::text::Span;
 
-use crate::app::sessions;
+use crate::app::actions::AvailableActions;
+use crate::app::actions::Mode;
 use crate::app::span::push_shortcut_span;
 use crate::model::delete;
 use crate::model::session::Session;
 
 /// Available actions for the selected session.
 pub(super) struct Footer<'s> {
-    sessions: &'s sessions::State,
     delete: Option<&'s delete::Model>,
     matches: &'s [Item<'s, Session>],
 }
 
-/// Active mode whose confirmation or cancellation controls appear in the footer.
-#[derive(Clone, Copy)]
-pub(super) enum Mode {
-    Delete,
-    Onto,
-}
-
 impl<'s> Footer<'s> {
     /// Create a footer from the current picker state.
-    pub(super) fn new(
-        sessions: &'s sessions::State,
-        delete: Option<&'s delete::Model>,
-        matches: &'s [Item<'s, Session>],
-    ) -> Self {
-        Self {
-            sessions,
-            delete,
-            matches,
-        }
+    pub(super) fn new(delete: Option<&'s delete::Model>, matches: &'s [Item<'s, Session>]) -> Self {
+        Self { delete, matches }
     }
 
     /// Render session actions beside an optional right-aligned modal cancellation hint.
-    pub(super) fn draw(
-        &self,
-        f: &mut Frame<'_>,
-        mut area: Rect,
-        mode: Option<Mode>,
-        is_loading: bool,
-    ) {
+    pub(super) fn draw(&self, f: &mut Frame<'_>, mut area: Rect, actions: &AvailableActions) {
         use ratatui::layout::Constraint as C;
         use ratatui::layout::Layout as L;
 
-        if let Some(mode) = mode {
+        if let Some(mode) = actions.mode {
             let line = self.mode(mode);
             let [left, _, right] = area.layout(&L::horizontal([
                 C::Fill(1),
@@ -66,35 +45,24 @@ impl<'s> Footer<'s> {
             area = left;
         }
 
-        if is_loading || matches!(mode, Some(Mode::Onto)) {
-            return;
-        }
-
         let mut line = Line::default();
         let mut prefix = " ";
-        let selected = self.sessions.selected();
 
-        if let Some(session) = selected.filter(|s| s.can_delete()) {
+        if let Some(staged) = actions.delete {
             line += Span::raw(prefix).dim();
             push_shortcut_span(&mut line, "C-d");
-            line += Span::raw(
-                if self.delete.is_some_and(|delete| delete.contains(session)) {
-                    " unstage"
-                } else {
-                    " delete"
-                },
-            );
+            line += Span::raw(if staged { " unstage" } else { " delete" });
             prefix = ", ";
         }
 
-        if selected.is_some_and(|s| s.is_live()) {
+        if actions.close {
             line += Span::raw(prefix).dim();
             push_shortcut_span(&mut line, "C-x");
             line += Span::raw(" close");
             prefix = ", ";
         }
 
-        if let Some(flag) = selected.and_then(|s| s.flag()) {
+        if let Some(flag) = actions.flag {
             line += Span::raw(prefix).dim();
             push_shortcut_span(&mut line, "C-f");
             line += Span::raw(if flag { " unflag" } else { " flag" });
