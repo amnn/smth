@@ -7,7 +7,7 @@ blocks on a tmux signal, then prints `ready` when released asynchronously.
 Keep `:settle` separate here because it is the directive under test; the following
 snapshot should contain both lines, confirming that settling waited for release.
 
-    :b echo sleep
+    :b sleep
     :t new-window -d -n expected 'echo waiting; tmux wait-for -S old-ready; tmux wait-for release; echo ready; sleep 10'
     :p 0:expected.0
     :t resize-window -x 40 -y 3 -t 0:expected

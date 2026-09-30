@@ -16,7 +16,7 @@ it obvious what was normalized:
 - `w` replaces `jj` change IDs that follow the preview graph markers.
 - `h` replaces short hexadecimal commit IDs.
 
-    :b jj git cat
+    :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
 
 Create an `alpha` repo that will be attached to a live tmux session.

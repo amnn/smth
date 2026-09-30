@@ -12,7 +12,7 @@ the query.
 Create two plain sessions, `alpha` and `alpine`, so the same query has a surviving
 match after the first close and no existing match after the second.
 
-    :b jj tmux cat sleep (available)
+    :b jj tmux cat (available)
     :t rename-session -t 0 runner (success)
     :t new-session -d -s alpha "cat" (success)
     :t new-session -d -s alpine "cat" (success)

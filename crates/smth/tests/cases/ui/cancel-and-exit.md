@@ -7,7 +7,7 @@ Create a discoverable `feature` workspace and launch the picker filtered to it.
 Keep its pane alive after exit and signal each exit so persistence checks cannot
 race the picker. Staging the workspace should show a one-session deletion footer.
 
-    :b jj tmux cat test grep
+    :b jj tmux cat test
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha

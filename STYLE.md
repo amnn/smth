@@ -158,6 +158,12 @@ session. Keep direct `jj` or `tmux` setup when the test needs repo-only entries,
 custom history, aliases, stale or malformed metadata, or other state the CLI
 cannot construct. Do not pre-create the state whose creation the test asserts.
 
+Declare only binaries the case uses, directly or through the application,
+quoted shell commands, pane helpers, or fixture scripts. Remove stale entries
+from `:b` when setup changes. Shell builtins do not require an external binary,
+but direct execution such as `:$ test ...` does. Keep otherwise unused entries
+when testing binary availability or the directive itself explicitly.
+
 Prefer short forms for integration-test directives and their flags, such as
 `:$`, `:t`, and `:snap -d 2s -e ready`. This rule applies to the test runner's
 syntax, not the binaries invoked by directives or quoted shell commands.

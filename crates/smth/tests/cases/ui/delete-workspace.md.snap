@@ -8,7 +8,7 @@ input_file: crates/smth/tests/cases/ui/delete-workspace.md
 Deleting a live session that is attached to a named jj workspace should kill the
 tmux session, forget the workspace, and remove the workspace directory.
 
-    :b jj tmux cat test sh (available)
+    :b jj tmux cat sh (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ jj git init alpha (exit: 0)

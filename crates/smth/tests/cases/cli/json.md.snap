@@ -11,7 +11,7 @@ candidates with identities suitable for strict lifecycle commands.
 Create `alpha` and its named `feature` workspace, then attach a live session only
 to the default checkout. This gives inspection both live and repo-only identities.
 
-    :b jj cat sh sed (available)
+    :b jj sh sed (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ smth --no-base --create-repo --create alpha (exit: 0)

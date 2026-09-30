@@ -6,7 +6,7 @@ without opening the revision picker.
 Initialize `alpha` with a described working-copy commit, then launch from outside
 it so repository and revision context must come from explicit CLI options.
 
-    :b jj cat
+    :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init alpha

@@ -4,7 +4,7 @@ When jj cannot resolve a default workspace, deleting the checkout used as the
 current repository context should clear that context rather than retain the
 deleted path.
 
-    :b jj tmux cat test sh
+    :b jj tmux cat sh
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ jj git init beta
