@@ -3,7 +3,6 @@
 The agent subcommand should publish each supported lifecycle state to the
 invoking tmux pane's `@smth.agent.state` user option.
 
-    :b env
     :$ smth agent idle
     :t show-options -pqv @smth.agent.state
 
@@ -20,10 +19,14 @@ invoking tmux pane's `@smth.agent.state` user option.
     :t show-options -pqv @smth.agent.state
 
 The command should target `$TMUX_PANE`, even when it identifies a pane other
-than tmux's active pane.
+than tmux's active pane. Save the runner's default locally, override the child
+environment for this command, then restore it for later commands.
 
     :t split-window -d -t 0:0
-    :$ env TMUX_PANE=0:0.1 smth agent waiting
+    :v DEFAULT_PANE=$TMUX_PANE
+    :e TMUX_PANE=0:0.1
+    :$ smth agent waiting
+    :e TMUX_PANE=$DEFAULT_PANE
     :t show-options -pqv -t 0:0.1 @smth.agent.state
 
     :t show-options -pqv -t 0:0.0 @smth.agent.state

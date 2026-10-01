@@ -4,7 +4,11 @@ When a new repo-backed session would create a workspace whose name already
 exists, the workspace name is disambiguated before rendering and creation. The
 session name and workspace path are both derived from the disambiguated name.
 
-    :b jj tmux sh sed
+Capture the physical sandbox root once to normalize workspace paths.
+
+    :b jj tmux sed pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ -q jj git init beta
@@ -32,7 +36,8 @@ Accepting the row should create and switch to the disambiguated workspace.
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'
+    :$ jj workspace list -R beta --no-pager --color never --template 'name ++ "\t" ++ root ++ "\n"'
+    :| sed "s#${ROOT}/##g"
 
 ---
 vim: set ft=markdown:

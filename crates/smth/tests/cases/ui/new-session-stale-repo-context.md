@@ -4,7 +4,11 @@ If the current repo context comes from stale tmux metadata and is not actually a
 jj repo, accepting a new session should use that path as the tmux working
 directory without attempting workspace creation or attaching repo metadata.
 
-    :b jj tmux mkdir cat sh sed
+Capture the physical sandbox root once to normalize the new session's path.
+
+    :b jj tmux mkdir cat sed pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ mkdir plain
@@ -31,7 +35,8 @@ repo metadata because no jj workspace was created.
 
     :t display-message -p '#{client_session}'
 
-    :$ sh -c 'tmux display-message -p -t zeta:0 "#{pane_current_path}" | sed "s#$$PWD/##g"'
+    :$ tmux display-message -p -t zeta:0 '#{pane_current_path}'
+    :| sed "s#${ROOT}/##g"
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 

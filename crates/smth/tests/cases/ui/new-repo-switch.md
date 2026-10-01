@@ -6,7 +6,11 @@ checkout, create its session, and switch the invoking client.
 Configure `repos` as the root and write a readiness file from session setup so
 assertions can wait for initialization rather than just a stable picker screen.
 
-    :b jj tmux cat sh sed mkdir
+Capture the physical sandbox root once to normalize repository paths.
+
+    :b jj tmux cat sh sed mkdir pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w .config/smth/smth.toml
 
@@ -64,7 +68,8 @@ setup complete.
     :t display-message -p '#{client_session}'
 
     :$ sh -c 'test -d repos/switched/.jj && test -d repos/switched/.git && test ! -e repos/switched~1/.jj'
-    :$ sh -c 'tmux show-options -qv -t "=switched~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=switched~1:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
     :t has-session -t '=switched'
     :t has-session -t '=switched~2'

@@ -9,7 +9,11 @@ When a new repo-backed session would create a workspace whose name already
 exists, the workspace name is disambiguated before rendering and creation. The
 session name and workspace path are both derived from the disambiguated name.
 
-    :b jj tmux sh sed (available)
+Capture the physical sandbox root once to normalize workspace paths.
+
+    :b jj tmux sed pwd (available)
+    :$ -q pwd -P (exit: 0)
+    := ROOT (bound)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ -q jj git init beta (exit: 0)
@@ -59,7 +63,8 @@ beta/zeta~1:beta.zeta~1
 runner:
 ```
 
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"' (exit: 0)
+    :$ jj workspace list -R beta --no-pager --color never --template 'name ++ "\t" ++ root ++ "\n"' (exit: 0)
+    :| sed "s#${ROOT}/##g" (exit: 0)
 
 ```stdout
 default	beta

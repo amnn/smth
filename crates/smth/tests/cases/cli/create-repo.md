@@ -7,7 +7,11 @@ Configure a repository root and a setup script that marks each new session.
 The runner stays attached so detached creation can be distinguished from a
 client switch.
 
-    :b jj tmux cat sh sed mkdir
+Capture the physical sandbox root once to normalize repository paths.
+
+    :b jj tmux cat sh sed mkdir pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml
 
@@ -31,16 +35,19 @@ repository metadata and the usual setup script.
     :$ sh -c 'test -d "config-repos/project one/.jj" && test -d "config-repos/project one/.git"'
     :t show-options -qv -t '=project-one:' @smth.test-created
 
-    :$ sh -c 'tmux show-options -qv -t "=project-one:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=project-one:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
-    :$ sh -c 'tmux display-message -p -t "=project-one:0.0" "#{pane_current_path}" | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux display-message -p -t '=project-one:0.0' '#{pane_current_path}'
+    :| sed "s#${ROOT}#<ROOT>#g"
 
     :t display-message -p '#{client_session}'
 
 Repeating the request should fail without choosing another directory. The
-modifier can also follow the action's name.
+modifier can also follow the action's name. Keep shell redirection here to
+normalize stderr without changing the command's failing exit status.
 
-    :$ sh -c 'smth --config smth.toml --no-base --create "project one" --create-repo 2> error; status=$?; sed "s#$$PWD#<ROOT>#g" error >&2; exit "$$status"'
+    :$ sh -c 'smth --config smth.toml --no-base --create "project one" --create-repo 2> error; status=$?; sed "s#${ROOT}#<ROOT>#g" error >&2; exit "$$status"'
 
     :$ sh -c 'test ! -e "config-repos/project one~1" && test -d "config-repos/project one/.jj"'
 
@@ -51,7 +58,8 @@ Dots are preserved in the path even when the sanitized tmux name collides.
     :$ smth --config smth.toml --no-base --create foo.bar --create-repo
 
     :$ sh -c 'test -d config-repos/foo.bar/.jj && test ! -e config-repos/foo.bar~2'
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar~2:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=foo-bar~2:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
 Configuring a repository root must not change the existing plain-session
 behavior.
@@ -79,7 +87,7 @@ An occupied path should be rejected without modifying the existing directory.
 
     :$ mkdir config-repos/collision
     :t new-session -d -s collision~1 "cat"
-    :$ sh -c 'smth --config smth.toml --no-base --create collision --create-repo 2> error; status=$?; sed "s#$$PWD#<ROOT>#g" error >&2; exit "$$status"'
+    :$ sh -c 'smth --config smth.toml --no-base --create collision --create-repo 2> error; status=$?; sed "s#${ROOT}#<ROOT>#g" error >&2; exit "$$status"'
 
     :$ sh -c 'test ! -e config-repos/collision~2 && test ! -e config-repos/collision/.jj'
 

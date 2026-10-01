@@ -9,7 +9,11 @@ A stale default jj workspace should not prevent creating a new repo-backed
 session. `smth` should allow jj to update the stale working copy automatically
 as part of workspace creation.
 
-    :b jj tmux sh sed cat (available)
+Capture the physical sandbox root once to normalize workspace paths.
+
+    :b jj tmux sh sed cat pwd (available)
+    :$ -q pwd -P (exit: 0)
+    := ROOT (bound)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
 
 Create a default workspace with tracked content and a second, healthy workspace.
@@ -66,7 +70,8 @@ runner:
 ui:
 ```
 
-    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"' (exit: 0)
+    :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\t" ++ root ++ "\n"' (exit: 0)
+    :| sed "s#${ROOT}/##g" (exit: 0)
 
 ```stdout
 default	alpha
@@ -74,7 +79,7 @@ feature	alpha.feature
 healthy	alpha.healthy
 ```
 
-    :$ sh -c 'jj status -R alpha --config snapshot.auto-update-stale=false >/dev/null' (exit: 0)
+    :$ -q jj status -R alpha --config snapshot.auto-update-stale=false (exit: 0)
 
 The update should also materialize the rewritten working-copy commit, which no
 longer contains the tracked file.
