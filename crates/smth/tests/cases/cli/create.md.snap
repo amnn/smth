@@ -12,7 +12,11 @@ Configure setup to mark newly created sessions. Give `alpha` distinct base and
 tip commits plus an existing `feature` workspace, distinguishing session-only
 creation from workspace creation at a requested revision.
 
-    :b jj tmux cat sh sed mkdir (available)
+Capture the physical sandbox root once to normalize repository paths.
+
+    :b jj tmux cat sed mkdir pwd (available)
+    :$ -q pwd -P (exit: 0)
+    := ROOT (bound)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w smth.toml (written)
 
@@ -45,7 +49,8 @@ alpha
 yes
 ```
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux show-options -qv -t '=alpha:' @smth.repo (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>/alpha
@@ -63,7 +68,8 @@ alpha/feature~1
 ```
 
     :t show-options -qv -t '=alpha/feature:' @smth.repo (success)
-    :$ sh -c 'tmux show-options -qv -t "=alpha/feature~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux show-options -qv -t '=alpha/feature~1:' @smth.repo (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>/alpha.feature
@@ -114,7 +120,8 @@ that checkout as its degraded base just like the TUI.
 beta-zeta/fallback
 ```
 
-    :$ sh -c 'tmux show-options -qv -t "=beta-zeta/fallback:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux show-options -qv -t '=beta-zeta/fallback:' @smth.repo (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>/beta.zeta.fallback
@@ -130,7 +137,8 @@ the printed tmux name exposes the suffix.
 alpha/topic~1
 ```
 
-    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\n\"" | sed -n "/topic/p"' (exit: 0)
+    :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"' (exit: 0)
+    :| sed -n '/topic/p' (exit: 0)
 
 ```stdout
 "topic~1"
@@ -154,7 +162,8 @@ scratch-one
 yes
 ```
 
-    :$ sh -c 'tmux display-message -p -t "=scratch-one:0.0" "#{pane_current_path}" | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux display-message -p -t '=scratch-one:0.0' '#{pane_current_path}' (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>
@@ -215,7 +224,8 @@ alpha/~1
 yes
 ```
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha/~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux show-options -qv -t '=alpha/~1:' @smth.repo (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>/alpha.~1

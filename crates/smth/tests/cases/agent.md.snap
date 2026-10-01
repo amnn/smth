@@ -8,7 +8,6 @@ input_file: crates/smth/tests/cases/agent.md
 The agent subcommand should publish each supported lifecycle state to the
 invoking tmux pane's `@smth.agent.state` user option.
 
-    :b env (available)
     :$ smth agent idle (exit: 0)
     :t show-options -pqv @smth.agent.state (success)
 
@@ -45,10 +44,14 @@ failed
 ```
 
 The command should target `$TMUX_PANE`, even when it identifies a pane other
-than tmux's active pane.
+than tmux's active pane. Save the runner's default locally, override the child
+environment for this command, then restore it for later commands.
 
     :t split-window -d -t 0:0 (success)
-    :$ env TMUX_PANE=0:0.1 smth agent waiting (exit: 0)
+    :v DEFAULT_PANE=$TMUX_PANE
+    :e TMUX_PANE=0:0.1
+    :$ smth agent waiting (exit: 0)
+    :e TMUX_PANE=$DEFAULT_PANE
     :t show-options -pqv -t 0:0.1 @smth.agent.state (success)
 
 ```

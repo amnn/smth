@@ -3,7 +3,11 @@
 When a new repo-backed session would create a workspace at an already-existing
 path, the workspace name is disambiguated so the derived path is available.
 
-    :b jj tmux mkdir sh sed
+Capture the physical sandbox root once to normalize workspace paths.
+
+    :b jj tmux mkdir sed pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ -q jj git init beta
@@ -32,7 +36,8 @@ free.
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'
+    :$ jj workspace list -R beta --no-pager --color never --template 'name ++ "\t" ++ root ++ "\n"'
+    :| sed "s#${ROOT}/##g"
 
 ---
 vim: set ft=markdown:

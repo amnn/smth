@@ -5,15 +5,21 @@ workspaces already exist. The recovery script should rebuild that index, and
 `smth` should then use the recorded default workspace as the base when creating
 a new workspace from a named workspace checkout.
 
-    :b jj tmux sh sed python3
+Capture the physical sandbox root for the recovery script's arguments and for
+normalizing the resulting workspace paths.
+
+    :b jj tmux sed python3 pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :cp ../../scripts/fix-jj-workspace-index.py fix-jj-workspace-index.py
     :t rename-session -t 0 runner
     :$ -q jj git init beta
     :$ -q jj workspace add -R beta --name zeta beta.zeta
     :$ python3 -c 'from pathlib import Path; Path("beta/.jj/repo/workspace_store/index").unlink()'
-    :$ sh -c 'python3 fix-jj-workspace-index.py --repo beta default="$$PWD/beta" zeta="$$PWD/beta.zeta" >/dev/null'
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'
+    :$ -q python3 fix-jj-workspace-index.py --repo beta "default=${ROOT}/beta" "zeta=${ROOT}/beta.zeta"
+    :$ jj workspace list -R beta --no-pager --color never --template 'name ++ "\t" ++ root ++ "\n"'
+    :| sed "s#${ROOT}/##g"
 
     :t new-session -d -s ui "cd beta.zeta && smth"
     :t resize-window -t ui:0 -x 120 -y 10
@@ -40,7 +46,8 @@ session.
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'
+    :$ jj workspace list -R beta --no-pager --color never --template 'name ++ "\t" ++ root ++ "\n"'
+    :| sed "s#${ROOT}/##g"
 
 ---
 vim: set ft=markdown:

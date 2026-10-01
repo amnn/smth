@@ -6,7 +6,11 @@ candidate. `C-n` creates the selected candidate while retaining the picker.
 Configure `repos` as the creation root and have session setup write a readiness
 file. Launch outside any repository so both kinds of candidate are available.
 
-    :b jj tmux cat sh sed
+Capture the physical sandbox root once to normalize repository paths.
+
+    :b jj tmux cat sh sed pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w .config/smth/smth.toml
 
@@ -57,7 +61,8 @@ The repository should be colocated, use the configured root, and be attached to
 its live tmux session.
 
     :$ sh -c 'test -d repos/foo.bar/.jj && test -d repos/foo.bar/.git'
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=foo-bar:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
 Occupied paths and invalid directory names should not offer repository candidates.
 
@@ -79,7 +84,8 @@ session name while preserving the directory name.
     :$ sh -c 'until test -f repos/.../.smth-ready; do :; done'
     :settle -d 2s
     :$ sh -c 'test -d repos/.../.jj && test -d repos/.../.git'
-    :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=1:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
 With a repository context, only the workspace candidate is offered. Navigation
 must skip the empty row above it, and `C-n` creates the workspace normally.
@@ -99,7 +105,8 @@ should remain in the runner session, still using `foo.bar` as its context.
     :t display-message -p '#{client_session}'
 
     :$ sh -c 'test -d repos/foo.bar.blocked/.jj && test ! -e repos/blocked'
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar/blocked:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=foo-bar/blocked:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
 ---
 vim: set ft=markdown:

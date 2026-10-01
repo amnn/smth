@@ -7,7 +7,11 @@ Configure setup to mark newly created sessions. Give `alpha` distinct base and
 tip commits plus an existing `feature` workspace, distinguishing session-only
 creation from workspace creation at a requested revision.
 
-    :b jj tmux cat sh sed mkdir
+Capture the physical sandbox root once to normalize repository paths.
+
+    :b jj tmux cat sed mkdir pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :w smth.toml
 
@@ -32,7 +36,8 @@ is being created.
     :t has-session -t '=alpha'
     :t show-options -qv -t '=alpha:' @smth.test-created
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=alpha:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
 An existing named workspace should get a session without another jj operation.
 A colliding plain tmux name forces a suffix, which is stable on an idempotent
@@ -42,7 +47,8 @@ second call because strict repo metadata identifies the live target.
     :$ smth --config smth.toml --base alpha --create feature
 
     :t show-options -qv -t '=alpha/feature:' @smth.repo
-    :$ sh -c 'tmux show-options -qv -t "=alpha/feature~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=alpha/feature~1:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
     :t show-options -qv -t '=alpha/feature~1:' @smth.test-created
 
@@ -65,7 +71,8 @@ that checkout as its degraded base just like the TUI.
     :$ -q jj workspace forget -R beta.zeta --ignore-working-copy -- default
     :$ smth --config smth.toml --base beta.zeta --create fallback
 
-    :$ sh -c 'tmux show-options -qv -t "=beta-zeta/fallback:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=beta-zeta/fallback:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
 Workspace checkout path collisions preserve the TUI's `~N` disambiguation and
 the printed tmux name exposes the suffix.
@@ -73,7 +80,8 @@ the printed tmux name exposes the suffix.
     :$ mkdir alpha.topic
     :$ smth --config smth.toml --base alpha --create topic
 
-    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\n\"" | sed -n "/topic/p"'
+    :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"'
+    :| sed -n '/topic/p'
 
 A plain target is created at the process working directory with no repository
 metadata. Matching is verbatim: creating from a name that needs sanitization
@@ -85,7 +93,8 @@ repeating the original request creates a freshly disambiguated session.
     :t show-options -qv -t '=scratch-one:' @smth.repo
     :t show-options -qv -t '=scratch-one:' @smth.test-created
 
-    :$ sh -c 'tmux display-message -p -t "=scratch-one:0.0" "#{pane_current_path}" | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux display-message -p -t '=scratch-one:0.0' '#{pane_current_path}'
+    :| sed "s#${ROOT}#<ROOT>#g"
 
     :$ smth --config smth.toml --no-base --create scratch-one
 
@@ -110,7 +119,8 @@ default checkout, producing a suffix-only workspace name.
 
     :t show-options -qv -t '=alpha/~1:' @smth.test-created
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha/~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
+    :$ tmux show-options -qv -t '=alpha/~1:' @smth.repo
+    :| sed "s#${ROOT}#<ROOT>#g"
 
 None of these detached creates should switch the invoking client.
 

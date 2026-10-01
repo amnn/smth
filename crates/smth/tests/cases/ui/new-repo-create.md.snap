@@ -11,7 +11,11 @@ candidate. `C-n` creates the selected candidate while retaining the picker.
 Configure `repos` as the creation root and have session setup write a readiness
 file. Launch outside any repository so both kinds of candidate are available.
 
-    :b jj tmux cat sh sed (available)
+Capture the physical sandbox root once to normalize repository paths.
+
+    :b jj tmux cat sh sed pwd (available)
+    :$ -q pwd -P (exit: 0)
+    := ROOT (bound)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :w .config/smth/smth.toml (written)
 
@@ -134,7 +138,8 @@ The repository should be colocated, use the configured root, and be attached to
 its live tmux session.
 
     :$ sh -c 'test -d repos/foo.bar/.jj && test -d repos/foo.bar/.git' (exit: 0)
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux show-options -qv -t '=foo-bar:' @smth.repo (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>/repos/foo.bar
@@ -211,7 +216,8 @@ session: ...
     :$ sh -c 'until test -f repos/.../.smth-ready; do :; done' (exit: 0)
     :settle -d 2s (settled)
     :$ sh -c 'test -d repos/.../.jj && test -d repos/.../.git' (exit: 0)
-    :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux show-options -qv -t '=1:' @smth.repo (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>/repos/...
@@ -273,7 +279,8 @@ runner
 ```
 
     :$ sh -c 'test -d repos/foo.bar.blocked/.jj && test ! -e repos/blocked' (exit: 0)
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar/blocked:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ tmux show-options -qv -t '=foo-bar/blocked:' @smth.repo (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 <ROOT>/repos/foo.bar.blocked

@@ -11,7 +11,11 @@ candidates with identities suitable for strict lifecycle commands.
 Create `alpha` and its named `feature` workspace, then attach a live session only
 to the default checkout. This gives inspection both live and repo-only identities.
 
-    :b jj sh sed (available)
+Capture the physical sandbox root once to normalize paths in JSON output.
+
+    :b jj sed pwd (available)
+    :$ -q pwd -P (exit: 0)
+    := ROOT (bound)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ -q smth --no-base --create-repo --create alpha (exit: 0)
@@ -25,7 +29,8 @@ glob.
     :t rename-session -t alpha alpha-live (success)
     :$ -q smth --base alpha --flag (exit: 0)
     :t set-option -p -t alpha-live:0.0 @smth.agent.state waiting (success)
-    :$ sh -c 'smth --no-base --repo "alpha*" --json | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ smth --no-base --repo "alpha*" --json (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 [
@@ -67,7 +72,8 @@ glob.
 The same fuzzy matcher used by the picker should narrow structured output, and
 an unmatched query should emit an empty JSON array even with `--exit-0`.
 
-    :$ sh -c 'smth --no-base --repo "alpha*" --query feature --json | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
+    :$ smth --no-base --repo "alpha*" --query feature --json (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
 
 ```stdout
 [

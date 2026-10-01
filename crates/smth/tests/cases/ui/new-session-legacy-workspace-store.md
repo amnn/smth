@@ -5,7 +5,11 @@ Legacy jj repositories can have an empty workspace store index. In that state,
 session should use the selected workspace path itself as the base for creating a
 new workspace.
 
-    :b jj tmux sh sed
+Capture the physical sandbox root once to normalize workspace paths.
+
+    :b jj tmux sh sed pwd
+    :$ -q pwd -P
+    := ROOT
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ -q jj git init beta
@@ -34,7 +38,8 @@ unrecorded default workspace.
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 
-    :$ sh -c 'jj workspace list -R beta.zeta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'
+    :$ jj workspace list -R beta.zeta --no-pager --color never --template 'name ++ "\t" ++ root ++ "\n"'
+    :| sed "s#${ROOT}/##g"
 
 ---
 vim: set ft=markdown:
