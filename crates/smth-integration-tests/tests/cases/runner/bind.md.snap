@@ -1,0 +1,221 @@
+---
+source: crates/smth-integration-tests/tests/test.rs
+expression: output
+input_file: crates/smth-integration-tests/tests/cases/runner/bind.md
+---
+# Standalone stdout bindings
+
+Both aliases bind stdout locally. Quiet success suppresses rendering, not
+capture. Consecutive binds read the same stdout, and `-x` exports explicitly.
+
+    :b printf python3 pwd (available)
+    :$ -q printf 'two words\n' (exit: 0)
+    := LOCAL (bound)
+    :bind --export EXPORTED (bound)
+    :$ sh -c 'printf "<%s>\n" "$LOCAL" "$${LOCAL-missing}" "$$EXPORTED"' (exit: 0)
+
+```stdout
+<two words>
+<missing>
+<two words>
+```
+
+Literal bind names do not expand. Existing locals still shadow exported binds.
+
+    :v NAME=EXPANDED EXPORTED=shadow
+    :$ -q printf 'new value\n' (exit: 0)
+    := $NAME (bound)
+    := -x EXPORTED (bound)
+    :$ sh -c 'printf "<%s>\n" "${$NAME}" "$EXPANDED" "$EXPORTED" "$$EXPORTED"' (exit: 0)
+
+```stdout
+<new value>
+<>
+<shadow>
+<new value>
+```
+
+Bind a physical root without exposing it in the transcript. The value can be
+passed directly to a later standalone command; no pipeline is involved.
+
+    :$ -q pwd -P (exit: 0)
+    := ROOT (bound)
+    :$ sh -c 'test "$ROOT" = "$(pwd -P)" && echo physical-root-matches' (exit: 0)
+
+```stdout
+physical-root-matches
+```
+
+Exactly one LF or CRLF is removed. Spaces, internal newlines, a lone CR, ANSI
+escapes, and dollar signs remain untouched; bound values are not re-expanded.
+Empty stdout is a valid binding. Python repr makes these boundaries visible.
+
+    :$ -q printf ' first\nsecond \r\n' (exit: 0)
+    := MULTILINE (bound)
+    :$ -q printf 'two\n\n' (exit: 0)
+    := TWO (bound)
+    :$ -q printf 'lone\r' (exit: 0)
+    := CR (bound)
+    :$ -q printf '\033[31m$$LOCAL\033[0m' (exit: 0)
+    := ANSI (bound)
+    :$ -q printf '' (exit: 0)
+    := EMPTY (bound)
+    :$ python3 -c 'import sys; print([repr(v) for v in sys.argv[1:]])' $MULTILINE $TWO $CR $ANSI $EMPTY (exit: 0)
+
+```stdout
+["' first\\nsecond '", "'two\\n'", "'lone\\r'", "'\\x1b[31m$LOCAL\\x1b[0m'", "''"]
+```
+
+Nonzero exits still expose their stdout for binding, but stderr is never bound.
+Quiet failure diagnostics remain visible.
+
+    :$ -q sh -c 'printf "partial\n"; printf "error\n" >&2; exit 7' (exit: 7)
+
+```stdout
+partial
+```
+
+```stderr
+error
+```
+    := PARTIAL (bound)
+
+    :$ printf '%s\n' $PARTIAL (exit: 0)
+
+```stdout
+partial
+```
+
+A spawn failure clears previous output. Orphan binds also warn after blank
+lines, text, parser errors, or non-shell directives rather than reusing stale
+stdout. Failed binds leave existing values unchanged.
+
+    :v KEEP=original
+    :$ no-such-bind-command
+
+> [!WARNING]
+> failed to execute command: No such file or directory (os error 2)
+    := KEEP (failed)
+
+> [!WARNING]
+> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+
+    :$ printf '%s\n' $KEEP (exit: 0)
+
+```stdout
+original
+```
+
+    := ORPHAN (failed)
+
+> [!WARNING]
+> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+
+    :$ -q printf ignored (exit: 0)
+Text interrupts the bind chain.
+    := ORPHAN (failed)
+
+> [!WARNING]
+> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+
+    :$ -q printf ignored (exit: 0)
+    :t display-message -p constant (success)
+
+```
+constant
+```
+
+    := ORPHAN (failed)
+
+> [!WARNING]
+> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+
+    :$ -q printf ignored (exit: 0)
+    :unknown
+
+> [!WARNING]
+> Parser error: unknown directive ':unknown'
+
+    := ORPHAN (failed)
+
+> [!WARNING]
+> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+
+Malformed bind syntax, unsupported extraction flags, and invalid UTF-8 are
+reported. Failed local and exported NUL binds leave both old values intact.
+
+    :bind
+
+> [!WARNING]
+> Parser error: error: the following required arguments were not provided:
+>   <NAME>
+>
+> Usage: :bind <NAME>
+>
+> For more information, try '--help'.
+>
+
+    :$ -q printf ignored (exit: 0)
+    := '' (failed)
+
+> [!WARNING]
+> invalid variable name ''
+
+    :$ -q printf ignored (exit: 0)
+    := TOO MANY
+
+> [!WARNING]
+> Parser error: error: unexpected argument 'MANY' found
+>
+> Usage: :bind [OPTIONS] <NAME>
+>
+> For more information, try '--help'.
+>
+
+    :$ -q printf ignored (exit: 0)
+    := VALUE --json
+
+> [!WARNING]
+> Parser error: error: unexpected argument '--json' found
+>
+>   tip: to pass '--json' as a value, use '-- --json'
+>
+> Usage: :bind <NAME>
+>
+> For more information, try '--help'.
+>
+
+    :$ -q python3 -c 'import sys; sys.stdout.buffer.write(bytes([255]))' (exit: 0)
+    := KEEP (failed)
+
+> [!WARNING]
+> stdout is not valid UTF-8: invalid utf-8 sequence of 1 bytes from index 0
+
+    :$ printf '%s\n' $KEEP (exit: 0)
+
+```stdout
+original
+```
+
+    :e KEEP=environment
+    :$ -q printf '\000' (exit: 0)
+    := KEEP (failed)
+
+> [!WARNING]
+> variable value contains NUL
+
+    :$ -q printf '\000' (exit: 0)
+    := -x KEEP (failed)
+
+> [!WARNING]
+> variable value contains NUL
+
+    :$ sh -c 'printf "%s\n" "$KEEP" "$$KEEP"' (exit: 0)
+
+```stdout
+original
+environment
+```
+
+---
+vim: set ft=markdown:

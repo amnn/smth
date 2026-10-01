@@ -4,6 +4,7 @@
 //! Runtime for parsed markdown integration scripts.
 
 use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::fmt;
 use std::fs;
 use std::num::NonZeroUsize;
@@ -48,6 +49,9 @@ pub struct Runner {
 
     /// Path to the markdown transcript snapshot. SVG snapshots are written alongside it.
     snapshot_path: PathBuf,
+
+    /// Raw stdout available to an immediately trailing sequence of binds.
+    stdout: Option<Vec<u8>>,
 }
 
 impl Runner {
@@ -66,6 +70,7 @@ impl Runner {
             env,
             snap_ix: 0,
             snapshot_path: snapshot_path.as_ref().to_path_buf(),
+            stdout: None,
         })
     }
 
@@ -81,6 +86,7 @@ impl Runner {
         w: &mut impl fmt::Write,
         script: &parser::Script<'_>,
     ) -> fmt::Result {
+        self.stdout = None;
         let mut lines = script.lines.iter();
         while let Some(line) = lines.next() {
             let remaining = lines.clone();
@@ -222,7 +228,15 @@ impl Runner {
     /// Evaluate one parsed line and append its rendered markdown output.
     #[instrument(level = "trace", skip(self, w, line), fields(raw = line.raw))]
     async fn eval_line(&mut self, w: &mut impl fmt::Write, line: &Line<'_>) -> fmt::Result {
+        if !matches!(line.kind, LineKind::Bind { .. }) {
+            self.stdout = None;
+        }
+
         match &line.kind {
+            LineKind::Bind { export, name } => {
+                self.eval_bind(w, line.raw, *export, name)?;
+            }
+
             LineKind::Text => {
                 writeln!(w, "{}", line.raw)?;
             }
@@ -327,33 +341,52 @@ impl Runner {
         let (name, value) = if unset {
             (arg, None)
         } else if let Some((name, value)) = arg.split_once('=') {
-            (name, Some(value))
+            (name, Some(self.env.expand_arg(value)?))
         } else {
             bail!("expected NAME=VALUE");
         };
 
-        ensure!(
-            !name.is_empty() && !name.contains(['=', '\0']),
-            "invalid variable name '{name}'"
-        );
+        self.set_binding(export, name, value)
+    }
 
-        if let Some(value) = value {
-            let value = self.env.expand_arg(value)?;
-            ensure!(
-                !value.as_encoded_bytes().contains(&0),
-                "variable value contains NUL"
-            );
+    /// Bind captured stdout without changing it, allowing consecutive binds of the same output.
+    ///
+    /// Values containing NUL are rejected for both local and exported bindings, leaving the
+    /// destination unchanged.
+    fn eval_bind(
+        &mut self,
+        w: &mut impl fmt::Write,
+        raw: &str,
+        export: bool,
+        name: &str,
+    ) -> fmt::Result {
+        write!(w, "{raw}")?;
+        let Some(stdout) = &self.stdout else {
+            writeln!(w, " (failed)\n")?;
+            let msg = "':bind' must immediately follow a completed ':shell' or ':bind' directive";
+            return write_callout(w, "WARNING", &[msg]);
+        };
 
-            if export {
-                self.env.set_env(name.to_owned(), value);
-            } else {
-                self.env.set_local(name.to_owned(), value);
+        let stdout = match std::str::from_utf8(stdout) {
+            Ok(stdout) => stdout,
+            Err(error) => {
+                writeln!(w, " (failed)\n")?;
+                let msg = format!("stdout is not valid UTF-8: {error}");
+                return write_callout(w, "WARNING", &[&msg]);
             }
-        } else {
-            self.env.unset_env(name);
+        };
+
+        let value = stdout
+            .strip_suffix("\r\n")
+            .or_else(|| stdout.strip_suffix('\n'))
+            .unwrap_or(stdout);
+
+        if let Err(error) = self.set_binding(export, name, Some(value.into())) {
+            writeln!(w, " (failed)\n")?;
+            return write_callout(w, "WARNING", &[&format!("{error:#}")]);
         }
 
-        Ok(())
+        writeln!(w, " (bound)")
     }
 
     /// Switch the runner to a different active pane when the target exists.
@@ -440,7 +473,7 @@ impl Runner {
     /// When `quiet` is true, suppress successful output but retain exit annotations and
     /// failure diagnostics.
     async fn eval_shell(
-        &self,
+        &mut self,
         w: &mut impl fmt::Write,
         raw: &str,
         quiet: bool,
@@ -463,13 +496,15 @@ impl Runner {
                     writeln!(w, " (exit: killed)")?;
                 }
 
+                self.stdout = Some(output.stdout);
+                let stdout = self.stdout.as_deref().unwrap();
                 if quiet && output.status.success() {
                     return Ok(());
                 }
 
-                if !output.stdout.is_empty() {
+                if !stdout.is_empty() {
                     writeln!(w)?;
-                    write_fenced_block(w, "stdout", &String::from_utf8_lossy(&output.stdout))?;
+                    write_fenced_block(w, "stdout", &String::from_utf8_lossy(stdout))?;
                 }
 
                 if !output.stderr.is_empty() && !output.status.success() {
@@ -626,6 +661,39 @@ impl Runner {
         }
 
         writeln!(w, " (written)")?;
+        Ok(())
+    }
+
+    /// Set a local or exported binding, or remove an exported binding when `value` is `None`.
+    ///
+    /// Names must be nonempty and contain neither `=` nor NUL; values cannot contain NUL.
+    /// Values are stored literally, without expansion. Validation failures leave bindings unchanged.
+    fn set_binding(
+        &mut self,
+        export: bool,
+        name: &str,
+        value: Option<OsString>,
+    ) -> anyhow::Result<()> {
+        ensure!(
+            !name.is_empty() && !name.contains(['=', '\0']),
+            "invalid variable name '{name}'"
+        );
+
+        if let Some(value) = value {
+            ensure!(
+                !value.as_encoded_bytes().contains(&0),
+                "variable value contains NUL"
+            );
+
+            if export {
+                self.env.set_env(name.to_owned(), value);
+            } else {
+                self.env.set_local(name.to_owned(), value);
+            }
+        } else {
+            self.env.unset_env(name);
+        }
+
         Ok(())
     }
 

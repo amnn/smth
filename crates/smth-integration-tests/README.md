@@ -28,6 +28,19 @@ Supported directives:
     feature` runs setup without showing its successful output.
   - Non-zero exits still render captured stdout/stderr; spawn errors remain
     visible.
+- `:=` / `:bind [-x|--export] <NAME>`
+  - Bind the immediately preceding standalone `:$`/`:shell` command's raw stdout
+    locally, or export it with `-x`. Names are literal and obey the assignment
+    name restrictions. Values cannot contain NUL, even for local binds.
+    Consecutive binds may read the same output.
+  - Decode strict UTF-8 and remove exactly one trailing LF or CRLF. Preserve all
+    other whitespace, ANSI escapes, and dollar signs. Empty stdout is valid;
+    stderr is never included. Quiet successful commands still capture stdout.
+    Completed nonzero/killed commands can bind; spawn failures cannot.
+  - A blank/text line, another directive, or a parser error ends the bind chain.
+    Orphans, invalid UTF-8, and invalid names/exports warn without changing the
+    destination. Runtime bind failures keep stdout available to the next bind.
+  - Only raw extraction is supported: no JSON/regex extraction or pipelines.
 - `:v` / `:vars <NAME=VALUE ...>`
   - Set runner-local bindings in source order. Values expand against earlier
     bindings; names remain literal. Invalid assignments warn and leave that
@@ -49,7 +62,7 @@ Supported directives:
     foreground `run-shell` jobs and `wait-for`. Background jobs still need
     explicit synchronization.
 - `:p` / `:pane <target>`
-  - Set current pane target (default is `zz-smth-ui-runner:0.0`).
+  - Set current pane target (initially the default tmux session's pane).
   - Use this instead of `:tmux switch-client ...` when later `:keys`, `:shell`,
     or `:snap` directives should operate on the new pane; `:pane` waits for the
     control-mode pane notification to settle before the next directive runs.
@@ -111,7 +124,7 @@ expanding to `-q` is an executable name, not `:shell`'s quiet flag, and key
 text expanding to `enter` is typed literally rather than becoming the Enter
 key. Directive flags, counts, durations, snapshot/settle regexes and filters
 are parsed statically and do not expand. Regex dollar anchors therefore need no
-runner escaping. This follows Jellyfish's parse-once, expand-at-use model.
+runner escaping.
 
 Sandbox `HOME`, `PATH`, `ENV`, `SHELL`, and `LC_CTYPE` defaults are
 ordinary environment bindings, available for expansion and initialized once.
@@ -125,6 +138,20 @@ Changing `HOME` does not move the sandbox working directory or file-operation
 root. Exports apply to subsequent host commands; they do **not** update the
 already-running tmux server or its panes. Use tmux's own environment options
 when that is required.
+
+Assignment names are literal in both namespaces; only values expand. Raw binds
+preserve ANSI bytes and remove exactly one trailing line ending. Use
+`-x/--export` to export a binding.
+
+For example, capture the sandbox's physical root path and reuse it in a command:
+
+```text
+:$ -q pwd -P
+:= ROOT
+:$ printf '%s\n' "${ROOT}"
+```
+
+Declare `pwd` and `printf` with `:b` before running this example.
 
 ## Synchronizing asynchronous actions
 
