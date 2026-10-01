@@ -32,7 +32,7 @@ Accepting the row should create and switch to the disambiguated workspace.
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"'
+    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'
 
 ---
 vim: set ft=markdown:

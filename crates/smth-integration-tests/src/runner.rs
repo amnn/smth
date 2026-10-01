@@ -15,6 +15,7 @@ use std::time::Duration;
 use anyhow::Context as _;
 use anyhow::anyhow;
 use anyhow::bail;
+use anyhow::ensure;
 use futures::future;
 use nonempty::NonEmpty;
 use regex::Regex;
@@ -25,6 +26,7 @@ use tracing::instrument;
 use crate::env::Env;
 use crate::parser;
 use crate::parser::Key;
+use crate::parser::KeyKind;
 use crate::parser::Line;
 use crate::parser::LineKind;
 use crate::svg::Frame;
@@ -54,8 +56,10 @@ impl Runner {
         manifest_dir: impl AsRef<Path>,
         snapshot_path: impl AsRef<Path>,
     ) -> anyhow::Result<Self> {
-        let env = Env::new(manifest_dir.as_ref().to_path_buf()).await?;
+        let mut env = Env::new(manifest_dir.as_ref().to_path_buf()).await?;
         let tmux = Tmux::new(&env).await?;
+        env.set_env("TMUX".to_owned(), format!("{},,0", tmux.socket().display()));
+        env.set_env("TMUX_PANE".to_owned(), tmux.pane());
 
         Ok(Self {
             tmux,
@@ -168,9 +172,24 @@ impl Runner {
         Ok(())
     }
 
-    /// Send parsed key presses to the active pane.
+    /// Expand text operands and send keys without reinterpreting text as named keys.
     async fn eval_keys(&self, w: &mut impl fmt::Write, raw: &str, keys: &[Key]) -> fmt::Result {
         writeln!(w, "{raw}")?;
+
+        let mut keys = keys.to_vec();
+        for key in &mut keys {
+            if let KeyKind::Text(text) = &mut key.kind {
+                match self.env.expand_arg(&*text) {
+                    Ok(expanded) => *text = expanded.to_string_lossy().into_owned(),
+                    Err(error) => {
+                        let msg = format!("failed to expand key text: {error:#}");
+
+                        writeln!(w)?;
+                        return write_callout(w, "WARNING", &[&msg]);
+                    }
+                }
+            }
+        }
 
         // Keep literal text out of tmux's key-name lookup, and preserve ordering when text and
         // named keys are interleaved. Group adjacent keys to avoid a command for every character.
@@ -212,6 +231,10 @@ impl Runner {
                 writeln!(w, "{}", line.raw)?;
                 writeln!(w)?;
                 write_callout(w, "WARNING", &[&format!("Parser error: {message}")])?;
+            }
+
+            LineKind::Envs { unset, args } => {
+                self.eval_assignments(w, line.raw, *unset, args)?;
             }
 
             LineKind::Bins { args } => {
@@ -270,9 +293,63 @@ impl Runner {
         Ok(())
     }
 
+    /// Apply assignments one at a time so later values see earlier updates.
+    fn eval_assignments(
+        &mut self,
+        w: &mut impl fmt::Write,
+        raw: &str,
+        unset: bool,
+        args: &[String],
+    ) -> fmt::Result {
+        writeln!(w, "{raw}")?;
+        for arg in args {
+            if let Err(error) = self.eval_assignment(unset, arg) {
+                let msg = format!("invalid assignment '{arg}': {error:#}");
+
+                writeln!(w)?;
+                write_callout(w, "WARNING", &[&msg])?;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn eval_assignment(&mut self, unset: bool, arg: &str) -> anyhow::Result<()> {
+        let (name, value) = if unset {
+            (arg, None)
+        } else if let Some((name, value)) = arg.split_once('=') {
+            (name, Some(value))
+        } else {
+            bail!("expected NAME=VALUE");
+        };
+
+        ensure!(
+            !name.is_empty() && !name.contains(['=', '\0']),
+            "invalid variable name '{name}'"
+        );
+
+        if let Some(value) = value {
+            let value = self.env.expand_arg(value)?;
+            ensure!(
+                !value.as_encoded_bytes().contains(&0),
+                "environment value contains NUL"
+            );
+
+            self.env.set_env(name.to_owned(), value);
+        } else {
+            self.env.unset_env(name);
+        }
+
+        Ok(())
+    }
+
     /// Switch the runner to a different active pane when the target exists.
+    ///
+    /// Confirmed selection replaces or restores the `TMUX_PANE` environment binding.
+    /// Failed selection leaves that binding unchanged.
     async fn eval_pane(&mut self, w: &mut impl fmt::Write, target: &str) -> fmt::Result {
-        let pane = match self.target_to_pane_id(target).await {
+        let pane = match async { self.target_to_pane_id(&self.env.expand_arg(target)?).await }.await
+        {
             Ok(pane) => pane,
             Err(e) => {
                 writeln!(w)?;
@@ -304,13 +381,16 @@ impl Runner {
         // tmux control-mode subscriptions are throttled, so confirm the switch with an explicit
         // query instead of waiting for the next subscription notification.
         match self.tmux.refresh_pane().await {
-            Ok(current) => {
-                if current != pane {
-                    writeln!(w)?;
-                    let msg = format!("failed to observe pane target '{target}'");
-                    write_callout(w, "WARNING", &[&msg])?;
-                }
+            Ok(current) if current == pane => {
+                self.env.set_env("TMUX_PANE".to_owned(), current);
             }
+
+            Ok(_) => {
+                writeln!(w)?;
+                let msg = format!("failed to observe pane target '{target}'");
+                write_callout(w, "WARNING", &[&msg])?;
+            }
+
             Err(error) => {
                 writeln!(w)?;
                 let message = format!("failed to observe pane target '{target}': {error}");
@@ -355,14 +435,14 @@ impl Runner {
     ) -> fmt::Result {
         write!(w, "{raw}")?;
 
-        let mut command = self.env.command(&args.head);
+        let result: anyhow::Result<_> = async {
+            let mut command = self.env.command(&args.head)?;
+            let args = self.env.expand_args(&args.tail)?;
+            Ok(command.args(args).output().await?)
+        }
+        .await;
 
-        // Indicate that this shell command is running in the context of the runner's tmux socket
-        // and pane.
-        let tmux = format!("{},,0", self.tmux.socket().display());
-        command.env("TMUX", tmux).env("TMUX_PANE", self.tmux.pane());
-
-        match command.args(&args.tail).output().await {
+        match result {
             Ok(output) => {
                 if let Some(code) = output.status.code() {
                     writeln!(w, " (exit: {code})")?;
@@ -433,8 +513,8 @@ impl Runner {
         let result: anyhow::Result<_> = async {
             let output = self
                 .tmux
-                .command(&args.head)
-                .args(&args.tail)
+                .command(self.env.expand_arg(&args.head)?)
+                .args(self.env.expand_args(&args.tail)?)
                 .status()
                 .await?;
 
@@ -605,11 +685,12 @@ impl Runner {
     }
 
     /// Resolve a user-facing pane target into a concrete tmux pane id.
-    async fn target_to_pane_id(&self, target: &str) -> anyhow::Result<Option<String>> {
+    async fn target_to_pane_id(&self, target: &OsStr) -> anyhow::Result<Option<String>> {
         let output = self
             .tmux
             .command("display-message")
-            .args(["-p", "-t", target])
+            .args(["-p", "-t"])
+            .arg(target)
             .arg("#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}")
             .status()
             .await?;

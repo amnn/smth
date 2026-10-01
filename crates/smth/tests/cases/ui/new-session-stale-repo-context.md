@@ -31,7 +31,7 @@ repo metadata because no jj workspace was created.
 
     :t display-message -p '#{client_session}'
 
-    :$ sh -c 'tmux display-message -p -t zeta:0 "#{pane_current_path}" | sed "s#$PWD/##g"'
+    :$ sh -c 'tmux display-message -p -t zeta:0 "#{pane_current_path}" | sed "s#$$PWD/##g"'
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 

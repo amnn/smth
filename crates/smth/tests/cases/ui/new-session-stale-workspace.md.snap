@@ -66,7 +66,7 @@ runner:
 ui:
 ```
 
-    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"' (exit: 0)
+    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"' (exit: 0)
 
 ```stdout
 default	alpha

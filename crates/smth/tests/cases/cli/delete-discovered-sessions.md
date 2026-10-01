@@ -61,7 +61,7 @@ exec "$HOME/../bin/jj" "$@"
 ```
 
     :$ chmod +x wrappers/tmux wrappers/jj
-    :t new-session -d -s worker 'PATH="$HOME/wrappers:$PATH" smth --base alpha --delete feature 2>errors; echo $? > finished; cat'
+    :t new-session -d -s worker 'PATH="$$HOME/wrappers:$$PATH" smth --base alpha --delete feature 2>errors; echo $? > finished; cat'
 
 Both kill requests must arrive before either is released. The checkout must
 already be removed, but the deletion command must still be running.

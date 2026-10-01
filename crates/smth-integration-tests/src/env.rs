@@ -12,7 +12,9 @@
 //!
 //! NB. Environment isolation is a convenience to ensure tests are stable, not true isolation.
 
+use std::collections::BTreeMap;
 use std::ffi::OsStr;
+use std::ffi::OsString;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -27,6 +29,7 @@ use which::which;
 pub(crate) struct Env {
     dir: tempfile::TempDir,
     manifest_dir: PathBuf,
+    envs: BTreeMap<String, OsString>,
 }
 
 impl Env {
@@ -54,13 +57,26 @@ impl Env {
             .await
             .context("failed to write sh startup config")?;
 
-        let env = Self { dir, manifest_dir };
+        let envs = BTreeMap::from([
+            ("HOME".into(), tmp(&["home"]).into_os_string()),
+            ("PATH".into(), tmp(&["bin"]).into_os_string()),
+            ("ENV".into(), tmp(&["home", ".shrc"]).into_os_string()),
+            ("LC_CTYPE".into(), "en_US.UTF-8".into()),
+            ("SHELL".into(), "/bin/sh".into()),
+        ]);
+
+        let env = Self {
+            dir,
+            manifest_dir,
+            envs,
+        };
+
         env.bin("sh").await?;
 
         Ok(env)
     }
 
-    /// Ensure the binary is available in the environment.
+    /// Expand a binary reference and ensure it is available in the environment.
     ///
     /// The binary can either be specified by name (in which case it is fetched from the test's
     /// $PATH), or it can be specified by path, in which case it must exist and be executable.
@@ -71,38 +87,61 @@ impl Env {
     /// Returns the path to the binary in the environment.
     pub(crate) async fn bin(&self, bin: impl AsRef<OsStr>) -> anyhow::Result<PathBuf> {
         let bin = bin.as_ref();
-        self.bin_(bin)
+        self.bin_(&self.expand_arg(bin)?)
             .await
             .with_context(|| format!("failed to add '{}' to environment", bin.display()))
     }
 
-    /// Start a new command in this environment.
+    /// Expand the executable name and start a new command in this environment.
     ///
-    /// Its `$HOME` and `$PATH` environment variables point inside the environment, and its current
-    /// directory is also set to `$HOME`.
-    pub(crate) fn command(&self, program: &str) -> Command {
-        let mut command = Command::new(program);
+    /// Use the current environment bindings. The working directory remains the sandbox home,
+    /// even if the test overrides or unsets `HOME`.
+    pub(crate) fn command(&self, program: impl AsRef<OsStr>) -> anyhow::Result<Command> {
+        let mut command = Command::new(self.expand_arg(program)?);
 
         command
             .env_clear()
-            .env("HOME", self.path("home"))
-            .env("LC_CTYPE", "en_US.UTF-8")
-            .env("ENV", self.path("home").join(".shrc"))
-            .env("PATH", self.path("bin"))
-            .env("SHELL", "/bin/sh")
+            .envs(&self.envs)
             .current_dir(self.path("home"));
 
-        command
+        Ok(command)
     }
 
-    /// Copy a manifest-relative file into the sandboxed home directory.
+    /// Expand one operand at its point of use, without reinterpreting directive syntax.
+    /// Input and substituted values are decoded lossily; the result contains UTF-8 in an OS string.
+    /// Returns an error for an unterminated braced reference.
+    pub(crate) fn expand_arg(&self, arg: impl AsRef<OsStr>) -> anyhow::Result<OsString> {
+        crate::expansion::expand(&arg.as_ref().to_string_lossy(), |name| {
+            self.envs
+                .get(name)
+                .map(|value| value.to_string_lossy().into_owned())
+        })
+        .map(OsString::from)
+    }
+
+    /// Expand command arguments individually, preserving argument boundaries.
+    pub(crate) fn expand_args(&self, args: &[String]) -> anyhow::Result<Vec<OsString>> {
+        args.iter().map(|arg| self.expand_arg(arg)).collect()
+    }
+
+    /// Set a binding exported to subsequent child processes.
+    pub(crate) fn set_env(&mut self, name: String, value: impl Into<OsString>) {
+        self.envs.insert(name, value.into());
+    }
+
+    /// Remove an exported binding, including a sandbox default.
+    pub(crate) fn unset_env(&mut self, name: &str) {
+        self.envs.remove(name);
+    }
+
+    /// Expand both paths and copy a manifest-relative file into the sandboxed home directory.
     pub(crate) async fn copy_file(
         &self,
         src: impl AsRef<Path>,
         dst: impl AsRef<Path>,
     ) -> anyhow::Result<()> {
-        let src = src.as_ref();
-        let dst = dst.as_ref();
+        let src = PathBuf::from(self.expand_arg(src.as_ref().as_os_str())?);
+        let dst = PathBuf::from(self.expand_arg(dst.as_ref().as_os_str())?);
 
         ensure!(
             src.is_relative(),
@@ -133,13 +172,13 @@ impl Env {
         self.dir.path().join(path)
     }
 
-    /// Write a file relative to the sandboxed home directory, creating parents as needed.
+    /// Expand the path and write literal contents beneath the sandboxed home, creating parents.
     pub(crate) async fn write_file(
         &self,
         relative: impl AsRef<Path>,
         contents: &str,
     ) -> anyhow::Result<()> {
-        let relative = relative.as_ref();
+        let relative = PathBuf::from(self.expand_arg(relative.as_ref().as_os_str())?);
         ensure!(relative.is_relative(), "file path must be relative");
 
         let path = self.path("home").join(relative);

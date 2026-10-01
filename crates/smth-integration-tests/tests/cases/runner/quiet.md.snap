@@ -69,7 +69,7 @@ failure stdout
 failure stderr
 ```
 
-    :shell --quiet sh -c "printf 'killed stdout\n'; printf 'killed stderr\n' >&2; kill -TERM $$" (exit: killed)
+    :shell --quiet sh -c "printf 'killed stdout\n'; printf 'killed stderr\n' >&2; kill -TERM $$$$" (exit: killed)
 
 ```stdout
 killed stdout
