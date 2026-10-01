@@ -75,6 +75,9 @@ pub(crate) enum LineKind {
     /// Require particular binaries be made available in the test environment.
     Bins { args: Vec<String> },
 
+    /// Bind the preceding standalone command's stdout, locally by default.
+    Bind { export: bool, name: String },
+
     /// Set runner-local bindings in source order.
     Vars { args: Vec<String> },
 
@@ -156,6 +159,17 @@ struct ShellArgs {
     /// Command and arguments to execute.
     #[arg(required = true)]
     args: Vec<String>,
+}
+
+/// Parsed arguments for `:bind`.
+#[derive(clap::Parser)]
+struct BindArgs {
+    /// Export the binding instead of keeping it local.
+    #[arg(short = 'x', long)]
+    export: bool,
+
+    /// Literal name receiving the preceding command's stdout.
+    name: String,
 }
 
 /// Parsed arguments for `:envs`.
@@ -289,6 +303,15 @@ impl LineKind {
         };
 
         Ok(match cmd {
+            "=" | "bind" => {
+                let args =
+                    BindArgs::try_parse_from(std::iter::once(":bind".to_owned()).chain(args))?;
+                LineKind::Bind {
+                    export: args.export,
+                    name: args.name,
+                }
+            }
+
             "v" | "vars" => {
                 ensure!(!args.is_empty(), "':vars' expects at least one assignment");
                 LineKind::Vars { args }
