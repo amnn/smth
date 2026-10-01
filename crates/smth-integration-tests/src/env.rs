@@ -30,6 +30,7 @@ pub(crate) struct Env {
     dir: tempfile::TempDir,
     manifest_dir: PathBuf,
     envs: BTreeMap<String, OsString>,
+    vars: BTreeMap<String, OsString>,
 }
 
 impl Env {
@@ -69,6 +70,7 @@ impl Env {
             dir,
             manifest_dir,
             envs,
+            vars: BTreeMap::new(),
         };
 
         env.bin("sh").await?;
@@ -112,8 +114,9 @@ impl Env {
     /// Returns an error for an unterminated braced reference.
     pub(crate) fn expand_arg(&self, arg: impl AsRef<OsStr>) -> anyhow::Result<OsString> {
         crate::expansion::expand(&arg.as_ref().to_string_lossy(), |name| {
-            self.envs
+            self.vars
                 .get(name)
+                .or_else(|| self.envs.get(name))
                 .map(|value| value.to_string_lossy().into_owned())
         })
         .map(OsString::from)
@@ -122,6 +125,11 @@ impl Env {
     /// Expand command arguments individually, preserving argument boundaries.
     pub(crate) fn expand_args(&self, args: &[String]) -> anyhow::Result<Vec<OsString>> {
         args.iter().map(|arg| self.expand_arg(arg)).collect()
+    }
+
+    /// Set a runner-local binding that shadows exported values only during expansion.
+    pub(crate) fn set_local(&mut self, name: String, value: impl Into<OsString>) {
+        self.vars.insert(name, value.into());
     }
 
     /// Set a binding exported to subsequent child processes.

@@ -19,29 +19,39 @@ Supported directives:
     callouts for unavailable binaries, without success callouts.
 - `:$` / `:shell [-q|--quiet] <cmd...>`
   - Run a host command via Rust `Command`. `:sh` is not supported.
-  - Arguments are parsed with `shlex`. Directive flags go before the executable;
-    flags after it remain executable arguments.
-  - The directive and exit annotation always appear. By default, stdout is rendered
-    when present, and stderr is rendered on failure.
-  - `-q` / `--quiet` suppresses successful output, not execution or internal capture
-    of stdout/stderr. For example, `:$ -q smth --base alpha --create feature` runs
-    setup without showing its successful output.
-  - Non-zero exits still render captured stdout/stderr; spawn errors remain visible.
+  - Arguments are parsed with `shlex`. Directive flags go before the
+    executable; flags after it remain executable arguments.
+  - The directive and exit annotation always appear. By default, stdout is
+    rendered when present, and stderr is rendered on failure.
+  - `-q` / `--quiet` suppresses successful output, not execution or internal
+    capture of stdout/stderr. For example, `:$ -q smth --base alpha --create
+    feature` runs setup without showing its successful output.
+  - Non-zero exits still render captured stdout/stderr; spawn errors remain
+    visible.
+- `:v` / `:vars <NAME=VALUE ...>`
+  - Set runner-local bindings in source order. Values expand against earlier
+    bindings; names remain literal. Invalid assignments warn and leave that
+    binding unchanged, without preventing later assignments. Names must be
+    nonempty and contain neither `=` nor NUL; values cannot contain NUL.
+  - Locals never enter the child environment and shadow exported bindings only
+    during expansion, including sandbox defaults. Empty locals still shadow.
 - `:e` / `:envs [-u|--unset] <NAME=VALUE ...>`
-  - Set exported bindings for subsequent host commands, or remove named bindings
-    with `--unset NAME ...`, including defaults. Assignments run left to right;
-    values expand against bindings already applied. Names remain literal.
-  - Invalid assignments warn and leave that binding unchanged; later assignments
-    still run. Names must be nonempty and contain neither `=` nor NUL; exported
-    values cannot contain NUL.
+  - Set exported bindings for subsequent host commands, or remove named
+    bindings with `--unset NAME ...`, including defaults. Assignments run left
+    to right; values expand against bindings already applied. Names remain
+    literal.
+  - Invalid assignments warn and leave that binding unchanged; later
+    assignments still run. Names must be nonempty and contain neither `=` nor
+    NUL; exported values cannot contain NUL.
 - `:t` / `:tmux <args...>`
   - Run a tmux command on the test socket.
-  - Wait for the command queue to resume before continuing, including foreground
-    `run-shell` jobs and `wait-for`. Background jobs still need explicit synchronization.
+  - Wait for the command queue to resume before continuing, including
+    foreground `run-shell` jobs and `wait-for`. Background jobs still need
+    explicit synchronization.
 - `:p` / `:pane <target>`
   - Set current pane target (default is `zz-smth-ui-runner:0.0`).
-  - Use this instead of `:tmux switch-client ...` when later `:keys`, `:shell`, or
-    `:snap` directives should operate on the new pane; `:pane` waits for the
+  - Use this instead of `:tmux switch-client ...` when later `:keys`, `:shell`,
+    or `:snap` directives should operate on the new pane; `:pane` waits for the
     control-mode pane notification to settle before the next directive runs.
 - `:k` / `:keys <tokens...>`
   - Send key presses to the current pane.
@@ -49,40 +59,44 @@ Supported directives:
     `backspace`, `btab`, `esc`, `tab`, `space`.
   - Modifiers are canonical uppercase only: `C-`, `M-`, `S-`.
   - `S-` only applies to arrow keys.
-  - Anything that doesn't match the above is sent literally with `tmux send-keys -l`,
-    including tmux names such as `Enter` and option-like text such as `-l`.
-    Use lowercase `enter` for the actual key press.
+  - Anything that doesn't match the above is sent literally with `tmux
+    send-keys -l`, including tmux names such as `Enter` and option-like text
+    such as `-l`. Use lowercase `enter` for the actual key press.
 - `:settle [-e <regex>]... [-c <count>] [-d <duration>] [dregexdgrapheme ...]`
   - Wait for the current pane to settle without appending a snapshot.
-  - Accepts the same settle options and filters as `:snap`, but does not accept `--color`.
-- `:s` / `:snap [--color] [-e <regex>]... [-c <count>] [-d <duration>] [dregexdgrapheme ...]`
+  - Accepts the same settle options and filters as `:snap`, but does not accept
+    `--color`.
+- `:s` / `:snap [--color] [-e <regex>]... [-c <count>] [-d <duration>]
+  [dregexdgrapheme ...]`
   - Capture current pane and append it in a fenced `terminal` code block.
-  - `-e` / `--expect` can be repeated. Every regex must match the same filtered pane
-    text throughout the consecutive matching captures. If any regex does not match,
-    the streak resets. A timeout reports all required regexes. With no expectations,
-    only stability is checked. The snapshot renders the exact frame that satisfied
-    every condition, including when `--color` is used.
+  - `-e` / `--expect` can be repeated. Every regex must match the same filtered
+    pane text throughout the consecutive matching captures. If any regex does
+    not match, the streak resets. A timeout reports all required regexes. With
+    no expectations, only stability is checked. The snapshot renders the exact
+    frame that satisfied every condition, including when `--color` is used.
   - `--color` additionally writes linked light and dark SVG snapshots.
   - `-c` / `--count` sets the required consecutive matching captures and
     defaults to `5`.
   - `-d` / `--duration` sets the maximum settle time and defaults to `1s`.
   - Durations use human-readable values such as `100ms` or `5s`.
-  - Optional replacement rules are `dregexdgrapheme`, separated by whitespace.
-  - Replacements are global and applied in order, painting over matches with the replacement
-    grapheme cluster.
+  - Optional replacement rules are `dregexdgrapheme`, separated by
+    whitespace.
+  - Replacements are global and applied in order, painting over matches with
+    the replacement grapheme cluster.
   - If the regex has capture groups, only those groups' contents are painted.
-  - Filters match against the plaintext transcript, then the corresponding styled cells are
-    painted before SVG rendering so the original cell styles are preserved.
+  - Filters match against the plaintext transcript, then the corresponding
+    styled cells are painted before SVG rendering so the original cell styles
+    are preserved.
 
 ## Variable expansion
 
 Directives are shlex-tokenized and parsed once, without variable expansion. At
 execution time, operands expand individually using `$NAME` or `${NAME}`.
 Unbraced names consume ASCII letters, digits, and underscores (including
-positional-looking `$1`). Braces allow other literal name characters. Missing
-bindings expand to empty strings; unterminated braces warn and skip the
-directive. `$$` produces one literal dollar. A dollar not followed by a name
-or `{` is preserved.
+positional-looking `$1`). Braces allow other literal name characters. Locals
+take precedence over environment bindings. Missing bindings expand to empty
+strings; unterminated braces warn and skip the directive. `$$` produces one
+literal dollar. A dollar not followed by a name or `{` is preserved.
 
 Expansion does not run a shell, split words, or recursively expand substituted
 values. Quotes group arguments but do not disable expansion. Escape shell-owned
