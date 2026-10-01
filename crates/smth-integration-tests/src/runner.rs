@@ -233,8 +233,12 @@ impl Runner {
                 write_callout(w, "WARNING", &[&format!("Parser error: {message}")])?;
             }
 
+            LineKind::Vars { args } => {
+                self.eval_assignments(w, line.raw, false, false, args)?;
+            }
+
             LineKind::Envs { unset, args } => {
-                self.eval_assignments(w, line.raw, *unset, args)?;
+                self.eval_assignments(w, line.raw, true, *unset, args)?;
             }
 
             LineKind::Bins { args } => {
@@ -298,12 +302,13 @@ impl Runner {
         &mut self,
         w: &mut impl fmt::Write,
         raw: &str,
+        export: bool,
         unset: bool,
         args: &[String],
     ) -> fmt::Result {
         writeln!(w, "{raw}")?;
         for arg in args {
-            if let Err(error) = self.eval_assignment(unset, arg) {
+            if let Err(error) = self.eval_assignment(export, unset, arg) {
                 let msg = format!("invalid assignment '{arg}': {error:#}");
 
                 writeln!(w)?;
@@ -314,7 +319,11 @@ impl Runner {
         Ok(())
     }
 
-    fn eval_assignment(&mut self, unset: bool, arg: &str) -> anyhow::Result<()> {
+    /// Apply one local or exported assignment, or remove an exported binding when `unset`.
+    ///
+    /// Names remain literal; values expand against current bindings. Invalid names, malformed
+    /// assignments or expansions, and values containing NUL fail without changing bindings.
+    fn eval_assignment(&mut self, export: bool, unset: bool, arg: &str) -> anyhow::Result<()> {
         let (name, value) = if unset {
             (arg, None)
         } else if let Some((name, value)) = arg.split_once('=') {
@@ -332,10 +341,14 @@ impl Runner {
             let value = self.env.expand_arg(value)?;
             ensure!(
                 !value.as_encoded_bytes().contains(&0),
-                "environment value contains NUL"
+                "variable value contains NUL"
             );
 
-            self.env.set_env(name.to_owned(), value);
+            if export {
+                self.env.set_env(name.to_owned(), value);
+            } else {
+                self.env.set_local(name.to_owned(), value);
+            }
         } else {
             self.env.unset_env(name);
         }

@@ -75,6 +75,9 @@ pub(crate) enum LineKind {
     /// Require particular binaries be made available in the test environment.
     Bins { args: Vec<String> },
 
+    /// Set runner-local bindings in source order.
+    Vars { args: Vec<String> },
+
     /// Set or unset exported environment bindings in source order.
     Envs { unset: bool, args: Vec<String> },
 
@@ -286,6 +289,11 @@ impl LineKind {
         };
 
         Ok(match cmd {
+            "v" | "vars" => {
+                ensure!(!args.is_empty(), "':vars' expects at least one assignment");
+                LineKind::Vars { args }
+            }
+
             "e" | "envs" => {
                 let args =
                     EnvsArgs::try_parse_from(std::iter::once(":envs".to_owned()).chain(args))?;
