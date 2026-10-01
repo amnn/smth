@@ -17,10 +17,10 @@ Rewriting the default workspace's commit from the second workspace leaves its
 working copy stale.
 
     :t rename-session -t 0 runner (success)
-    :$ jj git init alpha (exit: 0)
+    :$ -q jj git init alpha (exit: 0)
     :$ sh -c 'printf "tracked\n" > alpha/tracked' (exit: 0)
-    :$ jj workspace add -R alpha --name healthy alpha.healthy (exit: 0)
-    :$ jj restore -R alpha.healthy --into 'default@' --from 'root()' (exit: 0)
+    :$ -q jj workspace add -R alpha --name healthy alpha.healthy (exit: 0)
+    :$ -q jj restore -R alpha.healthy --into 'default@' --from 'root()' (exit: 0)
     :t new-session -d -s ui "cd alpha && smth; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 10 (success)
     :p ui:0.0

@@ -10,10 +10,10 @@ no attached tmux sessions. The repository glob supplies both picker entries.
     :b jj tmux cat sh sleep
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
-    :$ jj workspace add -R beta --name feature beta.feature
-    :$ jj describe -R beta.feature -m "feature commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
+    :$ -q jj workspace add -R beta --name feature beta.feature
+    :$ -q jj describe -R beta.feature -m "feature commit"
     :t new-session -d -s ui "smth -r 'beta*'; cat"
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0

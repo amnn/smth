@@ -30,11 +30,11 @@ for i in range(1, count + 1):
 ```
 
     :t rename-session -t 0 runner (success)
-    :$ jj git init long (exit: 0)
-    :$ python3 scripts/mklog.py long line 6 (exit: 0)
-    :$ jj new -R long (exit: 0)
-    :$ jj describe -R long -m child (exit: 0)
-    :$ jj edit -R long @- (exit: 0)
+    :$ -q jj git init long (exit: 0)
+    :$ -q python3 scripts/mklog.py long line 6 (exit: 0)
+    :$ -q jj new -R long (exit: 0)
+    :$ -q jj describe -R long -m child (exit: 0)
+    :$ -q jj edit -R long @- (exit: 0)
     :t new-session -d -s plain "cat" (success)
     :t new-session -d -s ui "cd long && smth -r ../long" (success)
     :t resize-window -t ui:0 -x 90 -y 10 (success)

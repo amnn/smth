@@ -9,8 +9,8 @@ it so repository and revision context must come from explicit CLI options.
     :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m "base commit"
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m "base commit"
 
 Launch the picker from outside the repository. The header should display the
 revision supplied on the command line rather than `trunk()`.

@@ -7,8 +7,8 @@ creating a new named session, so the new session starts in that repo and records
     :b jj tmux
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
     :t new-session -d -s ui "smth -r beta"
     :t resize-window -t ui:0 -x 120 -y 10
     :p ui:0.0

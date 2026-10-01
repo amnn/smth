@@ -13,8 +13,8 @@ client to it.
     :b jj tmux (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
-    :$ jj git init beta (exit: 0)
-    :$ jj describe -R beta -m "beta commit" (exit: 0)
+    :$ -q jj git init beta (exit: 0)
+    :$ -q jj describe -R beta -m "beta commit" (exit: 0)
 
 Launch the picker in a live tmux client and make the repo discoverable.
 

@@ -12,10 +12,10 @@ session. Neither repository has an attached session of its own.
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ mkdir -p alpha omega
-    :$ jj git init alpha/beta
-    :$ jj describe -R alpha/beta -m "alpha beta commit"
-    :$ jj git init omega/beta
-    :$ jj describe -R omega/beta -m "omega beta commit"
+    :$ -q jj git init alpha/beta
+    :$ -q jj describe -R alpha/beta -m "alpha beta commit"
+    :$ -q jj git init omega/beta
+    :$ -q jj describe -R omega/beta -m "omega beta commit"
     :t new-session -d -s beta "cat"
 
 Launch the picker with both repos discoverable. Both inactive repo rows should

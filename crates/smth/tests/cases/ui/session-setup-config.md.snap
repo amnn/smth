@@ -15,7 +15,7 @@ effects identify both the target session and the directory used by setup.
     :b jj tmux cat test (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
-    :$ jj git init beta (exit: 0)
+    :$ -q jj git init beta (exit: 0)
     :w .config/smth/smth.toml (written)
 
 ```toml

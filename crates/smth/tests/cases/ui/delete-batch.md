@@ -10,10 +10,10 @@ to `first` so later query changes can hide staged entries.
     :b jj tmux cat sh test sleep
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
+    :$ -q jj git init alpha
     :$ smth --base alpha --create first
 
-    :$ jj workspace add -R alpha --name second alpha.second
+    :$ -q jj workspace add -R alpha --name second alpha.second
     :$ smth --base alpha --flag first
     :t new-session -d -s ui "smth -r 'alpha*'; cat"
     :t resize-window -t ui:0 -x 120 -y 16

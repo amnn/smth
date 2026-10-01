@@ -9,14 +9,14 @@ needed.
     :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m "alpha commit"
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
-    :$ jj git init gamma
-    :$ jj describe -R gamma -m "gamma commit"
-    :$ jj git init delta
-    :$ jj describe -R delta -m "delta commit"
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m "alpha commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
+    :$ -q jj git init gamma
+    :$ -q jj describe -R gamma -m "gamma commit"
+    :$ -q jj git init delta
+    :$ -q jj describe -R delta -m "delta commit"
 
 Launch live sessions for `alpha` and `gamma`, while `beta` and `delta` remain
 repo-only entries discovered through the CLI globs.

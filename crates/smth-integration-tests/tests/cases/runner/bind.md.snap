@@ -9,9 +9,11 @@ Both aliases bind stdout locally. Quiet success suppresses rendering, not
 capture. Consecutive binds read the same stdout, and `-x` exports explicitly.
 
     :b printf python3 pwd (available)
+
     :$ -q printf 'two words\n' (exit: 0)
     := LOCAL (bound)
     :bind --export EXPORTED (bound)
+
     :$ sh -c 'printf "<%s>\n" "$LOCAL" "$${LOCAL-missing}" "$$EXPORTED"' (exit: 0)
 
 ```stdout
@@ -20,12 +22,62 @@ capture. Consecutive binds read the same stdout, and `-x` exports explicitly.
 <two words>
 ```
 
+Without quiet, both bind results should precede the command's stdout block.
+The command below prints `visible`; expect its exit annotation, two successful
+bind annotations, then `visible` once under stdout. Binding must neither consume
+nor change the bytes displayed.
+
+    :$ printf 'visible\n' (exit: 0)
+    := VISIBLE (bound)
+    := -x VISIBLE_ENV (bound)
+
+```stdout
+visible
+```
+
+The local and exported values should both be `visible`, with the trailing newline
+removed. Expect `visible/visible`: the runner expands `$VISIBLE`, and the shell
+reads the exported value through the escaped `$$VISIBLE_ENV`.
+
+    :$ sh -c 'printf "%s/%s\n" "$VISIBLE" "$$VISIBLE_ENV"' (exit: 0)
+
+```stdout
+visible/visible
+```
+
+An invalid bind must not prevent a later valid bind in the same group. The empty
+name should warn, `REUSABLE` should bind successfully, and only then should the
+command's `reusable` stdout appear. These bind results must not suppress output
+from a successful non-quiet command.
+
+    :$ printf 'reusable\n' (exit: 0)
+    := '' (failed)
+
+> [!WARNING]
+> invalid variable name ''
+    := REUSABLE (bound)
+
+```stdout
+reusable
+```
+
+Printing `REUSABLE` should produce `reusable` again, confirming that the failed
+bind neither consumed the stdout nor interrupted the following bind.
+
+    :$ printf '%s\n' $REUSABLE (exit: 0)
+
+```stdout
+reusable
+```
+
 Literal bind names do not expand. Existing locals still shadow exported binds.
 
     :v NAME=EXPANDED EXPORTED=shadow
+
     :$ -q printf 'new value\n' (exit: 0)
     := $NAME (bound)
     := -x EXPORTED (bound)
+
     :$ sh -c 'printf "<%s>\n" "${$NAME}" "$EXPANDED" "$EXPORTED" "$$EXPORTED"' (exit: 0)
 
 ```stdout
@@ -40,6 +92,7 @@ passed directly to a later standalone command; no pipeline is involved.
 
     :$ -q pwd -P (exit: 0)
     := ROOT (bound)
+
     :$ sh -c 'test "$ROOT" = "$(pwd -P)" && echo physical-root-matches' (exit: 0)
 
 ```stdout
@@ -52,14 +105,19 @@ Empty stdout is a valid binding. Python repr makes these boundaries visible.
 
     :$ -q printf ' first\nsecond \r\n' (exit: 0)
     := MULTILINE (bound)
+
     :$ -q printf 'two\n\n' (exit: 0)
     := TWO (bound)
+
     :$ -q printf 'lone\r' (exit: 0)
     := CR (bound)
+
     :$ -q printf '\033[31m$$LOCAL\033[0m' (exit: 0)
     := ANSI (bound)
+
     :$ -q printf '' (exit: 0)
     := EMPTY (bound)
+
     :$ python3 -c 'import sys; print([repr(v) for v in sys.argv[1:]])' $MULTILINE $TWO $CR $ANSI $EMPTY (exit: 0)
 
 ```stdout
@@ -67,9 +125,12 @@ Empty stdout is a valid binding. Python repr makes these boundaries visible.
 ```
 
 Nonzero exits still expose their stdout for binding, but stderr is never bound.
-Quiet failure diagnostics remain visible.
+Quiet failure diagnostics remain visible. Expect the command's exit-7 annotation
+and successful `PARTIAL` bind first, then `partial` under stdout and `error` under
+stderr. The following `printf` should print `partial` again.
 
     :$ -q sh -c 'printf "partial\n"; printf "error\n" >&2; exit 7' (exit: 7)
+    := PARTIAL (bound)
 
 ```stdout
 partial
@@ -78,7 +139,6 @@ partial
 ```stderr
 error
 ```
-    := PARTIAL (bound)
 
     :$ printf '%s\n' $PARTIAL (exit: 0)
 
@@ -86,19 +146,40 @@ error
 partial
 ```
 
-A spawn failure clears previous output. Orphan binds also warn after blank
-lines, text, parser errors, or non-shell directives rather than reusing stale
-stdout. Failed binds leave existing values unchanged.
+A command terminated by a signal still supplies any stdout collected before it
+exited. The shell prints `before-signal`, then sends SIGTERM to itself. Expect
+`exit: killed`, a successful bind, and visible `before-signal` stdout despite
+quiet, because the command did not succeed.
+
+    :$ -q sh -c 'printf "before-signal\n"; kill -TERM $$$$' (exit: killed)
+    := SIGNALED (bound)
+
+```stdout
+before-signal
+```
+
+Printing `SIGNALED` should produce `before-signal` again, confirming the signal
+status did not discard captured output.
+
+    :$ printf '%s\n' $SIGNALED (exit: 0)
+
+```stdout
+before-signal
+```
+
+A spawn failure marks the command `failed` and skips its associated
+bind rather than attempting an assignment. Expect `KEEP (skipped)` before the
+command-not-found warning, and `original` when its unchanged value is
+printed. Orphan binds still warn after blank lines, text, parser errors, or
+non-shell directives rather than reusing stale stdout.
 
     :v KEEP=original
-    :$ no-such-bind-command
+
+    :$ no-such-bind-command (failed)
+    := KEEP (skipped)
 
 > [!WARNING]
 > failed to execute command: No such file or directory (os error 2)
-    := KEEP (failed)
-
-> [!WARNING]
-> ':bind' must immediately follow a completed ':shell' or ':bind' directive
 
     :$ printf '%s\n' $KEEP (exit: 0)
 
@@ -109,14 +190,14 @@ original
     := ORPHAN (failed)
 
 > [!WARNING]
-> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+> ':bind' must immediately follow a completed ':shell', ':pipe', or ':bind' directive
 
     :$ -q printf ignored (exit: 0)
 Text interrupts the bind chain.
     := ORPHAN (failed)
 
 > [!WARNING]
-> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+> ':bind' must immediately follow a completed ':shell', ':pipe', or ':bind' directive
 
     :$ -q printf ignored (exit: 0)
     :t display-message -p constant (success)
@@ -128,7 +209,7 @@ constant
     := ORPHAN (failed)
 
 > [!WARNING]
-> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+> ':bind' must immediately follow a completed ':shell', ':pipe', or ':bind' directive
 
     :$ -q printf ignored (exit: 0)
     :unknown
@@ -139,7 +220,7 @@ constant
     := ORPHAN (failed)
 
 > [!WARNING]
-> ':bind' must immediately follow a completed ':shell' or ':bind' directive
+> ':bind' must immediately follow a completed ':shell', ':pipe', or ':bind' directive
 
 Malformed bind syntax, unsupported extraction flags, and invalid UTF-8 are
 reported. Failed local and exported NUL binds leave both old values intact.
@@ -198,6 +279,7 @@ original
 ```
 
     :e KEEP=environment
+
     :$ -q printf '\000' (exit: 0)
     := KEEP (failed)
 

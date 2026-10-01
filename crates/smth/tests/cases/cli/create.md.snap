@@ -22,11 +22,11 @@ setup = "tmux set-option @smth.test-created yes"
 ```
 
     :t rename-session -t 0 runner (success)
-    :$ jj git init alpha (exit: 0)
-    :$ jj describe -R alpha -m "base commit" (exit: 0)
-    :$ jj new -R alpha (exit: 0)
-    :$ jj describe -R alpha -m "tip commit" (exit: 0)
-    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
+    :$ -q jj git init alpha (exit: 0)
+    :$ -q jj describe -R alpha -m "base commit" (exit: 0)
+    :$ -q jj new -R alpha (exit: 0)
+    :$ -q jj describe -R alpha -m "tip commit" (exit: 0)
+    :$ -q jj workspace add -R alpha --name feature alpha.feature (exit: 0)
 
 A default checkout needs only a tmux session. Its repo metadata and setup script
 should be installed, while an explicit revision is ignored because no workspace
@@ -105,9 +105,9 @@ yes
 When a named checkout has no registered default workspace, creation should use
 that checkout as its degraded base just like the TUI.
 
-    :$ jj git init beta (exit: 0)
-    :$ jj workspace add -R beta --name zeta beta.zeta (exit: 0)
-    :$ jj workspace forget -R beta.zeta --ignore-working-copy -- default (exit: 0)
+    :$ -q jj git init beta (exit: 0)
+    :$ -q jj workspace add -R beta --name zeta beta.zeta (exit: 0)
+    :$ -q jj workspace forget -R beta.zeta --ignore-working-copy -- default (exit: 0)
     :$ smth --config smth.toml --base beta.zeta --create fallback (exit: 0)
 
 ```stdout

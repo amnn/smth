@@ -6,9 +6,9 @@ path, the workspace name is disambiguated so the derived path is available.
     :b jj tmux mkdir sh sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init beta
+    :$ -q jj git init beta
     :$ mkdir beta.zeta
-    :$ jj describe -R beta -m "beta commit"
+    :$ -q jj describe -R beta -m "beta commit"
     :t new-session -d -s ui "smth -r beta"
     :t resize-window -t ui:0 -x 120 -y 10
     :p ui:0.0

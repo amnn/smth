@@ -15,9 +15,9 @@ creation without adding workspaces.
     :b jj tmux cat sh sed (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
-    :$ jj git init alpha (exit: 0)
-    :$ jj describe -R alpha -m "base commit" (exit: 0)
-    :$ jj workspace add -R alpha --name other alpha.other (exit: 0)
+    :$ -q jj git init alpha (exit: 0)
+    :$ -q jj describe -R alpha -m "base commit" (exit: 0)
+    :$ -q jj workspace add -R alpha --name other alpha.other (exit: 0)
 
 Create a live feature session with agent attention in its second window. A
 named-workspace base with no operand should infer `feature`, and switching to an

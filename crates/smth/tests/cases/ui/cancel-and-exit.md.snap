@@ -15,8 +15,8 @@ race the picker. Staging the workspace should show a one-session deletion footer
     :b jj tmux cat test (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
-    :$ jj git init alpha (exit: 0)
-    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
+    :$ -q jj git init alpha (exit: 0)
+    :$ -q jj workspace add -R alpha --name feature alpha.feature (exit: 0)
     :t new-session -d -s ui "smth --base alpha -r 'alpha*' --query feature; tmux wait-for -S first-exited; cat" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)
     :p ui:0.0

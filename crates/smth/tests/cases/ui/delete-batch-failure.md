@@ -10,9 +10,9 @@ concurrent checkout removal independently of session-closing behavior.
     :b jj tmux cat sh test chmod sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj workspace add -R alpha --name first alpha.first
-    :$ jj workspace add -R alpha --name second alpha.second
+    :$ -q jj git init alpha
+    :$ -q jj workspace add -R alpha --name first alpha.first
+    :$ -q jj workspace add -R alpha --name second alpha.second
 
 Wrap jj only inside the picker pane. Both forget commands announce readiness
 and wait for separate release signals. The first command fails deliberately;

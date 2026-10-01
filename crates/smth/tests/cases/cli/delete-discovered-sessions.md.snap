@@ -16,7 +16,7 @@ before the wrappers introduce a failure and a late alias.
     :b jj tmux cat sh test chmod sed (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
-    :$ jj git init alpha (exit: 0)
+    :$ -q jj git init alpha (exit: 0)
     :$ smth --base alpha --create feature (exit: 0)
 
 ```stdout

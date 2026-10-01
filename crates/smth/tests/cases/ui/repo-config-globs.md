@@ -10,10 +10,10 @@ commit descriptions, and put only `config-repo` in the configuration file.
     :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init config-repo
-    :$ jj describe -R config-repo -m "config glob commit"
-    :$ jj git init cli-repo
-    :$ jj describe -R cli-repo -m "cli glob commit"
+    :$ -q jj git init config-repo
+    :$ -q jj describe -R config-repo -m "config glob commit"
+    :$ -q jj git init cli-repo
+    :$ -q jj describe -R cli-repo -m "cli glob commit"
     :w .config/smth/smth.toml
 
 ```toml

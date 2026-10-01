@@ -143,31 +143,40 @@ to preserve the portability of the code.
 ### Markdown Snapshot Cases
 
 Explain what each setup phase creates and why those fixtures matter to the
-scenario. Before a non-trivial snapshot, describe what it should show and why;
-do not leave readers to infer the assertion from key presses or captured output.
-A shared explanation can cover a short sequence when it clearly identifies the
-expected result of each step.
+scenario. Before each snapshot, explain what output is expected and why it
+follows from the setup and actions. This includes captured command output and
+expected failures, not just pane snapshots. Do not leave readers to infer the
+assertion from key presses or captured output. A shared explanation can cover a
+short sequence when it clearly identifies the expected result of each step.
+
+For command transcripts, explain where significant output values come from and
+why they are expected: trace transformations, variable expansion, environment
+lookups, and counts back to their inputs. Explain exit statuses, diagnostics,
+and intentionally absent output in terms of the behavior being tested, rather
+than merely restating what the commands do.
 
 Prefer `smth`'s non-interactive CLI for ordinary setup when it simplifies
 repository/workspace creation, tmux session creation, metadata assignment, or
-staging. The goal is simpler, higher-level setup, not using `smth` everywhere;
-keep direct setup when a CLI-based equivalent needs extra shell plumbing or
-manual metadata manipulation without reducing complexity.
-For example, use `smth --base alpha --create feature` for a live workspace-backed
-session. Keep direct `jj` or `tmux` setup when the test needs repo-only entries,
-custom history, aliases, stale or malformed metadata, or other state the CLI
-cannot construct. Do not pre-create the state whose creation the test asserts.
+staging. The goal is simpler, higher-level setup, not using `smth`
+everywhere; keep direct setup when a CLI-based equivalent needs extra shell
+plumbing or manual metadata manipulation without reducing complexity. For
+example, use `smth --base alpha --create feature` for a live workspace-backed
+session. Keep direct `jj` or `tmux` setup when the test needs repo-only
+entries, custom history, aliases, stale or malformed metadata, or other state
+the CLI cannot construct. Do not pre-create the state whose creation the test
+asserts.
 
 Declare only binaries the case uses, directly or through the application,
 quoted shell commands, pane helpers, or fixture scripts. Remove stale entries
-from `:b` when setup changes. Shell builtins do not require an external binary,
-but direct execution such as `:$ test ...` does. Keep otherwise unused entries
-when testing binary availability or the directive itself explicitly.
+from `:b` when setup changes. Shell builtins do not require an external
+binary, but direct execution such as `:$ test ...` does. Keep otherwise
+unused entries when testing binary availability or the directive itself
+explicitly.
 
 Prefer short forms for integration-test directives and their flags, such as
-`:$`, `:t`, and `:snap -d 2s -e ready`. This rule applies to the test runner's
-syntax, not the binaries invoked by directives or quoted shell commands.
-Keep long forms when testing those forms explicitly.
+`:$`, `:t`, and `:snap -d 2s -e ready`. This rule applies to the test
+runner's syntax, not the binaries invoked by directives or quoted shell
+commands. Keep long forms when testing those forms explicitly.
 
 When `:settle` is immediately followed by `:snap`, combine them into one
 `:snap`, preserving the required duration, count, expectations, and filters
@@ -180,8 +189,15 @@ output, including snapshots, fenced stdout or stderr, and warning callouts.
 This applies to expected failures as well as successful commands; judge the
 rendered transcript, not just the exit status or output stream.
 
-Leave one blank line between a `:w` (or `:write`) directive and the fenced block
-containing the file's contents.
+Give each shell invocation followed by pipes or binds its own block, even when
+the shell invocation is quiet. Separate the entire chain from surrounding setup
+and assertions with blank lines, but keep its shell, pipe, and bind directives
+adjacent: blank lines terminate chains. This required adjacency takes
+precedence over spacing after multi-line output. Preserve deliberate
+interruptions in tests of chain boundaries.
+
+Leave one blank line between a `:w` (or `:write`) directive and the fenced
+block containing the file's contents.
 
 Keep closely related directives adjacent when they produce no multi-line
 output, such as binary and fixture setup or key presses followed by settling.

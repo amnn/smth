@@ -12,7 +12,7 @@ the preview recognizable content as the picker is resized.
     :t rename-session -t 0 runner
     :$ smth --no-base --create-repo --create alpha
 
-    :$ jj describe -R alpha -m "alpha commit"
+    :$ -q jj describe -R alpha -m "alpha commit"
     :t new-session -d -s ui "smth -r alpha"
     :t resize-window -t ui:0 -x 120 -y 10
     :p ui:0.0

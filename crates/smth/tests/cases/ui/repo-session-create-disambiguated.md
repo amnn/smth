@@ -7,8 +7,8 @@ session name using a tilde suffix.
     :b jj tmux cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
     :t new-session -d -s beta "cat"
 
 Launch the picker and select the inactive repo row, not the existing live

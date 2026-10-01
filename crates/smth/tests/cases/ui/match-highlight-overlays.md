@@ -12,8 +12,8 @@ name, parent-path, and basename spans to cross in a single row.
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
     :$ mkdir code
-    :$ jj git init code/blue
-    :$ jj describe -R code/blue -m "blue commit"
+    :$ -q jj git init code/blue
+    :$ -q jj describe -R code/blue -m "blue commit"
     :t new-session -d -s tone~one "cat"
     :t set-option -t tone~one @smth.repo code/blue
     :t new-session -d -s ui "smth"
