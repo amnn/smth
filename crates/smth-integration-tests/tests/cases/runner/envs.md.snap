@@ -175,10 +175,10 @@ kept
 > For more information, try '--help'.
 >
 
-    :$ printf '%s\n' '${OPEN'
+    :$ printf '%s\n' '${OPEN' (failed)
 
 > [!WARNING]
-> failed to execute command: unterminated variable reference
+> unterminated variable reference
 
 ---
 vim: set ft=markdown:

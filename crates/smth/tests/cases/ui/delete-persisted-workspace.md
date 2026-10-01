@@ -9,7 +9,7 @@ the hidden alias, while only one marker file is written to their shared checkout
     :b jj tmux cat sh test sleep
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
+    :$ -q jj git init alpha
     :$ smth --base alpha --create feature
 
 The CLI reuses one live session per checkout. Rename it and attach a second

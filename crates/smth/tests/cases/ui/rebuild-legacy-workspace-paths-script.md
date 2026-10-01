@@ -9,8 +9,8 @@ a new workspace from a named workspace checkout.
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :cp ../../scripts/fix-jj-workspace-index.py fix-jj-workspace-index.py
     :t rename-session -t 0 runner
-    :$ jj git init beta
-    :$ jj workspace add -R beta --name zeta beta.zeta
+    :$ -q jj git init beta
+    :$ -q jj workspace add -R beta --name zeta beta.zeta
     :$ python3 -c 'from pathlib import Path; Path("beta/.jj/repo/workspace_store/index").unlink()'
     :$ sh -c 'python3 fix-jj-workspace-index.py --repo beta default="$$PWD/beta" zeta="$$PWD/beta.zeta" >/dev/null'
     :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'

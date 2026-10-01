@@ -81,12 +81,12 @@ killed stderr
 
 Missing executables still produce spawn diagnostics.
 
-    :shell -q missing-quiet-command
+    :shell -q missing-quiet-command (failed)
 
 > [!WARNING]
 > failed to execute command: No such file or directory (os error 2)
 
-    :$ --quiet missing-quiet-command
+    :$ --quiet missing-quiet-command (failed)
 
 > [!WARNING]
 > failed to execute command: No such file or directory (os error 2)

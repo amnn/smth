@@ -36,10 +36,10 @@ if __name__ == "__main__":
 ```
 
     :t rename-session -t 0 runner
-    :$ jj git init exact
-    :$ python3 scripts/mklog.py exact exact 3
-    :$ jj git init overflow
-    :$ python3 scripts/mklog.py overflow overflow 4
+    :$ -q jj git init exact
+    :$ -q python3 scripts/mklog.py exact exact 3
+    :$ -q jj git init overflow
+    :$ -q python3 scripts/mklog.py overflow overflow 4
     :t new-session -d -s plain "cat"
     :t new-session -d -s ui "smth -r exact -r overflow"
     :t resize-window -t ui:0 -x 120 -y 12

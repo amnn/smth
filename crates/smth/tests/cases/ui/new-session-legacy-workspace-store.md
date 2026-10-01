@@ -8,8 +8,8 @@ new workspace.
     :b jj tmux sh sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init beta
-    :$ jj workspace add -R beta --name zeta beta.zeta
+    :$ -q jj git init beta
+    :$ -q jj workspace add -R beta --name zeta beta.zeta
     :$ sh -c ': > beta/.jj/repo/workspace_store/index'
     :t new-session -d -s ui "cd beta.zeta && smth"
     :t resize-window -t ui:0 -x 120 -y 10

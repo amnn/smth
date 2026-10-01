@@ -11,7 +11,7 @@ before the wrappers introduce a failure and a late alias.
     :b jj tmux cat sh test chmod sed
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
+    :$ -q jj git init alpha
     :$ smth --base alpha --create feature
 
 Rename the CLI-created session and add the second alias manually: another CLI

@@ -41,10 +41,10 @@ if __name__ == "__main__":
 ```
 
     :t rename-session -t 0 runner (success)
-    :$ jj git init exact (exit: 0)
-    :$ python3 scripts/mklog.py exact exact 3 (exit: 0)
-    :$ jj git init overflow (exit: 0)
-    :$ python3 scripts/mklog.py overflow overflow 4 (exit: 0)
+    :$ -q jj git init exact (exit: 0)
+    :$ -q python3 scripts/mklog.py exact exact 3 (exit: 0)
+    :$ -q jj git init overflow (exit: 0)
+    :$ -q python3 scripts/mklog.py overflow overflow 4 (exit: 0)
     :t new-session -d -s plain "cat" (success)
     :t new-session -d -s ui "smth -r exact -r overflow" (success)
     :t resize-window -t ui:0 -x 120 -y 12 (success)

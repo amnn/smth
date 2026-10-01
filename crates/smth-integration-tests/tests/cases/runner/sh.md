@@ -11,7 +11,8 @@ code block.
 ## Command not in bins fails to execute
 
 A command that exists on the host but has not been added via `:b` should fail to spawn in the
-isolated environment and produce a WARNING callout.
+isolated environment. Expect a `failed` annotation and a WARNING callout saying
+`failed to execute command`, without a pipeline number for the root command.
 
     :$ cat
 
@@ -33,14 +34,16 @@ should be shown second.
 
 ## Command writes both streams and succeeds
 
-When a command exits zero and writes both streams, only stdout should be shown in the transcript.
+When a command exits zero and writes both streams, both should be shown: stdout first, then
+stderr. Expect `hello from stdout` and `hello from stderr` in their respective fenced blocks;
+success alone does not suppress stderr.
 
     :b sh
     :$ sh -c "printf 'hello from stdout\n'; printf 'hello from stderr\n' >&2; exit 0"
 
 ## Successful shell command can be silent
 
-Successful shell commands without stdout should only produce the annotated raw line.
+Successful shell commands without stdout or stderr should only produce the annotated raw line.
 
     :b true
     :$ true

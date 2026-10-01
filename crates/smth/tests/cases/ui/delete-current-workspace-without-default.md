@@ -7,8 +7,8 @@ deleted path.
     :b jj tmux cat sh
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
 
 Create a named workspace and its live session through the CLI before removing
 the default registration below.
@@ -19,7 +19,7 @@ Forget the default workspace registration while leaving its checkout and the
 repository store in place. Workspace discovery can still identify `zeta`, but
 cannot normalize it to a default workspace.
 
-    :$ jj workspace forget -R beta.zeta --ignore-working-copy -- default
+    :$ -q jj workspace forget -R beta.zeta --ignore-working-copy -- default
     :t new-session -d -s ui -c beta.zeta "smth; cat"
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0

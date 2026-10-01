@@ -18,29 +18,61 @@ Supported directives:
   - Success appends `(available)` to the directive; failures produce warning
     callouts for unavailable binaries, without success callouts.
 - `:$` / `:shell [-q|--quiet] <cmd...>`
-  - Run a host command via Rust `Command`. `:sh` is not supported.
+  - Run a host command via Rust `Command`.
   - Arguments are parsed with `shlex`. Directive flags go before the
     executable; flags after it remain executable arguments.
-  - The directive and exit annotation always appear. By default, stdout is
-    rendered when present, and stderr is rendered on failure.
+  - The directive and exit annotation always appear. By default, stdout and
+    stderr are rendered whenever present, including successful commands.
   - `-q` / `--quiet` suppresses successful output, not execution or internal
-    capture of stdout/stderr. For example, `:$ -q smth --base alpha --create
-    feature` runs setup without showing its successful output.
+    capture of stdout/stderr. For example,
+    ```
+    :$ -q smth --base alpha --create feature
+    ```
+    runs setup without showing its successful output.
   - Non-zero exits still render captured stdout/stderr; spawn errors remain
     visible.
+- `:|` / `:pipe <cmd...>`
+  - Attach a stage to an immediately preceding `:$`/`:shell` or `:|`/`:pipe`.
+    Consecutive stages execute concurrently through OS pipes, not through a
+    shell. The root receives EOF on stdin; each later stage receives the
+    previous stdout.
+  - Arguments and executable names use the same per-argument variable expansion
+    as standalone commands. Every stage inherits the runner's exported
+    environment. Each stage's arguments expand immediately before it is spawned;
+    earlier stages may already be running when a later stage fails expansion.
+  - Each stage gets its own exit annotation; only final stdout is rendered and
+    available to trailing binds. Stderr is captured concurrently and rendered
+    in source order, even for successful stages: `stderr` for the root,
+    `stderr-1` for the first pipe, and so on. Standalone commands use the same
+    rendering rules.
+  - `-q` belongs on the root shell directive and suppresses output only when
+    **every** stage succeeds. A nonzero or killed stage reveals final stdout
+    and all stage stderr. Such completed pipelines can still bind their final
+    stdout.
+  - Only successfully parsed pipe directives join the chain. Empty commands or
+    malformed quoting are reported as parser errors after the preceding commands
+    run; those errors also break adjacency for subsequent pipes and binds.
+  - An expansion, spawn, or pipe-setup failure kills and reaps started stages,
+    warns, and skips trailing binds. There is no rollback of side effects from
+    processes already started before the failure. Dropping a running pipeline
+    requests child termination.
+  - Blank/text lines, binds, and other directives end the chain. Orphan pipes
+    warn without executing. A pipe after a bind does not resume the pipeline.
 - `:=` / `:bind [-x|--export] <NAME>`
-  - Bind the immediately preceding standalone `:$`/`:shell` command's raw stdout
-    locally, or export it with `-x`. Names are literal and obey the assignment
-    name restrictions. Values cannot contain NUL, even for local binds.
-    Consecutive binds may read the same output.
-  - Decode strict UTF-8 and remove exactly one trailing LF or CRLF. Preserve all
-    other whitespace, ANSI escapes, and dollar signs. Empty stdout is valid;
-    stderr is never included. Quiet successful commands still capture stdout.
-    Completed nonzero/killed commands can bind; spawn failures cannot.
-  - A blank/text line, another directive, or a parser error ends the bind chain.
-    Orphans, invalid UTF-8, and invalid names/exports warn without changing the
-    destination. Runtime bind failures keep stdout available to the next bind.
-  - Only raw extraction is supported: no JSON/regex extraction or pipelines.
+  - Bind the immediately preceding `:$`/`:shell` or `:|`/`:pipe` command's raw
+    stdout locally, or export it with `-x`. Names are literal and obey the
+    assignment name restrictions. Values cannot contain NUL, even for local
+    binds. Consecutive binds may read the same output.
+  - Decode strict UTF-8 and remove exactly one trailing LF or CRLF. Preserve
+    all other whitespace, ANSI escapes, and dollar signs. Empty stdout is
+    valid; stderr is never included. Quiet successful commands still capture
+    stdout. Completed nonzero/killed commands can bind. Expansion, setup, or
+    output-collection failures skip all associated binds without changing their
+    destinations.
+  - A blank/text line, another directive, or a parser error ends the bind
+    chain. Orphans, invalid UTF-8, and invalid names/exports warn without
+    changing the destination. Runtime bind failures keep stdout available to
+    the next bind.
 - `:v` / `:vars <NAME=VALUE ...>`
   - Set runner-local bindings in source order. Values expand against earlier
     bindings; names remain literal. Invalid assignments warn and leave that
@@ -92,8 +124,7 @@ Supported directives:
     defaults to `5`.
   - `-d` / `--duration` sets the maximum settle time and defaults to `1s`.
   - Durations use human-readable values such as `100ms` or `5s`.
-  - Optional replacement rules are `dregexdgrapheme`, separated by
-    whitespace.
+  - Optional replacement rules are `dregexdgrapheme`, separated by whitespace.
   - Replacements are global and applied in order, painting over matches with
     the replacement grapheme cluster.
   - If the regex has capture groups, only those groups' contents are painted.
@@ -143,15 +174,18 @@ Assignment names are literal in both namespaces; only values expand. Raw binds
 preserve ANSI bytes and remove exactly one trailing line ending. Use
 `-x/--export` to export a binding.
 
-For example, capture the sandbox's physical root path and reuse it in a command:
+For example, normalize physical paths without an explicit shell:
 
 ```text
 :$ -q pwd -P
 := ROOT
-:$ printf '%s\n' "${ROOT}"
+:$ tmux display-message -p '#{pane_current_path}'
+:| sed "s#${ROOT}#<ROOT>#g"
 ```
 
-Declare `pwd` and `printf` with `:b` before running this example.
+Declare `pwd`, `tmux`, and `sed` with `:b` before running this example. Pipe
+commands receive raw bytes; take care to escape variable values yourself when
+embedding them into another language such as a sed pattern.
 
 ## Synchronizing asynchronous actions
 

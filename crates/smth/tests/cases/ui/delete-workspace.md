@@ -6,8 +6,8 @@ tmux session, forget the workspace, and remove the workspace directory.
     :b jj tmux cat sh
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m "alpha commit"
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m "alpha commit"
 
 Create the workspace-backed session through the CLI, giving it normal session
 metadata without driving a second picker just for setup.
@@ -34,7 +34,7 @@ shortcut.
 Before confirming, add a sibling workspace so the refreshed picker can verify
 that the repository family remains usable after deletion.
 
-    :$ jj workspace add -R alpha --name sibling alpha.sibling
+    :$ -q jj workspace add -R alpha --name sibling alpha.sibling
 
 Confirming should remove the tmux session, remove the workspace from jj's
 workspace list, and delete the workspace directory.

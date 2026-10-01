@@ -16,7 +16,7 @@ in a unique `z`, placing the query's only match beyond the initially visible tex
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
     :$ mkdir -p code/alpha-supercalifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z (exit: 0)
-    :$ jj git init code/alpha-supercalifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z (exit: 0)
+    :$ -q jj git init code/alpha-supercalifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z (exit: 0)
     :t new-session -d -s alpha "cat" (success)
     :t set-option -t alpha @smth.repo code/alpha-supercalifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z (success)
     :t new-session -d -s ui "smth" (success)

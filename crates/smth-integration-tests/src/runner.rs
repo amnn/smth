@@ -30,6 +30,8 @@ use crate::parser::Key;
 use crate::parser::KeyKind;
 use crate::parser::Line;
 use crate::parser::LineKind;
+use crate::pipeline;
+use crate::pipeline::Stage;
 use crate::svg::Frame;
 use crate::svg::Theme;
 use crate::tmux::Tmux;
@@ -49,9 +51,13 @@ pub struct Runner {
 
     /// Path to the markdown transcript snapshot. SVG snapshots are written alongside it.
     snapshot_path: PathBuf,
+}
 
-    /// Raw stdout available to an immediately trailing sequence of binds.
-    stdout: Option<Vec<u8>>,
+/// A bind directive grouped with its preceding shell command or pipeline.
+struct Bind<'s> {
+    raw: &'s str,
+    export: bool,
+    name: &'s str,
 }
 
 impl Runner {
@@ -70,7 +76,6 @@ impl Runner {
             env,
             snap_ix: 0,
             snapshot_path: snapshot_path.as_ref().to_path_buf(),
-            stdout: None,
         })
     }
 
@@ -80,21 +85,15 @@ impl Runner {
         Ok(())
     }
 
-    /// Evaluate a parsed script and write markdown output for each line.
+    /// Evaluate a parsed script, grouping each shell command with its pipes and trailing binds.
     pub async fn run(
         &mut self,
         w: &mut impl fmt::Write,
         script: &parser::Script<'_>,
     ) -> fmt::Result {
-        self.stdout = None;
         let mut lines = script.lines.iter();
         while let Some(line) = lines.next() {
-            let remaining = lines.clone();
-            self.eval_line(w, line).await?;
-
-            if let LineKind::Write { path } = &line.kind {
-                self.eval_write(w, line.raw, path, remaining).await?;
-            }
+            self.eval_lines(w, line, &mut lines).await?;
         }
 
         Ok(())
@@ -131,6 +130,24 @@ impl Runner {
             .context("failed to capture pane")?;
 
         Ok(Frame::parse(&output, rows, cols, filters))
+    }
+
+    /// Apply grouped binds to the same raw stdout before rendering command output.
+    /// Missing output means execution failed, so binds are skipped. Otherwise, individual bind
+    /// failures do not stop later binds.
+    fn eval_binds(
+        &mut self,
+        w: &mut impl fmt::Write,
+        binds: &[Bind<'_>],
+        stdout: Option<&[u8]>,
+    ) -> fmt::Result {
+        for bind in binds {
+            match stdout {
+                Some(stdout) => self.eval_bind(w, bind, stdout)?,
+                None => writeln!(w, "{} (skipped)", bind.raw)?,
+            }
+        }
+        Ok(())
     }
 
     /// Resolve requested binaries into the runner environment and report gaps.
@@ -225,63 +242,94 @@ impl Runner {
         Ok(())
     }
 
-    /// Evaluate one parsed line and append its rendered markdown output.
-    #[instrument(level = "trace", skip(self, w, line), fields(raw = line.raw))]
-    async fn eval_line(&mut self, w: &mut impl fmt::Write, line: &Line<'_>) -> fmt::Result {
-        if !matches!(line.kind, LineKind::Bind { .. }) {
-            self.stdout = None;
-        }
-
-        match &line.kind {
-            LineKind::Bind { export, name } => {
-                self.eval_bind(w, line.raw, *export, name)?;
+    /// Evaluate `head`, consuming adjacent pipes and binds from `rest` for shell commands.
+    /// Write directives inspect a clone of the remaining lines so their fenced text still renders.
+    #[instrument(level = "trace", skip(self, w, head, rest), fields(raw = head.raw))]
+    async fn eval_lines(
+        &mut self,
+        w: &mut impl fmt::Write,
+        head: &Line<'_>,
+        rest: &mut slice::Iter<'_, Line<'_>>,
+    ) -> fmt::Result {
+        match &head.kind {
+            LineKind::Bind { .. } => {
+                writeln!(w, "{} (failed)\n", head.raw)?;
+                let msg = "':bind' must immediately follow a completed ':shell', ':pipe', or ':bind' directive";
+                write_callout(w, "WARNING", &[msg])?;
             }
 
             LineKind::Text => {
-                writeln!(w, "{}", line.raw)?;
+                writeln!(w, "{}", head.raw)?;
             }
 
             LineKind::Error { message } => {
-                writeln!(w, "{}", line.raw)?;
+                writeln!(w, "{}", head.raw)?;
                 writeln!(w)?;
                 write_callout(w, "WARNING", &[&format!("Parser error: {message}")])?;
             }
 
             LineKind::Vars { args } => {
-                self.eval_assignments(w, line.raw, false, false, args)?;
+                self.eval_assignments(w, head.raw, false, false, args)?;
             }
 
             LineKind::Envs { unset, args } => {
-                self.eval_assignments(w, line.raw, true, *unset, args)?;
+                self.eval_assignments(w, head.raw, true, *unset, args)?;
             }
 
             LineKind::Bins { args } => {
-                self.eval_bins(w, line.raw, args).await?;
+                self.eval_bins(w, head.raw, args).await?;
+            }
+
+            LineKind::Pipe { .. } => {
+                writeln!(w, "{}\n", head.raw)?;
+                let msg = "':pipe' must immediately follow a ':shell' or ':pipe' directive";
+                write_callout(w, "WARNING", &[msg])?;
             }
 
             LineKind::Shell { quiet, args } => {
-                self.eval_shell(w, line.raw, *quiet, args).await?;
+                let mut stages = vec![Stage {
+                    raw: head.raw,
+                    args,
+                }];
+
+                while let Some(Line { kind, raw }) = peek(rest)
+                    && let LineKind::Pipe { args } = kind
+                {
+                    stages.push(Stage { raw, args });
+                    rest.next();
+                }
+
+                let mut binds = vec![];
+                while let Some(Line { kind, raw }) = peek(rest)
+                    && let LineKind::Bind { export, name } = kind
+                {
+                    let export = *export;
+                    binds.push(Bind { raw, export, name });
+                    rest.next();
+                }
+
+                self.eval_pipeline(w, *quiet, &stages, &binds).await?;
             }
 
-            // Handled in the main loop (this function's caller), so it can gather the file
-            // contents from the following fenced code block.
-            LineKind::Write { .. } => {}
+            LineKind::Write { path } => {
+                self.eval_write(w, head.raw, path, rest.clone()).await?;
+            }
 
             LineKind::Copy { source, path } => {
-                self.eval_copy(w, line.raw, source, path).await?;
+                self.eval_copy(w, head.raw, source, path).await?;
             }
 
             LineKind::Tmux { args } => {
-                self.eval_tmux(w, line.raw, args).await?;
+                self.eval_tmux(w, head.raw, args).await?;
             }
 
             LineKind::Pane { target } => {
-                writeln!(w, "{}", line.raw)?;
+                writeln!(w, "{}", head.raw)?;
                 self.eval_pane(w, target).await?;
             }
 
             LineKind::Keys { keys } => {
-                self.eval_keys(w, line.raw, keys).await?;
+                self.eval_keys(w, head.raw, keys).await?;
             }
 
             LineKind::Settle {
@@ -290,7 +338,7 @@ impl Runner {
                 expect,
                 filters,
             } => {
-                self.eval_settle(w, line.raw, *count, *duration, expect, filters)
+                self.eval_settle(w, head.raw, *count, *duration, expect, filters)
                     .await?;
             }
 
@@ -301,7 +349,7 @@ impl Runner {
                 expect,
                 filters,
             } => {
-                writeln!(w, "{}", line.raw)?;
+                writeln!(w, "{}", head.raw)?;
                 writeln!(w)?;
                 self.eval_snap(w, *count, *duration, *color, expect, filters)
                     .await?;
@@ -356,16 +404,10 @@ impl Runner {
     fn eval_bind(
         &mut self,
         w: &mut impl fmt::Write,
-        raw: &str,
-        export: bool,
-        name: &str,
+        bind: &Bind<'_>,
+        stdout: &[u8],
     ) -> fmt::Result {
-        write!(w, "{raw}")?;
-        let Some(stdout) = &self.stdout else {
-            writeln!(w, " (failed)\n")?;
-            let msg = "':bind' must immediately follow a completed ':shell' or ':bind' directive";
-            return write_callout(w, "WARNING", &[msg]);
-        };
+        write!(w, "{}", bind.raw)?;
 
         let stdout = match std::str::from_utf8(stdout) {
             Ok(stdout) => stdout,
@@ -381,7 +423,7 @@ impl Runner {
             .or_else(|| stdout.strip_suffix('\n'))
             .unwrap_or(stdout);
 
-        if let Err(error) = self.set_binding(export, name, Some(value.into())) {
+        if let Err(error) = self.set_binding(bind.export, bind.name, Some(value.into())) {
             writeln!(w, " (failed)\n")?;
             return write_callout(w, "WARNING", &[&format!("{error:#}")]);
         }
@@ -447,6 +489,67 @@ impl Runner {
         Ok(())
     }
 
+    /// Run a shell command and any contiguous pipes, applying binds before rendering output.
+    async fn eval_pipeline(
+        &mut self,
+        w: &mut impl fmt::Write,
+        quiet: bool,
+        stages: &[Stage<'_>],
+        binds: &[Bind<'_>],
+    ) -> fmt::Result {
+        let outputs = match pipeline::run(&self.env, stages).await {
+            Ok(outputs) => outputs,
+            Err(error) => {
+                for stage in stages {
+                    writeln!(w, "{} (failed)", stage.raw)?;
+                }
+
+                self.eval_binds(w, binds, None)?;
+                writeln!(w)?;
+                write_callout(w, "WARNING", &[&format!("{error:#}")])?;
+
+                return Ok(());
+            }
+        };
+
+        for (stage, output) in stages.iter().zip(&outputs) {
+            if let Some(code) = output.status.code() {
+                writeln!(w, "{} (exit: {code})", stage.raw)?;
+            } else {
+                writeln!(w, "{} (exit: killed)", stage.raw)?;
+            }
+        }
+
+        let stdout = &outputs.last().unwrap().stdout;
+        self.eval_binds(w, binds, Some(stdout))?;
+
+        if quiet && outputs.iter().all(|output| output.status.success()) {
+            return Ok(());
+        }
+
+        if !stdout.is_empty() {
+            writeln!(w)?;
+            write_fenced_block(w, "stdout", &String::from_utf8_lossy(stdout))?;
+        }
+
+        for (index, output) in outputs.iter().enumerate() {
+            if output.stderr.is_empty() {
+                continue;
+            }
+
+            let label = if index == 0 {
+                "stderr".to_owned()
+            } else {
+                format!("stderr-{index}")
+            };
+
+            writeln!(w)?;
+            write_fenced_block(w, &label, &String::from_utf8_lossy(&output.stderr))?;
+        }
+
+        Ok(())
+    }
+
     /// Wait for the pane to reach a settled state within `deadline`. Repeatedly takes snapshots
     /// until `count` consecutive snapshots match and satisfy every screen condition.
     async fn eval_settle(
@@ -466,61 +569,6 @@ impl Runner {
                 write_callout(w, "WARNING", &[&format!("{e:#}")])
             }
         }
-    }
-
-    /// Run a host command inside the runner environment and render its outcome.
-    ///
-    /// When `quiet` is true, suppress successful output but retain exit annotations and
-    /// failure diagnostics.
-    async fn eval_shell(
-        &mut self,
-        w: &mut impl fmt::Write,
-        raw: &str,
-        quiet: bool,
-        args: &NonEmpty<String>,
-    ) -> fmt::Result {
-        write!(w, "{raw}")?;
-
-        let result: anyhow::Result<_> = async {
-            let mut command = self.env.command(&args.head)?;
-            let args = self.env.expand_args(&args.tail)?;
-            Ok(command.args(args).output().await?)
-        }
-        .await;
-
-        match result {
-            Ok(output) => {
-                if let Some(code) = output.status.code() {
-                    writeln!(w, " (exit: {code})")?;
-                } else {
-                    writeln!(w, " (exit: killed)")?;
-                }
-
-                self.stdout = Some(output.stdout);
-                let stdout = self.stdout.as_deref().unwrap();
-                if quiet && output.status.success() {
-                    return Ok(());
-                }
-
-                if !stdout.is_empty() {
-                    writeln!(w)?;
-                    write_fenced_block(w, "stdout", &String::from_utf8_lossy(stdout))?;
-                }
-
-                if !output.stderr.is_empty() && !output.status.success() {
-                    writeln!(w)?;
-                    write_fenced_block(w, "stderr", &String::from_utf8_lossy(&output.stderr))?;
-                }
-            }
-
-            Err(e) => {
-                writeln!(w, "\n")?;
-                let msg = format!("failed to execute command: {e}");
-                write_callout(w, "WARNING", &[&msg])?;
-            }
-        }
-
-        Ok(())
     }
 
     /// Capture the current pane in a settled state within `deadline`. Repeatedly takes snapshots
@@ -790,6 +838,11 @@ impl Runner {
             Ok(None)
         }
     }
+}
+
+/// Inspect the next parsed line without advancing the iterator.
+fn peek<'a, 's>(lines: &slice::Iter<'a, Line<'s>>) -> Option<&'a Line<'s>> {
+    lines.as_slice().first()
 }
 
 /// Write a GitHub-style markdown callout, wrapping content to the repo line

@@ -14,18 +14,18 @@ invalidate the loaded selection, then choose the locally advanced bookmark.
     :$ jj config set --user user.name "Test User"
     :$ jj config set --user user.email test@example.com
     :$ git init --bare -q origin.git
-    :$ jj git init alpha
+    :$ -q jj git init alpha
     :$ sh -c 'printf "pushed\n" > alpha/pushed.txt'
-    :$ jj describe -R alpha -m "pushed commit"
-    :$ jj bookmark create -R alpha -r @ base
+    :$ -q jj describe -R alpha -m "pushed commit"
+    :$ -q jj bookmark create -R alpha -r @ base
     :$ jj git remote add -R alpha origin origin.git
-    :$ jj git push -R alpha --bookmark base
-    :$ jj new -R alpha
+    :$ -q jj git push -R alpha --bookmark base
+    :$ -q jj new -R alpha
     :$ sh -c 'printf "base\n" > alpha/base.txt'
-    :$ jj describe -R alpha -m "base commit"
-    :$ jj bookmark set -R alpha -r @ base
-    :$ jj new -R alpha
-    :$ jj describe -R alpha -m "working copy"
+    :$ -q jj describe -R alpha -m "base commit"
+    :$ -q jj bookmark set -R alpha -r @ base
+    :$ -q jj new -R alpha
+    :$ -q jj describe -R alpha -m "working copy"
     :t new-session -d -s ui "cd alpha && smth -r ../alpha"
     :t resize-window -t ui:0 -x 90 -y 10
     :p ui:0.0
@@ -39,7 +39,7 @@ mode.
     :k C-o
     :settle -d 2s
     :$ sh -c 'until tmux capture-pane -p -t ui:0 | grep -q "working copy"; do sleep 0.01; done'
-    :$ jj abandon -R alpha -r @
+    :$ -q jj abandon -R alpha -r @
     :k enter
     :$ sh -c 'until pane=$(tmux capture-pane -p -t ui:0) && ! printf "%s\n" "$$pane" | grep -q "working copy" && printf "%s\n" "$$pane" | grep -q "base commit"; do sleep 0.01; done'
 

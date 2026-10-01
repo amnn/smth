@@ -14,15 +14,15 @@ aliases, while `other` remains discoverable without a live session.
     :b jj tmux cat test (available)
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
     :t rename-session -t 0 runner (success)
-    :$ jj git init alpha (exit: 0)
-    :$ jj workspace add -R alpha --name other alpha.other (exit: 0)
+    :$ -q jj git init alpha (exit: 0)
+    :$ -q jj workspace add -R alpha --name other alpha.other (exit: 0)
 
 Create a plain collision and a disambiguated repo-backed feature session. Strict
 metadata should ensure deletion closes only the latter. Pre-create `feature`
 before reserving its tmux name so only the session name, not the workspace name,
 needs disambiguation.
 
-    :$ jj workspace add -R alpha --name feature alpha.feature (exit: 0)
+    :$ -q jj workspace add -R alpha --name feature alpha.feature (exit: 0)
     :t new-session -d -s alpha/feature "cat" (success)
     :$ smth --base alpha --create feature (exit: 0)
 

@@ -22,22 +22,22 @@ it obvious what was normalized:
 Create an `alpha` repo that will be attached to a live tmux session.
 
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m "alpha commit"
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m "alpha commit"
 
 Create a `beta` repo that is only discoverable via the glob passed to `smth
 cli`.
 
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
 
 Create a `mono` repo plus a `mono-ws` workspace so the picker can show multiple
 entries from the same underlying repo.
 
-    :$ jj git init mono
-    :$ jj describe -R mono -m "mono commit"
-    :$ jj workspace add mono-ws -R mono
-    :$ jj describe -R mono-ws -m "mono workspace commit"
+    :$ -q jj git init mono
+    :$ -q jj describe -R mono -m "mono commit"
+    :$ -q jj workspace add mono-ws -R mono
+    :$ -q jj describe -R mono-ws -m "mono workspace commit"
 
 Launch one attached session for `alpha` and then open the picker with globbed
 repo discovery enabled for `alpha`, `beta`, and `mono*`.

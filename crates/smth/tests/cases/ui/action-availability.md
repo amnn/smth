@@ -9,9 +9,9 @@ so accepting it later produces a recognizable onto revision in the header.
     :b jj tmux cat test
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m 'onto target'
-    :$ jj bookmark create -R alpha -r @ base
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m 'onto target'
+    :$ -q jj bookmark create -R alpha -r @ base
     :$ smth --base alpha --create first
 
     :$ smth --base alpha --flag first

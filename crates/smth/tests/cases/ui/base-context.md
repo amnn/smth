@@ -10,8 +10,8 @@ sessions, so each launch can select its base independently of tmux metadata.
     :b jj cat
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj workspace add -R alpha --name feature alpha.feature
+    :$ -q jj git init alpha
+    :$ -q jj workspace add -R alpha --name feature alpha.feature
 
 Launch the picker outside either checkout with the named workspace as its base.
 The header should show the normalized default workspace and the usual default
@@ -47,7 +47,7 @@ named checkout as its base, matching current-directory inference.
     :t switch-client -t runner
     :p runner:0.0
     :t kill-session -t ui-none
-    :$ jj workspace forget -R alpha.feature --ignore-working-copy -- default
+    :$ -q jj workspace forget -R alpha.feature --ignore-working-copy -- default
     :t new-session -d -s ui-fallback "smth --base alpha.feature; cat"
     :t resize-window -t ui-fallback:0 -x 100 -y 10
     :p ui-fallback:0.0

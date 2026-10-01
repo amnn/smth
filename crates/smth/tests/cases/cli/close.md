@@ -18,7 +18,7 @@ name. Pre-create the exact `feature` workspace before reserving its natural tmux
 name: otherwise creating a missing workspace would disambiguate its checkout too.
 The CLI should only disambiguate the live session attached to this workspace.
 
-    :$ jj workspace add -R alpha --name feature alpha.feature
+    :$ -q jj workspace add -R alpha --name feature alpha.feature
     :t new-session -d -s alpha/feature "cat"
     :$ smth --base alpha --create feature
 

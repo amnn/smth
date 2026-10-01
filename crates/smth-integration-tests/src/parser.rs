@@ -75,7 +75,7 @@ pub(crate) enum LineKind {
     /// Require particular binaries be made available in the test environment.
     Bins { args: Vec<String> },
 
-    /// Bind the preceding standalone command's stdout, locally by default.
+    /// Bind the preceding command or pipeline's stdout, locally by default.
     Bind { export: bool, name: String },
 
     /// Set runner-local bindings in source order.
@@ -86,6 +86,9 @@ pub(crate) enum LineKind {
 
     /// Run a host command.
     Shell { quiet: bool, args: NonEmpty<String> },
+
+    /// Transform stdout from the preceding shell or pipe directive.
+    Pipe { args: NonEmpty<String> },
 
     /// Write a file beneath the test home directory from the following fenced block.
     Write { path: PathBuf },
@@ -337,6 +340,10 @@ impl LineKind {
                         .context("':shell' expects at least one argument")?,
                 }
             }
+
+            "|" | "pipe" => LineKind::Pipe {
+                args: NonEmpty::from_vec(args).context("':pipe' expects at least one argument")?,
+            },
 
             "w" | "write" => LineKind::Write {
                 path: {

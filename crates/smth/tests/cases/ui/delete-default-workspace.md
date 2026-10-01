@@ -9,8 +9,8 @@ make it discoverable through the picker's repository glob.
     :b jj tmux cat test
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
     :t new-session -d -s ui "smth -r beta; cat"
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0

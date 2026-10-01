@@ -7,12 +7,12 @@ an unfiltered repo row and on a row selected from a multi-match query.
     :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m "alpha commit"
-    :$ jj git init beta
-    :$ jj describe -R beta -m "beta commit"
-    :$ jj git init gamma
-    :$ jj describe -R gamma -m "gamma commit"
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m "alpha commit"
+    :$ -q jj git init beta
+    :$ -q jj describe -R beta -m "beta commit"
+    :$ -q jj git init gamma
+    :$ -q jj describe -R gamma -m "gamma commit"
     :t new-session -d -s ui "cd alpha && smth -r '../alpha' -r '../beta' -r '../gamma'"
     :t resize-window -t ui:0 -x 90 -y 10
     :p ui:0.0

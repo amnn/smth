@@ -6,6 +6,7 @@
 mod env;
 mod expansion;
 mod parser;
+mod pipeline;
 mod runner;
 mod svg;
 mod tmux;

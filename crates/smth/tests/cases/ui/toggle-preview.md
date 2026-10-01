@@ -8,8 +8,8 @@ picker at a width where hiding the preview visibly expands the session list.
     :b jj
     :cp tests/fixtures/jjconfig.toml .jjconfig.toml
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m "alpha commit"
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m "alpha commit"
     :t new-session -d -s ui "smth -r alpha"
     :t resize-window -t ui:0 -x 100 -y 12
     :p ui:0.0

@@ -17,11 +17,11 @@ setup = "tmux set-option @smth.test-created yes"
 ```
 
     :t rename-session -t 0 runner
-    :$ jj git init alpha
-    :$ jj describe -R alpha -m "base commit"
-    :$ jj new -R alpha
-    :$ jj describe -R alpha -m "tip commit"
-    :$ jj workspace add -R alpha --name feature alpha.feature
+    :$ -q jj git init alpha
+    :$ -q jj describe -R alpha -m "base commit"
+    :$ -q jj new -R alpha
+    :$ -q jj describe -R alpha -m "tip commit"
+    :$ -q jj workspace add -R alpha --name feature alpha.feature
 
 A default checkout needs only a tmux session. Its repo metadata and setup script
 should be installed, while an explicit revision is ignored because no workspace
@@ -60,9 +60,9 @@ tmux session starts.
 When a named checkout has no registered default workspace, creation should use
 that checkout as its degraded base just like the TUI.
 
-    :$ jj git init beta
-    :$ jj workspace add -R beta --name zeta beta.zeta
-    :$ jj workspace forget -R beta.zeta --ignore-working-copy -- default
+    :$ -q jj git init beta
+    :$ -q jj workspace add -R beta --name zeta beta.zeta
+    :$ -q jj workspace forget -R beta.zeta --ignore-working-copy -- default
     :$ smth --config smth.toml --base beta.zeta --create fallback
 
     :$ sh -c 'tmux show-options -qv -t "=beta-zeta/fallback:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
