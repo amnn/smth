@@ -40,7 +40,7 @@ exec "$HOME/../bin/jj" "$@"
 ```
 
     :$ chmod +x wrappers/jj (exit: 0)
-    :t new-session -d -s ui 'PATH="$HOME/wrappers:$PATH" smth -r "alpha*" 2>errors; : > finished; cat' (success)
+    :t new-session -d -s ui 'PATH="$$HOME/wrappers:$$PATH" smth -r "alpha*" 2>errors; : > finished; cat' (success)
     :t resize-window -t ui:0 -x 120 -y 16 (success)
     :p ui:0.0
     :settle -d 2s (settled)

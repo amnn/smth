@@ -32,7 +32,7 @@ is being created.
     :t has-session -t '=alpha'
     :t show-options -qv -t '=alpha:' @smth.test-created
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=alpha:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
 An existing named workspace should get a session without another jj operation.
 A colliding plain tmux name forces a suffix, which is stable on an idempotent
@@ -42,7 +42,7 @@ second call because strict repo metadata identifies the live target.
     :$ smth --config smth.toml --base alpha --create feature
 
     :t show-options -qv -t '=alpha/feature:' @smth.repo
-    :$ sh -c 'tmux show-options -qv -t "=alpha/feature~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=alpha/feature~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
     :t show-options -qv -t '=alpha/feature~1:' @smth.test-created
 
@@ -65,7 +65,7 @@ that checkout as its degraded base just like the TUI.
     :$ jj workspace forget -R beta.zeta --ignore-working-copy -- default
     :$ smth --config smth.toml --base beta.zeta --create fallback
 
-    :$ sh -c 'tmux show-options -qv -t "=beta-zeta/fallback:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=beta-zeta/fallback:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
 Workspace checkout path collisions preserve the TUI's `~N` disambiguation and
 the printed tmux name exposes the suffix.
@@ -85,7 +85,7 @@ repeating the original request creates a freshly disambiguated session.
     :t show-options -qv -t '=scratch-one:' @smth.repo
     :t show-options -qv -t '=scratch-one:' @smth.test-created
 
-    :$ sh -c 'tmux display-message -p -t "=scratch-one:0.0" "#{pane_current_path}" | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux display-message -p -t "=scratch-one:0.0" "#{pane_current_path}" | sed "s#$$PWD#<ROOT>#g"'
 
     :$ smth --config smth.toml --no-base --create scratch-one
 
@@ -100,7 +100,7 @@ default checkout, producing a suffix-only workspace name.
 
     :t show-options -qv -t '=alpha/~1:' @smth.test-created
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha/~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=alpha/~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
 None of these detached creates should switch the invoking client.
 

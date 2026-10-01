@@ -1,0 +1,184 @@
+---
+source: crates/smth-integration-tests/tests/test.rs
+expression: output
+input_file: crates/smth-integration-tests/tests/cases/runner/envs.md
+---
+# Environment bindings and argument expansion
+
+Assignments evaluate left to right; values keep whitespace and equal signs.
+
+    :b printf (available)
+
+    :envs FIRST=one SECOND=${FIRST}-two WORDS='two words' EQUAL=a=b EMPTY=
+    :e COMMAND=printf
+    :$ $COMMAND '<%s>\n' $FIRST ${SECOND} $WORDS $EQUAL $EMPTY $MISSING (exit: 0)
+
+```stdout
+<one>
+<one-two>
+<two words>
+<a=b>
+<>
+<>
+```
+
+    :$ sh -c 'printf "<%s>\n" "$$SECOND" "$$WORDS"' (exit: 0)
+
+```stdout
+<one-two>
+<two words>
+```
+
+Escaped dollars belong to the child shell, including positional parameters.
+Expansion is single-pass, without command substitution or word splitting.
+
+    :envs LITERAL='$$FIRST' CODE='$(echo not-executed)'
+    :$ printf '<%s>\n' $LITERAL $CODE $$FIRST end$ (exit: 0)
+
+```stdout
+<$FIRST>
+<$(echo not-executed)>
+<$FIRST>
+<end$>
+```
+
+    :$ sh -c 'printf "%s\n" "$$1"' sh 'positional value' (exit: 0)
+
+```stdout
+positional value
+```
+
+Sandbox defaults are visible without inheriting arbitrary host environment.
+Overriding HOME changes the child environment, not the sandbox working directory.
+
+    :$ sh -c 'test "$HOME" = "$$HOME" && test "$PATH" = "$$PATH" && test "$ENV" = "$$ENV" && test "$SHELL" = "$$SHELL" && test "$LC_CTYPE" = "$$LC_CTYPE" && test "$TMUX" = "$$TMUX" && test "$TMUX_PANE" = "$$TMUX_PANE" && echo defaults-match' (exit: 0)
+
+```stdout
+defaults-match
+```
+
+    :envs HOME=custom TMUX=custom-socket TMUX_PANE=custom-pane
+    :$ sh -c 'printf "%s\n" "$$HOME" "$$TMUX" "$$TMUX_PANE"' (exit: 0)
+
+```stdout
+custom
+custom-socket
+custom-pane
+```
+
+    :$ printf '%s\n' $HOME $TMUX $TMUX_PANE (exit: 0)
+
+```stdout
+custom
+custom-socket
+custom-pane
+```
+
+    :e -u HOME TMUX TMUX_PANE SECOND
+    :$ sh -c 'printf "<%s>\n" "$${HOME-unset}" "$${TMUX-unset}" "$${TMUX_PANE-unset}" "$${SECOND-unset}"' (exit: 0)
+
+```stdout
+<unset>
+<unset>
+<unset>
+<unset>
+```
+
+A failed pane selection preserves an override. A successful selection replaces
+it, or restores an unset value. Other removed defaults stay absent, and ordinary
+tmux commands do not restore the pane binding.
+
+    :e TMUX_PANE=override
+    :p no-such-pane
+
+> [!WARNING]
+> No such pane.
+
+    :$ printf '%s\n' $TMUX_PANE (exit: 0)
+
+```stdout
+override
+```
+
+    :t split-window -d (success)
+    :p 0.1
+    :$ sh -c 'test "$TMUX_PANE" = "$$TMUX_PANE" && printf "%s\n" "$$TMUX_PANE" "$${TMUX-unset}" "$${HOME-unset}"' (exit: 0)
+
+```stdout
+%1
+unset
+unset
+```
+
+    :e -u TMUX_PANE
+    :t display-message -p constant (success)
+
+```
+constant
+```
+
+    :$ sh -c 'printf "%s\n" "$${TMUX_PANE-unset}"' (exit: 0)
+
+```stdout
+unset
+```
+
+    :p 0.0
+    :$ sh -c 'test "$TMUX_PANE" = "$$TMUX_PANE" && printf "%s\n" "$$TMUX_PANE"' (exit: 0)
+
+```stdout
+%0
+```
+
+Exports affect subsequent host commands, not the running tmux server.
+
+    :envs ONLY_CHILD=present
+    :t show-environment -g ONLY_CHILD (failure)
+
+```
+unknown variable: ONLY_CHILD
+```
+
+    :$ sh -c 'printf "%s\n" "$$ONLY_CHILD"' (exit: 0)
+
+```stdout
+present
+```
+
+Malformed assignments warn independently; valid later assignments still apply.
+
+    :envs INVALID =missing GOOD=kept BROKEN='${OPEN' AFTER=$GOOD
+
+> [!WARNING]
+> invalid assignment 'INVALID': expected NAME=VALUE
+
+> [!WARNING]
+> invalid assignment '=missing': invalid variable name ''
+
+> [!WARNING]
+> invalid assignment 'BROKEN=${OPEN': unterminated variable reference
+
+    :$ printf '%s\n' $AFTER (exit: 0)
+
+```stdout
+kept
+```
+
+    :envs
+
+> [!WARNING]
+> Parser error: error: the following required arguments were not provided:
+>   <ARGS>...
+>
+> Usage: :envs <ARGS>...
+>
+> For more information, try '--help'.
+>
+
+    :$ printf '%s\n' '${OPEN'
+
+> [!WARNING]
+> failed to execute command: unterminated variable reference
+
+---
+vim: set ft=markdown:

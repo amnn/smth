@@ -57,7 +57,7 @@ The repository should be colocated, use the configured root, and be attached to
 its live tmux session.
 
     :$ sh -c 'test -d repos/foo.bar/.jj && test -d repos/foo.bar/.git'
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=foo-bar:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
 Occupied paths and invalid directory names should not offer repository candidates.
 
@@ -79,7 +79,7 @@ session name while preserving the directory name.
     :$ sh -c 'until test -f repos/.../.smth-ready; do :; done'
     :settle -d 2s
     :$ sh -c 'test -d repos/.../.jj && test -d repos/.../.git'
-    :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
 With a repository context, only the workspace candidate is offered. Navigation
 must skip the empty row above it, and `C-n` creates the workspace normally.
@@ -99,7 +99,7 @@ should remain in the runner session, still using `foo.bar` as its context.
     :t display-message -p '#{client_session}'
 
     :$ sh -c 'test -d repos/foo.bar.blocked/.jj && test ! -e repos/blocked'
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar/blocked:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=foo-bar/blocked:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
 ---
 vim: set ft=markdown:

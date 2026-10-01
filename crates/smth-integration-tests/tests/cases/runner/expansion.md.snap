@@ -1,0 +1,156 @@
+---
+source: crates/smth-integration-tests/tests/test.rs
+expression: output
+input_file: crates/smth-integration-tests/tests/cases/runner/expansion.md
+---
+# Parse once, expand operands at use
+
+Executable names and arguments expand separately. Expansion does not turn an
+executable name into a directive flag: `-q` must fail to execute, rather than
+making the following printf command quiet. Reassignment affects later commands
+without reparsing their directive syntax.
+
+    :b printf (available)
+    :e COMMAND=printf VALUE='first value'
+    :$ $COMMAND '<%s>\n' $VALUE (exit: 0)
+
+```stdout
+<first value>
+```
+
+    :e VALUE=second
+    :$ $COMMAND '<%s>\n' $VALUE (exit: 0)
+
+```stdout
+<second>
+```
+
+    :e OPTION=-q
+    :$ $OPTION printf should-not-run
+
+> [!WARNING]
+> failed to execute command: No such file or directory (os error 2)
+
+Typed directive options are parsed before any assignments run. A variable
+reference is not a valid duration, even if its value would be one.
+
+    :e DURATION=2s
+    :settle -d $DURATION
+
+> [!WARNING]
+> Parser error: error: invalid value '$DURATION' for '--duration <DURATION>': invalid duration
+>
+> For more information, try '--help'.
+>
+
+Paths and binary requirements expand when used. Copied files keep their original
+contents, and fenced write contents do not undergo expansion.
+
+    :e BINARY=cat SOURCE=tests/cases/runner/text.md COPY='copied text.md' FILE='written text.txt'
+    :b $BINARY (available)
+    :cp $SOURCE $COPY (copied)
+    :w $FILE (written)
+
+```text
+$VALUE stays literal
+```
+
+    :$ $BINARY $FILE (exit: 0)
+
+```stdout
+$VALUE stays literal
+```
+
+    :$ sh -c 'test -f "$$1" && echo copied-file-exists' sh $COPY (exit: 0)
+
+```stdout
+copied-file-exists
+```
+
+Tmux commands and pane targets expand as operands. The pane prints `ready` and
+stays alive with cat. Expanded key text that spells `enter` must be typed, not
+interpreted as a key name. The snapshot should contain `ready` and `enter`;
+its regex expectation is static, including the dollar anchor.
+
+    :e SESSION=expanded-pane TARGET=expanded-pane:0.0 KEY=enter TMUX_COMMAND=display-message
+    :t new-session -d -s $SESSION 'printf "ready\n"; cat' (success)
+    :t resize-window -t $SESSION:0 -x 40 -y 4 (success)
+    :p $TARGET
+    :settle -d 2s (settled)
+    :k $KEY
+    :snap -d 2s -e '(?m)^enter$'
+
+```terminal
+ready
+enter
+
+
+```
+
+    :t $TMUX_COMMAND -p $VALUE (success)
+
+```
+second
+```
+
+Malformed references report errors at their use sites, without executing the
+operation. In particular, the invalid shell argument must not create a file,
+and invalid key text must not send the preceding valid text either.
+
+    :$ sh -c 'printf executed > marker' '${OPEN'
+
+> [!WARNING]
+> failed to execute command: unterminated variable reference
+
+    :$ sh -c 'test ! -e marker && echo not-executed' (exit: 0)
+
+```stdout
+not-executed
+```
+
+    :b '${OPEN'
+
+> [!WARNING]
+> '${OPEN' is unavailable: unterminated variable reference
+
+    :cp $SOURCE '${OPEN'
+
+> [!WARNING]
+> failed to copy test file: unterminated variable reference
+
+    :w '${OPEN'
+
+> [!WARNING]
+> failed to write file: unterminated variable reference
+
+```text
+not written
+```
+
+    :p '${OPEN'
+
+> [!WARNING]
+> failed to validate pane target '${OPEN': unterminated variable reference
+
+    :t display-message -p '${OPEN' (failure)
+
+```
+unterminated variable reference
+```
+
+    :k should-not-be-typed '${OPEN'
+
+> [!WARNING]
+> failed to expand key text: unterminated variable reference
+
+    :snap -d 2s -e '(?m)^enter$'
+
+```terminal
+ready
+enter
+
+
+```
+
+---
+vim: set ft=markdown:

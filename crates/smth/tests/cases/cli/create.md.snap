@@ -45,7 +45,7 @@ alpha
 yes
 ```
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=alpha:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/alpha
@@ -63,7 +63,7 @@ alpha/feature~1
 ```
 
     :t show-options -qv -t '=alpha/feature:' @smth.repo (success)
-    :$ sh -c 'tmux show-options -qv -t "=alpha/feature~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=alpha/feature~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/alpha.feature
@@ -114,7 +114,7 @@ that checkout as its degraded base just like the TUI.
 beta-zeta/fallback
 ```
 
-    :$ sh -c 'tmux show-options -qv -t "=beta-zeta/fallback:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=beta-zeta/fallback:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/beta.zeta.fallback
@@ -154,7 +154,7 @@ scratch-one
 yes
 ```
 
-    :$ sh -c 'tmux display-message -p -t "=scratch-one:0.0" "#{pane_current_path}" | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux display-message -p -t "=scratch-one:0.0" "#{pane_current_path}" | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>
@@ -193,7 +193,7 @@ alpha/~1
 yes
 ```
 
-    :$ sh -c 'tmux show-options -qv -t "=alpha/~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=alpha/~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/alpha.~1

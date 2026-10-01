@@ -97,7 +97,7 @@ After confirmation and rediscovery, clearing the query should show only the
 three surviving entries, with no deletion footer or named workspaces remaining.
 
     :k C-y C-y
-    :$ sh -c 'i=0; while test -d alpha.first || test -d alpha.second; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done'
+    :$ sh -c 'i=0; while test -d alpha.first || test -d alpha.second; do i=$((i+1)); test "$$i" -lt 100 || exit 1; sleep 0.05; done'
     :settle -d 2s -e '0/3'
 
     :k C-u

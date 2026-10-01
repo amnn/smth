@@ -37,7 +37,7 @@ counts as failure.
 
     :$ -q sh -c "printf 'failure stdout\n'; printf 'failure stderr\n' >&2; exit 7"
 
-    :shell --quiet sh -c "printf 'killed stdout\n'; printf 'killed stderr\n' >&2; kill -TERM $$"
+    :shell --quiet sh -c "printf 'killed stdout\n'; printf 'killed stderr\n' >&2; kill -TERM $$$$"
 
 Missing executables still produce spawn diagnostics.
 

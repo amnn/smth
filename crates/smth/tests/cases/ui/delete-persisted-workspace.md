@@ -70,7 +70,7 @@ staged markers or a deletion footer.
     :k C-d
     :settle -d 2s -e '2 sessions' -e '1 hidden'
     :k C-y
-    :$ sh -c 'i=0; while test -d alpha.feature || tmux has-session -t alpha/first 2>/dev/null || tmux has-session -t alpha/alias 2>/dev/null; do i=$((i+1)); test "$i" -lt 100 || exit 1; sleep 0.05; done'
+    :$ sh -c 'i=0; while test -d alpha.feature || tmux has-session -t alpha/first 2>/dev/null || tmux has-session -t alpha/alias 2>/dev/null; do i=$((i+1)); test "$$i" -lt 100 || exit 1; sleep 0.05; done'
     :settle -d 2s -e '0/3'
 
     :k C-u

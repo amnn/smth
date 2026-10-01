@@ -8,7 +8,7 @@ style regression coverage.
 
 Test cases live in `tests/cases/**/*.md`.
 
-- Lines starting with `:` are directives.
+- Lines starting with four spaces or a tab followed by `:` are directives.
 - Other markdown lines are copied verbatim into the snapshot transcript.
 
 Supported directives:
@@ -27,6 +27,13 @@ Supported directives:
     of stdout/stderr. For example, `:$ -q smth --base alpha --create feature` runs
     setup without showing its successful output.
   - Non-zero exits still render captured stdout/stderr; spawn errors remain visible.
+- `:e` / `:envs [-u|--unset] <NAME=VALUE ...>`
+  - Set exported bindings for subsequent host commands, or remove named bindings
+    with `--unset NAME ...`, including defaults. Assignments run left to right;
+    values expand against bindings already applied. Names remain literal.
+  - Invalid assignments warn and leave that binding unchanged; later assignments
+    still run. Names must be nonempty and contain neither `=` nor NUL; exported
+    values cannot contain NUL.
 - `:t` / `:tmux <args...>`
   - Run a tmux command on the test socket.
   - Wait for the command queue to resume before continuing, including foreground
@@ -66,6 +73,44 @@ Supported directives:
   - If the regex has capture groups, only those groups' contents are painted.
   - Filters match against the plaintext transcript, then the corresponding styled cells are
     painted before SVG rendering so the original cell styles are preserved.
+
+## Variable expansion
+
+Directives are shlex-tokenized and parsed once, without variable expansion. At
+execution time, operands expand individually using `$NAME` or `${NAME}`.
+Unbraced names consume ASCII letters, digits, and underscores (including
+positional-looking `$1`). Braces allow other literal name characters. Missing
+bindings expand to empty strings; unterminated braces warn and skip the
+directive. `$$` produces one literal dollar. A dollar not followed by a name
+or `{` is preserved.
+
+Expansion does not run a shell, split words, or recursively expand substituted
+values. Quotes group arguments but do not disable expansion. Escape shell-owned
+dollars: `$$PWD`, `$$status`, `$$1`, `$${name:-default}`, and `$$$$`
+for shell PID. Use `sh -c` explicitly for shell syntax. Fenced `:write`
+contents and ordinary markdown are not expanded. Binary names, executable
+names, command arguments, copy/write paths, pane targets, literal key text, and
+assignment values expand at their point of use.
+
+Expanded values are never reinterpreted as directive syntax: an executable
+expanding to `-q` is an executable name, not `:shell`'s quiet flag, and key
+text expanding to `enter` is typed literally rather than becoming the Enter
+key. Directive flags, counts, durations, snapshot/settle regexes and filters
+are parsed statically and do not expand. Regex dollar anchors therefore need no
+runner escaping. This follows Jellyfish's parse-once, expand-at-use model.
+
+Sandbox `HOME`, `PATH`, `ENV`, `SHELL`, and `LC_CTYPE` defaults are
+ordinary environment bindings, available for expansion and initialized once.
+`TMUX` and `TMUX_PANE` initially identify the runner socket and pane.
+`:envs` can replace or remove any binding. A successful `:pane` selection
+sets `TMUX_PANE` to the selected pane ID, replacing any explicit override or
+restoring an unset value; a failed selection leaves it unchanged. Other
+bindings are not reset. Use `:pane` to update this environment context after
+switching panes. The host process environment is not used for expansion.
+Changing `HOME` does not move the sandbox working directory or file-operation
+root. Exports apply to subsequent host commands; they do **not** update the
+already-running tmux server or its panes. Use tmux's own environment options
+when that is required.
 
 ## Synchronizing asynchronous actions
 
