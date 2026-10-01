@@ -38,7 +38,7 @@ is registered in the shared repository and the default working copy is fresh.
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}'
 
-    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"'
+    :$ sh -c 'jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"'
 
     :$ sh -c 'jj status -R alpha --config snapshot.auto-update-stale=false >/dev/null'
 

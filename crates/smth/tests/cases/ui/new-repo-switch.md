@@ -64,7 +64,7 @@ setup complete.
     :t display-message -p '#{client_session}'
 
     :$ sh -c 'test -d repos/switched/.jj && test -d repos/switched/.git && test ! -e repos/switched~1/.jj'
-    :$ sh -c 'tmux show-options -qv -t "=switched~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'tmux show-options -qv -t "=switched~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"'
 
     :t has-session -t '=switched'
     :t has-session -t '=switched~2'

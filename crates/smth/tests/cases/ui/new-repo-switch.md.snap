@@ -141,7 +141,7 @@ switched~1
 ```
 
     :$ sh -c 'test -d repos/switched/.jj && test -d repos/switched/.git && test ! -e repos/switched~1/.jj' (exit: 0)
-    :$ sh -c 'tmux show-options -qv -t "=switched~1:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=switched~1:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/repos/switched

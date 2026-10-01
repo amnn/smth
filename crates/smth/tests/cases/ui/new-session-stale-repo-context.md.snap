@@ -53,7 +53,7 @@ repo metadata because no jj workspace was created.
 zeta
 ```
 
-    :$ sh -c 'tmux display-message -p -t zeta:0 "#{pane_current_path}" | sed "s#$PWD/##g"' (exit: 0)
+    :$ sh -c 'tmux display-message -p -t zeta:0 "#{pane_current_path}" | sed "s#$$PWD/##g"' (exit: 0)
 
 ```stdout
 plain

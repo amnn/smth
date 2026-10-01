@@ -20,12 +20,12 @@ glob.
     :t rename-session -t alpha alpha-live
     :$ -q smth --base alpha --flag
     :t set-option -p -t alpha-live:0.0 @smth.agent.state waiting
-    :$ sh -c 'smth --no-base --repo "alpha*" --json | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'smth --no-base --repo "alpha*" --json | sed "s#$$PWD#<ROOT>#g"'
 
 The same fuzzy matcher used by the picker should narrow structured output, and
 an unmatched query should emit an empty JSON array even with `--exit-0`.
 
-    :$ sh -c 'smth --no-base --repo "alpha*" --query feature --json | sed "s#$PWD#<ROOT>#g"'
+    :$ sh -c 'smth --no-base --repo "alpha*" --query feature --json | sed "s#$$PWD#<ROOT>#g"'
 
     :$ smth --no-base --repo "alpha*" --query zzz --json --exit-0
 

@@ -4,6 +4,7 @@
 //! Helpers for markdown-driven `smth` integration tests.
 
 mod env;
+mod expansion;
 mod parser;
 mod runner;
 mod svg;

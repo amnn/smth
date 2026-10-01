@@ -46,7 +46,7 @@ mode.
     :$ sh -c 'until tmux capture-pane -p -t ui:0 | grep -q "working copy"; do sleep 0.01; done' (exit: 0)
     :$ jj abandon -R alpha -r @ (exit: 0)
     :k enter
-    :$ sh -c 'until pane=$(tmux capture-pane -p -t ui:0) && ! printf "%s\n" "$pane" | grep -q "working copy" && printf "%s\n" "$pane" | grep -q "base commit"; do sleep 0.01; done' (exit: 0)
+    :$ sh -c 'until pane=$(tmux capture-pane -p -t ui:0) && ! printf "%s\n" "$$pane" | grep -q "working copy" && printf "%s\n" "$$pane" | grep -q "base commit"; do sleep 0.01; done' (exit: 0)
 
 Move from the refreshed working-copy commit to the bookmarked base and accept
 it. Although the local bookmark is ahead of its remote and renders as `base*` in

@@ -61,7 +61,7 @@ beta-zeta/omega:beta.zeta.omega
 runner:
 ```
 
-    :$ sh -c 'jj workspace list -R beta.zeta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"' (exit: 0)
+    :$ sh -c 'jj workspace list -R beta.zeta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"' (exit: 0)
 
 ```stdout
 default	

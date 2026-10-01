@@ -75,6 +75,9 @@ pub(crate) enum LineKind {
     /// Require particular binaries be made available in the test environment.
     Bins { args: Vec<String> },
 
+    /// Set or unset exported environment bindings in source order.
+    Envs { unset: bool, args: Vec<String> },
+
     /// Run a host command.
     Shell { quiet: bool, args: NonEmpty<String> },
 
@@ -148,6 +151,17 @@ struct ShellArgs {
     quiet: bool,
 
     /// Command and arguments to execute.
+    #[arg(required = true)]
+    args: Vec<String>,
+}
+
+/// Parsed arguments for `:envs`.
+#[derive(clap::Parser)]
+struct EnvsArgs {
+    /// Remove named bindings instead of assigning NAME=VALUE pairs.
+    #[arg(short = 'u', long)]
+    unset: bool,
+
     #[arg(required = true)]
     args: Vec<String>,
 }
@@ -272,6 +286,15 @@ impl LineKind {
         };
 
         Ok(match cmd {
+            "e" | "envs" => {
+                let args =
+                    EnvsArgs::try_parse_from(std::iter::once(":envs".to_owned()).chain(args))?;
+                LineKind::Envs {
+                    unset: args.unset,
+                    args: args.args,
+                }
+            }
+
             "b" | "bins" => LineKind::Bins { args },
 
             "$" | "shell" => {

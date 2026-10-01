@@ -18,7 +18,7 @@ Launch the picker with the named checkout as its base and select its live
 session. The header should normalize that context to the default workspace,
 which must remain usable after the named checkout is deleted.
 
-    :t new-session -d -s ui "smth --base alpha.feature -r \"$HOME/alpha*\"; cat"
+    :t new-session -d -s ui "smth --base alpha.feature -r \"$$HOME/alpha*\"; cat"
     :t resize-window -t ui:0 -x 120 -y 12
     :p ui:0.0
     :settle -d 2s

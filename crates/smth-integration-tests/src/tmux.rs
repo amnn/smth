@@ -180,7 +180,7 @@ impl Tmux {
         // Start a control-mode client on a dedicated socket. tmux auto-starts the server daemon
         // for this socket if needed.
         let mut client = env
-            .command("tmux")
+            .command("tmux")?
             .args(["-C", "-S"])
             .arg(socket.as_os_str())
             .kill_on_drop(true)

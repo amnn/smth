@@ -44,13 +44,13 @@ project-one
 yes
 ```
 
-    :$ sh -c 'tmux show-options -qv -t "=project-one:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=project-one:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/config-repos/project one
 ```
 
-    :$ sh -c 'tmux display-message -p -t "=project-one:0.0" "#{pane_current_path}" | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux display-message -p -t "=project-one:0.0" "#{pane_current_path}" | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/config-repos/project one
@@ -65,7 +65,7 @@ runner
 Repeating the request should fail without choosing another directory. The
 modifier can also follow the action's name.
 
-    :$ sh -c 'smth --config smth.toml --no-base --create "project one" --create-repo 2> error; status=$?; sed "s#$PWD#<ROOT>#g" error >&2; exit "$status"' (exit: 1)
+    :$ sh -c 'smth --config smth.toml --no-base --create "project one" --create-repo 2> error; status=$?; sed "s#$$PWD#<ROOT>#g" error >&2; exit "$$status"' (exit: 1)
 
 ```stderr
 error: repo '<ROOT>/config-repos/project one' already exists
@@ -84,7 +84,7 @@ foo-bar~2
 ```
 
     :$ sh -c 'test -d config-repos/foo.bar/.jj && test ! -e config-repos/foo.bar~2' (exit: 0)
-    :$ sh -c 'tmux show-options -qv -t "=foo-bar~2:" @smth.repo | sed "s#$PWD#<ROOT>#g"' (exit: 0)
+    :$ sh -c 'tmux show-options -qv -t "=foo-bar~2:" @smth.repo | sed "s#$$PWD#<ROOT>#g"' (exit: 0)
 
 ```stdout
 <ROOT>/config-repos/foo.bar
@@ -128,7 +128,7 @@ An occupied path should be rejected without modifying the existing directory.
 
     :$ mkdir config-repos/collision (exit: 0)
     :t new-session -d -s collision~1 "cat" (success)
-    :$ sh -c 'smth --config smth.toml --no-base --create collision --create-repo 2> error; status=$?; sed "s#$PWD#<ROOT>#g" error >&2; exit "$status"' (exit: 1)
+    :$ sh -c 'smth --config smth.toml --no-base --create collision --create-repo 2> error; status=$?; sed "s#$$PWD#<ROOT>#g" error >&2; exit "$$status"' (exit: 1)
 
 ```stderr
 error: repo '<ROOT>/config-repos/collision' already exists

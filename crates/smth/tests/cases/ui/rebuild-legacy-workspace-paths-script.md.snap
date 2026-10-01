@@ -17,8 +17,8 @@ a new workspace from a named workspace checkout.
     :$ jj git init beta (exit: 0)
     :$ jj workspace add -R beta --name zeta beta.zeta (exit: 0)
     :$ python3 -c 'from pathlib import Path; Path("beta/.jj/repo/workspace_store/index").unlink()' (exit: 0)
-    :$ sh -c 'python3 fix-jj-workspace-index.py --repo beta default="$PWD/beta" zeta="$PWD/beta.zeta" >/dev/null' (exit: 0)
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"' (exit: 0)
+    :$ sh -c 'python3 fix-jj-workspace-index.py --repo beta default="$$PWD/beta" zeta="$$PWD/beta.zeta" >/dev/null' (exit: 0)
+    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"' (exit: 0)
 
 ```stdout
 default	beta
@@ -72,7 +72,7 @@ beta/omega:beta.omega
 runner:
 ```
 
-    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$PWD/##g"' (exit: 0)
+    :$ sh -c 'jj workspace list -R beta --no-pager --color never --template "name ++ \"\\t\" ++ root ++ \"\\n\"" | sed "s#$$PWD/##g"' (exit: 0)
 
 ```stdout
 default	beta
