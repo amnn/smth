@@ -80,6 +80,27 @@ tmux new-window -n editor 'nvim .'
 '''
 ```
 
+### Initial session ordering
+
+`[ui].order` is a whitespace-separated stack of signed comparator names:
+
+```toml
+[ui]
+order = "-live -recency +name"
+```
+
+This is the built-in default. `+` means ascending and `-` descending; available
+names are `live`, `recency`, `name`, and `attn`. Earlier entries have higher
+priority. Omitted comparators are disabled; `order = ""` disables them all.
+Unknown names, duplicates, and tokens without a sign are rejected.
+
+`--order "-live -attn +name"` overrides configuration for both the picker and
+non-interactive listing. Picker edits last only for that run and never write
+configuration. See [session ordering][session-ordering] for recency semantics
+and the header editor.
+
+[session-ordering]: session-management.md#session-ordering-and-switching
+
 ### Picker sigil
 
 Use `[ui].sigil` to choose the single character that marks live tmux sessions
@@ -122,5 +143,6 @@ tmux new-window -n editor 'nvim .'
 '''
 
 [ui]
+order = "-live -recency +name"
 sigil = "■"
 ```

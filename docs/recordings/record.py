@@ -426,6 +426,7 @@ def main():
         outputs = []
         for name in (
             "session-switching",
+            "session-ordering",
             "agent-attention",
             "session-context",
             "session-new-repo",

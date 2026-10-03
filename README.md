@@ -96,7 +96,12 @@ brief CLI help; `smth --help` includes the complete picker key list.
 | --- | --- |
 | `C-d` | Toggle the workspace's persisted pending-deletion marker. |
 | `C-f` | Flag or unflag a live session. |
-| `C-g` | Cancel onto mode, or clear staged deletions. |
+| `C-g` | Cancel ordering or onto editing, otherwise clear staged deletions. |
+| `M-s` | Edit ordering, or accept edits for this run. |
+| `l`, `r`, `n`, `a` | In ordering mode, select a comparator; repeat to cycle ascending, descending, disabled. |
+| Left/right | In ordering mode, move the comparator, wrapping at the ends. |
+| Up/down | In ordering mode, set ↑ (descending)/↓ (ascending); repeat the same direction to disable. |
+| Tab/Shift-Tab | In ordering mode, select the next/previous comparator. |
 | `C-n` | Create a non-live session without switching to it. |
 | `C-o` | Open or cancel the onto revision picker. |
 | `C-p` | Toggle the preview pane outside onto mode. |

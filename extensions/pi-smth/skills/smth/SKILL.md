@@ -20,8 +20,19 @@ Run structured inspection before choosing a target:
 smth --json
 ```
 
-Use `--query TEXT` only to narrow inspection with the picker matcher. An empty
-result is `[]`. Each record includes:
+Use `--query TEXT` to narrow inspection with the picker matcher. With a query,
+fuzzy score takes precedence and the comparator stack breaks equal-score ties.
+`--order "-live -attn +name"` overrides `[ui].order` for both `--json` and
+`--filter`. Signed comparators are
+`live`, `recency`, `name`, and `attn`, evaluated left to right; omitted keys are
+disabled. The default is `-live -recency +name`; `--order ""` uses discovery
+order without a query and fuzzy ranking with one. Current attachment is
+maximally recent. Never-attached sessions are least recent: first in ascending
+recency, last in descending recency, with ties falling
+through to the next comparator. These settings do not change explicit lifecycle
+targets.
+
+An empty result is `[]`. Each record includes:
 
 - `base`: normalized default-workspace path, omitted for a plain session;
 - `name`: named workspace or plain-session operand, omitted for the default
@@ -93,7 +104,8 @@ fall back to the TUI.
 - **Stage or unstage deletion:** require a repo-backed named workspace with
   `deletable: true`. These idempotent operations only change its persisted marker.
   The picker shares the selection: C-d toggles staging, C-y executes the batch,
-  and C-g clears it after cancelling onto mode. Exiting does not clear markers.
+  and C-g clears it after cancelling ordering or onto mode. Exiting does not
+  clear markers.
 
 Use `--onto REV` with create or switch only when a missing named workspace
 should start at a specific revision. It has no effect on existing checkouts.

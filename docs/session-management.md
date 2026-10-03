@@ -46,25 +46,88 @@ a live repo.
 
 ## Session ordering and switching
 
-With an empty query, live sessions come before non-live repository candidates.
-Live sessions currently attached to a tmux client come first, followed by
-unattached sessions. Within each group, the most recently attached comes first;
-equal attachment times are ordered by descending session name. Never-attached
-sessions follow those with attachment history within their group.
+With no query, ordering is a priority stack of independently enabled comparators.
+The default is `-live -recency +name`: live sessions first, then most recently
+attached, then names A–Z. Equal values fall through to the next comparator. No
+extra name or attachment tie-breaker is implied; complete ties keep discovery
+order.
+Disable every comparator to use discovery order directly.
 
-The picker initially selects the first **unattached** live session when the
-query is empty. In the usual single-client workflow, that is the previous
-session: open the picker and press `enter` to return to it. This is not
-always the second row, especially with multiple clients. If no unattached live
-session exists, selection falls back to the first discovered match. Switches
-made outside smth also affect the order, because smth reads tmux's attachment
-history.
+| Comparator | Values                                                           |
+| ---------- | ---------------------------------------------------------------- |
+| `live`     | Whether the session is live.                                     |
+| `recency`  | Current attachment, otherwise last-attachment timestamp.         |
+| `name`     | Session name.                                                    |
+| `attn`     | Presence of a bell or waiting, failed, or succeeded agent alert. |
 
-Typing fuzzy-filters discovered rows and offers new-session candidates above
-them. When starting a query, selection defaults to the first discovered match;
-with no matches, it defaults to the last new-session candidate (new tmux when
-there is no repository context). Navigate explicitly to a new-session row when
-you want something new instead of a match. `C-u` clears the query.
+Currently attached sessions are **maximally recent**, even without a historical
+timestamp. Descending recency puts attached sessions before newest-to-oldest
+history; ascending puts oldest-to-newest history before attached sessions.
+Never-attached sessions are least recent: they come first in ascending recency
+and last in descending recency. With the default stack, live never-attached
+sessions follow live visited sessions but precede non-live repository candidates.
+Two attached sessions tie, regardless of their historical timestamps. Running
+and idle agents, and manual flags alone, do not count as attention; alert count
+and severity are irrelevant.
+
+The arrows show the direction in which values **increase on the page**:
+`↓` is ascending (`+`, A–Z or oldest first), and `↑` is descending
+(`-`, Z–A or newest first). Thus `↑live` and `↑attention` put true values first.
+The collapsed header shows only enabled initials: `[M-s] ↑l ↑r ↓n`.
+
+### Edit ordering
+
+Press `M-s` to expand the header. All four comparators appear, including disabled
+ones without arrows. Bold coloured initials are shortcuts; the selected label
+is underlined and flanked by small `◂` and `▸` movement triangles.
+
+- `l`, `r`, `n`, `a`: select live, recency, name, or attention. Repeat the
+  selected initial to cycle **ascending → descending → disabled → ascending**.
+- Up/down: set the selected comparator to `↑` (descending) or `↓` (ascending).
+  If it already has that direction, disable it instead. Either key enables a
+  disabled comparator or switches directly from the opposite direction.
+- Left/right: move the selected comparator one position, wrapping at either end.
+- Tab/Shift-Tab: select the next/previous comparator, also wrapping.
+- `M-s`: accept for this run. `C-g`: cancel and restore the original stack.
+
+Entry selects the first enabled comparator, or the first comparator if none
+are enabled. Disabled positions survive during the run. The list previews each
+edit immediately, preserving the selected session and scrolling it into view.
+Cancellation restores its position under the original ordering. Query editing
+and session actions are frozen; ordering and onto editing are mutually exclusive.
+`C-g` cancels ordering without clearing staged deletions. Escape and `C-c` still
+exit (unless a background operation prevents it), discarding pending edits.
+
+![Editing ordering with live preview, acceptance, and cancellation][order-demo]
+
+Set initial ordering with `[ui].order` in [configuration](configuration.md), or
+use `smth --order "-live -attn +name"`. CLI overrides config, which overrides
+the built-in default. Each whitespace-separated token needs a sign and one of
+`live`, `recency`, `name`, `attn`; duplicate or unknown names are errors.
+Omitted comparators are disabled and appended in that fixed order in the editor.
+An empty string disables everything. Edits never write configuration or a
+preference file; the next run starts from configuration again.
+
+[order-demo]: assets/session-ordering.gif
+
+### Initial selection and filtering
+
+The picker selects the first ordered result. With an empty query, if that is
+the invoking session and another result exists, it selects the next one instead.
+Other attached sessions are not skipped. With an explicit query, it selects the
+first match even if current. Editing ordering does not rerun startup selection.
+
+With a query, **fuzzy score takes precedence** and the comparator stack breaks
+equal-score ties. Complete ties retain nucleo's ranking; disabling all comparators
+uses fuzzy ranking directly. Ordering edits may move only equal-score rows, or
+none at all, while preserving the selected session. Clearing the query applies
+the stack to the full discovered list again.
+
+New-session candidates remain separately above discovered matches. When starting
+a query, selection defaults to the first discovered match; with no matches it
+falls back to the last new-session candidate. Navigate explicitly to a candidate
+when you want something new. `C-u` clears the query. The same ordering applies
+to `--filter` and `--json` output.
 
 ## Open
 
@@ -173,8 +236,9 @@ confirming.
 3. Press `C-y` to confirm and execute the **entire staged selection**, including
    hidden rows, not just the highlighted row. There is no second prompt.
 4. Before confirmation, `C-g` clears all discovered staged markers without
-   deleting anything or exiting. If onto mode is open, the first `C-g` only
-   cancels onto mode; press it again to clear staged deletions.
+   deleting anything or exiting. Ordering mode consumes `C-g` without clearing
+   staged markers. If onto mode is open, the first `C-g` only cancels onto mode;
+   press it again to clear staged deletions.
 
 `esc` and `C-c` exit the picker **without clearing** staged deletions. Staging is
 stored in each named workspace's `.jj/.smth-pending-delete` file, so it survives
