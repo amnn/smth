@@ -25,7 +25,7 @@ slash should remain in both the proposed and created tmux session name.
 
 ```terminal
 session: foo/bar
-  0/2 | [C-r] repo: none
+  0/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  foo/bar                                                                                                        tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

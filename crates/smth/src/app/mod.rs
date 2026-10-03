@@ -12,6 +12,7 @@ mod header;
 mod highlight;
 mod layout;
 mod onto;
+mod order;
 mod sessions;
 mod span;
 
@@ -316,6 +317,8 @@ impl App {
             items.len(),
             self.repo.as_ref(),
             snapshot.item_count() as usize,
+            order,
+            None,
         );
 
         let footer = Footer::new(delete, &items);

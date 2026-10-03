@@ -34,7 +34,7 @@ The first snapshot establishes the initial selection before those jumps.
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
 ▌■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
  ■ delta                                                                                           ┃
@@ -52,7 +52,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
  ■ delta                                                                                           ┃
@@ -70,7 +70,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
 ▌■ ui                                                                                              ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -92,7 +92,7 @@ last match, and `M-up` jumps to the repository candidate above the plain one.
 
 ```terminal
 session: et                                                                                        ┃
-  3/6 | [C-r] repo: none                                                                           ┃
+  3/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
 ▌■ beta                                                                                            ┃
@@ -110,7 +110,7 @@ session: et                                                                     
 
 ```terminal
 session: et                                                                                        ┃
-  3/6 | [C-r] repo: none                                                                           ┃
+  3/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
  ■ beta                                                                                            ┃
@@ -128,7 +128,7 @@ session: et                                                                     
 
 ```terminal
 session: et                                                                                        ┃
-  3/6 | [C-r] repo: none                                                                           ┃
+  3/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
 ▌  et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
  ■ beta                                                                                            ┃
@@ -151,7 +151,7 @@ The three snapshots show the filtered state, last match, and candidate in turn.
 
 ```terminal
 session: ta                                                                                        ┃
-  4/6 | [C-r] repo: none                                                                           ┃
+  4/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
 ▌■ ta                                                                                              ┃
@@ -169,7 +169,7 @@ session: ta                                                                     
 
 ```terminal
 session: ta                                                                                        ┃
-  4/6 | [C-r] repo: none                                                                           ┃
+  4/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
  ■ ta                                                                                              ┃
@@ -187,7 +187,7 @@ session: ta                                                                     
 
 ```terminal
 session: ta                                                                                        ┃
-  4/6 | [C-r] repo: none                                                                           ┃
+  4/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
 ▌  ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
  ■ ta                                                                                              ┃

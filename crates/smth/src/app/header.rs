@@ -13,9 +13,11 @@ use ratatui::text::Span;
 
 use crate::app::agent;
 use crate::app::highlight::Highlight;
+use crate::app::order;
 use crate::app::span::push_repo_path_spans;
 use crate::app::span::push_shortcut_span;
 use crate::model::agent::AgentState;
+use crate::model::order::Order;
 use crate::model::session::Repo;
 
 /// Header bar component showing counts and repo context.
@@ -25,6 +27,8 @@ pub(super) struct Header<'r> {
     found: usize,
     repo: Option<&'r Repo>,
     total: usize,
+    order: &'r Order,
+    selected_order: Option<usize>,
 }
 
 impl<'r> Header<'r> {
@@ -34,12 +38,16 @@ impl<'r> Header<'r> {
         found: usize,
         repo: Option<&'r Repo>,
         total: usize,
+        order: &'r Order,
+        selected_order: Option<usize>,
     ) -> Self {
         Self {
             agents,
             found,
             repo,
             total,
+            order,
+            selected_order,
         }
     }
 
@@ -55,6 +63,15 @@ impl<'r> Header<'r> {
 
         line += Span::raw(format!(" {:>width$}", self.found));
         line += Span::raw(format!("/{} | ", self.total)).dim();
+
+        push_shortcut_span(&mut line, "M-s");
+        if let Some(selected) = self.selected_order {
+            line.extend(order::expanded(self.order, selected));
+        } else {
+            line.extend(order::summary(self.order));
+        }
+
+        line += Span::raw(" | ").dim();
         push_shortcut_span(&mut line, "C-r");
         line += Span::raw(" repo: ");
 

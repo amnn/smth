@@ -62,7 +62,7 @@ keys remain gated while the confirmed batch is running.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [C-r] repo: none                                                                                               ┃
+  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃

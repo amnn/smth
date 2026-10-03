@@ -25,7 +25,7 @@ header.
 
 ```terminal
 session:
-  3/3 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌■ runner                                                                      ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────

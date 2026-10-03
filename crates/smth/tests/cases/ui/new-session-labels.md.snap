@@ -23,7 +23,7 @@ the colour snapshot should show their dim labels alongside the destination.
 
 ```terminal
 session: prospective
-  0/1 | [C-r] repo: none
+  0/1 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
    prospective                              ~/p/prospective               repo ┃
 ▌  prospective                                                            tmux ┃
 
@@ -50,7 +50,7 @@ overwrite the end of its basename, leaving a separating space.
 
 ```terminal
 session: prospective
-  0/1 | [C-r] repo: none
+  0/1 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  prospective                              ~/p/prospectiv repo ┃
    prospective                                             tmux ┃
 
@@ -75,7 +75,7 @@ The label should also take precedence when the row is not selected.
 
 ```terminal
 session: prospective
-  0/1 | [C-r] repo: none
+  0/1 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
    prospective                              ~/p/prospectiv repo ┃
 ▌  prospective                                             tmux ┃
 
@@ -100,7 +100,7 @@ At an even narrower width, the complete label remains visible over the path.
 
 ```terminal
 session: prospective
-  0/1 | [C-r] repo: none
+  0/1 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
    prospective                              ~ repo ┃
 ▌  prospective                                tmux ┃
 
@@ -126,7 +126,7 @@ Existing sessions do not acquire a creation label.
 
 ```terminal
 session: runner
-  1/1 | [C-r] repo: none
+  1/1 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
    runner~1                                                               tmux │
 ▌■ runner                                                                      ┃
  [C-x] close, [C-f] flag

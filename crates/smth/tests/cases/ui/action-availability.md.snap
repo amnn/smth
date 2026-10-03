@@ -65,7 +65,7 @@ unstage (`C-d`), close (`C-x`), and unflag (`C-f`), alongside confirmation
 
 ```terminal
 session: first                                                                                                         ┃
-  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
                                                                                                                        ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
@@ -93,7 +93,7 @@ is in progress, both session actions and deletion confirmation should be hidden.
 
 ```terminal
 session:                                                                                                               ┃
-  4/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃
@@ -116,7 +116,7 @@ The snapshot should show the filtered list with `alpha/first` selected.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
                                                                                                                        ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
@@ -152,7 +152,7 @@ during creation. The footer should still be empty.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
                                                                                                                        ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
@@ -177,7 +177,7 @@ or exit (Escape and `C-c`) must be ignored. The snapshot should still show
 
 ```terminal
 session: first                                                                                                         ┃
-  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
                                                                                                                        ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
@@ -216,7 +216,7 @@ with the loading indicator still visible and the footer still empty.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/4 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                                       ┃
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
                                                                                                                        ┃
@@ -246,7 +246,7 @@ deleting a session, this only changes the base for future workspace creation.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/4 | [C-r] repo: ~/alpha, [C-o] onto: base                                                                          ┃
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: base                                                         ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
                                                                                                                        ┃
@@ -274,7 +274,7 @@ and cancellation (`C-g`), with its one-session count unchanged.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [C-r] repo: ~/alpha, [C-o] onto: base                                                                          ┃
+  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: base                                                         ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
                                                                                                                        ┃
@@ -297,7 +297,7 @@ change from unstage to delete (`C-d`) and no longer show batch controls.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [C-r] repo: ~/alpha, [C-o] onto: base                                                                          ┃
+  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: base                                                         ┃
    alpha/first~1                            ~/alpha.first~1                                                  workspace ┃
 ▌■ alpha/first                              ~/alpha.first                                                              ┃
                                                                                                                        ┃

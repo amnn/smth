@@ -1,0 +1,81 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/session-ordering.md
+---
+# Session ordering editor
+
+Create a current session and two other live sessions. The compact header shows
+only enabled comparator initials, bold, in priority order. Up arrows put live
+and recent values first; down arrows put names in A–Z order. Hide the preview
+before each snapshot so the complete session order is visible.
+
+    :b jj tmux cat (available)
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s alpha cat (success)
+    :t new-session -d -s beta cat (success)
+    :t resize-window -t runner:0 -x 100 -y 18 (success)
+    :t respawn-pane -k -t runner:0 'smth; cat' (success)
+    :p runner:0.0
+    :settle -d 2s (settled)
+    :k C-p
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
+![light](session-ordering.md.snap.1.light.svg)
+![dark](session-ordering.md.snap.1.dark.svg)
+
+An explicitly empty stack shows just `order`, and selects the first discovery
+result rather than preferring recency.
+
+    :t respawn-pane -k -t runner:0 'smth --order ""; cat' (success)
+    :settle -d 2s (settled)
+    :k C-p
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] order | [C-r] repo: none                                                             ┃
+                                                                                                   ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
+![light](session-ordering.md.snap.2.light.svg)
+![dark](session-ordering.md.snap.2.dark.svg)
+
+---
+vim: set ft=markdown:
