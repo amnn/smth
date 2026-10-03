@@ -57,6 +57,7 @@ impl Model {
 mod tests {
     use std::collections::BTreeMap;
 
+    use crate::cmd::tmux;
     use crate::model::session::Base;
     use crate::model::session::LiveKind;
     use crate::model::session::NewKind;
@@ -70,11 +71,15 @@ mod tests {
         let sessions: [Session; 2] = ["first", "alias"].map(|name| {
             LiveKind::new(
                 name.to_owned(),
-                Some(path.clone()),
                 Some("feature".to_owned()),
-                BTreeMap::new(),
-                BTreeSet::new(),
-                false,
+                tmux::SessionInfo {
+                    agents: BTreeMap::new(),
+                    alerts: BTreeSet::new(),
+                    attached: false,
+                    flagged: false,
+                    last_attached: None,
+                    repo: Some(path.clone()),
+                },
             )
             .into()
         });

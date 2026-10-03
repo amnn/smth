@@ -16,6 +16,7 @@ pub use crate::app::Context;
 pub use crate::model::Model;
 pub use crate::model::agent::AgentState;
 pub use crate::model::agent::STATE_OPTION as AGENT_STATE_OPTION;
+pub use crate::model::order::Order;
 pub use crate::model::serialize::SerializedSession;
 pub use crate::model::session::Session;
 pub use crate::model::set_deleting;

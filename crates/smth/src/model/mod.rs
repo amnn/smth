@@ -5,6 +5,7 @@
 
 pub(crate) mod agent;
 pub(crate) mod delete;
+pub(crate) mod order;
 pub(crate) mod picker;
 pub(crate) mod serialize;
 pub(crate) mod session;
@@ -29,11 +30,13 @@ use nucleo::Status;
 use crate::cmd::jj;
 use crate::cmd::tmux;
 use crate::model::agent::AgentState;
+use crate::model::order::Order;
 use crate::model::picker::Picker;
 use crate::model::serialize::SerializedSession;
 use crate::model::session::Base;
 use crate::model::session::LiveKind;
 use crate::model::session::NewKind;
+use crate::model::session::Recency;
 use crate::model::session::Repo;
 use crate::model::session::RepoKind;
 use crate::model::session::Session;
@@ -335,22 +338,6 @@ impl Model {
         // construct workspace-aware session names.
         self.workspaces = workspaces(repos).await;
 
-        // Order live sessions by attached status (attached first), then last attached time (most
-        // recent first), the name (lexicographically).
-        let mut tmux_sessions: Vec<_> = tmux_sessions.into_iter().collect();
-        tmux_sessions.sort_by(|(lname, left), (rname, right)| {
-            let l = (left.attached, left.last_attached, lname);
-            let r = (right.attached, right.last_attached, rname);
-            r.cmp(&l)
-        });
-
-        // Find the unattached session that was most recently attached.
-        if self.picker.query().is_empty()
-            && let Some(index) = tmux_sessions.iter().position(|(_, info)| !info.attached)
-        {
-            self.recently_attached = Some(index);
-        }
-
         for (name, info) in tmux_sessions {
             let workspace = info
                 .repo
@@ -358,14 +345,7 @@ impl Model {
                 .and_then(|repo| self.workspace_name(repo))
                 .map(str::to_owned);
 
-            let session = LiveKind::new(
-                name,
-                info.repo,
-                workspace,
-                info.agents,
-                info.alerts,
-                info.flagged,
-            );
+            let session = LiveKind::new(name, workspace, info);
             self.sessions.push(session.into());
         }
 
@@ -403,6 +383,16 @@ impl Model {
                 .entry(root.to_owned())
                 .or_default()
                 .insert(name.to_owned());
+        }
+
+        let order = Order::default();
+        self.sessions.sort_by(|l, r| order.compare(l, r));
+
+        if self.picker.query().is_empty() {
+            self.recently_attached = self
+                .sessions
+                .iter()
+                .position(|s| s.is_live() && s.recency() != Recency::Attached);
         }
 
         let pending_deletions = join_all(self.sessions.iter().map(Session::repo_pending_deletion))
@@ -882,10 +872,14 @@ mod tests {
         let existing: Session = LiveKind::new(
             "project".to_owned(),
             None,
-            None,
-            BTreeMap::new(),
-            BTreeSet::new(),
-            false,
+            tmux::SessionInfo {
+                agents: BTreeMap::new(),
+                alerts: BTreeSet::new(),
+                attached: false,
+                flagged: false,
+                last_attached: None,
+                repo: None,
+            },
         )
         .into();
         model.sessions.push(existing.clone());
@@ -1119,19 +1113,27 @@ mod tests {
         let mut model = model_with_workspace(&workspace, default);
         let repo = LiveKind::new(
             "scratch".to_owned(),
-            Some(workspace),
             Some("feature".to_owned()),
-            BTreeMap::new(),
-            BTreeSet::new(),
-            false,
+            tmux::SessionInfo {
+                agents: BTreeMap::new(),
+                alerts: BTreeSet::new(),
+                attached: false,
+                flagged: false,
+                last_attached: None,
+                repo: Some(workspace),
+            },
         );
         let plain = LiveKind::new(
             "scratch".to_owned(),
             None,
-            None,
-            BTreeMap::new(),
-            BTreeSet::new(),
-            false,
+            tmux::SessionInfo {
+                agents: BTreeMap::new(),
+                alerts: BTreeSet::new(),
+                attached: false,
+                flagged: false,
+                last_attached: None,
+                repo: None,
+            },
         );
         model.sessions = vec![repo.into(), plain.into()];
 
