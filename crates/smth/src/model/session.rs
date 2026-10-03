@@ -365,12 +365,13 @@ impl NewKind {
 
     /// The tmux session name for the new session.
     fn name(&self) -> String {
-        let base = match &self.base {
-            Base::Repo(base) => Some(base.path()),
-            Base::NewRepo(_) | Base::Cwd(_) => None,
+        let (base, name) = match &self.base {
+            Base::Cwd(_) => (None, sanitize_tmux(&self.name)),
+            Base::NewRepo(_) => (None, sanitize(&self.name)),
+            Base::Repo(base) => (Some(base.path()), sanitize(&self.name)),
         };
 
-        workspace_session_name(base, Some(&sanitize(&self.name)), self.suffix.as_deref())
+        session_name(base, Some(&name), self.suffix.as_deref())
     }
 
     /// The repository whose log should be shown before this session's workspace exists.
@@ -470,7 +471,7 @@ impl RepoKind {
 
     /// The tmux session name for a session attached to this existing repo/workspace.
     fn name(&self) -> String {
-        workspace_session_name(
+        session_name(
             Some(&self.default),
             self.workspace.as_deref().map(sanitize).as_deref(),
             self.suffix.as_deref(),
@@ -517,7 +518,12 @@ impl Pickable for Session {
 
 /// Make the name safe for use as a tmux session name and a workspace name.
 pub(crate) fn sanitize(name: &str) -> String {
-    let strip = |c: char| c.is_control() || [' ', ':', '.', '/', '\\', '-'].contains(&c);
+    sanitize_tmux(&name.replace('/', "-"))
+}
+
+/// Sanitize a tmux-only session name without treating slashes as path separators.
+fn sanitize_tmux(name: &str) -> String {
+    let strip = |c: char| c.is_control() || [' ', ':', '.', '\\', '-'].contains(&c);
     let mut cs = name.trim_matches(strip).chars().peekable();
 
     let mut sanitized = String::new();
@@ -537,40 +543,37 @@ pub(crate) fn sanitize(name: &str) -> String {
     sanitized
 }
 
-/// Derive a workspace-aware tmux session name.
+/// Format a tmux session name with an optional repository prefix and collision suffix.
 ///
-/// Each component is optional, but one of `base` or `workspace` is expected to be present. The
-/// resulting name takes the form `{base}/{workspace}~{suffix}`. Each part's prefix is omitted if
+/// Each component is optional, but one of `base` or `name` is expected to be present. The
+/// resulting name takes the form `{base}/{name}~{suffix}`. The base directory name is sanitized;
+/// `name` must already be sanitized for its session kind. Each part's prefix is omitted if
 /// the part itself is omitted or it is the first part.
-fn workspace_session_name(
-    base: Option<&Path>,
-    workspace: Option<&str>,
-    suffix: Option<&str>,
-) -> String {
-    let mut name = String::new();
+fn session_name(base: Option<&Path>, name: Option<&str>, suffix: Option<&str>) -> String {
+    let mut result = String::new();
     if let Some(base) = base {
         let base = base.file_name().expect("non-canonical");
         let base = sanitize(&base.to_string_lossy());
-        name.push_str(&base);
+        result.push_str(&base);
     }
 
-    if let Some(workspace) = workspace {
-        if !name.is_empty() {
-            name.push_str(DELIM_WORKSPACE);
+    if let Some(name) = name {
+        if !result.is_empty() {
+            result.push_str(DELIM_WORKSPACE);
         }
 
-        name.push_str(workspace);
+        result.push_str(name);
     }
 
     if let Some(suffix) = suffix {
-        if !name.is_empty() {
-            name.push_str(DELIM_SUFFIX);
+        if !result.is_empty() {
+            result.push_str(DELIM_SUFFIX);
         }
 
-        name.push_str(suffix);
+        result.push_str(suffix);
     }
 
-    name
+    result
 }
 
 #[cfg(test)]
@@ -618,6 +621,27 @@ mod tests {
             format!("repo '{}' already exists", destination.display())
         );
         assert!(!destination.join(".jj").exists());
+    }
+
+    /// Only tmux-only names preserve slashes; all bases retain collision suffixes.
+    #[test]
+    fn new_session_slashes_depend_on_base() {
+        let temp = tempdir().unwrap();
+        for (base, expected) in [
+            (Base::Cwd(None), "foo/bar"),
+            (Base::Cwd(Some(temp.path().to_owned())), "foo/bar"),
+            (Base::NewRepo(temp.path().to_owned()), "foo-bar"),
+            (
+                Base::Repo(Repo::new(temp.path().join("repo"))),
+                "repo/foo-bar",
+            ),
+        ] {
+            let mut session = NewKind::new("foo/bar", base);
+            assert_eq!(session.name(), expected);
+
+            session.disambiguate(&BTreeSet::from([expected.to_owned()]), &BTreeSet::new());
+            assert_eq!(session.name(), format!("{expected}~1"));
+        }
     }
 
     #[tokio::test]
