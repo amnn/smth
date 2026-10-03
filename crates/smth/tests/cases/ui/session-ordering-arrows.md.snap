@@ -1,0 +1,238 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/session-ordering-arrows.md
+---
+# Ordering direction shortcuts
+
+Start with only ascending name enabled and alpha selected. All three discovered
+sessions fit without scrolling. In ordering mode, Up and Down change the selected
+comparator, not the selected session; the selected alpha follows its new row.
+
+    :b jj tmux cat (available)
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s alpha cat (success)
+    :t new-session -d -s beta cat (success)
+    :t resize-window -t runner:0 -x 100 -y 14 (success)
+    :t respawn-pane -k -t runner:0 'smth --order "+name"; cat' (success)
+    :p runner:0.0
+    :settle -d 2s (settled)
+    :k C-p M-s
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↓name ▸ live · recency · attention   | [C-r] repo: none                            ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering-arrows.md.snap.1.light.svg)
+![dark](session-ordering-arrows.md.snap.1.dark.svg)
+
+Up switches directly from ascending to descending, displaying ↑name and moving
+alpha below runner and beta. Repeating Up disables name, restoring discovery
+order; pressing Up again enables descending. The other comparators stay disabled.
+
+    :k up
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↑name ▸ live · recency · attention   | [C-r] repo: none                            ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering-arrows.md.snap.2.light.svg)
+![dark](session-ordering-arrows.md.snap.2.dark.svg)
+
+    :k up
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ name ▸ live · recency · attention   | [C-r] repo: none                             ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+    :k up
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↑name ▸ live · recency · attention   | [C-r] repo: none                            ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+Down switches directly from descending to ascending, displaying ↓name. Repeating
+Down disables name; pressing Down again enables ascending. In all three states,
+alpha remains selected and the editor remains on name.
+
+    :k down
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↓name ▸ live · recency · attention   | [C-r] repo: none                            ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+    :k down
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ name ▸ live · recency · attention   | [C-r] repo: none                             ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+    :k down
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↓name ▸ live · recency · attention   | [C-r] repo: none                            ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+Accept descending ordering set with Up. Reopen, disable it with another Up,
+and cancel: the accepted descending stack and alpha's last-row position return.
+
+    :k up M-s
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ↑n | [C-r] repo: none                                                                ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
+    :k M-s up
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ name ▸ live · recency · attention   | [C-r] repo: none                             ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+    :k C-g
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ↑n | [C-r] repo: none                                                                ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
+---
+vim: set ft=markdown:

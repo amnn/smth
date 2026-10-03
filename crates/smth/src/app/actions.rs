@@ -31,6 +31,7 @@ pub(super) struct AvailableActions {
 pub(super) enum Mode {
     Delete,
     Onto,
+    Order,
 }
 
 impl AvailableActions {
@@ -39,9 +40,10 @@ impl AvailableActions {
         sessions: &sessions::State,
         loading: bool,
         onto: bool,
+        ordering: bool,
         delete: Option<&delete::Model>,
     ) -> Self {
-        let session_actions = !loading && !onto;
+        let session_actions = !loading && !onto && !ordering;
         let selected = sessions.selected();
         Self {
             exit: !loading,
@@ -54,6 +56,8 @@ impl AvailableActions {
             flag: selected.and_then(Session::flag).filter(|_| session_actions),
             mode: if onto {
                 Some(Mode::Onto)
+            } else if ordering {
+                Some(Mode::Order)
             } else if !loading && delete.is_some() {
                 Some(Mode::Delete)
             } else {

@@ -61,6 +61,7 @@ pub struct App {
 
     actions: AvailableActions,
     onto: Option<onto::State>,
+    ordering: Option<order::State>,
     repo: Option<Repo>,
     spinner: spinner::State,
     model: Model,
@@ -125,6 +126,7 @@ impl App {
             bg: None,
             actions: AvailableActions::default(),
             onto: None,
+            ordering: None,
             repo,
             spinner: spinner::State::new(),
             model,
@@ -279,6 +281,7 @@ impl App {
 
         // Refresh once and borrow the picker, ordering, and deletion data for this render pass.
         let (status, snapshot, query, order, delete) = self.model.refresh();
+        let order = self.ordering.as_ref().map_or(order, |state| &state.pending);
         let items = order.matches(snapshot);
 
         let (label, query) = if let Some(onto) = &self.onto {
@@ -295,6 +298,7 @@ impl App {
             sigil,
             &new_sessions,
             &items,
+            order,
             snapshot.pattern().column_pattern(0),
             delete,
         );
@@ -318,7 +322,7 @@ impl App {
             self.repo.as_ref(),
             snapshot.item_count() as usize,
             order,
-            None,
+            self.ordering.as_ref().map(|state| state.selected),
         );
 
         let footer = Footer::new(delete, &items);
@@ -326,6 +330,7 @@ impl App {
             &self.sessions,
             self.bg.as_ref().is_some_and(activity::State::is_loading),
             self.onto.is_some(),
+            self.ordering.is_some(),
             delete,
         );
 
@@ -376,6 +381,24 @@ impl App {
             match action {
                 Some(onto::Action::Accept) => self.accept_onto().await,
                 Some(onto::Action::Cancel) => self.onto = None,
+                None => {}
+            }
+
+            return None;
+        }
+
+        if let Some(ordering) = &mut self.ordering {
+            let action = ordering.handle_key(key);
+            match action {
+                Some(order::Action::Accept) => {
+                    self.model.order = ordering.pending.clone();
+                    self.ordering = None;
+                }
+
+                Some(order::Action::Cancel) => {
+                    self.ordering = None;
+                }
+
                 None => {}
             }
 
@@ -455,6 +478,10 @@ impl App {
                 if let Some(repo) = &self.repo {
                     self.onto = Some(onto::State::new(repo.path().to_owned()));
                 }
+            }
+
+            KC::Char('s') if alt => {
+                self.ordering = Some(order::State::new(&self.model.order));
             }
 
             KC::Char('r') if alt => self.reset_current_repo(),

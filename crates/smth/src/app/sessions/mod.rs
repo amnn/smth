@@ -21,6 +21,7 @@ use crate::app::component::list::List;
 use crate::app::component::row::Row;
 use crate::app::component::scrollbar;
 use crate::model::delete;
+use crate::model::order::Order;
 use crate::model::session::Session;
 
 /// Minimum rows reserved for prospective sessions, with unused rows padded above the candidates.
@@ -31,25 +32,31 @@ pub(super) struct Sessions<'s> {
     sigil: char,
     new: &'s [Session],
     rest: &'s [Item<'s, Session>],
+    order: &'s Order,
     pattern: &'s Pattern,
     delete: Option<&'s delete::Model>,
 }
 
-/// Persistent selection and scroll state for the session list.
+/// Selection and scroll state, including the ordering of the last rendered rows.
 #[derive(Default)]
 pub(super) struct State {
     list: ListState,
     selected: Option<Session>,
+    /// Comparator stack used for the last rendered rows; absent before the first render.
+    order: Option<Order>,
 }
 
 impl<'s> Sessions<'s> {
     /// Create a new `Sessions` component with `new` representing the potential new sessions, and
     /// `rest` being the other candidates. The `pattern` is what was used to filter down to these
-    /// candidates, and is used to highlight the matching parts of candidate text.
+    /// candidates, and is used to highlight the matching parts of candidate text. `order` is the
+    /// stack used to sort `rest`; changes preserve the selected session's identity unless selection
+    /// was explicitly reset.
     pub(super) fn new(
         sigil: char,
         new: &'s [Session],
         rest: &'s [Item<'s, Session>],
+        order: &'s Order,
         pattern: &'s Pattern,
         delete: Option<&'s delete::Model>,
     ) -> Self {
@@ -57,6 +64,7 @@ impl<'s> Sessions<'s> {
             sigil,
             new,
             rest,
+            order,
             pattern,
             delete,
         }
@@ -67,6 +75,23 @@ impl<'s> Sessions<'s> {
         let start = self.new.len().max(NEW_SESSION_ROWS);
         let padding = start - self.new.len();
         let mut rows = Vec::with_capacity(start + self.rest.len());
+
+        // If ordering has changed since the last render, move the selected index to the new
+        // position of the previously selected session, as long as it still exists.
+        if state.order.as_ref() != Some(self.order) {
+            if state.list.selected().is_some()
+                && let Some(selected) = &state.selected
+                && let Some(index) = self
+                    .new
+                    .iter()
+                    .chain(self.rest.iter().map(|item| item.data))
+                    .position(|s| s.name() == selected.name() && s.repo() == selected.repo())
+            {
+                state.list.select(Some(index + padding));
+            }
+
+            state.order = Some(self.order.clone());
+        }
 
         state.selected = match (state.list.selected_mut(), self.new, self.rest) {
             // With no candidates or matches, there is nothing to select.
@@ -130,12 +155,16 @@ impl<'s> Sessions<'s> {
         }
 
         let height = list.height as usize;
+        let length = rows.len().saturating_sub(height) + 1;
+        f.render_stateful_widget(List::new(rows), list, &mut state.list);
+
+        // Rendering the list may move its offset, so scrollbar state is calculated after, to avoid
+        // a one frame desync.
         let mut scroll_state = ScrollbarState::default()
-            .content_length(rows.len().saturating_sub(height) + 1)
+            .content_length(length)
             .viewport_content_length(height)
             .position(state.list.offset());
 
-        f.render_stateful_widget(List::new(rows), list, &mut state.list);
         f.render_stateful_widget(scrollbar::widget(), scroll, &mut scroll_state);
     }
 }
