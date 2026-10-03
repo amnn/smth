@@ -21,12 +21,12 @@ overwrite the end of its basename, leaving a separating space.
 
     :t resize-window -t runner:0 -x 65 -y 14
     :k up
-    :snap --color
+    :snap --color -d 2s -e '(?m)^▌.* repo '
 
 The label should also take precedence when the row is not selected.
 
     :k down
-    :snap --color
+    :snap --color -d 2s -e '(?m)^▌.* tmux '
 
 At an even narrower width, the complete label remains visible over the path.
 
