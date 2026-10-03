@@ -46,7 +46,7 @@ overwrite the end of its basename, leaving a separating space.
 
     :t resize-window -t runner:0 -x 65 -y 14 (success)
     :k up
-    :snap --color
+    :snap --color -d 2s -e '(?m)^▌.* repo '
 
 ```terminal
 session: prospective
@@ -71,7 +71,7 @@ session: prospective
 The label should also take precedence when the row is not selected.
 
     :k down
-    :snap --color
+    :snap --color -d 2s -e '(?m)^▌.* tmux '
 
 ```terminal
 session: prospective
