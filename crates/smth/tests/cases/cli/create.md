@@ -93,6 +93,16 @@ repeating the original request creates a freshly disambiguated session.
 
     :t show-options -qv -t '=scratch-one~1:' @smth.test-created
 
+Slashes in plain tmux names are preserved. Repeating the exact name should reuse
+the session without attaching repository metadata.
+
+    :$ smth --config smth.toml --no-base --create foo/bar
+
+    :$ smth --config smth.toml --no-base --create foo/bar
+
+    :t show-options -qv -t '=foo/bar:' @smth.repo
+    :t show-options -qv -t '=foo/bar:' @smth.test-created
+
 A repo-backed name that sanitizes to empty is disambiguated against the existing
 default checkout, producing a suffix-only workspace name.
 

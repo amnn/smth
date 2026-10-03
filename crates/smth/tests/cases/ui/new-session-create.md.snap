@@ -17,15 +17,16 @@ directory and has no repo metadata.
     :p ui:0.0
     :settle -d 2s (settled)
 
-Type a unique session name and accept the new-session row.
+Type `foo/bar` and accept the new-session row. With no repository set, the
+slash should remain in both the proposed and created tmux session name.
 
-    :k zeta
+    :k foo/bar
     :snap
 
 ```terminal
-session: zeta
+session: foo/bar
   0/2 | [C-r] repo: none
-▌  zeta                                                                                                           tmux ┃
+▌  foo/bar                                                                                                        tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,14 +47,14 @@ should be attached.
     :t display-message -p '#{client_session}' (success)
 
 ```
-zeta
+foo/bar
 ```
 
     :t list-sessions -F '#{session_name}:#{@smth.repo}' (success)
 
 ```
+foo/bar:
 runner:
-zeta:
 ```
 
 ---

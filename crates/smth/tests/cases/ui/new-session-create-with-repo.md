@@ -15,9 +15,10 @@ creating a new named session, so the new session starts in that repo and records
     :settle -d 2s
 
 Select the discovered repo, set it as the current repo context, then accept the
-new-session row for `zeta`.
+new-session row for `foo/bar`. Repository-backed creation should still normalize
+the slash, producing session `beta/foo-bar` and checkout `beta.foo-bar`.
 
-    :k beta C-r C-u zeta
+    :k beta C-r C-u foo/bar
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session"

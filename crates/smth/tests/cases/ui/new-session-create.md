@@ -12,9 +12,10 @@ directory and has no repo metadata.
     :p ui:0.0
     :settle -d 2s
 
-Type a unique session name and accept the new-session row.
+Type `foo/bar` and accept the new-session row. With no repository set, the
+slash should remain in both the proposed and created tmux session name.
 
-    :k zeta
+    :k foo/bar
     :snap
 
     :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S created-session"
