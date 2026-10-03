@@ -26,6 +26,12 @@ Repository context is selected independently from discovery:
 
 The picker and filtering modes support these startup options:
 
+- `--order ORDER` overrides `[ui].order` for the picker, `--filter`, and
+  `--json`. Quote the signed stack, for example `--order "-live -attn +name"`.
+  Omitted keys are disabled; `--order ""` disables all comparators. The default
+  is `-live -recency +name`. Without a query, complete ties keep discovery order.
+  With a query, fuzzy score takes precedence and the stack breaks score ties.
+  See [ordering][ordering].
 - `-q`, `--query STR` seeds the interactive query.
 - `-1`, `--select-1` switches immediately when the initial query has one
   match.
@@ -37,6 +43,8 @@ The picker and filtering modes support these startup options:
   repository candidates. It cannot be combined with `--filter` or `--select-1`.
   `--query` narrows the output with the picker's fuzzy matcher. `--exit-0` is
   ignored so that an empty result is always emitted as `[]`.
+
+[ordering]: session-management.md#session-ordering-and-switching
 
 ## Structured inspection
 
