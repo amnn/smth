@@ -52,6 +52,16 @@ pub(crate) enum Key {
 }
 
 impl Order {
+    /// Cycle an existing criterion from disabled to ascending to descending and back to disabled.
+    pub(crate) fn cycle(&mut self, index: usize) {
+        let direction = &mut self.entries[index].direction;
+        *direction = match direction {
+            None => Some(Direction::Ascending),
+            Some(Direction::Ascending) => Some(Direction::Descending),
+            Some(Direction::Descending) => None,
+        };
+    }
+
     /// Borrow all criteria in priority order, including disabled criteria.
     pub(crate) fn entries(&self) -> &[Criterion] {
         &self.entries
@@ -103,6 +113,38 @@ impl Order {
         }
 
         Ordering::Equal
+    }
+
+    /// Move an existing criterion one position left, wrapping to the end, and return its new index.
+    pub(crate) fn move_left(&mut self, index: usize) -> usize {
+        if index == 0 {
+            self.entries.rotate_left(1);
+            self.entries.len() - 1
+        } else {
+            self.entries.swap(index, index - 1);
+            index - 1
+        }
+    }
+
+    /// Move an existing criterion right by one, wrapping to the start, and return its new index.
+    pub(crate) fn move_right(&mut self, index: usize) -> usize {
+        if index == self.entries.len() - 1 {
+            self.entries.rotate_right(1);
+            0
+        } else {
+            self.entries.swap(index, index + 1);
+            index + 1
+        }
+    }
+
+    /// Enable the requested direction for an existing criterion, or disable it if already selected.
+    pub(crate) fn toggle(&mut self, index: usize, direction: Direction) {
+        let current = &mut self.entries[index].direction;
+        *current = if *current == Some(direction) {
+            None
+        } else {
+            Some(direction)
+        };
     }
 }
 
@@ -159,7 +201,7 @@ impl FromStr for Order {
 
             ensure!(
                 !entries.iter().any(|e| e.key == key),
-                "duplicate ordering comparator '{name}'"
+                "duplicate ordering comparator '{name}'",
             );
 
             entries.push(Criterion {
@@ -290,6 +332,68 @@ mod tests {
             "＋name",
         ] {
             assert!(invalid.parse::<Order>().is_err(), "accepted {invalid:?}");
+        }
+    }
+
+    #[test]
+    fn cycling_changes_only_the_selected_criterion() {
+        let original: Order = "".parse().unwrap();
+        for index in 0..original.entries().len() {
+            let mut order = original.clone();
+            let mut expected = original.clone();
+            for direction in [
+                Some(Direction::Ascending),
+                Some(Direction::Descending),
+                None,
+            ] {
+                expected.entries[index].direction = direction;
+                order.cycle(index);
+                assert_eq!(order, expected);
+            }
+        }
+    }
+
+    #[test]
+    fn moving_left_and_right_wraps_and_preserves_criteria() {
+        let original = Order::default();
+        for (index, next, permutation) in [
+            (0, 3, [1, 2, 3, 0]),
+            (1, 0, [1, 0, 2, 3]),
+            (2, 1, [0, 2, 1, 3]),
+            (3, 2, [0, 1, 3, 2]),
+        ] {
+            let mut order = original.clone();
+            assert_eq!(order.move_left(index), next);
+            assert_eq!(
+                order.entries(),
+                permutation.map(|index| original.entries()[index])
+            );
+            assert_eq!(order.move_right(next), index);
+            assert_eq!(order, original);
+        }
+    }
+
+    #[test]
+    fn toggling_changes_only_the_selected_criterion() {
+        use crate::model::order::Direction as D;
+
+        let original = Order::default();
+        for index in 0..original.entries().len() {
+            for (initial, requested, result) in [
+                (None, D::Ascending, Some(D::Ascending)),
+                (None, D::Descending, Some(D::Descending)),
+                (Some(D::Ascending), D::Ascending, None),
+                (Some(D::Descending), D::Descending, None),
+                (Some(D::Ascending), D::Descending, Some(D::Descending)),
+                (Some(D::Descending), D::Ascending, Some(D::Ascending)),
+            ] {
+                let mut order = original.clone();
+                order.entries[index].direction = initial;
+                let mut expected = original.clone();
+                expected.entries[index].direction = result;
+                order.toggle(index, requested);
+                assert_eq!(order, expected);
+            }
         }
     }
 

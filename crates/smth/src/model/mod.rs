@@ -50,7 +50,7 @@ use crate::model::session::Session;
 #[derive(Default)]
 pub struct Model {
     /// Ordering shared by interactive and non-interactive matching.
-    order: Order,
+    pub(crate) order: Order,
 
     /// Fuzzy finder state for discovered sessions.
     picker: Picker<Session>,

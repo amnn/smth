@@ -269,6 +269,7 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         writeln!(out, "  '''")?;
         writeln!(out)?;
         writeln!(out, "  [ui]")?;
+        writeln!(out, "  order = \"-live -recency +name\"")?;
         writeln!(out, "  sigil = \"■\"")
     })?;
 
@@ -286,7 +287,19 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "Toggle the workspace's persisted pending-deletion marker.",
     )?;
     w.def("C-f", "Flag or unflag a live session.")?;
-    w.def("C-g", "Cancel onto mode, or clear staged deletions.")?;
+    w.def(
+        "C-g",
+        "Cancel ordering or onto editing, otherwise clear staged deletions.",
+    )?;
+    w.def(
+        "M-s",
+        "Edit session ordering, or accept pending changes for this run.",
+    )?;
+    w.def("l, r, n, a", "In ordering mode, select live, recency, name, or attention; repeat to cycle ascending, descending, disabled.")?;
+    w.def(
+        "left, right",
+        "In ordering mode, move the selected comparator, wrapping at the ends.",
+    )?;
     w.def("C-n", "Create the session without switching to it.")?;
     w.def("C-o", "Open or cancel the onto revision picker.")?;
     w.def("C-p", "Toggle the preview pane outside onto mode.")?;
@@ -297,12 +310,16 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "C-y",
         "Delete all staged workspaces, including hidden ones, and close their sessions.",
     )?;
-    w.def("up, down", "Move selection by one row.")?;
+    w.def(
+        "up, down",
+        "In ordering mode, set the selected comparator to ↑ (descending) or ↓ (ascending); \
+         repeat the same direction to disable it. Otherwise, move selection by one row.",
+    )?;
     w.def("C-k, C-j", "Move selection by one row.")?;
     w.def("M-up, M-down", "Move selection to the first or last row.")?;
     w.def("M-k, M-j", "Move selection to the first or last row.")?;
     w.def("S-up, S-down", "Scroll the preview pane up or down.")?;
-    w.def("tab, S-tab", "Jump between fuzzy matches in onto mode.")?;
+    w.def("tab, S-tab", "Select next/previous comparator in ordering mode, or jump between fuzzy matches in onto mode.")?;
     w.def(
         "enter",
         "Accept the onto revision, or switch to the session, creating it if necessary.",

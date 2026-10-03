@@ -85,7 +85,14 @@ impl<'r> Header<'r> {
             line += Span::raw("none").dim();
         }
 
-        f.render_widget(line, area);
-        f.render_widget(agent::summary(&self.agents, false), area);
+        // By default the agent summary takes precedence over the rest of the header, but if we are
+        // in order mode, the header takes precedence to ensure the order UI is not obscured.
+        if self.selected_order.is_none() {
+            f.render_widget(line, area);
+            f.render_widget(agent::summary(&self.agents, false), area);
+        } else {
+            f.render_widget(agent::summary(&self.agents, false), area);
+            f.render_widget(line, area);
+        }
     }
 }

@@ -45,6 +45,363 @@ session:                                                                        
 ![light](session-ordering.md.snap.1.light.svg)
 ![dark](session-ordering.md.snap.1.dark.svg)
 
+Enter the editor with live selected. Full names appear, with disabled attention
+dimmed but its initial still interactive. Select recency without changing it;
+then select name, move it to the front, and reverse it. Alpha remains selected
+as the list reorders.
+
+    :k M-s
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↑live ▸ ↑recency · ↓name · attention   | [C-r] repo: none                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.2.light.svg)
+![dark](session-ordering.md.snap.2.dark.svg)
+
+    :k r
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s]   ↑live ◂ ↑recency ▸ ↓name · attention   | [C-r] repo: none                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.3.light.svg)
+![dark](session-ordering.md.snap.3.dark.svg)
+
+    :k n left left n
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↑name ▸ ↑live · ↑recency · attention   | [C-r] repo: none                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.4.light.svg)
+![dark](session-ordering.md.snap.4.dark.svg)
+
+Tab and Shift-Tab wrap through all four comparators. Moving left from the first
+position wraps the selected name comparator to the end; right brings it back.
+The outward triangles occupy reserved space and never shift the labels.
+
+    :k btab
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ attention ▸ | [C-r] repo: none                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.5.light.svg)
+![dark](session-ordering.md.snap.5.dark.svg)
+
+    :k tab left
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s]   ↑live · ↑recency · attention ◂ ↑name ▸ | [C-r] repo: none                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.6.light.svg)
+![dark](session-ordering.md.snap.6.dark.svg)
+
+    :k right
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↑name ▸ ↑live · ↑recency · attention   | [C-r] repo: none                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.7.light.svg)
+![dark](session-ordering.md.snap.7.dark.svg)
+
+Selecting attention once only selects it. Repeating enables ascending, repeating
+again reverses, and repeating again disables it without losing its position.
+
+    :k a a
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ ↓attention ▸ | [C-r] repo: none                         ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.8.light.svg)
+![dark](session-ordering.md.snap.8.dark.svg)
+
+    :k a
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ ↑attention ▸ | [C-r] repo: none                         ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+    :k a
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ attention ▸ | [C-r] repo: none                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.10.light.svg)
+![dark](session-ordering.md.snap.10.dark.svg)
+
+Query typing, deletion, flagging, closing, creation, Enter, and onto commands
+are inert in the editor. Cancel restores the default ordering and alpha's row.
+
+    :k xyz C-d C-f C-x C-n enter C-o C-g
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
+Accept a name-first descending stack. A subsequent edit can be cancelled without
+losing that accepted stack. Launching again uses the built-in default, not the
+accepted edit.
+
+    :k M-s n left left n M-s
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ↑n ↑l ↑r | [C-r] repo: none                                                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
+    :k M-s n C-g
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ↑n ↑l ↑r | [C-r] repo: none                                                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+ ■ beta                                                                                            ┃
+▌■ alpha                                                                                           ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
+    :t respawn-pane -k -t runner:0 'smth; cat' (success)
+    :settle -d 2s (settled)
+    :k C-p
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+                                                                                                   ┃
+ ■ runner                                                                                          ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag                                                                           ┃
+```
+
 An explicitly empty stack shows just `order`, and selects the first discovery
 result rather than preferring recency.
 
@@ -74,8 +431,40 @@ session:                                                                        
  [C-x] close, [C-f] flag                                                                           ┃
 ```
 
-![light](session-ordering.md.snap.2.light.svg)
-![dark](session-ordering.md.snap.2.dark.svg)
+![light](session-ordering.md.snap.15.light.svg)
+![dark](session-ordering.md.snap.15.dark.svg)
+
+All-disabled entry selects live; enabling it does not revive any other key.
+Escape exits the application rather than accepting pending edits.
+
+    :k M-s l
+    :snap --color
+
+```terminal
+session:                                                                                           ┃
+  3/3 | [M-s] ◂ ↓live ▸ recency · name · attention   | [C-r] repo: none                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ runner                                                                                          ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                 order [C-g] cancel┃
+```
+
+![light](session-ordering.md.snap.16.light.svg)
+![dark](session-ordering.md.snap.16.dark.svg)
+
+    :k escape
 
 ---
 vim: set ft=markdown:

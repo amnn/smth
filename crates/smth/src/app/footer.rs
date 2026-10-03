@@ -76,6 +76,7 @@ impl<'s> Footer<'s> {
         let label = match mode {
             Mode::Delete => "delete",
             Mode::Onto => "onto",
+            Mode::Order => "order",
         };
 
         let mut line = Line::from(Span::raw(format!("{label} ")).dim());
