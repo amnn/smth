@@ -4,10 +4,18 @@
 //! Ordered, independently directed session comparators.
 
 use std::cmp::Ordering;
+use std::cmp::Reverse;
+use std::fmt;
 use std::str::FromStr;
 
 use anyhow::bail;
 use anyhow::ensure;
+use nucleo::Config;
+use nucleo::Item;
+use nucleo::Matcher;
+use nucleo::Snapshot;
+use serde_with::DeserializeFromStr;
+use serde_with::SerializeDisplay;
 
 use crate::model::session::Session;
 
@@ -15,7 +23,7 @@ use crate::model::session::Session;
 ///
 /// Every key occurs once, including disabled keys. Disabled keys retain their positions but do not
 /// participate in comparison. Equal sessions retain their input order when sorted stably.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, DeserializeFromStr, Eq, PartialEq, SerializeDisplay)]
 pub struct Order {
     entries: Vec<Criterion>,
 }
@@ -44,6 +52,27 @@ enum Key {
 }
 
 impl Order {
+    /// Rank queries by fuzzy score, breaking score ties with the configured stack.
+    /// Without a query, apply only the stack and preserve discovery order for complete ties.
+    pub(crate) fn matches<'s>(&self, snapshot: &'s Snapshot<Session>) -> Vec<Item<'s, Session>> {
+        let mut items: Vec<_> = snapshot.matched_items(..).collect();
+        items.sort_by(|left, right| self.compare(left.data, right.data));
+
+        let pattern = snapshot.pattern();
+        if !pattern.is_empty() {
+            let mut matcher = Matcher::new(Config::DEFAULT);
+            items.sort_by_cached_key(|item| {
+                Reverse(
+                    pattern
+                        .score(item.matcher_columns, &mut matcher)
+                        .expect("snapshot items match its pattern"),
+                )
+            });
+        }
+
+        items
+    }
+
     /// Compare sessions using only enabled criteria, falling through on equality.
     pub(crate) fn compare(&self, left: &Session, right: &Session) -> Ordering {
         for criterion in &self.entries {
@@ -69,6 +98,34 @@ impl Order {
         }
 
         Ordering::Equal
+    }
+}
+
+impl fmt::Display for Order {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut prefix = "";
+        for entry in &self.entries {
+            let Some(direction) = entry.direction else {
+                continue;
+            };
+
+            let sign = match direction {
+                Direction::Ascending => '+',
+                Direction::Descending => '-',
+            };
+
+            let name = match entry.key {
+                Key::Live => "live",
+                Key::Recency => "recency",
+                Key::Name => "name",
+                Key::Attention => "attn",
+            };
+
+            write!(f, "{prefix}{sign}{name}")?;
+            prefix = " ";
+        }
+
+        Ok(())
     }
 }
 

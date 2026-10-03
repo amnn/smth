@@ -36,10 +36,10 @@ The first snapshot establishes the initial selection before those jumps.
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
 ▌■ runner                                                                                          ┃
- ■ zeta                                                                                            ┃
- ■ ta                                                                                              ┃
- ■ delta                                                                                           ┃
  ■ beta                                                                                            ┃
+ ■ delta                                                                                           ┃
+ ■ ta                                                                                              ┃
+ ■ zeta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -54,10 +54,10 @@ session:                                                                        
 session:                                                                                           ┃
   6/6 | [C-r] repo: none                                                                           ┃
  ■ runner                                                                                          ┃
- ■ zeta                                                                                            ┃
- ■ ta                                                                                              ┃
+ ■ beta                                                                                            ┃
  ■ delta                                                                                           ┃
-▌■ beta                                                                                            ┃
+ ■ ta                                                                                              ┃
+▌■ zeta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -73,10 +73,10 @@ session:                                                                        
   6/6 | [C-r] repo: none                                                                           ┃
 ▌■ ui                                                                                              ┃
  ■ runner                                                                                          ┃
- ■ zeta                                                                                            ┃
- ■ ta                                                                                              ┃
- ■ delta                                                                                           ┃
  ■ beta                                                                                            ┃
+ ■ delta                                                                                           ┃
+ ■ ta                                                                                              ┃
+ ■ zeta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -95,8 +95,8 @@ session: et                                                                     
   3/6 | [C-r] repo: none                                                                           ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
-▌■ zeta                                                                                            ┃
- ■ beta                                                                                            ┃
+▌■ beta                                                                                            ┃
+ ■ zeta                                                                                            ┃
  ■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -113,8 +113,8 @@ session: et                                                                     
   3/6 | [C-r] repo: none                                                                           ┃
    et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
- ■ zeta                                                                                            ┃
  ■ beta                                                                                            ┃
+ ■ zeta                                                                                            ┃
 ▌■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -131,8 +131,8 @@ session: et                                                                     
   3/6 | [C-r] repo: none                                                                           ┃
 ▌  et                                       ~/et                                              repo ┃
    et                                                                                         tmux ┃
- ■ zeta                                                                                            ┃
  ■ beta                                                                                            ┃
+ ■ zeta                                                                                            ┃
  ■ delta                                                                                           ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -155,9 +155,9 @@ session: ta                                                                     
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
 ▌■ ta                                                                                              ┃
- ■ zeta                                                                                            ┃
  ■ beta                                                                                            ┃
  ■ delta                                                                                           ┃
+ ■ zeta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -173,9 +173,9 @@ session: ta                                                                     
    ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
  ■ ta                                                                                              ┃
- ■ zeta                                                                                            ┃
  ■ beta                                                                                            ┃
-▌■ delta                                                                                           ┃
+ ■ delta                                                                                           ┃
+▌■ zeta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
@@ -191,9 +191,9 @@ session: ta                                                                     
 ▌  ta~1                                     ~/ta                                              repo ┃
    ta~1                                                                                       tmux ┃
  ■ ta                                                                                              ┃
- ■ zeta                                                                                            ┃
  ■ beta                                                                                            ┃
  ■ delta                                                                                           ┃
+ ■ zeta                                                                                            ┃
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃

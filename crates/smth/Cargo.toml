@@ -22,6 +22,7 @@ ratatui.workspace = true
 regex.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+serde_with.workspace = true
 shlex.workspace = true
 textwrap.workspace = true
 tokio.workspace = true

@@ -23,6 +23,7 @@ use clap::Parser as _;
 use smth::App;
 use smth::Context;
 use smth::Model;
+use smth::Order;
 use smth::cmd::jj;
 use smth::cmd::tmux;
 use smth::config::SmthConfig;
@@ -143,6 +144,20 @@ struct Args {
                      An explicit revision requires a repository base."
     )]
     onto: Option<String>,
+
+    /// Initial ordering for the picker, --filter, and --json.
+    #[arg(
+        long,
+        value_name = "ORDER",
+        allow_hyphen_values = true,
+        long_help = "Whitespace-separated signed comparators: +live, -live, +recency, -recency, \
+                     +name, -name, +attn, or -attn. Earlier comparators have higher priority; \
+                     omitted comparators are disabled. Empty string disables all comparators. \
+                     Overrides ui.order; default: '-live -recency +name'. With a query, fuzzy \
+                     score takes precedence and this order breaks score ties. Picker edits last \
+                     only for this run."
+    )]
+    order: Option<Order>,
 
     /// Seed the initial query.
     #[arg(short = 'q', long, value_name = "STR")]
@@ -442,7 +457,8 @@ async fn run() -> anyhow::Result<ExitCode> {
     globs.extend(args.repos);
 
     let query = args.query.unwrap_or_default();
-    let mut model = Model::new(&globs, current.as_deref(), query).await?;
+    let order = args.order.unwrap_or(config.ui.order);
+    let mut model = Model::new(&globs, current.as_deref(), query, order).await?;
 
     match &action {
         Some(Action::Json) => {

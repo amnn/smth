@@ -49,6 +49,9 @@ use crate::model::session::Session;
 /// The default model is empty and does not discover sessions.
 #[derive(Default)]
 pub struct Model {
+    /// Ordering shared by interactive and non-interactive matching.
+    order: Order,
+
     /// Fuzzy finder state for discovered sessions.
     picker: Picker<Session>,
 
@@ -84,17 +87,20 @@ struct Workspace {
 }
 
 impl Model {
-    /// Construct a model with discovered sessions and a seeded fuzzy query.
+    /// Construct a model with discovered sessions, a seeded fuzzy query, and initial ordering.
     ///
     /// `globs` is a list of glob patterns to search for repositories in. `current` is an
     /// optional current repository path. The model will discover workspace information for all the
-    /// repositories found between the two. `query` seeds the model's fuzzy picker.
+    /// repositories found between the two. `query` seeds the model's fuzzy picker, and `order`
+    /// supplies its initial comparator stack.
     pub async fn new(
         globs: &[String],
         current: Option<&Path>,
         query: String,
+        order: Order,
     ) -> anyhow::Result<Self> {
         let mut model = Self {
+            order,
             picker: Picker::new(query),
             sessions: Vec::new(),
             deleting: None,
@@ -209,8 +215,10 @@ impl Model {
         loop {
             let (status, snapshot, _) = self.picker.refresh();
             if !status.running {
-                return snapshot
-                    .matched_items(..)
+                return self
+                    .order
+                    .matches(snapshot)
+                    .into_iter()
                     .map(|item| item.data.clone())
                     .collect();
             }
@@ -379,9 +387,6 @@ impl Model {
                 .insert(name.to_owned());
         }
 
-        let order = Order::default();
-        self.sessions.sort_by(|l, r| order.compare(l, r));
-
         let pending_deletions = join_all(self.sessions.iter().map(Session::repo_pending_deletion))
             .await
             .into_iter()
@@ -425,10 +430,18 @@ impl Model {
         started
     }
 
-    /// Refresh fuzzy matches and borrow the picker and deletion data for one render pass.
-    pub(crate) fn refresh(&mut self) -> (Status, &Snapshot<Session>, &str, Option<&delete::Model>) {
+    /// Refresh fuzzy matches and borrow picker, ordering, and deletion data for one render pass.
+    pub(crate) fn refresh(
+        &mut self,
+    ) -> (
+        Status,
+        &Snapshot<Session>,
+        &str,
+        &Order,
+        Option<&delete::Model>,
+    ) {
         let (status, snapshot, query) = self.picker.refresh();
-        (status, snapshot, query, self.deleting.as_ref())
+        (status, snapshot, query, &self.order, self.deleting.as_ref())
     }
 
     /// Construct a repository context, normalizing it to an existing default workspace when known.
@@ -704,6 +717,73 @@ mod tests {
 
     use super::*;
 
+    /// Assert result names at the call site after background matching completes.
+    macro_rules! assert_matches {
+        ($model:expr, $expected:expr) => {{
+            let names: Vec<_> = ($model).matches().iter().map(Session::name).collect();
+            assert_eq!(names, $expected);
+        }};
+    }
+
+    /// Seed equal-recency live sessions in the specified discovery order.
+    fn ordering_model(names: &[&str]) -> Model {
+        let model = Model::default();
+        model.picker.inject(names.iter().map(|name| {
+            LiveKind::new(
+                (*name).to_owned(),
+                None,
+                tmux::SessionInfo {
+                    agents: BTreeMap::default(),
+                    alerts: BTreeSet::default(),
+                    attached: false,
+                    flagged: false,
+                    last_attached: None,
+                    repo: None,
+                },
+            )
+            .into()
+        }));
+        model
+    }
+
+    #[test]
+    fn disabled_order_uses_fuzzy_ranking_only_with_a_query() {
+        let mut model = ordering_model(&["zaz", "a"]);
+        model.order = "".parse().unwrap();
+        assert_matches!(model, ["zaz", "a"]);
+        model.push_query('a');
+        assert_matches!(model, ["a", "zaz"]);
+        model.clear_query();
+        assert_matches!(model, ["zaz", "a"]);
+    }
+
+    #[test]
+    fn ordering_breaks_equal_query_score_ties() {
+        let mut model = ordering_model(&["ac", "ab"]);
+        model.push_query('a');
+        model.order = "+name".parse().unwrap();
+        assert_matches!(model, ["ab", "ac"]);
+        model.order = "-name".parse().unwrap();
+        assert_matches!(model, ["ac", "ab"]);
+        model.order = "".parse().unwrap();
+        assert_matches!(model, ["ac", "ab"]);
+    }
+
+    #[test]
+    fn query_scores_take_precedence_over_configured_order() {
+        let mut model = ordering_model(&["zaz", "a"]);
+        model.order = "-name".parse().unwrap();
+        assert_matches!(model, ["zaz", "a"]);
+        model.push_query('a');
+        assert_matches!(model, ["a", "zaz"]);
+        model.order = "+name".parse().unwrap();
+        assert_matches!(model, ["a", "zaz"]);
+        model.order = "-name".parse().unwrap();
+        assert_matches!(model, ["a", "zaz"]);
+        model.clear_query();
+        assert_matches!(model, ["zaz", "a"]);
+    }
+
     #[test]
     fn initial_selection_skips_only_the_invoking_first_result_without_a_query() {
         let mut model = Model::default();
@@ -725,6 +805,7 @@ mod tests {
                 .into()
             })
             .collect();
+
         model.picker.inject(sessions.clone());
         assert_eq!(model.initial_selection(None), Some(0));
         assert_eq!(model.initial_selection(Some("beta")), Some(0));
