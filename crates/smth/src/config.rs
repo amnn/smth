@@ -14,6 +14,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 use crate::cmd::custom::Cmd;
+use crate::model::order::Order;
 use crate::path::expand_home;
 
 /// The relative config file path below the `smth` config root.
@@ -73,6 +74,9 @@ pub struct TmuxConfig {
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(default)]
 pub struct UiConfig {
+    /// Initial comparator stack, overridden by --order; omitted keys are disabled.
+    pub order: Order,
+
     /// Character used to mark live tmux sessions in the picker.
     pub sigil: char,
 }
@@ -108,7 +112,10 @@ impl SmthConfig {
 
 impl Default for UiConfig {
     fn default() -> Self {
-        Self { sigil: '■' }
+        Self {
+            order: Order::default(),
+            sigil: '■',
+        }
     }
 }
 

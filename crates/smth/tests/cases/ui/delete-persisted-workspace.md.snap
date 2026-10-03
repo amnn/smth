@@ -65,8 +65,8 @@ session:                                                                        
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃
  ■ runner                                                                                                              ┃
- × alpha/first                              ~/alpha.feature                                                            ┃
  × alpha/alias                              ~/alpha.feature                                                            ┃
+ × alpha/first                              ~/alpha.feature                                                            ┃
    alpha                                    ~/alpha                                                                    ┃
                                                                                                                        ┃
                                                                                                                        ┃

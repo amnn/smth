@@ -1,0 +1,151 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/session-order.md
+---
+# Configured session ordering
+
+Create live sessions whose discovery order differs from both descending names
+and attachment recency. Without a query, listing uses the comparator stack or
+plain discovery order when the stack is empty.
+
+    :b jj tmux cat (available)
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s alpha cat (success)
+    :t new-session -d -s beta cat (success)
+    :$ smth --filter --order '-name' (exit: 0)
+
+```stdout
+runner
+beta
+alpha
+```
+
+    :$ smth --filter --order '' (exit: 0)
+
+```stdout
+alpha
+beta
+runner
+```
+
+With a query, fuzzy score takes precedence: alpha's prefix match beats beta's
+suffix match even with descending names. Disabling comparators still uses fuzzy
+ranking. JSON shares the same result order.
+
+    :$ smth --filter --order '-name' --query a (exit: 0)
+
+```stdout
+alpha
+beta
+```
+
+    :$ smth --filter --order '' --query a (exit: 0)
+
+```stdout
+alpha
+beta
+```
+
+    :$ smth --json --order '-name' --query a (exit: 0)
+
+```stdout
+[
+  {
+    "name": "alpha",
+    "tmux": "alpha",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": false
+  },
+  {
+    "name": "beta",
+    "tmux": "beta",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": false
+  }
+]
+```
+
+Configuration supplies the initial stack. The CLI overrides it, including an
+explicit empty string. No comparator uses a legacy alias or a disabled sigil.
+
+    :w order.toml (written)
+
+```toml
+[ui]
+order = "-name"
+```
+
+    :$ smth --config order.toml --filter (exit: 0)
+
+```stdout
+runner
+beta
+alpha
+```
+
+    :$ smth --config order.toml --filter --order '+name' (exit: 0)
+
+```stdout
+alpha
+beta
+runner
+```
+
+    :$ smth --config order.toml --filter --order '' (exit: 0)
+
+```stdout
+alpha
+beta
+runner
+```
+
+    :$ smth --filter --order '-last' (exit: 2)
+
+```stderr
+error: invalid value '-last' for '--order <ORDER>': unknown comparator 'last'; expected live, recency, name, or attn
+
+For more information, try 'help'.
+```
+
+    :$ smth --filter --order '!name' (exit: 2)
+
+```stderr
+error: invalid value '!name' for '--order <ORDER>': comparator '!name' must start with + or -
+
+For more information, try 'help'.
+```
+
+    :$ smth --filter --order '+name -name' (exit: 2)
+
+```stderr
+error: invalid value '+name -name' for '--order <ORDER>': duplicate ordering comparator 'name'
+
+For more information, try 'help'.
+```
+
+Two equal-length names with the same matching prefix have equal fuzzy scores.
+The explicit name comparator breaks that tie in either direction.
+
+    :t new-session -d -s tiez cat (success)
+    :t new-session -d -s tiea cat (success)
+    :$ smth --filter --order '-name' --query tie (exit: 0)
+
+```stdout
+tiez
+tiea
+```
+
+    :$ smth --filter --order '+name' --query tie (exit: 0)
+
+```stdout
+tiea
+tiez
+```
+
+---
+vim: set ft=markdown:

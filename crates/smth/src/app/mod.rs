@@ -276,9 +276,9 @@ impl App {
         let new_sessions = self.model.sessions_for_query(self.repo.as_ref(), repo_root);
         let agent_summary = self.model.agent_summary();
 
-        // Refresh once and borrow the picker and deletion data for this render pass.
-        let (status, snapshot, query, delete) = self.model.refresh();
-        let items: Vec<_> = snapshot.matched_items(..).collect();
+        // Refresh once and borrow the picker, ordering, and deletion data for this render pass.
+        let (status, snapshot, query, order, delete) = self.model.refresh();
+        let items = order.matches(snapshot);
 
         let (label, query) = if let Some(onto) = &self.onto {
             ("onto", onto.query())
