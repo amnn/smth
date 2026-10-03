@@ -5,6 +5,7 @@
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::env;
 use std::ffi::OsStr;
 use std::path::Path;
 use std::path::PathBuf;
@@ -115,6 +116,42 @@ pub async fn client_snapshot() -> anyhow::Result<ClientSnapshot> {
 pub fn ensure() -> anyhow::Result<()> {
     ensure!(which("tmux").is_ok(), "'tmux' not found in PATH");
     Ok(())
+}
+
+/// Identify the session containing the invoking pane, not an arbitrary attached client.
+///
+/// Popups omit `TMUX_PANE`; use the session ID carried in `TMUX` in that case. Returns `None`
+/// outside tmux, or an error if tmux cannot be run, lookup fails, or output is not valid UTF-8.
+pub async fn invoking_session() -> anyhow::Result<Option<String>> {
+    let target = env::var_os("TMUX_PANE").or_else(|| {
+        let tmux = env::var("TMUX").ok()?;
+        let (_, session) = tmux.rsplit_once(',')?;
+        Some(format!("${session}").into())
+    });
+
+    let Some(target) = target else {
+        return Ok(None);
+    };
+
+    let output = Command::new("tmux")
+        .args(["display-message", "-p", "-t"])
+        .arg(target)
+        .arg("#{session_name}")
+        .output()
+        .await
+        .context("failed to identify invoking tmux session")?;
+
+    ensure!(
+        output.status.success(),
+        "could not identify invoking tmux session: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    Ok(Some(
+        String::from_utf8(output.stdout)?
+            .trim_end_matches('\n')
+            .to_owned(),
+    ))
 }
 
 /// Kill an existing tmux session.

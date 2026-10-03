@@ -44,6 +44,7 @@ use crate::app::sessions::NEW_SESSION_ROWS;
 use crate::app::sessions::Sessions;
 use crate::app::sessions::preview;
 use crate::app::sessions::preview::Preview;
+use crate::cmd::tmux;
 use crate::model::Model;
 use crate::model::session::Repo;
 use crate::model::session::Session;
@@ -108,7 +109,6 @@ impl App {
     /// `repo` is the initial base repository, `revision` optionally overrides its workspace base
     /// revision, and `model` contains the underlying data to drive the interface.
     pub fn new(repo: Option<PathBuf>, revision: Option<String>, model: Model) -> Self {
-        let select = model.recently_attached().map(|i| i + NEW_SESSION_ROWS);
         let mut preview = preview::State::new();
         preview.feed(model.sessions());
         let repo = repo.map(|repo| {
@@ -128,12 +128,18 @@ impl App {
             spinner: spinner::State::new(),
             model,
             preview,
-            sessions: sessions::State::new(select),
+            sessions: sessions::State::new(None),
         }
     }
 
     /// Run the interactive picker for discovered sessions.
     pub async fn run(mut self, cwd: &Path, ctx: Context<'_>) -> anyhow::Result<()> {
+        let invoking = tmux::invoking_session().await?;
+        let select = self
+            .model
+            .initial_selection(invoking.as_deref())
+            .map(|i| i + NEW_SESSION_ROWS);
+        self.sessions = sessions::State::new(select);
         let _guard = AlternateScreenGuard::new()?;
         let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
 
