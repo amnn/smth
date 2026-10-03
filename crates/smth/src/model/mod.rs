@@ -36,7 +36,6 @@ use crate::model::serialize::SerializedSession;
 use crate::model::session::Base;
 use crate::model::session::LiveKind;
 use crate::model::session::NewKind;
-use crate::model::session::Recency;
 use crate::model::session::Repo;
 use crate::model::session::RepoKind;
 use crate::model::session::Session;
@@ -58,9 +57,6 @@ pub struct Model {
 
     /// Checkout deletions selected by discovery or explicit override, with affected session counts.
     deleting: Option<delete::Model>,
-
-    /// Index of the unattached session that was most recently attached to.
-    recently_attached: Option<usize>,
 
     /// Names of live tmux sessions, used to disambiguate candidate session names.
     seen_tmux_names: BTreeSet<String>,
@@ -102,7 +98,6 @@ impl Model {
             picker: Picker::new(query),
             sessions: Vec::new(),
             deleting: None,
-            recently_attached: None,
             seen_tmux_names: BTreeSet::new(),
             seen_workspaces: BTreeMap::new(),
             workspaces: BTreeMap::new(),
@@ -314,7 +309,6 @@ impl Model {
     ) -> anyhow::Result<()> {
         self.sessions.clear();
         self.deleting = None;
-        self.recently_attached = None;
         self.seen_tmux_names.clear();
         self.seen_workspaces.clear();
         self.workspaces.clear();
@@ -388,13 +382,6 @@ impl Model {
         let order = Order::default();
         self.sessions.sort_by(|l, r| order.compare(l, r));
 
-        if self.picker.query().is_empty() {
-            self.recently_attached = self
-                .sessions
-                .iter()
-                .position(|s| s.is_live() && s.recency() != Recency::Attached);
-        }
-
         let pending_deletions = join_all(self.sessions.iter().map(Session::repo_pending_deletion))
             .await
             .into_iter()
@@ -414,9 +401,14 @@ impl Model {
         self.deleting.as_ref()
     }
 
-    /// Index of the unattached live session that was most recently attached to.
-    pub(crate) fn recently_attached(&self) -> Option<usize> {
-        self.recently_attached
+    /// Select the first ordered result, skipping only the invoking session for an empty query.
+    pub(crate) fn initial_selection(&mut self, invoking: Option<&str>) -> Option<usize> {
+        let skip_current = self.picker.query().is_empty();
+        let matches = self.matches();
+        let first = matches.first()?;
+        Some(usize::from(
+            skip_current && invoking == Some(first.name().as_str()) && matches.len() > 1,
+        ))
     }
 
     /// Remove the trailing character from the active query string.
@@ -711,6 +703,41 @@ mod tests {
     use tempfile::tempdir;
 
     use super::*;
+
+    #[test]
+    fn initial_selection_skips_only_the_invoking_first_result_without_a_query() {
+        let mut model = Model::default();
+        let sessions: Vec<Session> = ["alpha", "beta"]
+            .into_iter()
+            .map(|name| {
+                LiveKind::new(
+                    name.to_owned(),
+                    None,
+                    tmux::SessionInfo {
+                        agents: Default::default(),
+                        alerts: Default::default(),
+                        attached: true,
+                        flagged: false,
+                        last_attached: None,
+                        repo: None,
+                    },
+                )
+                .into()
+            })
+            .collect();
+        model.picker.inject(sessions.clone());
+        assert_eq!(model.initial_selection(None), Some(0));
+        assert_eq!(model.initial_selection(Some("beta")), Some(0));
+        assert_eq!(model.initial_selection(Some("alpha")), Some(1));
+        model.push_query('a');
+        assert_eq!(model.initial_selection(Some("alpha")), Some(0));
+        model.clear_query();
+        model.picker.reset();
+        model.picker.inject([sessions[0].clone()]);
+        assert_eq!(model.initial_selection(Some("alpha")), Some(0));
+        model.picker.reset();
+        assert_eq!(model.initial_selection(Some("alpha")), None);
+    }
 
     #[test]
     fn default_model_is_empty() {
