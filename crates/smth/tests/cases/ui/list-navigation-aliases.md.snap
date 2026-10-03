@@ -30,7 +30,7 @@ Hide the preview so the selected row movement is easy to inspect.
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
 ▌■ runner                                                                                          ┃
  ■ alpha                                                                                           ┃
  ■ beta                                                                                            ┃
@@ -50,7 +50,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
  ■ runner                                                                                          ┃
 ▌■ alpha                                                                                           ┃
  ■ beta                                                                                            ┃
@@ -70,7 +70,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
 ▌■ runner                                                                                          ┃
  ■ alpha                                                                                           ┃
  ■ beta                                                                                            ┃
@@ -90,7 +90,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
  ■ runner                                                                                          ┃
  ■ alpha                                                                                           ┃
  ■ beta                                                                                            ┃
@@ -110,7 +110,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  6/6 | [C-r] repo: none                                                                           ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
 ▌■ ui                                                                                              ┃
  ■ runner                                                                                          ┃
  ■ alpha                                                                                           ┃

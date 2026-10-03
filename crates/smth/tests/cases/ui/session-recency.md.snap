@@ -49,7 +49,7 @@ followed by the initially selected second-most-recent session, `gamma`.
 
 ```terminal
 session:
-  4/4 | [C-r] repo: none
+  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
                                                                                ┃
                                                                                ┃
  ■ runner                                                                      ┃
@@ -79,7 +79,7 @@ new-session candidate remains unselected.
 
 ```terminal
 session: a
-  3/4 | [C-r] repo: none
+  3/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
    a                                        ~/a                           repo ┃
    a                                                                      tmux ┃
 ▌■ alpha                                                                       ┃

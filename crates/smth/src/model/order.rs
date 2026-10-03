@@ -30,21 +30,21 @@ pub struct Order {
 
 /// One comparator and its independently enabled direction.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-struct Criterion {
-    key: Key,
-    direction: Option<Direction>,
+pub(crate) struct Criterion {
+    pub(crate) key: Key,
+    pub(crate) direction: Option<Direction>,
 }
 
 /// Direction of increasing values on the page.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum Direction {
+pub(crate) enum Direction {
     Ascending,
     Descending,
 }
 
 /// Available comparators, also defining the append order for omitted keys.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum Key {
+pub(crate) enum Key {
     Live,
     Recency,
     Name,
@@ -52,6 +52,11 @@ enum Key {
 }
 
 impl Order {
+    /// Borrow all criteria in priority order, including disabled criteria.
+    pub(crate) fn entries(&self) -> &[Criterion] {
+        &self.entries
+    }
+
     /// Rank queries by fuzzy score, breaking score ties with the configured stack.
     /// Without a query, apply only the stack and preserve discovery order for complete ties.
     pub(crate) fn matches<'s>(&self, snapshot: &'s Snapshot<Session>) -> Vec<Item<'s, Session>> {

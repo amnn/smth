@@ -23,7 +23,7 @@ Type a unique session name and create it without switching.
 
 ```terminal
 session: zeta
-  0/2 | [C-r] repo: none
+  0/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  zeta                                                                                                           tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ client should still be attached to the picker session.
 
 ```terminal
 session:
-  3/3 | [C-r] repo: none
+  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ ui                                                                                                                  ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

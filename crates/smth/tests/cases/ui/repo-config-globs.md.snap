@@ -43,7 +43,7 @@ test user's home directory.
 
 ```terminal
 session: config
-  1/4 | [C-r] repo: none
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  config-repo                              ~/config-repo                                                              ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ The CLI-supplied glob also discovers `cli-repo` after expanding `~`.
 
 ```terminal
 session: cli
-  1/4 | [C-r] repo: none
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  cli-repo                                 ~/cli-repo                                                                 ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -29,7 +29,7 @@ from `cwd`.
 
 ```terminal
 session:
-  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
  [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ Move the cursor to the discovered `beta` repo row.
 
 ```terminal
 session:
-  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌  beta                                     ~/beta                                       ┃
 
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ full height, and no repo log should be visible.
 
 ```terminal
 session:                                                                                 ┃
-  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                         ┃
+  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                        ┃
 ▌  beta                                     ~/beta                                       ┃
    gamma                                    ~/gamma                                      ┃
                                                                                          ┃
@@ -86,7 +86,7 @@ the selected row's preview (`beta`).
 
 ```terminal
 onto:
-  5/5 | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌  beta                                     ~/beta                                       ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ to `beta` while the selected row stays on `beta` after the picker refreshes.
 
 ```terminal
 session:
-  5/5 | [C-r] repo: ~/beta, [C-o] onto: trunk()
+  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/beta, [C-o] onto: trunk()
 ▌  beta                                     ~/beta                                       ┃
 
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -130,7 +130,7 @@ filtered list.
 
 ```terminal
 session: a
-  3/5 | [C-r] repo: ~/gamma, [C-o] onto: trunk()
+  3/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/gamma, [C-o] onto: trunk()
 ▌  gamma                                    ~/gamma                                      ┃
 
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@ Press `M-r` to clear the current repo without changing the selected row.
 
 ```terminal
 session: a
-  3/5 | [C-r] repo: none
+  3/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  gamma                                    ~/gamma                                      ┃
 
 ──────────────────────────────────────────────────────────────────────────────────────────

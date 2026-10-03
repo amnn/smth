@@ -30,7 +30,7 @@ Type a query that selects `beta`, wait for the picker to redraw, and accept it.
 
 ```terminal
 session: beta
-  1/3 | [C-r] repo: none
+  1/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  beta                                     ~/beta                                                                     ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
