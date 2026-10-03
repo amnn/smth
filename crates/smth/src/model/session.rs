@@ -48,6 +48,7 @@ pub(crate) struct LiveKind {
     agents: BTreeMap<AgentState, usize>,
     alerts: BTreeSet<String>,
     flagged: bool,
+    recency: Recency,
 }
 
 /// A new session, optionally backed by a jj workspace to create from a repository base.
@@ -68,6 +69,15 @@ pub(crate) struct Repo {
     path: PathBuf,
     /// jj revset used as the base revision for new workspaces.
     revision: String,
+}
+
+/// Attachment recency, with absent history older than every historical timestamp.
+/// Current attachment is newer than every historical timestamp.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub(crate) enum Recency {
+    Never,
+    Historical(u64),
+    Attached,
 }
 
 /// Session for a repository or workspace checkout that already exists.
@@ -127,6 +137,14 @@ impl Session {
             Kind::Live(kind) => kind.name(),
             Kind::New(kind) => kind.name(),
             Kind::Repo(kind) => kind.name(),
+        }
+    }
+
+    /// Return attachment recency, preserving current attachment even without history.
+    pub(crate) fn recency(&self) -> Recency {
+        match &self.0 {
+            Kind::Live(kind) => kind.recency,
+            Kind::New(_) | Kind::Repo(_) => Recency::Never,
         }
     }
 
@@ -244,27 +262,25 @@ impl Session {
 }
 
 impl LiveKind {
-    /// Construct a potential session from information extracted from `tmux`.
+    /// Construct a live session from owned tmux metadata and a verified named jj workspace.
     ///
-    /// `name` is a tmux session name, `repo` is an optional checkout attached as a user-option on
-    /// the tmux session, `workspace` is its exact named jj workspace when verified, `agents`
-    /// contains lifecycle state counts published by agent harnesses, `alerts` is a set of windows
-    /// with a bell or agent alert, and `flagged` indicates whether the session was manually flagged.
-    pub(crate) fn new(
-        name: String,
-        repo: Option<PathBuf>,
-        workspace: Option<String>,
-        agents: BTreeMap<AgentState, usize>,
-        alerts: BTreeSet<String>,
-        flagged: bool,
-    ) -> Self {
+    /// Current attachment is maximally recent, regardless of historical timestamps. Otherwise,
+    /// recency uses the last attachment timestamp, or `Never` when history is absent.
+    pub(crate) fn new(name: String, workspace: Option<String>, info: tmux::SessionInfo) -> Self {
         Self {
             name,
-            repo,
+            repo: info.repo,
             workspace,
-            agents,
-            alerts,
-            flagged,
+            agents: info.agents,
+            alerts: info.alerts,
+            flagged: info.flagged,
+            recency: if info.attached {
+                Recency::Attached
+            } else if let Some(timestamp) = info.last_attached {
+                Recency::Historical(timestamp)
+            } else {
+                Recency::Never
+            },
         }
     }
 
