@@ -178,6 +178,28 @@ scratch-one~1
 yes
 ```
 
+Slashes in plain tmux names are preserved. Repeating the exact name should reuse
+the session without attaching repository metadata.
+
+    :$ smth --config smth.toml --no-base --create foo/bar (exit: 0)
+
+```stdout
+foo/bar
+```
+
+    :$ smth --config smth.toml --no-base --create foo/bar (exit: 0)
+
+```stdout
+foo/bar
+```
+
+    :t show-options -qv -t '=foo/bar:' @smth.repo (success)
+    :t show-options -qv -t '=foo/bar:' @smth.test-created (success)
+
+```
+yes
+```
+
 A repo-backed name that sanitizes to empty is disambiguated against the existing
 default checkout, producing a suffix-only workspace name.
 

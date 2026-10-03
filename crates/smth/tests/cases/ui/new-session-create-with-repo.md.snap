@@ -20,15 +20,16 @@ creating a new named session, so the new session starts in that repo and records
     :settle -d 2s (settled)
 
 Select the discovered repo, set it as the current repo context, then accept the
-new-session row for `zeta`.
+new-session row for `foo/bar`. Repository-backed creation should still normalize
+the slash, producing session `beta/foo-bar` and checkout `beta.foo-bar`.
 
-    :k beta C-r C-u zeta
+    :k beta C-r C-u foo/bar
     :snap "/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{1,2}/t" "/(?:@|○|◆)\s+([a-z]{8})/w" "/\b([0-9a-f]{8})\b/h"
 
 ```terminal
-session: zeta
+session: foo/bar
   0/3 | [C-r] repo: ~/beta, [C-o] onto: trunk()
-▌  beta/zeta                                ~/beta.zeta                                                      workspace ┃
+▌  beta/foo-bar                             ~/beta.foo-bar                                                   workspace ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
@@ -49,13 +50,13 @@ selected repo metadata.
     :t display-message -p '#{client_session}' (success)
 
 ```
-beta/zeta
+beta/foo-bar
 ```
 
     :t list-sessions -F '#{session_name}:#{b:@smth.repo}' (success)
 
 ```
-beta/zeta:beta.zeta
+beta/foo-bar:beta.foo-bar
 runner:
 ```
 
