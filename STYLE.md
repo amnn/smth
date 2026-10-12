@@ -115,8 +115,13 @@ Prefer using `.to_owned` instead of `.to_string` when converting from `&str` to
 
 ### Errors
 
-Use `anyhow` to construct internal errors, and `thiserror` to define structured
-error types for public APIs.
+Use `thiserror` to define structured error types when callers need to distinguish
+variants programmatically and react accordingly. This is more common in public
+library APIs, but visibility is not the deciding factor: internal APIs can also
+need structured errors, and public APIs do not always need them.
+
+Use `anyhow` when callers only need to report or propagate an error rather than
+distinguish its variants programmatically.
 
 - Do not import `anyhow::Result`; write `anyhow::Result` explicitly in type
   signatures.
