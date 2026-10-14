@@ -58,6 +58,9 @@ pub struct Model {
     /// The sessions to fuzzy find over.
     sessions: Vec<Session>,
 
+    /// Lifecycle state counts across all discovered sessions.
+    agents: BTreeMap<AgentState, usize>,
+
     /// Checkout deletions selected by discovery or explicit override, with affected session counts.
     deleting: Option<delete::Model>,
 
@@ -103,6 +106,7 @@ impl Model {
             order,
             picker: Picker::new(query),
             sessions: Vec::new(),
+            agents: BTreeMap::new(),
             deleting: None,
             seen_tmux_names: BTreeSet::new(),
             seen_workspaces: BTreeMap::new(),
@@ -294,14 +298,8 @@ impl Model {
     }
 
     /// Return lifecycle state counts for agents across all discovered sessions.
-    pub(crate) fn agent_summary(&self) -> BTreeMap<AgentState, usize> {
-        let mut summary = BTreeMap::new();
-        for agents in self.sessions.iter().filter_map(Session::agents) {
-            for (&state, &count) in agents {
-                *summary.entry(state).or_default() += count;
-            }
-        }
-        summary
+    pub(crate) fn agent_summary(&self) -> &BTreeMap<AgentState, usize> {
+        &self.agents
     }
 
     /// Clear the active query string.
@@ -316,6 +314,7 @@ impl Model {
         current: Option<&Path>,
     ) -> anyhow::Result<()> {
         self.sessions.clear();
+        self.agents.clear();
         self.deleting = None;
         self.seen_tmux_names.clear();
         self.seen_workspaces.clear();
@@ -341,6 +340,10 @@ impl Model {
         self.workspaces = workspaces(repos).await;
 
         for (name, info) in tmux_sessions {
+            for (&state, &count) in &info.agents {
+                *self.agents.entry(state).or_default() += count;
+            }
+
             let workspace = info
                 .repo
                 .as_ref()
