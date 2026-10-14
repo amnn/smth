@@ -96,5 +96,57 @@ session: succeeded                                                              
 ![light](agent-attention.md.snap.2.light.svg)
 ![dark](agent-attention.md.snap.2.dark.svg)
 
+Add a running agent outside the current query, then close the selected succeeded
+session to trigger rediscovery. The global summary should include the new agent
+and remove both succeeded agents and their idle sibling, without doubling the
+counts of surviving sessions.
+
+    :t new-session -d -s extra "cat" (success)
+    :t set-option -p -t extra:0.0 @smth.agent.state running (success)
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S closed-succeeded" (success)
+    :k C-x
+    :t wait-for closed-succeeded (success)
+    :snap -e '0/7'
+
+```terminal
+session: succeeded                                                                                 ┃
+  0/7 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                          ⏸ · × · ▶ 5 · ○ ┃
+   succeeded                                ~/succeeded                                       repo ┃
+▌  succeeded                                                                                  tmux ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+```
+
+Close the newly discovered session as well. A second rediscovery should remove
+its running agent while retaining the original sessions' counts.
+
+    :k C-u extra
+    :settle -e '1/7' (settled)
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S closed-extra" (success)
+    :k C-x
+    :t wait-for closed-extra (success)
+    :snap -e '0/6'
+
+```terminal
+session: extra                                                                                     ┃
+  0/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                          ⏸ · × · ▶ 4 · ○ ┃
+   extra                                    ~/extra                                           repo ┃
+▌  extra                                                                                      tmux ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+```
+
 ---
 vim: set ft=markdown:

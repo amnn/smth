@@ -23,7 +23,7 @@ use crate::model::session::Repo;
 /// Header bar component showing counts and repo context.
 pub(super) struct Header<'r> {
     /// Lifecycle state counts across all discovered live sessions.
-    agents: BTreeMap<AgentState, usize>,
+    agents: &'r BTreeMap<AgentState, usize>,
     found: usize,
     repo: Option<&'r Repo>,
     total: usize,
@@ -34,7 +34,7 @@ pub(super) struct Header<'r> {
 impl<'r> Header<'r> {
     /// Create a header from the current picker state.
     pub(super) fn new(
-        agents: BTreeMap<AgentState, usize>,
+        agents: &'r BTreeMap<AgentState, usize>,
         found: usize,
         repo: Option<&'r Repo>,
         total: usize,
@@ -89,9 +89,9 @@ impl<'r> Header<'r> {
         // in order mode, the header takes precedence to ensure the order UI is not obscured.
         if self.selected_order.is_none() {
             f.render_widget(line, area);
-            f.render_widget(agent::summary(&self.agents, false), area);
+            f.render_widget(agent::summary(self.agents, false), area);
         } else {
-            f.render_widget(agent::summary(&self.agents, false), area);
+            f.render_widget(agent::summary(self.agents, false), area);
             f.render_widget(line, area);
         }
     }

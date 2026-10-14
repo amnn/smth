@@ -55,5 +55,27 @@ should remain bright green without creating a green background cell.
     :k succeeded
     :snap --color
 
+Add a running agent outside the current query, then close the selected succeeded
+session to trigger rediscovery. The global summary should include the new agent
+and remove both succeeded agents and their idle sibling, without doubling the
+counts of surviving sessions.
+
+    :t new-session -d -s extra "cat"
+    :t set-option -p -t extra:0.0 @smth.agent.state running
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S closed-succeeded"
+    :k C-x
+    :t wait-for closed-succeeded
+    :snap -e '0/7'
+
+Close the newly discovered session as well. A second rediscovery should remove
+its running agent while retaining the original sessions' counts.
+
+    :k C-u extra
+    :settle -e '1/7'
+    :t set-hook -g session-closed "set-hook -gu session-closed; wait-for -S closed-extra"
+    :k C-x
+    :t wait-for closed-extra
+    :snap -e '0/6'
+
 ---
 vim: set ft=markdown:

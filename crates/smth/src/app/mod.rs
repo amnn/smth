@@ -277,11 +277,10 @@ impl App {
         let l = layout::Layout::new(f.area(), self.preview.visible() || self.onto.is_some());
 
         let new_sessions = self.model.sessions_for_query(self.repo.as_ref(), repo_root);
-        let agent_summary = self.model.agent_summary();
-
         // Refresh once and borrow the picker, ordering, and deletion data for this render pass.
         let status = self.model.refresh();
 
+        let agent_summary = self.model.agent_summary();
         let snapshot = self.model.snapshot();
         let query = self.model.query();
         let delete = self.model.deleting();
