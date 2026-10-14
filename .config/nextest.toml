@@ -1,0 +1,5 @@
+# Copyright (c) Ashok Menon
+# SPDX-License-Identifier: Apache-2.0
+
+[profile.default]
+slow-timeout = { period = "60s", terminate-after = 2 }

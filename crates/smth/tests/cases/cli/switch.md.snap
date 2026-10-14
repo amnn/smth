@@ -134,12 +134,13 @@ scratch:0
     :p runner:0.0
 
 If checkout creation fails, switching should fail without printing a session
-name.
+name. Check the revision diagnostic separately from jj's version-dependent
+workspace creation progress.
 
-    :$ smth --base alpha --onto missing --switch invalid (exit: 1)
+    :$ sh -c 'smth --base alpha --onto missing --switch invalid 2>switch-errors' (exit: 1)
+    :$ sed -n '/^Error: Revision/p' switch-errors (exit: 0)
 
-```stderr
-error: error running 'jj workspace add': Created workspace in "alpha.invalid"
+```stdout
 Error: Revision `missing` doesn't exist
 ```
 
