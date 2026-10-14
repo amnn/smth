@@ -43,7 +43,7 @@ pub struct ClientSnapshot {
 }
 
 /// Metadata for a live tmux session.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct SessionInfo {
     /// Agent harnesses running in panes in this session.
     pub agents: BTreeMap<AgentState, usize>,

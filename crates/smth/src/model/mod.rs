@@ -4,6 +4,7 @@
 //! Application model for discovered sessions and derived session candidates.
 
 pub(crate) mod agent;
+pub(crate) mod checkout;
 pub(crate) mod delete;
 pub(crate) mod order;
 pub(crate) mod picker;
@@ -58,6 +59,9 @@ pub struct Model {
     /// The sessions to fuzzy find over.
     sessions: Vec<Session>,
 
+    /// Checkout aggregates rebuilt with each discovery for deletion counts and targets.
+    checkouts: checkout::Index,
+
     /// Lifecycle state counts across all discovered sessions.
     agents: BTreeMap<AgentState, usize>,
 
@@ -106,6 +110,7 @@ impl Model {
             order,
             picker: Picker::new(query),
             sessions: Vec::new(),
+            checkouts: checkout::Index::default(),
             agents: BTreeMap::new(),
             deleting: None,
             seen_tmux_names: BTreeSet::new(),
@@ -140,21 +145,10 @@ impl Model {
                 let workspace = self.workspace_name(path).with_context(|| {
                     format!("'{}' is not a discovered named workspace", path.display())
                 })?;
-                Ok((path.clone(), (workspace.to_owned(), Vec::new())))
+                let names = self.checkouts.live(path).to_owned();
+                Ok((path.clone(), (workspace.to_owned(), names)))
             })
             .collect();
-
-        let targets = targets.map(|mut targets| {
-            for session in &self.sessions {
-                if session.is_live()
-                    && let Some(path) = session.repo()
-                    && let Some((_, names)) = targets.get_mut(&path)
-                {
-                    names.push(session.name());
-                }
-            }
-            targets
-        });
 
         async move {
             let targets = targets?;
@@ -294,7 +288,7 @@ impl Model {
     /// This replaces rather than extends pending paths. `delete` validates the selected paths
     /// against discovered workspace metadata before performing any deletion.
     pub fn set_deletions(&mut self, paths: BTreeSet<PathBuf>) {
-        self.deleting = delete::Model::new(paths, &self.sessions);
+        self.deleting = delete::Model::new(paths, &self.checkouts);
     }
 
     /// Return lifecycle state counts for agents across all discovered sessions.
@@ -314,6 +308,7 @@ impl Model {
         current: Option<&Path>,
     ) -> anyhow::Result<()> {
         self.sessions.clear();
+        self.checkouts = checkout::Index::default();
         self.agents.clear();
         self.deleting = None;
         self.seen_tmux_names.clear();
@@ -397,7 +392,8 @@ impl Model {
             .map(Path::to_owned)
             .collect();
 
-        self.deleting = delete::Model::new(pending_deletions, &self.sessions);
+        self.checkouts = checkout::Index::new(&self.sessions);
+        self.deleting = delete::Model::new(pending_deletions, &self.checkouts);
         self.picker.reset();
         self.picker.inject(self.sessions.clone());
 
@@ -875,7 +871,7 @@ mod tests {
         model.toggle_delete(&path).await.unwrap();
         assert!(marker.exists(), "toggle must not reread the marker");
 
-        model.deleting = delete::Model::new(BTreeSet::from([path.clone()]), &[]);
+        model.deleting = delete::Model::new(BTreeSet::from([path.clone()]), &model.checkouts);
         model.toggle_delete(&path).await.unwrap();
         assert!(!marker.exists());
         model.toggle_delete(&path).await.unwrap();
@@ -906,8 +902,10 @@ mod tests {
             );
         }
 
+        let sessions = vec![session];
         Model {
-            sessions: vec![session],
+            checkouts: checkout::Index::new(&sessions),
+            sessions,
             workspaces,
             ..Model::default()
         }
@@ -1168,7 +1166,10 @@ mod tests {
         fs::write(second.join(".jj").join(delete::MARKER), "").unwrap();
 
         let model = Model {
-            deleting: delete::Model::new(BTreeSet::from([first, second.clone()]), &[]),
+            deleting: delete::Model::new(
+                BTreeSet::from([first, second.clone()]),
+                &checkout::Index::default(),
+            ),
             ..Model::default()
         };
 
@@ -1192,7 +1193,7 @@ mod tests {
         let model = Model {
             deleting: delete::Model::new(
                 BTreeSet::from([first.clone(), second.clone(), temp.path().join("missing")]),
-                &[],
+                &checkout::Index::default(),
             ),
             ..Model::default()
         };
@@ -1267,7 +1268,7 @@ mod tests {
         fs::write(&marker, "").unwrap();
 
         let mut model = model_with_workspace(&requested, temp.path().join("repo"));
-        model.deleting = delete::Model::new(BTreeSet::from([pending]), &model.sessions);
+        model.deleting = delete::Model::new(BTreeSet::from([pending]), &model.checkouts);
         model.set_deletions(BTreeSet::from([requested.clone()]));
 
         let delete = model.deleting().unwrap();

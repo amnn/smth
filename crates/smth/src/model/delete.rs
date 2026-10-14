@@ -6,6 +6,7 @@
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 
+use crate::model::checkout;
 use crate::model::session::Session;
 
 /// Workspace-local marker for persisted deletion staging.
@@ -19,15 +20,14 @@ pub(crate) struct Model {
 }
 
 impl Model {
-    /// Build a deletion selection from checkout paths and their discovered session rows.
-    pub(crate) fn new(paths: BTreeSet<PathBuf>, sessions: &[Session]) -> Option<Self> {
+    /// Build a deletion selection from paths and the current discovery's checkout index.
+    pub(crate) fn new(paths: BTreeSet<PathBuf>, checkouts: &checkout::Index) -> Option<Self> {
         if paths.is_empty() {
             return None;
         }
 
-        let mut model = Self { paths, pending: 0 };
-        model.pending = sessions.iter().filter(|s| model.contains(s)).count();
-        Some(model)
+        let pending = paths.iter().map(|path| checkouts.count(path)).sum();
+        Some(Self { paths, pending })
     }
 
     /// Whether this session shares a selected checkout.
@@ -84,7 +84,8 @@ mod tests {
             .into()
         });
         let plain: Session = NewKind::new("plain", Base::Cwd(None)).into();
-        let model = Model::new(BTreeSet::from([path.clone()]), &sessions).unwrap();
+        let checkouts = checkout::Index::new(&sessions);
+        let model = Model::new(BTreeSet::from([path.clone()]), &checkouts).unwrap();
 
         assert_eq!(model.paths(), &BTreeSet::from([path]));
         assert_eq!(model.pending(), 2);
@@ -98,6 +99,6 @@ mod tests {
     /// No pending paths means there is no deletion model to render or act on.
     #[test]
     fn empty_paths_have_no_model() {
-        assert!(Model::new(BTreeSet::new(), &[]).is_none());
+        assert!(Model::new(BTreeSet::new(), &checkout::Index::default()).is_none());
     }
 }

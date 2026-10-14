@@ -1,0 +1,190 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/delete-alias-discovery.md
+---
+# Deletion counts follow rediscovered aliases
+
+A staged checkout counts every discovered session alias, even when the query
+hides those aliases. Rediscovery must replace these counts rather than accumulate
+old entries.
+
+Create a named workspace with two live sessions pointing to its checkout. The
+second session needs direct tmux setup because CLI creation would reuse the
+existing session. CLI creation prints `alpha/feature`, which is then renamed to
+`first`. Filter to `first` so only one alias is visible among five discovered
+rows: two aliases, the default repository, the runner, and the UI session.
+
+    :b jj tmux cat (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :t rename-session -t 0 runner (success)
+    :$ -q jj git init alpha (exit: 0)
+    :$ smth --base alpha --create feature (exit: 0)
+
+```stdout
+alpha/feature
+```
+
+    :t rename-session -t alpha/feature first (success)
+    :t new-session -d -s second -c alpha.feature "cat" (success)
+    :t set-option -F -t '=second:' @smth.repo '#{pane_start_path}' (success)
+    :t new-session -d -s ui "smth -r 'alpha*'; cat" (success)
+    :t resize-window -t ui:0 -x 120 -y 14 (success)
+    :p ui:0.0
+    :settle -d 2s (settled)
+    :k C-p first
+    :settle -e '1/5' -e C-d (settled)
+
+Stage the shared checkout. Both aliases count, but only `first` is visible.
+
+    :k C-d
+    :snap -e '2 sessions' -e '1 hidden'
+
+```terminal
+session: first                                                                                                         ┃
+  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+   first~1                                  ~/first                                                               repo ┃
+   first~1                                                                                                        tmux ┃
+▌× first                                    ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] unstage, [C-x] close, [C-f] flag                                 delete [C-y] 2 sessions (1 hidden) [C-g] cancel┃
+```
+
+Clear the query to show both aliases staged. The total stays at two, with no
+hidden sessions.
+
+    :k C-u
+    :snap -e '5/5' -e '2 sessions'
+
+```terminal
+session:                                                                                                               ┃
+  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌■ ui                                                                                                                  ┃
+ ■ runner                                                                                                              ┃
+ × first                                    ~/alpha.feature                                                            ┃
+ × second                                   ~/alpha.feature                                                            ┃
+   alpha                                    ~/alpha                                                                    ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-x] close, [C-f] flag                                                           delete [C-y] 2 sessions [C-g] cancel┃
+```
+
+Restore the query before the next flag toggle so it still targets `first`.
+
+    :k first
+    :settle -e '1/5' -e '1 hidden' (settled)
+
+Add a third alias and toggle the selected session's flag to trigger discovery.
+The count should grow to three, with two hidden aliases.
+
+    :t new-session -d -s third -c alpha.feature "cat" (success)
+    :t set-option -F -t '=third:' @smth.repo '#{pane_start_path}' (success)
+    :k C-f
+    :snap -e '3 sessions' -e '2 hidden'
+
+```terminal
+session: first                                                                                                         ┃
+  1/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+   first~1                                  ~/first                                                               repo ┃
+   first~1                                                                                                        tmux ┃
+▌× first                                    ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] unstage, [C-x] close, [C-f] unflag                               delete [C-y] 3 sessions (2 hidden) [C-g] cancel┃
+```
+
+Clear the query again. All three aliases should carry staging markers, and none
+should be counted as hidden.
+
+    :k C-u
+    :snap -e '6/6' -e '3 sessions'
+
+```terminal
+session:                                                                                                               ┃
+  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌■ ui                                                                                                                  ┃
+ ■ runner                                                                                                              ┃
+ × first                                    ~/alpha.feature                                                            ┃
+ × second                                   ~/alpha.feature                                                            ┃
+ × third                                    ~/alpha.feature                                                            ┃
+   alpha                                    ~/alpha                                                                    ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-x] close, [C-f] flag                                                           delete [C-y] 3 sessions [C-g] cancel┃
+```
+
+Restore the query so the next flag toggle targets the surviving `first` session.
+
+    :k first
+    :settle -e '1/6' -e '2 hidden' (settled)
+
+Remove both hidden aliases and toggle the flag again. Rediscovery should count
+only the surviving selected session and remove the hidden-count annotation.
+
+    :t kill-session -t second (success)
+    :t kill-session -t third (success)
+    :k C-f
+    :snap -e '1 session' -e '1/4'
+
+```terminal
+session: first                                                                                                         ┃
+  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+   first~1                                  ~/first                                                               repo ┃
+   first~1                                                                                                        tmux ┃
+▌× first                                    ~/alpha.feature                                                            ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-d] unstage, [C-x] close, [C-f] flag                                             delete [C-y] 1 session [C-g] cancel┃
+```
+
+Clear the query one last time. Only `first` should remain staged; the removed
+aliases should be absent from the full session list.
+
+    :k C-u
+    :snap -e '4/4' -e '1 session'
+
+```terminal
+session:                                                                                                               ┃
+  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+▌■ ui                                                                                                                  ┃
+ ■ runner                                                                                                              ┃
+ × first                                    ~/alpha.feature                                                            ┃
+   alpha                                    ~/alpha                                                                    ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+                                                                                                                       ┃
+ [C-x] close, [C-f] flag                                                            delete [C-y] 1 session [C-g] cancel┃
+```
+
+---
+vim: set ft=markdown:
