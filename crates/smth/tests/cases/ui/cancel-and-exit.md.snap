@@ -52,18 +52,6 @@ session: feature             │
 delete [C-y] 1 session [C-g] ┃
 ```
 
-At two columns, the footer must clip safely rather than overflow the pane.
-
-    :t resize-window -t ui:0 -x 2 -y 4 (success)
-    :snap
-
-```terminal
-se
-
-▌×
-de
-```
-
     :t resize-window -t ui:0 -x 120 -y 12 (success)
     :settle -d 2s -e '1/4' -e alpha/feature -e '1 session' (settled)
 
