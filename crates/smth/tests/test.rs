@@ -49,6 +49,10 @@ fn test(path: &Path) -> datatest_stable::Result<()> {
             .bin(env!("CARGO_BIN_EXE_smth"))
             .await
             .context("failed to add smth binary to runner environment")?;
+        runner
+            .bin("git")
+            .await
+            .context("failed to add git binary for jj workspace operations")?;
 
         let res = runner
             .run(&mut output, &script)
