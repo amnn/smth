@@ -5,6 +5,9 @@
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::mem;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -25,7 +28,10 @@ const DELIM_WORKSPACE: &str = "/";
 const TMUX_REPO_OPTION: &str = "@smth.repo";
 
 /// A tmux session or potential session.
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+///
+/// Equality and hashing use the kind variant, name, and repository path. Other details, such as
+/// agent state, flags, recency, and creation revision, do not change a session's identity.
+#[derive(Clone, Debug, Eq)]
 pub struct Session(Kind);
 
 /// The base used when creating a new session.
@@ -518,6 +524,22 @@ impl From<RepoKind> for Session {
     }
 }
 
+impl Hash for Session {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        mem::discriminant(&self.0).hash(state);
+        self.name().hash(state);
+        self.repo().hash(state);
+    }
+}
+
+impl PartialEq for Session {
+    fn eq(&self, other: &Self) -> bool {
+        mem::discriminant(&self.0) == mem::discriminant(&other.0)
+            && self.name() == other.name()
+            && self.repo() == other.repo()
+    }
+}
+
 impl Pickable for Session {
     fn text(&self) -> String {
         let Some(repo) = self.repo() else {
@@ -594,11 +616,95 @@ fn session_name(base: Option<&Path>, name: Option<&str>, suffix: Option<&str>) -
 
 #[cfg(test)]
 mod tests {
+    use std::collections::hash_map::RandomState;
     use std::fs;
+    use std::hash::BuildHasher as _;
 
     use tempfile::tempdir;
 
     use super::*;
+
+    /// Assert that two session representations have equal identities and matching hashes.
+    macro_rules! assert_same_identity {
+        ($left:expr, $right:expr) => {{
+            let left: Session = ($left).into();
+            let right: Session = ($right).into();
+            let hasher = RandomState::new();
+            assert_eq!(left, right);
+            assert_eq!(hasher.hash_one(&left), hasher.hash_one(&right));
+        }};
+    }
+
+    /// Construct a live session fixture with no activity or workspace metadata.
+    fn live(name: &str, repo: Option<PathBuf>) -> LiveKind {
+        LiveKind::new(
+            name.to_owned(),
+            None,
+            tmux::SessionInfo {
+                agents: BTreeMap::default(),
+                alerts: BTreeSet::default(),
+                attached: false,
+                flagged: false,
+                last_attached: None,
+                repo,
+            },
+        )
+    }
+
+    #[test]
+    fn equality_distinguishes_kinds() {
+        let path = PathBuf::from("project");
+        let sessions: [Session; 3] = [
+            live("project", Some(path.clone())).into(),
+            NewKind::new("project", Base::NewRepo(PathBuf::new())).into(),
+            RepoKind::new(None, path.clone(), path.clone()).into(),
+        ];
+
+        for (i, left) in sessions.iter().enumerate() {
+            assert_eq!(left.name(), "project");
+            assert_eq!(left.repo(), Some(path.clone()));
+            for (j, right) in sessions.iter().enumerate() {
+                assert_eq!(left == right, i == j);
+            }
+        }
+    }
+
+    #[test]
+    fn equality_distinguishes_names_and_repositories() {
+        let path = PathBuf::from("project");
+        let original: Session = live("project", Some(path.clone())).into();
+        for different in [
+            live("renamed", Some(path)),
+            live("project", Some("other".into())),
+            live("project", None),
+        ] {
+            assert_ne!(original, Session::from(different));
+        }
+    }
+
+    #[test]
+    fn equality_ignores_creation_revision() {
+        let repo = Repo::new("repo".into());
+        assert_same_identity!(
+            NewKind::new("feature", Base::Repo(repo.clone())),
+            NewKind::new(
+                "feature",
+                Base::Repo(repo.with_revision("root()".to_owned()))
+            )
+        );
+    }
+
+    #[test]
+    fn equality_ignores_live_metadata() {
+        let original = live("project", Some("project".into()));
+        let mut updated = original.clone();
+        updated.workspace = Some("feature".to_owned());
+        updated.agents.insert(AgentState::Running, 2);
+        updated.alerts.insert("window".to_owned());
+        updated.flagged = true;
+        updated.recency = Recency::Attached;
+        assert_same_identity!(original, updated);
+    }
 
     #[tokio::test]
     async fn new_plain_sessions_do_not_create_checkouts() {
