@@ -213,11 +213,11 @@ impl Model {
     /// Return all matched sessions after the matcher has finished processing pending updates.
     pub fn matches(&mut self) -> Vec<Session> {
         loop {
-            let (status, snapshot, _) = self.picker.refresh();
+            let status = self.refresh();
             if !status.running {
                 return self
                     .order
-                    .matches(snapshot)
+                    .matches(self.snapshot())
                     .into_iter()
                     .map(|item| item.data.clone())
                     .collect();
@@ -430,18 +430,19 @@ impl Model {
         started
     }
 
-    /// Refresh fuzzy matches and borrow picker, ordering, and deletion data for one render pass.
-    pub(crate) fn refresh(
-        &mut self,
-    ) -> (
-        Status,
-        &Snapshot<Session>,
-        &str,
-        &Order,
-        Option<&delete::Model>,
-    ) {
-        let (status, snapshot, query) = self.picker.refresh();
-        (status, snapshot, query, &self.order, self.deleting.as_ref())
+    /// Return the active query string without advancing the matcher.
+    pub(crate) fn query(&self) -> &str {
+        self.picker.query()
+    }
+
+    /// Advance fuzzy matching and return its processing status.
+    pub(crate) fn refresh(&mut self) -> Status {
+        self.picker.refresh()
+    }
+
+    /// Borrow the last published matches without advancing the matcher.
+    pub(crate) fn snapshot(&self) -> &Snapshot<Session> {
+        self.picker.snapshot()
     }
 
     /// Construct a repository context, normalizing it to an existing default workspace when known.
