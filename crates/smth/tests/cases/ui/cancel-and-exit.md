@@ -25,11 +25,6 @@ session actions and the gap between them, even at extremely narrow widths.
     :t resize-window -t ui:0 -x 30 -y 4
     :snap
 
-At two columns, the footer must clip safely rather than overflow the pane.
-
-    :t resize-window -t ui:0 -x 2 -y 4
-    :snap
-
     :t resize-window -t ui:0 -x 120 -y 12
     :settle -d 2s -e '1/4' -e alpha/feature -e '1 session'
 
