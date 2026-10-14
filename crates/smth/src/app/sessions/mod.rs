@@ -85,7 +85,7 @@ impl<'s> Sessions<'s> {
                     .new
                     .iter()
                     .chain(self.rest.iter().map(|item| item.data))
-                    .position(|s| s.name() == selected.name() && s.repo() == selected.repo())
+                    .position(|s| s == selected)
             {
                 state.list.select(Some(index + padding));
             }
