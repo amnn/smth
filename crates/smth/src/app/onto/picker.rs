@@ -269,7 +269,8 @@ impl StatefulWidget for &Picker {
 
         // Calculate fuzzy-matching highlights for visible candidate lines, while indexing every
         // matching commit from the same snapshot used for this render.
-        let (_, snapshot, _) = state.model.refresh();
+        state.model.refresh();
+        let snapshot = state.model.snapshot();
         let pattern = snapshot.pattern().column_pattern(0);
         let mut matcher = Matcher::new(Config::DEFAULT);
         let mut highlights = BTreeMap::new();

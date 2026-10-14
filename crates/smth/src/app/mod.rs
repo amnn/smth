@@ -280,8 +280,16 @@ impl App {
         let agent_summary = self.model.agent_summary();
 
         // Refresh once and borrow the picker, ordering, and deletion data for this render pass.
-        let (status, snapshot, query, order, delete) = self.model.refresh();
-        let order = self.ordering.as_ref().map_or(order, |state| &state.pending);
+        let status = self.model.refresh();
+
+        let snapshot = self.model.snapshot();
+        let query = self.model.query();
+        let delete = self.model.deleting();
+        let order = self
+            .ordering
+            .as_ref()
+            .map_or(&self.model.order, |s| &s.pending);
+
         let items = order.matches(snapshot);
 
         let (label, query) = if let Some(onto) = &self.onto {

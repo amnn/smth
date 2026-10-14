@@ -69,10 +69,14 @@ impl<I: Pickable + Send + Sync + 'static> Picker<I> {
         &self.query
     }
 
-    /// Refresh fuzzy matches and return the currently visible rows.
-    pub(crate) fn refresh(&mut self) -> (Status, &Snapshot<I>, &str) {
-        let status = self.matcher.tick(TICK_TIMEOUT_MS);
-        (status, self.matcher.snapshot(), &self.query)
+    /// Advance fuzzy matching and return its processing status.
+    pub(crate) fn refresh(&mut self) -> Status {
+        self.matcher.tick(TICK_TIMEOUT_MS)
+    }
+
+    /// Borrow the last published matches without advancing the matcher.
+    pub(crate) fn snapshot(&self) -> &Snapshot<I> {
+        self.matcher.snapshot()
     }
 
     /// Reset matcher contents while preserving the query and last completed matches.
@@ -116,7 +120,6 @@ mod tests {
 
     fn matches(picker: &Picker<&'static str>) -> Vec<&'static str> {
         picker
-            .matcher
             .snapshot()
             .matched_items(..)
             .map(|item| *item.data)
@@ -126,9 +129,26 @@ mod tests {
     /// Wait for matching to finish without hanging indefinitely on a worker failure.
     fn settle(picker: &mut Picker<&'static str>) {
         let deadline = Instant::now() + Duration::from_secs(5);
-        while picker.refresh().0.running {
+        while picker.refresh().running {
             assert!(Instant::now() < deadline, "matcher did not finish");
         }
+    }
+
+    #[test]
+    fn reads_preserve_published_matches_until_refresh() {
+        let mut picker = Picker::default();
+        picker.inject(["alpha", "beta"]);
+        settle(&mut picker);
+
+        picker.push('z');
+        for _ in 0..3 {
+            assert_eq!(picker.query(), "z");
+            assert_eq!(matches(&picker), ["alpha", "beta"]);
+            assert!(picker.snapshot().pattern().is_empty());
+        }
+
+        settle(&mut picker);
+        assert!(matches(&picker).is_empty());
     }
 
     #[test]
