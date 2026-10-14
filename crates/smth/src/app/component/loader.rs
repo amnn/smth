@@ -160,6 +160,10 @@ where
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         state.poll();
 
+        if area.is_empty() {
+            return;
+        }
+
         match &state.status {
             Status::Loading(_) => "Loading...".render(area, buf),
             Status::Error(err) => format!("Error: {err}").render(area, buf),

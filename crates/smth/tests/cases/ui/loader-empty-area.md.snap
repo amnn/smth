@@ -1,0 +1,74 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/loader-empty-area.md
+---
+# Resize a loading preview to an empty area
+
+A short terminal leaves no rows for the preview. Its loader must not write
+outside the terminal buffer. Completed content must appear when space becomes
+available again.
+
+Create a repository and wrap jj's log command so the preview stays loading
+until the test releases it. Other jj operations use the real executable.
+
+    :b jj tmux cat chmod (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :$ -q jj git init alpha (exit: 0)
+    :w wrappers/jj (written)
+
+```sh
+#!/bin/sh
+if test "$1" = log; then
+    tmux wait-for -S log-ready
+    tmux wait-for log-release
+    echo 'loaded preview'
+    exit 0
+fi
+exec "$HOME/../bin/jj" "$@"
+```
+
+    :$ chmod +x wrappers/jj (exit: 0)
+    :t new-session -d -s ui 'PATH="$$HOME/wrappers:$$PATH" smth --base alpha --query alpha; cat' (success)
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :p ui:0.0
+    :t wait-for log-ready (success)
+    :settle -d 2s -e '^session: alpha' -e 'Loading' (settled)
+
+Shrink the window while the log is blocked. The picker must remain usable even
+though there is no space to render the loading message.
+
+    :t resize-window -t ui:0 -x 30 -y 4 (success)
+    :snap -d 2s -e '^session: alpha'
+
+```terminal
+session: alpha
+  0/2 | [M-s] ↑l ↑r ↓n | [C-r]
+▌  alpha/alpha     workspace ┃
+
+```
+
+Release the log and restore the window. The loaded preview must appear without
+restarting the picker.
+
+    :t wait-for -S log-release (success)
+    :t resize-window -t ui:0 -x 120 -y 12 (success)
+    :snap -d 2s -e 'loaded preview'
+
+```terminal
+session: alpha
+  0/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+▌  alpha/alpha                              ~/alpha.alpha                                                    workspace ┃
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+loaded preview
+
+
+
+
+
+
+```
+
+---
+vim: set ft=markdown:
