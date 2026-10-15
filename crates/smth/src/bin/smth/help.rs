@@ -287,9 +287,10 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "Toggle the workspace's persisted pending-deletion marker.",
     )?;
     w.def("C-f", "Flag or unflag a live session.")?;
+    w.def("C-t", "Edit live session tags, or apply staged tag edits. A lowercase first letter toggles and applies; uppercase starts batch editing, where either case toggles without applying.")?;
     w.def(
         "C-g",
-        "Cancel ordering or onto editing, otherwise clear staged deletions.",
+        "Discard tag, ordering, or onto edits, otherwise clear staged deletions.",
     )?;
     w.def(
         "C-s",

@@ -13,6 +13,7 @@ use std::path::PathBuf;
 
 use anyhow::Context as _;
 use anyhow::ensure;
+use futures::future::join_all;
 
 use crate::cmd::jj;
 use crate::cmd::tmux;
@@ -180,6 +181,24 @@ impl Session {
     pub async fn set_tag(&self, tag: Tag, enabled: bool) -> anyhow::Result<()> {
         ensure!(self.is_live(), "session is not live");
         tmux::set_tag(&self.name(), tag, enabled).await
+    }
+
+    /// Apply changed memberships concurrently relative to this live session snapshot.
+    /// Await all writes even on failure; other changes may succeed. Reject non-live sessions.
+    pub async fn set_tags(&self, tags: Tags) -> anyhow::Result<()> {
+        let initial = self.tags().context("session is not live")?;
+        let writes = (initial | tags)
+            .iter()
+            .filter(|tag| initial.contains(*tag) != tags.contains(*tag))
+            .map(|tag| async move {
+                self.set_tag(tag, tags.contains(tag))
+                    .await
+                    .with_context(|| {
+                        format!("failed to apply tag {tag}; other tag changes may have been saved")
+                    })
+            });
+
+        join_all(writes).await.into_iter().collect()
     }
 
     /// Switch the current tmux client to this session, creating the session first if needed.

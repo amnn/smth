@@ -28,7 +28,7 @@ should list all discovered tmux sessions.
 session:
   5/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                      ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 
@@ -50,7 +50,7 @@ to the `beta` session.
 session: bet
   1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ beta                                                                        ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 

@@ -38,7 +38,7 @@ which must remain usable after the named checkout is deleted.
 session: feature
   1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌■ alpha/feature                            ~/alpha.feature                                                            ┃
- [C-d] delete, [C-x] close, [C-f] flag
+ [C-d] delete, [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt feature@ hhhhhhhh
 │  (empty) (no description set)

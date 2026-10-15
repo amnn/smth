@@ -46,7 +46,7 @@ client should still be attached to the picker session.
 session:
   3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ ui                                                                                                                  ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

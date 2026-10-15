@@ -76,7 +76,7 @@ session:                                                                        
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-x] close, [C-f] flag                                                                                               ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                                                   ┃
 ```
 
 ![light](attention-ordering.md.snap.1.light.svg)
@@ -143,7 +143,7 @@ session:                                                                        
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-x] close, [C-f] flag                                                                                               ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                                                   ┃
 ```
 
 ## Header rendering priority
@@ -169,7 +169,7 @@ session:                                               ┃
                                                        ┃
                                                        ┃
                                                        ┃
- [C-x] close, [C-f] flag                               ┃
+ [C-x] close, [C-f] flag, [C-t] tags                   ┃
 ```
 
 Open the ordering editor at the same width. The expanded controls now take
@@ -241,7 +241,7 @@ session:                                               ┃
                                                        ┃
                                                        ┃
                                                        ┃
- [C-x] close, [C-f] flag                               ┃
+ [C-x] close, [C-f] flag, [C-t] tags                   ┃
 ```
 
 ---

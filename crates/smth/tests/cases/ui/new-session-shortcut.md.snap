@@ -52,7 +52,7 @@ Pressing `C-n` should do nothing and leave the picker open in the same state.
 session:
   6/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                                                              ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -70,7 +70,7 @@ session:
 session:
   6/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                                                              ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

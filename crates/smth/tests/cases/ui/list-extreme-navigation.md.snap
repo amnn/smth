@@ -44,7 +44,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
     :k M-down
@@ -62,7 +62,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
     :k M-up
@@ -80,7 +80,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 A query for `et` keeps multiple existing matches and offers both new-session
@@ -102,7 +102,7 @@ session: et                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
     :k M-down
@@ -120,7 +120,7 @@ session: et                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
     :k M-up
@@ -161,7 +161,7 @@ session: ta                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
     :k M-down
@@ -179,7 +179,7 @@ session: ta                                                                     
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
     :k M-up

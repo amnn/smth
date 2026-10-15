@@ -30,7 +30,7 @@ The alert row should carry light-yellow pip styling in the linked SVG snapshot.
 session: alert
   1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ alert                                                                       ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 
@@ -51,7 +51,7 @@ The quiet row is not alerted and should not carry the light-yellow pip styling.
 session: quiet
   1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ quiet                                                                       ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 

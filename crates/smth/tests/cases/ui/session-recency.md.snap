@@ -54,7 +54,7 @@ session:
                                                                                ┃
  ■ runner                                                                      ┃
 ▌■ gamma                                                                       │
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 
@@ -84,7 +84,7 @@ session: a
    a                                                                      tmux ┃
 ▌■ alpha                                                                       ┃
  ■ gamma                                                                       │
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 

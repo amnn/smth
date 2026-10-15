@@ -45,7 +45,7 @@ session: onecb                                                                  
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 ![light](match-highlight-overlays.md.snap.1.light.svg)
@@ -90,7 +90,7 @@ session: oneob                                                                  
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 ![light](match-highlight-overlays.md.snap.3.light.svg)

@@ -31,7 +31,7 @@ revision.
 session:
   2/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌■ runner                                                                                          ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -55,7 +55,7 @@ started inside a repository.
 session:
   2/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                                          ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -100,7 +100,7 @@ named checkout as its base, matching current-directory inference.
 session:
   2/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha.feature, [C-o] onto: trunk()
 ▌■ runner                                                                                          ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

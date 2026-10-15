@@ -15,6 +15,7 @@ mod onto;
 mod sessions;
 mod sort;
 mod span;
+mod tag;
 
 use std::io;
 use std::path::Path;
@@ -49,6 +50,7 @@ use crate::cmd::tmux;
 use crate::model::Model;
 use crate::model::session::Repo;
 use crate::model::session::Session;
+use crate::model::tag::Tags;
 use crate::terminal::AlternateScreenGuard;
 
 /// Timeout for waiting for a key event.
@@ -62,6 +64,7 @@ pub struct App {
     actions: AvailableActions,
     onto: Option<onto::State>,
     sort: Option<sort::State>,
+    tagging: Option<tag::State>,
     repo: Option<Repo>,
     spinner: spinner::State,
     model: Model,
@@ -103,6 +106,9 @@ enum Action {
 
     /// Toggle the selected live session's manual flag.
     ToggleFlag(Session),
+
+    /// Apply pending tag changes to the selected session.
+    Tag(Tags),
 }
 
 impl App {
@@ -127,6 +133,7 @@ impl App {
             actions: AvailableActions::default(),
             onto: None,
             sort: None,
+            tagging: None,
             repo,
             spinner: spinner::State::new(),
             model,
@@ -238,6 +245,16 @@ impl App {
                     ));
                 }
 
+                Some(Action::Tag(tags)) => {
+                    let session = self
+                        .sessions
+                        .selected()
+                        .expect("tag editing requires a selection");
+                    let result = session.set_tags(tags).await;
+                    self.discover(ctx.globs).await?;
+                    result?;
+                }
+
                 Some(Action::ToggleFlag(session)) => {
                     session.toggle_flag().await?;
                     self.discover(ctx.globs).await?;
@@ -329,12 +346,19 @@ impl App {
             self.sort.as_ref().map(|state| state.selected),
         );
 
-        let footer = Footer::new(delete, &items, self.sessions.selected());
+        let footer = Footer::new(
+            delete,
+            &items,
+            self.sessions.selected(),
+            self.tagging.as_ref(),
+        );
+
         self.actions = AvailableActions::new(
             &self.sessions,
             self.bg.as_ref().is_some_and(activity::State::is_loading),
             self.onto.is_some(),
             self.sort.is_some(),
+            self.tagging.is_some(),
             delete,
         );
 
@@ -378,6 +402,17 @@ impl App {
             KC::Esc if self.actions.exit => return Some(Action::Cancel),
             KC::Char('c') if ctrl && self.actions.exit => return Some(Action::Cancel),
             _ => {}
+        }
+
+        if let Some(tagging) = &mut self.tagging {
+            match tagging.handle_key(key) {
+                Some(tag::Action::Accept) => {
+                    return self.tagging.take().map(|state| Action::Tag(state.pending));
+                }
+                Some(tag::Action::Cancel) => self.tagging = None,
+                None => {}
+            }
+            return None;
         }
 
         if let Some(onto) = &mut self.onto {
@@ -441,6 +476,14 @@ impl App {
 
             KC::Char('f') if ctrl && self.actions.flag.is_some() => {
                 return self.sessions.take_selected().map(Action::ToggleFlag);
+            }
+
+            KC::Char('t') if ctrl && self.actions.tag => {
+                self.tagging = self
+                    .sessions
+                    .selected()
+                    .and_then(Session::tags)
+                    .map(tag::State::new);
             }
 
             // Scroll preview

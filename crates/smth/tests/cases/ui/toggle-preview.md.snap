@@ -27,7 +27,7 @@ The preview should be visible initially.
 session:
   3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                                          ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -58,7 +58,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 Pressing `C-p` again should restore the preview.
@@ -70,7 +70,7 @@ Pressing `C-p` again should restore the preview.
 session:
   3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                                          ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

@@ -32,7 +32,7 @@ After accepting the selection, the control-mode client should switch to the sele
 session: bet
   1/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ beta                                                                        ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 

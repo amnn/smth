@@ -30,7 +30,7 @@ footer should offer `C-x` close, but not `C-d` delete.
 session: alp
   2/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ alpha                                                                                                               ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -48,7 +48,7 @@ Pressing `C-d` should do nothing for a plain live tmux session.
 session: alp
   2/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ alpha                                                                                                               ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

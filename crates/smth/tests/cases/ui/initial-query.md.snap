@@ -29,7 +29,7 @@ matching sessions.
 session: gam
   1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ gamma                                                                       ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 

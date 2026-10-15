@@ -40,7 +40,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 `C-j` moves the selection down by one row.
@@ -60,7 +60,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 `C-k` moves the selection back up by one row.
@@ -80,7 +80,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 `M-j` jumps to the last selectable row.
@@ -100,7 +100,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 `M-k` jumps back to the first selectable row.
@@ -120,7 +120,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 ---

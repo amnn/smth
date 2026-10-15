@@ -55,12 +55,12 @@ unstage (`C-d`), close (`C-x`), and unflag (`C-f`), alongside confirmation
     :snap -d 2s -e unstage -e '1 session'
 
 Sorting takes precedence over staged deletion. Enter the editor, change name
-ordering, and try opening onto with `C-o`. The expanded sort controls and
-`sort [C-g] cancel` footer must remain visible instead of deletion actions or
-onto mode. The query stays `first`, and `alpha/first` remains selected and
-staged.
+ordering, and try opening onto with `C-o` and tags with `C-t`. The expanded
+sort controls and `sort [C-g] cancel` footer must remain visible instead of
+deletion actions or onto mode. The query stays `first`, and `alpha/first`
+remains selected and staged.
 
-    :k C-s n n C-o
+    :k C-s n n C-o C-t
     :snap -d 2s -e 'sort.*cancel' -e '^session: first' -e '▌× alpha/first '
 
 Cancel sorting with `C-g`. The original ordering and deletion controls return,
@@ -105,12 +105,13 @@ during creation. The footer should still be empty.
     :k down
     :snap -d 2s -e '▌× alpha/first ' "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
-Attempts to close (`C-x`), unstage deletion (`C-d`), unflag (`C-f`), confirm
+Attempts to close (`C-x`), unstage deletion (`C-d`), unflag (`C-f`), edit tags
+(`C-t`), confirm
 the deletion batch (`C-y`), cancel the batch (`C-g`), switch sessions (Enter),
 or exit (Escape and `C-c`) must be ignored. The snapshot should still show
 `first` selected and staged, creation in progress, and no footer actions.
 
-    :k C-x C-d C-f C-y C-g enter esc C-c
+    :k C-x C-d C-f C-t C-y C-g enter esc C-c
     :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
 The sort editor remains available during creation, but Escape and `C-c` still
