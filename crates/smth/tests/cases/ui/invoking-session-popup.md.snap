@@ -30,7 +30,7 @@ picker recognizes and skips the invoking session through the `TMUX` fallback.
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
 ▌■ beta                                                                                            ┃
@@ -59,7 +59,7 @@ Keep the simulated popup environment for this launch too.
 
 ```terminal
 session: runner                                                                                    ┃
-  1/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+  1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
    runner~1                                 ~/runner                                          repo ┃
    runner~1                                                                                   tmux ┃
 ▌■ runner                                                                                          ┃

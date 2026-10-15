@@ -292,7 +292,7 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "Cancel ordering or onto editing, otherwise clear staged deletions.",
     )?;
     w.def(
-        "M-s",
+        "C-s",
         "Edit session ordering, or accept pending changes for this run.",
     )?;
     w.def("l, r, n, a", "In ordering mode, select live, recency, name, or attention; repeat to cycle ascending, descending, disabled.")?;

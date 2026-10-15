@@ -50,7 +50,7 @@ Pressing `C-n` should do nothing and leave the picker open in the same state.
 
 ```terminal
 session:
-  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  6/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                                                              ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ session:
 
 ```terminal
 session:
-  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  6/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ runner                                                                                                              ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -89,7 +89,7 @@ because `alp` is not an exact live session name.
 
 ```terminal
 session: alp
-  1/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  1/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  alp                                                                                                            tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ disambiguated.
 
 ```terminal
 session: alpha
-  1/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  1/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  alpha~1                                                                                                        tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ row again. Its name should have no suffix because no live session is named
 
 ```terminal
 session: beta
-  1/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  1/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  beta                                                                                                           tmux ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

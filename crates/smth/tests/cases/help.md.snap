@@ -214,7 +214,7 @@ Key bindings:
   C-f               Flag or unflag a live session.
   C-g               Cancel ordering or onto editing, otherwise clear staged
                     deletions.
-  M-s               Edit session ordering, or accept pending changes for this
+  C-s               Edit session ordering, or accept pending changes for this
                     run.
   l, r, n, a        In ordering mode, select live, recency, name, or attention;
                     repeat to cycle ascending, descending, disabled.

@@ -41,7 +41,7 @@ The footer should count both sessions and the one hidden selection.
 
 ```terminal
 session: second                                                                                                        ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    second                                   ~/second                                                              repo ┃
    second                                                                                                         tmux ┃
 ▌× alpha/second                             ~/alpha.second                                                             ┃
@@ -66,7 +66,7 @@ cursor. Colour coverage verifies that both staged names remain distinguished.
 
 ```terminal
 session:                                                                                                               ┃
-  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  5/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃
@@ -96,7 +96,7 @@ toggling it back on restores the batch.
 
 ```terminal
 session: second                                                                                                        ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    second                                   ~/second                                                              repo ┃
    second                                                                                                         tmux ┃
 ▌  alpha/second                             ~/alpha.second                                                             ┃
@@ -121,7 +121,7 @@ only the first workspace hidden by the query.
 
 ```terminal
 session: second                                                                                                        ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    second                                   ~/second                                                              repo ┃
    second                                                                                                         tmux ┃
 ▌× alpha/second                             ~/alpha.second                                                             ┃
@@ -149,7 +149,7 @@ must not discard the staged selection.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
 ▌■ alpha/first                              ~/alpha.first                                                              ┃
@@ -176,7 +176,7 @@ should still count one deletion while offering `unflag` again.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
 ▌× alpha/first                              ~/alpha.first                                                              ┃
@@ -200,7 +200,7 @@ Cancelling the batch restores the ordinary delete hint without losing the flag.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
 ▌■ alpha/first                              ~/alpha.first                                                              ┃
@@ -226,7 +226,7 @@ Repeat staging and cancellation to verify the same state can be reached again.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
 ▌■ alpha/first                              ~/alpha.first                                                              ┃
@@ -263,7 +263,7 @@ batch is running must not schedule another batch.
 
 ```terminal
 session: unmatched                                                                                                     ┃
-  0/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  0/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    unmatched                                ~/unmatched                                                           repo ┃
 ▌  unmatched                                                                                                      tmux ┃
                                                                                                                        ┃
@@ -292,7 +292,7 @@ three surviving entries, with no deletion footer or named workspaces remaining.
 
 ```terminal
 session:                                                                                                               ┃
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃

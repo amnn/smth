@@ -28,7 +28,7 @@ session with the same name.
 
 ```terminal
 session: beta
-  2/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  2/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  beta~1                                   ~/beta                                                                     ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

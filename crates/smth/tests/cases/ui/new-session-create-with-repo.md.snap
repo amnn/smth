@@ -28,7 +28,7 @@ the slash, producing session `beta/foo-bar` and checkout `beta.foo-bar`.
 
 ```terminal
 session: foo/bar
-  0/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/beta, [C-o] onto: trunk()
+  0/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/beta, [C-o] onto: trunk()
 ▌  beta/foo-bar                             ~/beta.foo-bar                                                   workspace ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

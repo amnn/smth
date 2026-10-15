@@ -13,7 +13,7 @@ use ratatui::text::Span;
 
 use crate::app::agent;
 use crate::app::highlight::Highlight;
-use crate::app::order;
+use crate::app::sort;
 use crate::app::span::push_repo_path_spans;
 use crate::app::span::push_shortcut_span;
 use crate::model::agent::AgentState;
@@ -64,11 +64,11 @@ impl<'r> Header<'r> {
         line += Span::raw(format!(" {:>width$}", self.found));
         line += Span::raw(format!("/{} | ", self.total)).dim();
 
-        push_shortcut_span(&mut line, "M-s");
+        push_shortcut_span(&mut line, "C-s");
         if let Some(selected) = self.selected_order {
-            line.extend(order::expanded(self.order, selected));
+            line.extend(sort::expanded(self.order, selected));
         } else {
-            line.extend(order::summary(self.order));
+            line.extend(sort::summary(self.order));
         }
 
         line += Span::raw(" | ").dim();
@@ -86,7 +86,7 @@ impl<'r> Header<'r> {
         }
 
         // By default the agent summary takes precedence over the rest of the header, but if we are
-        // in order mode, the header takes precedence to ensure the order UI is not obscured.
+        // in sort mode, the header takes precedence to ensure the sort UI is not obscured.
         if self.selected_order.is_none() {
             f.render_widget(line, area);
             f.render_widget(agent::summary(self.agents, false), area);

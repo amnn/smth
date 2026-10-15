@@ -20,7 +20,7 @@ Hide the preview so every discovered match fits on screen.
 Switch to ascending names in the editor. Only the equal-score pair changes
 order: ab precedes ac, with ac still selected. The weaker zaz remains last.
 
-    :k M-s down
+    :k C-s down
     :snap
 
 Repeating Down disables every comparator. Fuzzy ranking remains active, with
@@ -37,13 +37,13 @@ Accept ascending names, then clear the query. The full list is alphabetic,
 including runner; fuzzy score no longer takes precedence. Reversing names with
 no query moves zaz to the top, unlike reversing names while filtering.
 
-    :k M-s down M-s
+    :k C-s down C-s
     :snap
 
     :k C-u
     :snap
 
-    :k M-s up M-s
+    :k C-s up C-s
     :snap
 
 With descending ordering committed, move Down from ac to ab. The ordering has

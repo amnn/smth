@@ -37,7 +37,7 @@ will also show `beta~1`:
 
 ```terminal
 session: beta                                                                                                          ┃
-  3/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  3/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    beta~1                                   ~/beta                                                                repo ┃
    beta~1                                                                                                         tmux ┃
 ▌■ beta                                                                                                                ┃

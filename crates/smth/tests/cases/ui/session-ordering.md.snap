@@ -23,7 +23,7 @@ before each snapshot so the complete session order is visible.
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
 ▌■ alpha                                                                                           ┃
@@ -50,12 +50,12 @@ dimmed but its initial still interactive. Select recency without changing it;
 then select name, move it to the front, and reverse it. Alpha remains selected
 as the list reorders.
 
-    :k M-s
+    :k C-s
     :snap --color
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ◂ ↑live ▸ ↑recency · ↓name · attention   | [C-r] repo: none                          ┃
+  3/3 | [C-s] ◂ ↑live ▸ ↑recency · ↓name · attention   | [C-r] repo: none                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
 ▌■ alpha                                                                                           ┃
@@ -71,7 +71,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.2.light.svg)
@@ -82,7 +82,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s]   ↑live ◂ ↑recency ▸ ↓name · attention   | [C-r] repo: none                          ┃
+  3/3 | [C-s]   ↑live ◂ ↑recency ▸ ↓name · attention   | [C-r] repo: none                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
 ▌■ alpha                                                                                           ┃
@@ -98,7 +98,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.3.light.svg)
@@ -109,7 +109,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ◂ ↑name ▸ ↑live · ↑recency · attention   | [C-r] repo: none                          ┃
+  3/3 | [C-s] ◂ ↑name ▸ ↑live · ↑recency · attention   | [C-r] repo: none                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -125,7 +125,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.4.light.svg)
@@ -140,7 +140,7 @@ The outward triangles occupy reserved space and never shift the labels.
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ attention ▸ | [C-r] repo: none                          ┃
+  3/3 | [C-s]   ↑name · ↑live · ↑recency ◂ attention ▸ | [C-r] repo: none                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -156,7 +156,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.5.light.svg)
@@ -167,7 +167,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s]   ↑live · ↑recency · attention ◂ ↑name ▸ | [C-r] repo: none                          ┃
+  3/3 | [C-s]   ↑live · ↑recency · attention ◂ ↑name ▸ | [C-r] repo: none                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -183,7 +183,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.6.light.svg)
@@ -194,7 +194,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ◂ ↑name ▸ ↑live · ↑recency · attention   | [C-r] repo: none                          ┃
+  3/3 | [C-s] ◂ ↑name ▸ ↑live · ↑recency · attention   | [C-r] repo: none                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -210,7 +210,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.7.light.svg)
@@ -224,7 +224,7 @@ again reverses, and repeating again disables it without losing its position.
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ ↓attention ▸ | [C-r] repo: none                         ┃
+  3/3 | [C-s]   ↑name · ↑live · ↑recency ◂ ↓attention ▸ | [C-r] repo: none                         ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -240,7 +240,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.8.light.svg)
@@ -251,7 +251,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ ↑attention ▸ | [C-r] repo: none                         ┃
+  3/3 | [C-s]   ↑name · ↑live · ↑recency ◂ ↑attention ▸ | [C-r] repo: none                         ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -267,7 +267,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
     :k a
@@ -275,7 +275,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s]   ↑name · ↑live · ↑recency ◂ attention ▸ | [C-r] repo: none                          ┃
+  3/3 | [C-s]   ↑name · ↑live · ↑recency ◂ attention ▸ | [C-r] repo: none                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -291,7 +291,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.10.light.svg)
@@ -305,7 +305,7 @@ are inert in the editor. Cancel restores the default ordering and alpha's row.
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
 ▌■ alpha                                                                                           ┃
@@ -328,12 +328,12 @@ Accept a name-first descending stack. A subsequent edit can be cancelled without
 losing that accepted stack. Launching again uses the built-in default, not the
 accepted edit.
 
-    :k M-s n left left n M-s
+    :k C-s n left left n C-s
     :snap
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ↑n ↑l ↑r | [C-r] repo: none                                                          ┃
+  3/3 | [C-s] ↑n ↑l ↑r | [C-r] repo: none                                                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -352,12 +352,12 @@ session:                                                                        
  [C-x] close, [C-f] flag                                                                           ┃
 ```
 
-    :k M-s n C-g
+    :k C-s n C-g
     :snap
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ↑n ↑l ↑r | [C-r] repo: none                                                          ┃
+  3/3 | [C-s] ↑n ↑l ↑r | [C-r] repo: none                                                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
  ■ beta                                                                                            ┃
@@ -383,7 +383,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
                                                                                                    ┃
  ■ runner                                                                                          ┃
 ▌■ alpha                                                                                           ┃
@@ -412,7 +412,7 @@ result rather than preferring recency.
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] order | [C-r] repo: none                                                             ┃
+  3/3 | [C-s] order | [C-r] repo: none                                                             ┃
                                                                                                    ┃
                                                                                                    ┃
 ▌■ alpha                                                                                           ┃
@@ -437,12 +437,12 @@ session:                                                                        
 All-disabled entry selects live; enabling it does not revive any other key.
 Escape exits the application rather than accepting pending edits.
 
-    :k M-s l
+    :k C-s l
     :snap --color
 
 ```terminal
 session:                                                                                           ┃
-  3/3 | [M-s] ◂ ↓live ▸ recency · name · attention   | [C-r] repo: none                            ┃
+  3/3 | [C-s] ◂ ↓live ▸ recency · name · attention   | [C-r] repo: none                            ┃
                                                                                                    ┃
                                                                                                    ┃
 ▌■ alpha                                                                                           ┃
@@ -458,7 +458,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
-                                                                                 order [C-g] cancel┃
+                                                                                  sort [C-g] cancel┃
 ```
 
 ![light](session-ordering.md.snap.16.light.svg)

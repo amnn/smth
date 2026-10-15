@@ -26,7 +26,7 @@ race the picker. Staging the workspace should show a one-session deletion footer
 
 ```terminal
 session: feature                                                                                                       ┃
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -47,7 +47,7 @@ session actions and the gap between them, even at extremely narrow widths.
 
 ```terminal
 session: feature             │
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r│
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r│
 ▌× alpha/feature             │
 delete [C-y] 1 session [C-g] ┃
 ```
@@ -65,7 +65,7 @@ keeps the app open.
 
 ```terminal
 onto:
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                        onto [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ The first cancellation returns to session mode with the deletion still staged.
 
 ```terminal
 session: feature                                                                                                       ┃
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -107,7 +107,7 @@ The second cancellation clears the deletion, restoring the ordinary delete hint.
 
 ```terminal
 session: feature                                                                                                       ┃
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
 ▌  alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -132,7 +132,7 @@ Deleting and retyping the final character should restore the original query.
 
 ```terminal
 session: feature                                                                                                       ┃
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
 ▌  alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -163,7 +163,7 @@ the marker survived, and the restarted picker shows the selection again.
 
 ```terminal
 session: feature                                                                                                       ┃
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()                                                      ┃
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃

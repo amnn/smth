@@ -38,7 +38,7 @@ context.
 
 ```terminal
 session: feature
-  0/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  0/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌  alpha/feature                            ~/alpha.feature                                                  workspace ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

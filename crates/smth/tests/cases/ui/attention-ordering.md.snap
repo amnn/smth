@@ -56,7 +56,7 @@ waiting
 
 ```terminal
 session:                                                                                                               ┃
-  6/6 | [M-s] ↑a ↓n | [C-r] repo: none                                                               ⏸ · × · ✔ · ▶ · ○ ┃
+  6/6 | [C-s] ↑a ↓n | [C-r] repo: none                                                               ⏸ · × · ✔ · ▶ · ○ ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ failed                                                                                                            × ┃
@@ -87,12 +87,12 @@ preceding it. Select it on entry, disable it, then cancel. Failed stays selected
 while idle, runner, and running move ahead of succeeded and waiting. Cancellation
 restores the alert-first order.
 
-    :k M-s a
+    :k C-s a
     :snap --color
 
 ```terminal
 session:                                                                                                               ┃
-  6/6 | [M-s] ◂ attention ▸ ↓name · live · recency   | [C-r] repo: none                              ⏸ · × · ✔ · ▶ · ○ ┃
+  6/6 | [C-s] ◂ attention ▸ ↓name · live · recency   | [C-r] repo: none                              ⏸ · × · ✔ · ▶ · ○ ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ failed                                                                                                            × ┃
@@ -112,7 +112,7 @@ session:                                                                        
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
-                                                                                                     order [C-g] cancel┃
+                                                                                                      sort [C-g] cancel┃
 ```
 
 ![light](attention-ordering.md.snap.2.light.svg)
@@ -123,7 +123,7 @@ session:                                                                        
 
 ```terminal
 session:                                                                                                               ┃
-  6/6 | [M-s] ↑a ↓n | [C-r] repo: none                                                               ⏸ · × · ✔ · ▶ · ○ ┃
+  6/6 | [C-s] ↑a ↓n | [C-r] repo: none                                                               ⏸ · × · ✔ · ▶ · ○ ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ failed                                                                                                            × ┃
@@ -157,7 +157,7 @@ visible even though the repository text is partly overwritten.
 
 ```terminal
 session:                                               ┃
-  6/6 | [M-s] ↑a ↓n | [C-r] repo: no ⏸ · × · ✔ · ▶ · ○ ┃
+  6/6 | [C-s] ↑a ↓n | [C-r] repo: no ⏸ · × · ✔ · ▶ · ○ ┃
                                                        ┃
                                                        ┃
 ▌■ failed                                            × ┃
@@ -176,12 +176,12 @@ Open the ordering editor at the same width. The expanded controls now take
 precedence over the summary: attention, name, live, and recency stay visible,
 while the overlapping agent glyphs are covered by the header.
 
-    :k M-s
+    :k C-s
     :snap
 
 ```terminal
 session:                                               ┃
-  6/6 | [M-s] ◂ ↑attention ▸ ↓name · live · recency   |┃
+  6/6 | [C-s] ◂ ↑attention ▸ ↓name · live · recency   |┃
                                                        ┃
                                                        ┃
 ▌■ failed                                            × ┃
@@ -193,7 +193,7 @@ session:                                               ┃
                                                        ┃
                                                        ┃
                                                        ┃
-                                     order [C-g] cancel┃
+                                      sort [C-g] cancel┃
 ```
 
 Widen the terminal while keeping the editor open. There is room for both the
@@ -205,7 +205,7 @@ hide the summary unconditionally.
 
 ```terminal
 session:                                                                                                               ┃
-  6/6 | [M-s] ◂ ↑attention ▸ ↓name · live · recency   | [C-r] repo: none                             ⏸ · × · ✔ · ▶ · ○ ┃
+  6/6 | [C-s] ◂ ↑attention ▸ ↓name · live · recency   | [C-r] repo: none                             ⏸ · × · ✔ · ▶ · ○ ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ failed                                                                                                            × ┃
@@ -217,7 +217,7 @@ session:                                                                        
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
-                                                                                                     order [C-g] cancel┃
+                                                                                                      sort [C-g] cancel┃
 ```
 
 Cancel the editor, then shrink the terminal again. The compact header restores
@@ -229,7 +229,7 @@ summary-first priority, keeping every agent-state glyph visible on the right.
 
 ```terminal
 session:                                               ┃
-  6/6 | [M-s] ↑a ↓n | [C-r] repo: no ⏸ · × · ✔ · ▶ · ○ ┃
+  6/6 | [C-s] ↑a ↓n | [C-r] repo: no ⏸ · × · ✔ · ▶ · ○ ┃
                                                        ┃
                                                        ┃
 ▌■ failed                                            × ┃
