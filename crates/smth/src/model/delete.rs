@@ -77,6 +77,7 @@ mod tests {
                     alerts: BTreeSet::new(),
                     attached: false,
                     flagged: false,
+                    tags: Default::default(),
                     last_attached: None,
                     repo: Some(path.clone()),
                 },

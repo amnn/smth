@@ -10,6 +10,7 @@ pub(crate) mod order;
 pub(crate) mod picker;
 pub(crate) mod serialize;
 pub(crate) mod session;
+pub(crate) mod tag;
 
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
@@ -737,6 +738,7 @@ mod tests {
                     alerts: BTreeSet::default(),
                     attached: false,
                     flagged: false,
+                    tags: Default::default(),
                     last_attached: None,
                     repo: None,
                 },
@@ -798,6 +800,7 @@ mod tests {
                         alerts: Default::default(),
                         attached: true,
                         flagged: false,
+                        tags: Default::default(),
                         last_attached: None,
                         repo: None,
                     },
@@ -987,6 +990,7 @@ mod tests {
                 alerts: BTreeSet::new(),
                 attached: false,
                 flagged: false,
+                tags: Default::default(),
                 last_attached: None,
                 repo: None,
             },
@@ -1232,6 +1236,7 @@ mod tests {
                 alerts: BTreeSet::new(),
                 attached: false,
                 flagged: false,
+                tags: Default::default(),
                 last_attached: None,
                 repo: Some(workspace),
             },
@@ -1244,6 +1249,7 @@ mod tests {
                 alerts: BTreeSet::new(),
                 attached: false,
                 flagged: false,
+                tags: Default::default(),
                 last_attached: None,
                 repo: None,
             },
