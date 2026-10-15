@@ -32,6 +32,11 @@ If you find that a module is getting too large, and elements pertaining to,
 e.g. the same type are spread out too far, that is a sign that this module
 needs to be split up.
 
+### Blank Lines
+
+Use blank lines to break Rust code into logical sections, keeping closely
+related statements together and separating distinct phases of an operation.
+
 ### Imports
 
 Imports at the top of the file are broken up into three sections, with an
