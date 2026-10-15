@@ -1,0 +1,239 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/cli/tag.md
+---
+# Session tags
+
+Tags are independent many-to-many memberships, not attention flags. Create two
+plain live sessions and a repository with a non-live named workspace. Capture
+the physical fixture directory as ROOT to normalize JSON paths to <ROOT>.
+
+    :b jj cat sed pwd (available)
+    :$ -q pwd -P (exit: 0)
+    := ROOT (bound)
+
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s first "cat" (success)
+    :t new-session -d -s second "cat" (success)
+    :$ -q smth --no-base --create-repo --create alpha (exit: 0)
+    :$ -q jj workspace add -R alpha --name idle alpha.idle (exit: 0)
+
+Both plain sessions can carry a, and first can also carry z. Repeated tagging
+is idempotent. Successful mutations exit 0 without output. Flagging first must
+not alter either membership; JSON lists
+first's tags alphabetically and reports the flag independently.
+
+    :$ smth --no-base --tag z first (exit: 0)
+    :$ smth --no-base --tag a first (exit: 0)
+    :$ smth --no-base --tag a first (exit: 0)
+    :$ smth --no-base --tag a second (exit: 0)
+    :$ smth --no-base --flag first (exit: 0)
+    :$ smth --no-base --json --query first (exit: 0)
+
+```stdout
+[
+  {
+    "name": "first",
+    "tmux": "first",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": true,
+    "tags": [
+      "a",
+      "z"
+    ]
+  }
+]
+```
+
+Removing a twice from first must preserve z, its flag, and second's a.
+
+    :$ smth --no-base --untag a first (exit: 0)
+    :$ smth --no-base --untag a first (exit: 0)
+    :$ smth --no-base --json --query first (exit: 0)
+
+```stdout
+[
+  {
+    "name": "first",
+    "tmux": "first",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": true,
+    "tags": [
+      "z"
+    ]
+  }
+]
+```
+
+    :$ smth --no-base --json --query second (exit: 0)
+
+```stdout
+[
+  {
+    "name": "second",
+    "tmux": "second",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": false,
+    "tags": [
+      "a"
+    ]
+  }
+]
+```
+
+A default-workspace base supplies the target when omitted. A named workspace
+base does the same; an explicit operand overrides it. The tmux option queries
+print 1 because each preceding command enabled that membership.
+
+    :$ smth --base alpha --tag b (exit: 0)
+    :t show-options -qv -t '=alpha:' @smth.tag.b (success)
+
+```
+1
+```
+
+    :$ -q smth --base alpha --create feature (exit: 0)
+    :$ smth --base alpha.feature --tag c (exit: 0)
+    :t show-options -qv -t '=alpha/feature:' @smth.tag.c (success)
+
+```
+1
+```
+
+    :$ -q smth --base alpha --create other (exit: 0)
+    :$ smth --base alpha.feature --tag d other (exit: 0)
+    :t show-options -qv -t '=alpha/other:' @smth.tag.d (success)
+
+```
+1
+```
+
+Closing and recreating first loses its tags and flag, while second remains
+in a. Separate CLI invocations above already demonstrate persistence across
+smth process exits.
+
+    :$ smth --no-base --close first (exit: 0)
+    :t new-session -d -s first "cat" (success)
+    :$ smth --no-base --json --query first (exit: 0)
+
+```stdout
+[
+  {
+    "name": "first",
+    "tmux": "first",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": false,
+    "tags": []
+  }
+]
+```
+
+    :$ smth --no-base --json --query second (exit: 0)
+
+```stdout
+[
+  {
+    "name": "second",
+    "tmux": "second",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": false,
+    "tags": [
+      "a"
+    ]
+  }
+]
+```
+
+A and aa violate the lowercase single-letter constraint, missing identifies no
+session, and idle has no live tmux session. These operational errors exit 1.
+The non-live idle candidate has no tags field in JSON; its paths are normalized
+to <ROOT> using the physical directory captured during setup.
+
+    :$ smth --no-base --tag A first (exit: 1)
+
+```stderr
+error: tag must be one lowercase letter a-z
+```
+
+    :$ smth --no-base --tag aa first (exit: 1)
+
+```stderr
+error: tag must be one lowercase letter a-z
+```
+
+    :$ smth --no-base --tag a missing (exit: 1)
+
+```stderr
+error: session not found
+```
+
+    :$ smth --base alpha --repo 'alpha*' --tag a idle (exit: 1)
+
+```stderr
+error: session is not live
+```
+
+    :$ smth --base alpha --repo 'alpha*' --json --query idle (exit: 0)
+    :| sed "s#${ROOT}#<ROOT>#g" (exit: 0)
+
+```stdout
+[
+  {
+    "base": "<ROOT>/alpha",
+    "name": "idle",
+    "path": "<ROOT>/alpha.idle",
+    "tmux": "alpha/idle",
+    "live": false,
+    "deletable": true,
+    "pending_deletion": false
+  }
+]
+```
+
+Tag mutations reject picker controls and other lifecycle actions during argument
+parsing, producing usage diagnostics and exit 2.
+
+    :$ smth --no-base --tag a first --query first (exit: 2)
+
+```stderr
+error: the argument '--tag <TAG> <SESSION>' cannot be used with '--query <STR>'
+
+Usage: smth --no-base --tag <TAG> <SESSION>
+
+For more information, try 'help'.
+```
+
+    :$ smth --no-base --tag a first --json (exit: 2)
+
+```stderr
+error: the argument '--tag <TAG> <SESSION>' cannot be used with '--json'
+
+Usage: smth --no-base --tag <TAG> <SESSION>
+
+For more information, try 'help'.
+```
+
+    :$ smth --no-base --tag a first --untag a first (exit: 2)
+
+```stderr
+error: the argument '--tag <TAG> <SESSION>' cannot be used with '--untag <TAG> <SESSION>'
+
+Usage: smth --no-base --tag <TAG> <SESSION>
+
+For more information, try 'help'.
+```
+
+---
+vim: set ft=markdown:

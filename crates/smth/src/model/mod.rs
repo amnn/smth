@@ -600,6 +600,9 @@ impl Model {
                 .as_ref()
                 .is_some_and(|delete| delete.contains(session)),
             flagged: session.flag(),
+            tags: session
+                .tags()
+                .map(|tags| tags.iter().map(|tag| tag.letter()).collect()),
             attention: session.attention_windows().cloned().unwrap_or_default(),
             agents,
         }

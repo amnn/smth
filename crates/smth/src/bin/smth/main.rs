@@ -44,6 +44,9 @@ enum Action {
     /// Clear the target live session's manual flag.
     Unflag(Option<String>),
 
+    /// Set or clear one tag on a live session.
+    Tag(String, Option<String>, bool),
+
     /// Ensure the target session exists without switching to it.
     Create(Option<String>),
 
@@ -82,6 +85,8 @@ enum Action {
             "json",
             "flag",
             "unflag",
+            "tag",
+            "untag",
             "create",
             "switch",
             "close",
@@ -209,6 +214,30 @@ struct Args {
                      family and workspace identity."
     )]
     unflag: Option<Option<String>>,
+
+    /// Add a tag to a live session.
+    #[arg(
+        long,
+        value_names = ["TAG", "SESSION"],
+        num_args = 1..=2,
+        conflicts_with_all = ["query", "select_1", "exit_0"],
+        long_help = "Add a lowercase tag a-z to a live session. The optional session name overrides \
+                     a named workspace inferred from --base. The target must match the selected \
+                     repository family and workspace identity. Tags are independent of attention \
+                     flags but also disappear when the tmux session is destroyed."
+    )]
+    tag: Option<Vec<String>>,
+
+    /// Remove a tag from a live session.
+    #[arg(
+        long,
+        value_names = ["TAG", "SESSION"],
+        num_args = 1..=2,
+        conflicts_with_all = ["query", "select_1", "exit_0"],
+        long_help = "Remove a lowercase tag a-z from a live session, preserving all other tags. \
+                     Target resolution is the same as --tag. Removing an absent tag is a no-op."
+    )]
+    untag: Option<Vec<String>>,
 
     /// Ensure a session exists without switching to it.
     #[arg(
@@ -359,6 +388,14 @@ impl Args {
             Some(Action::Flag(session.clone()))
         } else if let Some(session) = &self.unflag {
             Some(Action::Unflag(session.clone()))
+        } else if let Some(values) = &self.tag {
+            Some(Action::Tag(values[0].clone(), values.get(1).cloned(), true))
+        } else if let Some(values) = &self.untag {
+            Some(Action::Tag(
+                values[0].clone(),
+                values.get(1).cloned(),
+                false,
+            ))
         } else if let Some(session) = &self.create {
             Some(Action::Create(session.clone()))
         } else if let Some(session) = &self.switch {
@@ -484,6 +521,15 @@ async fn run() -> anyhow::Result<ExitCode> {
 
             ensure!(session.is_live(), "session is not live");
             session.set_flag(false).await?;
+            Ok(ExitCode::SUCCESS)
+        }
+
+        Some(Action::Tag(tag, name, enabled)) => {
+            let tag = tag.parse()?;
+            let session = model
+                .session(current.as_deref(), name.as_deref())
+                .context("session not found")?;
+            session.set_tag(tag, *enabled).await?;
             Ok(ExitCode::SUCCESS)
         }
 

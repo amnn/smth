@@ -57,7 +57,8 @@ beta
     "live": true,
     "deletable": false,
     "pending_deletion": false,
-    "flagged": false
+    "flagged": false,
+    "tags": []
   },
   {
     "name": "beta",
@@ -65,7 +66,8 @@ beta
     "live": true,
     "deletable": false,
     "pending_deletion": false,
-    "flagged": false
+    "flagged": false,
+    "tags": []
   }
 ]
 ```
