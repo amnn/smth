@@ -224,7 +224,10 @@ Options:
 Key bindings:
   C-d               Toggle the workspace's persisted pending-deletion marker.
   C-f               Flag or unflag a live session.
-  C-g               Cancel ordering or onto editing, otherwise clear staged
+  C-t               Edit live session tags, or apply staged tag edits. A
+                    lowercase first letter toggles and applies; uppercase starts
+                    batch editing, where either case toggles without applying.
+  C-g               Discard tag, ordering, or onto edits, otherwise clear staged
                     deletions.
   C-s               Edit session ordering, or accept pending changes for this
                     run.

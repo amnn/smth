@@ -29,7 +29,7 @@ revision supplied on the command line rather than `trunk()`.
 session:
   2/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: @
 ▌■ runner                                                                                          ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

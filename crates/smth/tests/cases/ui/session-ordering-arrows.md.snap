@@ -191,7 +191,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
     :k C-s up
@@ -231,7 +231,7 @@ session:                                                                        
                                                                                                    ┃
                                                                                                    ┃
                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
 ```
 
 ---

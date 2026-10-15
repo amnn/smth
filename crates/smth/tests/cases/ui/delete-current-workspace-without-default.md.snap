@@ -44,7 +44,7 @@ the selected live workspace should offer deletion despite the missing default.
 session: zeta
   1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/beta.zeta, [C-o] onto: trunk()
 ▌■ beta/zeta                                ~/beta.zeta                                                                ┃
- [C-d] delete, [C-x] close, [C-f] flag
+ [C-d] delete, [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) (no description set)

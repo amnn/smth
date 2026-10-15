@@ -44,7 +44,7 @@ session:
   1/1 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
                                                                                                                        │
 ▌■ runner                                                                                                              ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -116,7 +116,7 @@ session:
   2/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
                                                                                                                        │
 ▌■ runner                                                                                                              ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -155,7 +155,7 @@ session: foo.bar
   1/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
    foo-bar~1                                                                                                      tmux │
 ▌■ foo-bar                                  ~/r/foo.bar                                                                ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) (no description set)
@@ -260,7 +260,7 @@ session:
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/r/foo.bar, [C-o] onto: trunk()
                                                                                                                        ┃
 ▌■ runner                                                                                                              │
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

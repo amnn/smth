@@ -37,7 +37,7 @@ footer above the horizontal separator between the session list and preview.
 session: alpha
   1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ alpha                                    ~/alpha                                                                    ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) alpha commit
@@ -63,7 +63,7 @@ session: alpha                                                                  
                                                                                                            ┃
                                                                                                            ┃
                                                                                                            ┃
- [C-x] close, [C-f] flag                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                                       ┃
 ```
 
 The same arrangement should hold when the preview reaches its maximum width.
@@ -81,7 +81,7 @@ session: alpha                                                                  
                                                                                                                                                                ┃
                                                                                                                                                                ┃
                                                                                                                                                                ┃
- [C-x] close, [C-f] flag                                                                                                                                       ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                                                                                           ┃
 ```
 
 Hiding the preview leaves the footer aligned with the session list, excluding
@@ -100,7 +100,7 @@ session: alpha                                                                  
                                                                                                                                                                                                                                                                    ┃
                                                                                                                                                                                                                                                                    ┃
                                                                                                                                                                                                                                                                    ┃
- [C-x] close, [C-f] flag                                                                                                                                                                                                                                           ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                                                                                                                                                                                               ┃
 ```
 
 ---

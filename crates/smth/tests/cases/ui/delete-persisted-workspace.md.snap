@@ -117,7 +117,7 @@ session: alias                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-d] delete, [C-x] close, [C-f] flag                                                                                 ┃
+ [C-d] delete, [C-x] close, [C-f] flag, [C-t] tags                                                                     ┃
 ```
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
@@ -142,7 +142,7 @@ session: alias                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-d] delete, [C-x] close, [C-f] flag                                                                                 ┃
+ [C-d] delete, [C-x] close, [C-f] flag, [C-t] tags                                                                     ┃
 ```
 
     :$ test ! -f alpha.feature/.jj/.smth-pending-delete (exit: 0)
@@ -172,7 +172,7 @@ session:                                                                        
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-x] close, [C-f] flag                                                                                               ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                                                   ┃
 ```
 
     :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"' (exit: 0)

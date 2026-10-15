@@ -163,7 +163,7 @@ session: first                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
+ [C-d] delete, [C-x] close, [C-f] unflag, [C-t] tags                                                                   ┃
 ```
 
 Stage the live workspace and toggle its persistent flag off and on. The footer
@@ -214,7 +214,7 @@ session: first                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
+ [C-d] delete, [C-x] close, [C-f] unflag, [C-t] tags                                                                   ┃
 ```
 
 Repeat staging and cancellation to verify the same state can be reached again.
@@ -240,7 +240,7 @@ session: first                                                                  
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-d] delete, [C-x] close, [C-f] unflag                                                                               ┃
+ [C-d] delete, [C-x] close, [C-f] unflag, [C-t] tags                                                                   ┃
 ```
 
     :t show-option -t alpha/first -v @smth.flag (success)
@@ -306,7 +306,7 @@ session:                                                                        
                                                                                                                        ┃
                                                                                                                        ┃
                                                                                                                        ┃
- [C-x] close, [C-f] flag                                                                                               ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                                                   ┃
 ```
 
     :$ jj workspace list -R alpha --ignore-working-copy --no-pager --color never --template 'name ++ "\n"' (exit: 0)

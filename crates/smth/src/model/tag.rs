@@ -4,6 +4,7 @@
 //! Single-letter session tags and their compact membership set.
 
 use std::fmt;
+use std::ops::BitOr;
 use std::str::FromStr;
 
 use anyhow::ensure;
@@ -46,6 +47,15 @@ impl Tags {
     /// Toggle one membership.
     pub fn toggle(&mut self, tag: Tag) {
         self.0 ^= 1 << tag.0;
+    }
+}
+
+impl BitOr for Tags {
+    type Output = Self;
+
+    /// Return the union of both membership sets.
+    fn bitor(self, rhs: Self) -> Self {
+        Self(self.0 | rhs.0)
     }
 }
 
@@ -114,5 +124,23 @@ mod tests {
             let tag: Tag = letter.to_string().parse().unwrap();
             assert_eq!(tag.letter(), letter);
         }
+    }
+
+    #[test]
+    fn union_combines_memberships_without_duplicates() {
+        let mut left = Tags::default();
+        let mut right = Tags::default();
+        for tag in ["a", "m"] {
+            left.set(tag.parse().unwrap(), true);
+        }
+        for tag in ["m", "z"] {
+            right.set(tag.parse().unwrap(), true);
+        }
+
+        assert_eq!((left | right).to_string(), "amz");
+        assert_eq!(left | right, right | left);
+        assert_eq!(left | left, left);
+        assert_eq!(left | Tags::default(), left);
+        assert_eq!(Tags::default() | right, right);
     }
 }

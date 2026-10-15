@@ -43,7 +43,7 @@ session: z                                                                     �
                                                                                ┃
                                                                                ┃
                                                                                ┃
- [C-x] close, [C-f] flag                                                       ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                           ┃
 ```
 
 ![light](list-match-scroll.md.snap.1.light.svg)

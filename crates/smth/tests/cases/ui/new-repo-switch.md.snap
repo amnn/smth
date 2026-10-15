@@ -51,7 +51,7 @@ session: switched
   2/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
    switched~1                                                                                                     tmux │
 ▌■ switched                                                                                                            ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -174,7 +174,7 @@ session: switched~2
   1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
    switched~2~1                                                                                                   tmux │
 ▌■ switched~2                                                                                                          ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 

@@ -129,7 +129,7 @@ session: runner
   1/1 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
    runner~1                                                               tmux │
 ▌■ runner                                                                      ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────
 
 

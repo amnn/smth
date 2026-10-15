@@ -102,7 +102,8 @@ brief CLI help; `smth --help` includes the complete picker key list.
 | --- | --- |
 | `C-d` | Toggle the workspace's persisted pending-deletion marker. |
 | `C-f` | Flag or unflag a live session. |
-| `C-g` | Cancel ordering or onto editing, otherwise clear staged deletions. |
+| `C-t` | Edit live session tags, or apply staged tag edits. Lowercase first input toggles and applies; uppercase starts batch editing, where either case toggles without applying. |
+| `C-g` | Discard tag, ordering, or onto edits, otherwise clear staged deletions. |
 | `C-s` | Edit ordering, or accept edits for this run. |
 | `l`, `r`, `n`, `a` | In ordering mode, select a comparator; repeat to cycle ascending, descending, disabled. |
 | Left/right | In ordering mode, move the comparator, wrapping at the ends. |

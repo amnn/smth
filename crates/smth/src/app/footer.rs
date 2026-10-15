@@ -14,6 +14,7 @@ use crate::app::actions::AvailableActions;
 use crate::app::actions::Mode;
 use crate::app::span::push_shortcut_span;
 use crate::app::span::tag_span;
+use crate::app::tag;
 use crate::model::delete;
 use crate::model::session::Session;
 
@@ -22,6 +23,7 @@ pub(super) struct Footer<'s> {
     delete: Option<&'s delete::Model>,
     matches: &'s [Item<'s, Session>],
     selected: Option<&'s Session>,
+    tagging: Option<&'s tag::State>,
 }
 
 impl<'s> Footer<'s> {
@@ -30,11 +32,13 @@ impl<'s> Footer<'s> {
         delete: Option<&'s delete::Model>,
         matches: &'s [Item<'s, Session>],
         selected: Option<&'s Session>,
+        tagging: Option<&'s tag::State>,
     ) -> Self {
         Self {
             delete,
             matches,
             selected,
+            tagging,
         }
     }
 
@@ -79,14 +83,15 @@ impl<'s> Footer<'s> {
             prefix = ", ";
         }
 
-        if actions.mode.is_none()
-            && let Some(tags) = self.selected.and_then(Session::tags)
-        {
-            let text: String = tags.iter().map(|tag| tag.letter()).collect();
+        if actions.tag {
+            let tags = self.selected.and_then(Session::tags).unwrap_or_default();
+            let text = tags.to_string();
+
+            line += Span::raw(prefix).dim();
+            push_shortcut_span(&mut line, "C-t");
+            line += Span::raw(" tags");
             if !text.is_empty() {
-                line += Span::raw(prefix).dim();
-                push_shortcut_span(&mut line, "C-t");
-                line += Span::raw(" tags: ");
+                line += Span::raw(": ");
                 line += tag_span(text, false);
             }
         }
@@ -100,9 +105,26 @@ impl<'s> Footer<'s> {
             Mode::Delete => "delete",
             Mode::Onto => "onto",
             Mode::Sort => "sort",
+            Mode::Tag => "tags",
         };
 
-        let mut line = Line::from(Span::raw(format!("{label} ")).dim());
+        let mut line = Line::from(Span::raw(label).dim());
+
+        if let Mode::Tag = mode {
+            if let Some(state) = self.tagging {
+                let tags = state.initial | state.pending;
+                let text = tags.to_string();
+                if !text.is_empty() {
+                    line += Span::raw(": ").dim();
+                    for (tag, glyph) in tags.iter().zip(text.chars()) {
+                        line += Span::styled(glyph.to_string(), state.style(tag));
+                    }
+                }
+            }
+            line += Span::raw(" ");
+        } else {
+            line += Span::raw(" ").dim();
+        }
 
         if let Mode::Delete = mode
             && let Some(delete) = self.delete
@@ -119,6 +141,13 @@ impl<'s> Footer<'s> {
             if hidden > 0 {
                 line += Span::raw(format!("({hidden} hidden) ")).light_red().bold();
             }
+        }
+
+        if let Mode::Tag = mode
+            && self.tagging.is_some_and(|state| state.batch)
+        {
+            push_shortcut_span(&mut line, "C-t");
+            line += Span::raw(" accept ");
         }
 
         push_shortcut_span(&mut line, "C-g");

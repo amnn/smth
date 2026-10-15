@@ -65,7 +65,7 @@ session and glob-discovered repos.
 session:
   7/7 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ alpha-live                               alpha                                                                      ┃
- [C-x] close, [C-f] flag
+ [C-x] close, [C-f] flag, [C-t] tags
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh
 │  (empty) alpha commit

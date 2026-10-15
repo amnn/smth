@@ -22,6 +22,8 @@ pub(super) struct AvailableActions {
     pub(super) delete: Option<bool>,
     /// Current flag state, or `None` when the flag cannot be toggled.
     pub(super) flag: Option<bool>,
+    /// Whether tag editing can begin for the selected session.
+    pub(super) tag: bool,
     /// Modal actions taking precedence over session actions, or `None` when none are available.
     pub(super) mode: Option<Mode>,
 }
@@ -32,6 +34,7 @@ pub(super) enum Mode {
     Delete,
     Onto,
     Sort,
+    Tag,
 }
 
 impl AvailableActions {
@@ -41,9 +44,10 @@ impl AvailableActions {
         loading: bool,
         onto: bool,
         sort: bool,
+        tagging: bool,
         delete: Option<&delete::Model>,
     ) -> Self {
-        let session_actions = !loading && !onto && !sort;
+        let session_actions = !loading && !onto && !sort && !tagging;
         let selected = sessions.selected();
         Self {
             exit: !loading,
@@ -54,7 +58,10 @@ impl AvailableActions {
                 .filter(|_| session_actions && sessions.can_delete())
                 .map(|session| delete.is_some_and(|delete| delete.contains(session))),
             flag: selected.and_then(Session::flag).filter(|_| session_actions),
-            mode: if onto {
+            tag: session_actions && delete.is_none() && sessions.is_live(),
+            mode: if tagging {
+                Some(Mode::Tag)
+            } else if onto {
                 Some(Mode::Onto)
             } else if sort {
                 Some(Mode::Sort)
