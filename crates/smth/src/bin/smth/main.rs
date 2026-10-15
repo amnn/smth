@@ -620,6 +620,7 @@ async fn run() -> anyhow::Result<ExitCode> {
                 repo_root: &repo_root,
                 setup: &config.tmux.setup,
                 sigil: config.ui.sigil,
+                tag_alphabet: &config.ui.tags,
             };
 
             App::new(current, args.onto, model)

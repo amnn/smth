@@ -1,0 +1,198 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/tag-alphabet.md
+---
+# Custom tag alphabets
+
+A display alphabet changes glyphs, not tag identity. Create a live session
+carrying a, c, and z, and configure Fraktur for its inline and footer display.
+
+    :b jj cat (available)
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s target-with-limited-name-padding "cat" (success)
+    :$ -q smth --no-base --tag a target-with-limited-name-padding (exit: 0)
+    :$ -q smth --no-base --tag c target-with-limited-name-padding (exit: 0)
+    :$ -q smth --no-base --tag z target-with-limited-name-padding (exit: 0)
+    :w fraktur.toml (written)
+
+```toml
+[ui]
+tags = "𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"
+```
+
+    :t new-session -d -s ui "smth --no-base --config fraktur.toml; cat" (success)
+    :t resize-window -t ui:0 -x 100 -y 10 (success)
+    :p ui:0.0
+    :settle -d 2s (settled)
+    :k C-p target
+
+The row and footer show the configured glyphs. Batch input is still ASCII:
+uppercase B stages adding Fraktur b, and lowercase c stages removing saved c.
+The right-hand overlay shows both edits, while the row keeps saved a, c, z.
+C-t applies both edits. JSON still emits a, b, z.
+
+    :snap
+
+```terminal
+session: target                                                                                    ┃
+  1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+   target                                   ~/target                                          repo ┃
+   target                                                                                     tmux ┃
+▌■ target-with-limited-name-padding    𝖆𝖈𝖟                                                         ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags: 𝖆𝖈𝖟                                                          ┃
+```
+
+    :k C-t B c
+    :snap --color -e 'tags: 𝖆𝖇𝖈𝖟 \[C-t\] accept \[C-g\] cancel'
+
+```terminal
+session: target                                                                                    ┃
+  1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+   target                                   ~/target                                          repo ┃
+   target                                                                                     tmux ┃
+▌■ target-with-limited-name-padding    𝖆𝖈𝖟                                                         ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                               tags: 𝖆𝖇𝖈𝖟 [C-t] accept [C-g] cancel┃
+```
+
+![light](tag-alphabet.md.snap.2.light.svg)
+![dark](tag-alphabet.md.snap.2.dark.svg)
+
+    :k C-t
+    :snap -e 'tags: 𝖆𝖇𝖟'
+
+```terminal
+session: target                                                                                    ┃
+  1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+   target                                   ~/target                                          repo ┃
+   target                                                                                     tmux ┃
+▌■ target-with-limited-name-padding    𝖆𝖇𝖟                                                         ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags: 𝖆𝖇𝖟                                                          ┃
+```
+
+    :$ smth --no-base --config fraktur.toml --json --query target (exit: 0)
+
+```stdout
+[
+  {
+    "name": "target-with-limited-name-padding",
+    "tmux": "target-with-limited-name-padding",
+    "live": true,
+    "deletable": false,
+    "pending_deletion": false,
+    "flagged": false,
+    "tags": [
+      "a",
+      "b",
+      "z"
+    ]
+  }
+]
+```
+
+Fullwidth Latin glyphs occupy two cells each. Supply only fullwidth a to infer
+the next 25 consecutive code points. Add d so the four glyphs cannot all fit
+beside the name: the inline span contracts, while the footer shows all four.
+
+    :$ -q smth --no-base --tag d target-with-limited-name-padding (exit: 0)
+    :w wide.toml (written)
+
+```toml
+[ui]
+tags = "ａ"
+```
+
+    :t new-session -d -s wide-ui "smth --no-base --config wide.toml; cat" (success)
+    :t resize-window -t wide-ui:0 -x 100 -y 10 (success)
+    :p wide-ui:0.0
+    :settle -d 2s (settled)
+    :k C-p target
+    :snap
+
+```terminal
+session: target                                                                                    ┃
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+   target                                   ~/target                                          repo ┃
+   target                                                                                     tmux ┃
+▌■ target-with-limited-name-padding ａｂｄ…                                                        ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags: ａｂｄｚ                                                     ┃
+```
+
+Invalid alphabets fail configuration loading with exit 1 before the picker
+opens: the first has too few characters, and the second ends in whitespace.
+
+    :w short.toml (written)
+
+```toml
+[ui]
+tags = "abc"
+```
+
+    :$ smth --config short.toml --json (exit: 1)
+
+```stderr
+error: could not parse config: TOML parse error at line 2, column 8
+  |
+2 | tags = "abc"
+  |        ^^^^^
+alphabet must contain exactly 26 characters, or a single character that represents the start of a consecutive range of 26 valid characters
+
+```
+
+    :w invisible.toml (written)
+
+```toml
+[ui]
+tags = "abcdefghijklmnopqrstuvwxy "
+```
+
+    :$ smth --config invisible.toml --json (exit: 1)
+
+```stderr
+error: could not parse config: TOML parse error at line 2, column 8
+  |
+2 | tags = "abcdefghijklmnopqrstuvwxy "
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+alphabet characters must not be whitespace and must have non-zero width
+
+```
+
+A single starting character whose sequence extends past Unicode's maximum
+code point is also rejected with exit 1 rather than wrapping or skipping values.
+
+    :w overflow.toml (written)
+
+```toml
+[ui]
+tags = "\U0010FFFF"
+```
+
+    :$ smth --config overflow.toml --json (exit: 1)
+
+```stderr
+error: could not parse config: TOML parse error at line 2, column 8
+  |
+2 | tags = "\U0010FFFF"
+  |        ^^^^^^^^^^^^
+alphabet must contain exactly 26 characters, or a single character that represents the start of a consecutive range of 26 valid characters
+
+```
+
+---
+vim: set ft=markdown:

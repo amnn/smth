@@ -9,6 +9,8 @@ use std::str::FromStr;
 
 use anyhow::ensure;
 
+use crate::config::Alphabet;
+
 /// A validated lowercase ASCII session tag.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Tag(u8);
@@ -28,6 +30,11 @@ impl Tags {
     /// Return whether this set contains a tag.
     pub fn contains(self, tag: Tag) -> bool {
         self.0 & (1 << tag.0) != 0
+    }
+
+    /// Render memberships in tag order using the display alphabet, without changing identity.
+    pub fn display(self, alphabet: &Alphabet) -> String {
+        self.iter().map(|tag| alphabet[tag.0 as usize]).collect()
     }
 
     /// Iterate over members in alphabetical order.
@@ -91,6 +98,16 @@ impl FromStr for Tag {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn display_preserves_membership_order() {
+        let fraktur = Alphabet::try_from("𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟".to_owned()).unwrap();
+        let mut tags = Tags::default();
+        tags.set("z".parse().unwrap(), true);
+        tags.set("a".parse().unwrap(), true);
+        assert_eq!(tags.display(&fraktur), "𝖆𝖟");
+        assert_eq!(tags.display(&Alphabet::default()), "az");
+    }
 
     #[test]
     fn membership_is_independent_and_ordered() {
