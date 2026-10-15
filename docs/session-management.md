@@ -44,6 +44,53 @@ have a checkout or session to close or delete. Opening one changes its kind:
 for example, a new workspace becomes a live workspace, while a new repo becomes
 a live repo.
 
+## Session tags
+
+Tags are user-managed working sets named `a`–`z`. A live session can carry
+multiple tags, and a tag can belong to multiple sessions. Adding a to one
+session does not move it away from another. Tags are separate from manual
+attention flags, bells, and agent notifications; they do not affect ordering or
+fuzzy matching.
+
+Membership is stored on the tmux session. It survives picker restarts but ends
+when the session is destroyed, even if its repository checkout remains.
+Non-live candidates cannot carry tags.
+
+### Display
+
+Tags appear alphabetically, right-aligned in the padding before the repository
+path. They use only the space left by the name in the fixed name column: longer
+names cause tags to contract with an ellipsis, then disappear when nothing
+fits. The selected session's tags appear beside the left-aligned per-session
+controls as `[C-t] tags: abc`. Tags may be clipped on narrow screens.
+
+The default configuration uses bold lowercase letters in the flag colour,
+including on the selected row. See [tag alphabet
+configuration](configuration.md#tag-alphabet) to choose display glyphs.
+
+### Edit tags
+
+Press `C-t` on a live session:
+
+- A lowercase first letter toggles that tag, saves, and finishes.
+- An uppercase first letter toggles the corresponding lowercase tag and enters
+  batch editing. Thereafter, either case toggles pending membership without
+  saving. Repeated toggles can undo a pending change.
+- `C-t` again saves the pending changes and finishes.
+- `C-g` discards pending changes and returns to the picker.
+- Esc or `C-c` discards pending changes and exits the picker.
+- Other characters cancel and are consumed while awaiting the first tag. Once
+  batch editing starts, unrecognized input is ignored instead.
+
+For example, `C-t a` toggles a immediately; `C-t A c C-t` applies changes to a
+and c together. `C-t A c C-g` discards both pending changes. The row previews
+pending membership, and the footer shows apply/discard controls. Editing stays
+anchored to the selected session; query edits and navigation are inactive.
+Tag editing cannot begin during a background mutation or another modal operation.
+
+Only changed memberships are written. A failed confirmation can leave earlier
+writes applied.
+
 ## Session ordering and switching
 
 With no query, ordering is a priority stack of independently enabled comparators.
@@ -94,7 +141,7 @@ Entry selects the first enabled comparator, or the first comparator if none
 are enabled. Disabled positions survive during the run. The list previews each
 edit immediately, preserving the selected session and scrolling it into view.
 Cancellation restores its position under the original ordering. Query editing
-and session actions are frozen; ordering and onto editing are mutually exclusive.
+and session actions are frozen; ordering, onto, and tag editing are mutually exclusive.
 `C-g` cancels ordering without clearing staged deletions. Escape and `C-c` still
 exit (unless a background operation prevents it), discarding pending edits.
 
