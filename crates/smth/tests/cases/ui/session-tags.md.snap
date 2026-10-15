@@ -1,0 +1,161 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/session-tags.md
+---
+# Session tag presentation
+
+Tags use the padding before the repository without changing names, attention
+pips, agent summaries, or matching text. Create live sessions with different
+name lengths and a shared repository. Direct metadata setup gives each session
+all 26 tags without 26 CLI process launches per session.
+
+    :b jj cat sh tmux (available)
+    :cp tests/fixtures/jjconfig.toml .jjconfig.toml (copied)
+    :t rename-session -t 0 runner (success)
+    :$ -q smth --no-base --create-repo --create alpha (exit: 0)
+    :t new-session -d -s medium-name-with-limited-padding "cat" (success)
+    :t new-session -d -s name-that-fills-the-entire-forty-columnsxx "cat" (success)
+    :t set-option -t medium-name-with-limited-padding @smth.repo alpha (success)
+    :t set-option -t name-that-fills-the-entire-forty-columnsxx @smth.repo alpha (success)
+    :$ -q sh -c 'for session in alpha medium-name-with-limited-padding name-that-fills-the-entire-forty-columnsxx; do for tag in a b c d e f g h i j k l m n o p q r s t u v w x y z; do tmux set-option -t "=$$session:" "@smth.tag.$$tag" 1; done; done' (exit: 0)
+    :t set-option -t alpha @smth.flag 1 (success)
+    :t set-option -p -t alpha:0 @smth.agent.state waiting (success)
+    :t new-session -d -s ui "smth; cat" (success)
+    :t resize-window -t ui:0 -x 100 -y 12 (success)
+    :p ui:0.0
+    :settle -d 2s (settled)
+    :k C-p alpha
+
+The short name leaves enough padding for every tag and an alignment space in
+the ellipsis column; the footer repeats full
+membership beside the left-aligned controls. Colour is intentional: selected
+and unselected tags are bold flag-blue, independent of the attention pip.
+
+    :snap --color
+
+```terminal
+session: alpha                                                                                     ┃
+  3/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                        ⏸ ┃
+                                                                                                   ┃
+   alpha~1                                                                                    tmux ┃
+▌■ alpha        abcdefghijklmnopqrstuvwxyz  ~/alpha                                              ⏸ ┃
+ ■ medium-name-with-limited-padding abcdef… alpha                                                  ┃
+ ■ name-that-fills-the-entire-forty-columnsxx alpha                                                ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: abcdefghijklmnopqrstuvwxyz                                 ┃
+```
+
+![light](session-tags.md.snap.1.light.svg)
+![dark](session-tags.md.snap.1.dark.svg)
+
+The medium name leaves only a small gap. It remains complete while tags contract
+with an ellipsis; the footer shows membership beside its controls when it fits.
+
+    :k C-u medium
+    :snap
+
+```terminal
+session: medium                                                                                    ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                        ⏸ ┃
+   medium                                   ~/medium                                          repo ┃
+   medium                                                                                     tmux ┃
+▌■ medium-name-with-limited-padding abcdef… alpha                                                  ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags: abcdefghijklmnopqrstuvwxyz                                   ┃
+```
+
+The forty-column name leaves no padding, so inline tags disappear entirely.
+The footer identifies the tags and the repository follows the full name.
+
+    :k C-u name-that
+    :snap
+
+```terminal
+session: name-that                                                                                 ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                        ⏸ ┃
+   name-that                                ~/name-that                                       repo ┃
+   name-that                                                                                  tmux ┃
+▌■ name-that-fills-the-entire-forty-columnsxx alpha                                                ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags: abcdefghijklmnopqrstuvwxyz                                   ┃
+```
+
+Narrowing the terminal clips the already constructed rows without recontracting
+tags. Horizontal scrolling can clip names to keep repository matches visible;
+the medium row retains its name-column-based ellipsis. The footer also stays
+one line and clips its contents rather than shrinking the session list.
+
+    :k C-u alpha
+    :t resize-window -t ui:0 -x 25 -y 12 (success)
+    :snap -d 2s
+
+```terminal
+session: alpha          ┃
+  3/5 | [C-s] ↑l ↑r ↓ ⏸ ┃
+                        ┃
+   alpha~1         tmux ┃
+▌■ alpha        abcde ⏸ ┃
+ ■ padding abcdef… alpha┃
+ ■ forty-columnsxx alpha┃
+                        ┃
+                        ┃
+                        ┃
+                        ┃
+ [C-x] close, [C-f] unfl┃
+```
+
+    :t resize-window -t ui:0 -x 9 -y 12 (success)
+    :snap -d 2s -e '^session:┃'
+
+```terminal
+session:┃
+  3/5 ⏸ ┃
+        ┃
+   tmux ┃
+▌■ al ⏸ ┃
+ ■ alpha┃
+ ■ alpha┃
+        ┃
+        ┃
+        ┃
+        ┃
+ [C-x] c┃
+```
+
+Searching for a sequence present only in tags must not match any session.
+
+    :t resize-window -t ui:0 -x 100 -y 12 (success)
+    :k C-u xyz
+    :snap -e 'session: xyz'
+
+```terminal
+session: xyz                                                                                       ┃
+  0/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                        ⏸ ┃
+   xyz                                      ~/xyz                                             repo ┃
+▌  xyz                                                                                        tmux ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+```
+
+---
+vim: set ft=markdown:
