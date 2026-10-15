@@ -17,6 +17,8 @@ use tokio::try_join;
 use which::which;
 
 use crate::model::agent::AgentState;
+use crate::model::tag::Tag;
+use crate::model::tag::Tags;
 
 /// One eligible interactive tmux client and the pane it currently displays.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -56,6 +58,9 @@ pub struct SessionInfo {
 
     /// Whether the session has been manually flagged by the user.
     pub flagged: bool,
+
+    /// Independent single-letter session memberships.
+    pub tags: Tags,
 
     /// Time the session was most recently attached to a tmux client.
     pub last_attached: Option<u64>,
@@ -230,10 +235,14 @@ pub async fn run_shell(target: &str, cwd: &Path, script: &str) -> anyhow::Result
 
 /// Query tmux for current sessions, attached smth metadata, bell alerts, and agent state.
 pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
-    let sessions_format = concat!(
+    let mut sessions_format: String = ('a'..='z')
+        .map(|letter| format!("#{{@smth.tag.{letter}}}\t"))
+        .collect();
+
+    sessions_format.push_str(concat!(
         "#{session_name}\t#{session_attached}\t#{@smth.flag}\t",
         "#{session_last_attached}\t#{@smth.repo}",
-    );
+    ));
 
     let panes_format = concat!(
         "#{session_name}\t#{window_index}\t",
@@ -242,7 +251,7 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
 
     let (sessions_output, panes_output) = try_join!(
         Command::new("tmux")
-            .args(["list-sessions", "-F", sessions_format])
+            .args(["list-sessions", "-F", &sessions_format])
             .output(),
         Command::new("tmux")
             .args(["list-panes", "-a", "-F", panes_format])
@@ -264,7 +273,16 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
 
     let mut sessions = BTreeMap::new();
     for line in String::from_utf8_lossy(&sessions_output.stdout).lines() {
-        let fields: Vec<_> = line.splitn(5, '\t').collect();
+        let mut fields = line.splitn(31, '\t');
+
+        let mut tags = Tags::default();
+        for letter in 'a'..='z' {
+            if fields.next().is_some_and(is_flag_set) {
+                tags.set(letter.to_string().parse()?, true);
+            }
+        }
+
+        let fields: Vec<_> = fields.collect();
         let [session, attached, flag, last_attached, repo] = fields[..] else {
             continue;
         };
@@ -289,6 +307,7 @@ pub async fn sessions() -> anyhow::Result<BTreeMap<String, SessionInfo>> {
                 alerts: BTreeSet::new(),
                 attached: attached != 0,
                 flagged: is_flag_set(flag),
+                tags,
                 last_attached: last_attached.trim().parse().ok(),
                 repo,
             },
@@ -372,6 +391,16 @@ pub async fn set_pane_option<V: AsRef<OsStr> + ?Sized>(
     );
 
     Ok(())
+}
+
+/// Set one session tag without reading or replacing any other membership.
+pub async fn set_tag(session: &str, tag: Tag, enabled: bool) -> anyhow::Result<()> {
+    set_option(
+        session,
+        &format!("@smth.tag.{tag}"),
+        if enabled { "1" } else { "" },
+    )
+    .await
 }
 
 /// Return the active tmux server socket path.

@@ -19,6 +19,8 @@ use crate::cmd::tmux;
 use crate::model::agent::AgentState;
 use crate::model::delete;
 use crate::model::picker::Pickable;
+use crate::model::tag::Tag;
+use crate::model::tag::Tags;
 use crate::path::TruncatedExt as _;
 
 pub(crate) const DELIM_SUFFIX: &str = "~";
@@ -54,6 +56,7 @@ pub(crate) struct LiveKind {
     agents: BTreeMap<AgentState, usize>,
     alerts: BTreeSet<String>,
     flagged: bool,
+    tags: Tags,
     recency: Recency,
 }
 
@@ -171,10 +174,26 @@ impl Session {
         }
     }
 
+    /// Set one live session tag idempotently, preserving other memberships.
+    ///
+    /// Returns an error if this session is not live or updating tmux fails.
+    pub async fn set_tag(&self, tag: Tag, enabled: bool) -> anyhow::Result<()> {
+        ensure!(self.is_live(), "session is not live");
+        tmux::set_tag(&self.name(), tag, enabled).await
+    }
+
     /// Switch the current tmux client to this session, creating the session first if needed.
     pub async fn switch(&self, cwd: &Path, setup: &str) -> anyhow::Result<()> {
         self.create(cwd, setup).await?;
         tmux::switch_client(&self.switch_target()).await
+    }
+
+    /// Return tag memberships for live sessions only.
+    pub fn tags(&self) -> Option<Tags> {
+        match &self.0 {
+            Kind::Live(kind) => Some(kind.tags),
+            Kind::New(_) | Kind::Repo(_) => None,
+        }
     }
 
     /// Toggle this session's persisted manual flag.
@@ -280,6 +299,7 @@ impl LiveKind {
             agents: info.agents,
             alerts: info.alerts,
             flagged: info.flagged,
+            tags: info.tags,
             recency: if info.attached {
                 Recency::Attached
             } else if let Some(timestamp) = info.last_attached {
@@ -645,6 +665,7 @@ mod tests {
                 alerts: BTreeSet::default(),
                 attached: false,
                 flagged: false,
+                tags: Tags::default(),
                 last_attached: None,
                 repo,
             },
@@ -702,6 +723,7 @@ mod tests {
         updated.agents.insert(AgentState::Running, 2);
         updated.alerts.insert("window".to_owned());
         updated.flagged = true;
+        updated.tags.set("a".parse().unwrap(), true);
         updated.recency = Recency::Attached;
         assert_same_identity!(original, updated);
     }

@@ -20,3 +20,5 @@ pub use crate::model::order::Order;
 pub use crate::model::serialize::SerializedSession;
 pub use crate::model::session::Session;
 pub use crate::model::set_deleting;
+pub use crate::model::tag::Tag;
+pub use crate::model::tag::Tags;

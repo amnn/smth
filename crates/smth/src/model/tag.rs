@@ -1,0 +1,108 @@
+// Copyright (c) Ashok Menon
+// SPDX-License-Identifier: Apache-2.0
+
+//! Single-letter session tags and their compact membership set.
+
+use std::fmt;
+use std::str::FromStr;
+
+use anyhow::ensure;
+
+/// A validated lowercase ASCII session tag.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct Tag(u8);
+
+/// Membership in the 26 session tags, stored in the low bits of a word.
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+pub struct Tags(u32);
+
+impl Tag {
+    /// Return the lowercase letter used in commands and serialized output.
+    pub fn letter(self) -> char {
+        char::from(b'a' + self.0)
+    }
+}
+
+impl Tags {
+    /// Return whether this set contains a tag.
+    pub fn contains(self, tag: Tag) -> bool {
+        self.0 & (1 << tag.0) != 0
+    }
+
+    /// Iterate over members in alphabetical order.
+    pub fn iter(self) -> impl Iterator<Item = Tag> {
+        (0..26).map(Tag).filter(move |tag| self.contains(*tag))
+    }
+
+    /// Set one membership without affecting any other tag.
+    pub fn set(&mut self, tag: Tag, enabled: bool) {
+        if enabled {
+            self.0 |= 1 << tag.0;
+        } else {
+            self.0 &= !(1 << tag.0);
+        }
+    }
+
+    /// Toggle one membership.
+    pub fn toggle(&mut self, tag: Tag) {
+        self.0 ^= 1 << tag.0;
+    }
+}
+
+impl fmt::Display for Tag {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.letter().fmt(f)
+    }
+}
+
+impl FromStr for Tag {
+    type Err = anyhow::Error;
+
+    fn from_str(value: &str) -> anyhow::Result<Self> {
+        ensure!(
+            value.len() == 1 && value.as_bytes()[0].is_ascii_lowercase(),
+            "tag must be one lowercase letter a-z"
+        );
+
+        Ok(Self(value.as_bytes()[0] - b'a'))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn membership_is_independent_and_ordered() {
+        let a = "a".parse().unwrap();
+        let z = "z".parse().unwrap();
+
+        let mut tags = Tags::default();
+        tags.set(z, true);
+        tags.set(a, true);
+        tags.set(a, true);
+
+        let s: String = tags.iter().map(|t| t.letter()).collect();
+        assert_eq!(s, "az");
+
+        tags.set(a, false);
+        tags.set(a, false);
+        assert!(!tags.contains(a));
+        assert!(tags.contains(z));
+
+        tags.toggle(z);
+        assert_eq!(tags, Tags::default());
+    }
+
+    #[test]
+    fn parsing_requires_one_lowercase_ascii_letter() {
+        for value in ["", "A", "aa", "é", "1", " a", "a\n"] {
+            assert!(value.parse::<Tag>().is_err(), "{value:?}");
+        }
+
+        for letter in 'a'..='z' {
+            let tag: Tag = letter.to_string().parse().unwrap();
+            assert_eq!(tag.letter(), letter);
+        }
+    }
+}
