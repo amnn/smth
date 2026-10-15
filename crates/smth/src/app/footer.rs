@@ -13,6 +13,7 @@ use ratatui::text::Span;
 use crate::app::actions::AvailableActions;
 use crate::app::actions::Mode;
 use crate::app::span::push_shortcut_span;
+use crate::app::span::tag_span;
 use crate::model::delete;
 use crate::model::session::Session;
 
@@ -20,12 +21,21 @@ use crate::model::session::Session;
 pub(super) struct Footer<'s> {
     delete: Option<&'s delete::Model>,
     matches: &'s [Item<'s, Session>],
+    selected: Option<&'s Session>,
 }
 
 impl<'s> Footer<'s> {
     /// Create a footer from the current picker state.
-    pub(super) fn new(delete: Option<&'s delete::Model>, matches: &'s [Item<'s, Session>]) -> Self {
-        Self { delete, matches }
+    pub(super) fn new(
+        delete: Option<&'s delete::Model>,
+        matches: &'s [Item<'s, Session>],
+        selected: Option<&'s Session>,
+    ) -> Self {
+        Self {
+            delete,
+            matches,
+            selected,
+        }
     }
 
     /// Render session actions beside an optional right-aligned modal cancellation hint.
@@ -66,6 +76,19 @@ impl<'s> Footer<'s> {
             line += Span::raw(prefix).dim();
             push_shortcut_span(&mut line, "C-f");
             line += Span::raw(if flag { " unflag" } else { " flag" });
+            prefix = ", ";
+        }
+
+        if actions.mode.is_none()
+            && let Some(tags) = self.selected.and_then(Session::tags)
+        {
+            let text: String = tags.iter().map(|tag| tag.letter()).collect();
+            if !text.is_empty() {
+                line += Span::raw(prefix).dim();
+                push_shortcut_span(&mut line, "C-t");
+                line += Span::raw(" tags: ");
+                line += tag_span(text, false);
+            }
         }
 
         f.render_widget(line, area);

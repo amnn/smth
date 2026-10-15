@@ -55,6 +55,16 @@ impl fmt::Display for Tag {
     }
 }
 
+impl fmt::Display for Tags {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for tag in self.iter() {
+            tag.fmt(f)?;
+        }
+
+        Ok(())
+    }
+}
+
 impl FromStr for Tag {
     type Err = anyhow::Error;
 

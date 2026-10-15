@@ -80,6 +80,22 @@ where
 
         output
     }
+
+    /// Advance to an absolute character offset in the searchable text without rendering it.
+    /// Earlier or equal offsets are no-ops. Matches before the new offset are discarded,
+    /// while a match at the offset is retained.
+    pub(crate) fn skip_to(&mut self, offset: u32) {
+        if offset <= self.processed {
+            return;
+        }
+
+        self.processed = offset;
+        while let Some(index) = self.indices.peek()
+            && *index < self.processed
+        {
+            self.indices.next();
+        }
+    }
 }
 
 #[cfg(test)]
@@ -104,6 +120,50 @@ mod tests {
                 Span::raw("d").green(),
             ]
         );
+    }
+
+    #[test]
+    fn skip_to_advances_character_indices_and_discards_skipped_matches() {
+        let style = Style::new().blue().bold();
+        let mut hl = Highlight::new(vec![0, 1, 2, 3, 5], |_| style);
+        assert_eq!(
+            hl.highlight(Span::raw("界")),
+            vec![Span::styled("界", style)]
+        );
+
+        hl.skip_to(3);
+        assert_eq!(
+            hl.highlight(Span::raw("abc")),
+            vec![
+                Span::styled("a", style),
+                Span::raw("b"),
+                Span::styled("c", style)
+            ]
+        );
+    }
+
+    #[test]
+    fn skip_to_earlier_or_equal_offsets_preserves_position_and_matches() {
+        let style = Style::new().blue().bold();
+        let mut hl = Highlight::new(vec![2, 3], |_| style);
+        hl.skip_to(2);
+        hl.skip_to(1);
+        hl.skip_to(2);
+        assert_eq!(
+            hl.highlight(Span::raw("ab")),
+            vec![Span::styled("ab", style)]
+        );
+    }
+
+    #[test]
+    fn skip_to_zero_preserves_matches_and_skip_past_end_exhausts_them() {
+        let style = Style::new().blue().bold();
+        let mut hl = Highlight::new(vec![0, 2], |_| style);
+        hl.skip_to(0);
+        assert_eq!(hl.highlight(Span::raw("a")), vec![Span::styled("a", style)]);
+
+        hl.skip_to(10);
+        assert_eq!(hl.highlight(Span::raw("bc")), vec![Span::raw("bc")]);
     }
 
     #[test]

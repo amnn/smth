@@ -7,12 +7,14 @@ use ratatui::style::Style;
 use ratatui::style::Stylize as _;
 use ratatui::text::Line;
 use ratatui::text::Span;
+use unicode_width::UnicodeWidthChar as _;
 use unicode_width::UnicodeWidthStr as _;
 
 use crate::app::agent;
 use crate::app::component::row::Row;
 use crate::app::highlight::Highlight;
 use crate::app::span::push_repo_path_spans;
+use crate::app::span::tag_span;
 use crate::model::session::Base;
 use crate::model::session::DELIM_SUFFIX;
 use crate::model::session::NAME_WIDTH;
@@ -34,11 +36,25 @@ pub(super) fn row(
     let mut line = Line::default();
     push_session_name_spans(&mut line, session, &mut hl, deleting, highlighted);
 
+    let mut column = line.width();
+    let space = NAME_WIDTH.saturating_sub(column);
+    let tags: String = session
+        .tags()
+        .map_or_default(|ts| contracted(&ts.to_string(), space));
+
+    if !tags.is_empty() {
+        line += Span::raw(" ".repeat(NAME_WIDTH - column - tags.width()));
+        line += tag_span(tags, highlighted);
+        column = NAME_WIDTH;
+    }
+
     if let Some(repo) = session.repo() {
-        let padding = NAME_WIDTH.saturating_sub(session.name().width()) + 1;
-        line.extend(hl.highlight(Span::raw(" ".repeat(padding))));
+        line += Span::raw(" ".repeat(NAME_WIDTH.saturating_sub(column) + 1));
+        // Matcher offsets count characters, independently of the decorative tags' cell widths.
+        let repo_offset = session.name().chars().count().max(NAME_WIDTH) + 1;
+        hl.skip_to(repo_offset as u32);
         push_repo_path_spans(&mut line, &repo, &mut hl);
-    };
+    }
 
     let row = Row::new(line);
     let row = if let Some(base) = session.new_base() {
@@ -81,6 +97,35 @@ pub(super) fn row(
     } else {
         row.with_sigil(sigil.dim())
     }
+}
+
+/// Fit tags into available cells, ending with an ellipsis or an alignment space.
+fn contracted(text: &str, mut available: usize) -> String {
+    if text.is_empty() || available < 2 {
+        return String::new();
+    }
+
+    // Pre-reserve the space for the padding to the front and either the ellipsis or the alignment
+    // space at the end.
+    available -= 2;
+
+    if text.width() < available {
+        return format!(" {text} ");
+    }
+
+    let mut result = String::new();
+    for letter in text.chars() {
+        let width = letter.width().unwrap_or_default();
+        if width > available {
+            break;
+        }
+
+        result.push(letter);
+        available -= width;
+    }
+
+    result.push('…');
+    result
 }
 
 /// Push styled session name spans, dimming a disambiguation suffix when present.

@@ -329,7 +329,7 @@ impl App {
             self.sort.as_ref().map(|state| state.selected),
         );
 
-        let footer = Footer::new(delete, &items);
+        let footer = Footer::new(delete, &items, self.sessions.selected());
         self.actions = AvailableActions::new(
             &self.sessions,
             self.bg.as_ref().is_some_and(activity::State::is_loading),

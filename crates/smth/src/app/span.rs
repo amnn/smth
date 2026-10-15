@@ -78,6 +78,16 @@ pub(crate) fn push_shortcut_span<'a>(spans: &mut impl Extend<Span<'a>>, code: &s
     ])
 }
 
+/// Render tags in bold flag colour, compensating for reversed selection styling.
+pub(crate) fn tag_span(text: String, highlighted: bool) -> Span<'static> {
+    let span = Span::raw(text).bold();
+    if highlighted {
+        span.on_light_blue()
+    } else {
+        span.light_blue()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::env;
