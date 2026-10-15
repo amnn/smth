@@ -18,6 +18,7 @@ its built-in defaults. A path passed with `--config` must exist.
 | `repo.root`           | `.`     | Parent directory for newly created repositories.      |
 | `tmux.setup`          | `""`    | Run a shell script after creating a tmux session.     |
 | `ui.sigil`            | `"■"`   | Mark live tmux sessions with this character.          |
+| `ui.tags`             | `"a"`   | Display characters for tags a–z.                      |
 
 ### Notifications
 
@@ -101,6 +102,29 @@ and the header editor.
 
 [session-ordering]: session-management.md#session-ordering-and-switching
 
+### Tag alphabet
+
+`[ui].tags` accepts either one starting character or 26 explicit characters,
+mapped to tags a–z. A single character expands to that Unicode code point and
+the next 25 code points. This is a numeric sequence, not language-aware
+alphabet inference; use an explicit mapping for alphabets with gaps. Invalid
+code points, whitespace, and characters without positive terminal width are
+rejected in either form. The default uses lowercase ASCII letters.
+
+For example, these two forms select the same Fraktur alphabet:
+
+```toml
+[ui]
+tags = "𝖆"
+# Equivalent:
+tags = "𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"
+```
+
+This changes only display glyphs. CLI operands, keyboard input and JSON still
+use lowercase a–z, and tags never participate in fuzzy matching. Inline tags
+contract according to available terminal cells; glyph appearance and width can
+vary with your font and terminal.
+
 ### Picker sigil
 
 Use `[ui].sigil` to choose the single character that marks live tmux sessions
@@ -145,4 +169,5 @@ tmux new-window -n editor 'nvim .'
 [ui]
 order = "-live -recency +name"
 sigil = "■"
+tags = "a"
 ```

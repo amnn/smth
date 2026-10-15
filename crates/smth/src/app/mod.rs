@@ -46,6 +46,7 @@ use crate::app::sessions::Sessions;
 use crate::app::sessions::preview;
 use crate::app::sessions::preview::Preview;
 use crate::cmd::tmux;
+use crate::config::Alphabet;
 use crate::model::Model;
 use crate::model::session::Repo;
 use crate::model::session::Session;
@@ -82,6 +83,9 @@ pub struct Context<'a> {
 
     /// Character used to mark live tmux sessions in the picker.
     pub sigil: char,
+
+    /// Display-only alphabet for session tags.
+    pub tag_alphabet: &'a Alphabet,
 }
 
 /// Completed action chosen from the picker.
@@ -157,7 +161,7 @@ impl App {
         let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
 
         loop {
-            terminal.draw(|frame| self.draw(frame, ctx.sigil, ctx.repo_root))?;
+            terminal.draw(|frame| self.draw(frame, ctx.sigil, ctx.tag_alphabet, ctx.repo_root))?;
 
             match self.poll_bg() {
                 Some(Err(err)) => return Err(err),
@@ -295,7 +299,13 @@ impl App {
     ///
     /// The frame is split up into regions, each with its own widget. The `preview` region and its
     /// scroll bar are only visible when the preview is toggled on (defaults to visible).
-    fn draw(&mut self, f: &mut ratatui::Frame<'_>, sigil: char, repo_root: &Path) {
+    fn draw(
+        &mut self,
+        f: &mut ratatui::Frame<'_>,
+        sigil: char,
+        alphabet: &Alphabet,
+        repo_root: &Path,
+    ) {
         let onto = matches!(self.mode, Mode::Onto(_));
         let l = layout::Layout::new(f.area(), self.preview.visible() || onto);
 
@@ -327,6 +337,7 @@ impl App {
 
         let sessions = Sessions::new(
             sigil,
+            alphabet,
             &new_sessions,
             &items,
             order,
@@ -360,7 +371,13 @@ impl App {
             },
         );
 
-        let footer = Footer::new(delete, &items, self.sessions.selected(), &self.mode);
+        let footer = Footer::new(
+            delete,
+            &items,
+            self.sessions.selected(),
+            &self.mode,
+            alphabet,
+        );
 
         self.actions = AvailableActions::new(
             &self.sessions,

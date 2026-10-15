@@ -3,6 +3,8 @@
 
 //! User configuration loaded from `smth.toml`.
 
+mod alphabet;
+
 use std::env;
 use std::fs;
 use std::io;
@@ -16,6 +18,8 @@ use serde::Serialize;
 use crate::cmd::custom::Cmd;
 use crate::model::order::Order;
 use crate::path::expand_home;
+
+pub use crate::config::alphabet::Alphabet;
 
 /// The relative config file path below the `smth` config root.
 pub const PATH: &str = "smth.toml";
@@ -79,6 +83,10 @@ pub struct UiConfig {
 
     /// Character used to mark live tmux sessions in the picker.
     pub sigil: char,
+
+    /// Tag display alphabet: one starting character or 26 explicit characters.
+    /// Does not change CLI or search input.
+    pub tags: Alphabet,
 }
 
 impl NotificationConfig {
@@ -115,6 +123,7 @@ impl Default for UiConfig {
         Self {
             order: Order::default(),
             sigil: '■',
+            tags: Alphabet::default(),
         }
     }
 }

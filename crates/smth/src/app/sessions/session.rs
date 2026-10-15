@@ -31,6 +31,7 @@ pub(super) fn row(
     highlighted: bool,
     deleting: bool,
     matches: &[u32],
+    tags: &str,
 ) -> Row {
     let mut hl = Highlight::new(matches.to_vec(), |_| HIGHLIGHT);
     let mut line = Line::default();
@@ -38,9 +39,7 @@ pub(super) fn row(
 
     let mut column = line.width();
     let space = NAME_WIDTH.saturating_sub(column);
-    let tags: String = session
-        .tags()
-        .map_or_default(|ts| contracted(&ts.to_string(), space));
+    let tags = contracted(tags, space);
 
     if !tags.is_empty() {
         line += Span::raw(" ".repeat(NAME_WIDTH - column - tags.width()));

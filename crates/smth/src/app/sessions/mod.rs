@@ -20,6 +20,7 @@ use unicode_width::UnicodeWidthStr as _;
 use crate::app::component::list::List;
 use crate::app::component::row::Row;
 use crate::app::component::scrollbar;
+use crate::config::Alphabet;
 use crate::model::delete;
 use crate::model::order::Order;
 use crate::model::session::Session;
@@ -30,6 +31,7 @@ pub(super) const NEW_SESSION_ROWS: usize = 2;
 /// Session-list component, backed by fuzzy-matched rows and prospective session candidates.
 pub(super) struct Sessions<'s> {
     sigil: char,
+    alphabet: &'s Alphabet,
     new: &'s [Session],
     rest: &'s [Item<'s, Session>],
     order: &'s Order,
@@ -54,6 +56,7 @@ impl<'s> Sessions<'s> {
     /// was explicitly reset.
     pub(super) fn new(
         sigil: char,
+        alphabet: &'s Alphabet,
         new: &'s [Session],
         rest: &'s [Item<'s, Session>],
         order: &'s Order,
@@ -62,6 +65,7 @@ impl<'s> Sessions<'s> {
     ) -> Self {
         Self {
             sigil,
+            alphabet,
             new,
             rest,
             order,
@@ -132,6 +136,7 @@ impl<'s> Sessions<'s> {
                 selected == Some(i),
                 false,
                 &[],
+                "",
             ));
         }
 
@@ -148,7 +153,16 @@ impl<'s> Sessions<'s> {
 
             let highlighted = selected == Some(i);
             let deleting = self.delete.is_some_and(|delete| delete.contains(item.data));
-            let row = session::row(self.sigil, item.data, highlighted, deleting, &indices);
+            let tags = item.data.tags().unwrap_or_default();
+            let tags = tags.display(self.alphabet);
+            let row = session::row(
+                self.sigil,
+                item.data,
+                highlighted,
+                deleting,
+                &indices,
+                &tags,
+            );
 
             let margin = indices.last().copied().map(|off| right_margin(text, off));
             rows.push(row.with_right_margin(margin));

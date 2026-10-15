@@ -228,6 +228,14 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "Character used to mark live tmux sessions in the picker. Defaults to ■.",
     )?;
 
+    w.def(
+        "ui.tags",
+        "Display alphabet for tags a-z: one starting character (expanded to 26 consecutive Unicode \
+         code points), or exactly 26 explicit characters. All resulting characters must be visible \
+         and non-whitespace. Defaults to abcdefghijklmnopqrstuvwxyz. Only rendering changes; \
+         commands, keys, JSON and search keep their original meaning.",
+    )?;
+
     writeln!(w)?;
     w.header(|out| writeln!(out, "Example:"))?;
 
@@ -270,7 +278,8 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         writeln!(out)?;
         writeln!(out, "  [ui]")?;
         writeln!(out, "  order = \"-live -recency +name\"")?;
-        writeln!(out, "  sigil = \"■\"")
+        writeln!(out, "  sigil = \"■\"")?;
+        writeln!(out, "  tags = \"a\"")
     })?;
 
     Ok(())

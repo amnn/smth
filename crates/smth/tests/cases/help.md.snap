@@ -296,6 +296,12 @@ Configuration:
                     targets and relative paths.
   ui.sigil          Character used to mark live tmux sessions in the picker.
                     Defaults to ■.
+  ui.tags           Display alphabet for tags a-z: one starting character
+                    (expanded to 26 consecutive Unicode code points),
+                    or exactly 26 explicit characters. All resulting
+                    characters must be visible and non-whitespace. Defaults
+                    to abcdefghijklmnopqrstuvwxyz. Only rendering changes;
+                    commands, keys, JSON and search keep their original meaning.
 
 Example:
   Below is an example configuration that makes use of every available
@@ -334,6 +340,7 @@ Example:
   [ui]
   order = "-live -recency +name"
   sigil = "■"
+  tags = "a"
 
 ```
 

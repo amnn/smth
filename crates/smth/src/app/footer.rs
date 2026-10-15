@@ -14,6 +14,7 @@ use crate::app::Mode;
 use crate::app::actions::AvailableActions;
 use crate::app::span::push_shortcut_span;
 use crate::app::span::tag_span;
+use crate::config::Alphabet;
 use crate::model::delete;
 use crate::model::session::Session;
 
@@ -23,6 +24,7 @@ pub(super) struct Footer<'s> {
     matches: &'s [Item<'s, Session>],
     selected: Option<&'s Session>,
     mode: &'s Mode,
+    alphabet: &'s Alphabet,
 }
 
 impl<'s> Footer<'s> {
@@ -32,12 +34,14 @@ impl<'s> Footer<'s> {
         matches: &'s [Item<'s, Session>],
         selected: Option<&'s Session>,
         mode: &'s Mode,
+        alphabet: &'s Alphabet,
     ) -> Self {
         Self {
             delete,
             matches,
             selected,
             mode,
+            alphabet,
         }
     }
 
@@ -83,7 +87,7 @@ impl<'s> Footer<'s> {
 
         if actions.tag {
             let tags = self.selected.and_then(Session::tags).unwrap_or_default();
-            let text = tags.to_string();
+            let text = tags.display(self.alphabet);
 
             line += Span::raw(prefix).dim();
             push_shortcut_span(&mut line, "C-t");
@@ -111,7 +115,7 @@ impl<'s> Footer<'s> {
 
         if let Mode::Tag(state) = self.mode {
             let tags = state.initial | state.pending;
-            let text = tags.to_string();
+            let text = tags.display(self.alphabet);
             if !text.is_empty() {
                 line += Span::raw(": ").dim();
                 for (tag, glyph) in tags.iter().zip(text.chars()) {
