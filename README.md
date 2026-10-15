@@ -81,17 +81,12 @@ tmux source-file ~/.tmux.conf
 
 The [session-management guide][sessions] covers session and checkout types,
 [ordering and previous-session switching][ord], creation, closing without
-deleting, and [staged workspace deletion][delete].
+deleting, [session tags][tags], and [staged workspace deletion][delete].
 See the [key bindings][keys] below and [scripting][cli] for the full command
 reference.
 
-Live sessions can carry independent single-letter tags (`a`–`z`): `smth
---tag a [SESSION]` adds a membership and `smth --untag a [SESSION]` removes
-it. Tags are separate from attention flags but also disappear when their tmux
-session is destroyed. `smth --json` includes sorted `tags` for live
-sessions.
-
 [delete]: docs/session-management.md#delete
+[tags]: docs/session-management.md#session-tags
 
 ## Key bindings
 
@@ -102,7 +97,7 @@ brief CLI help; `smth --help` includes the complete picker key list.
 | --- | --- |
 | `C-d` | Toggle the workspace's persisted pending-deletion marker. |
 | `C-f` | Flag or unflag a live session. |
-| `C-t` | Edit live session tags, or apply staged tag edits. Lowercase first input toggles and applies; uppercase starts batch editing, where either case toggles without applying. |
+| `C-t` | Edit live session tags, or apply staged tag edits. |
 | `C-g` | Discard tag, ordering, or onto edits, otherwise clear staged deletions. |
 | `C-s` | Edit ordering, or accept edits for this run. |
 | `l`, `r`, `n`, `a` | In ordering mode, select a comparator; repeat to cycle ascending, descending, disabled. |

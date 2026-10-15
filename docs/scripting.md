@@ -48,14 +48,17 @@ The picker and filtering modes support these startup options:
 
 ## Structured inspection
 
-`smth --json` emits a JSON array. Every record includes its resolved tmux name
-and live and deletion state. Repo-backed records include the normalized default
-workspace path to pass to `--base`; plain sessions omit `base`. The `name` field
-contains a named-workspace or plain-session operand and is omitted for a default
-checkout. `path` is omitted when no checkout exists, `flagged` appears only for
-live sessions, and `attention` and `agents` are omitted when empty.
-`pending_deletion` reports the checkout's persisted staging marker, independently
-of whether the session is live or manually flagged.
+`smth --json` emits a JSON array. Every record includes its resolved tmux
+name and live and deletion state. Repo-backed records include the normalized
+default workspace path to pass to `--base`; plain sessions omit `base`. The
+`name` field contains a named-workspace or plain-session operand and is
+omitted for a default checkout. `path` is omitted when no checkout exists,
+`flagged` appears only for live sessions, and `attention` and `agents`
+are omitted when empty. `tags` is an alphabetically sorted array of lowercase
+letters for live sessions (`[]` when untagged), and is omitted for non-live
+candidates. Configured display glyphs never change JSON or query matching.
+`pending_deletion` reports the checkout's persisted staging marker,
+independently of whether the session is live or manually flagged.
 
 Use the `base` and `name` fields together when constructing a lifecycle
 command. Do not substitute a discovery glob or derive a target from the tmux
@@ -69,6 +72,8 @@ fall back to the interactive picker.
 
 - `--flag [SESSION]` marks a matching live session as flagged.
 - `--unflag [SESSION]` clears that state.
+- `--tag TAG [SESSION]` adds one lowercase tag a–z to a matching live session.
+- `--untag TAG [SESSION]` removes only that membership.
 - `-c`, `--create [SESSION]` ensures the target exists without switching the
   current tmux client and prints its actual tmux name.
 - `-s`, `--switch [SESSION]` performs the same ensure operation, then switches
@@ -93,10 +98,29 @@ Create and switch print the actual tmux session name on stdout after success,
 whether creating or reusing the session. A failed operation does not print a
 session name.
 
-Flag operations are idempotent. An explicit session operand overrides a named
+Flag and tag operations are idempotent and emit no output on success. Tags are
+independent many-to-many memberships: adding the same tag to another session
+does not remove any existing membership. Removing an absent tag is a no-op.
+They are separate from attention flags and last only as long as the tmux session.
+
+An explicit session operand overrides a named
 workspace inferred from `--base`; without a repository base, a plain session
 name is required. Repo-backed operations verify both the normalized repository
 family and workspace checkout metadata before changing the tmux option.
+
+For example:
+
+```sh
+smth --base ~/Code/project --tag a feature
+smth --base ~/Code/project --tag a other
+smth --base ~/Code/project --tag z feature
+smth --base ~/Code/project --untag a feature
+```
+
+After these commands, `other` still carries a and `feature` still carries z.
+For plain sessions, use `--no-base --tag a SESSION`. For a default checkout,
+use `--base REPO --tag a` without a session operand. Invalid tag letters,
+missing targets, and non-live targets fail rather than opening the picker.
 
 Create starts a tmux session for an existing default or named checkout. If a
 named workspace does not exist, create adds it beside the default checkout at

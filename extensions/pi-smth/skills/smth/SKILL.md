@@ -1,6 +1,6 @@
 ---
 name: smth
-description: Inspect and safely control smth tmux sessions and jj workspaces through smth's non-interactive CLI. Use when listing, finding, creating, switching, closing, staging or executing workspace deletions, deleting, flagging, or unflagging smth sessions, creating fresh repositories, or managing repo-backed agent workspaces.
+description: Inspect and safely control smth tmux sessions and jj workspaces through smth's non-interactive CLI. Use when listing, finding, creating, switching, closing, staging or executing workspace deletions, deleting, flagging, unflagging, tagging, or untagging smth sessions, creating fresh repositories, or managing repo-backed agent workspaces.
 license: Apache-2.0
 compatibility: Requires the smth binary, tmux, and jj on PATH; switching requires an invoking tmux client.
 ---
@@ -40,6 +40,8 @@ An empty result is `[]`. Each record includes:
 - `path`: actual checkout path, omitted when no checkout exists;
 - `tmux`: resolved tmux name, including any collision suffix;
 - `live`, `deletable`, and `pending_deletion` lifecycle state, plus `flagged` for live sessions;
+- `tags`: sorted lowercase tag letters for live sessions (`[]` if untagged),
+  omitted for non-live candidates; display customization does not change these;
 - `attention`: window names requiring attention, omitted when empty;
 - `agents`: agent lifecycle state counts, omitted when empty.
 
@@ -56,6 +58,8 @@ For a repo-backed record (`base` is present):
 ```sh
 smth --base "$base" --flag "$name"
 smth --base "$base" --unflag "$name"
+smth --base "$base" --tag a "$name"
+smth --base "$base" --untag a "$name"
 smth --base "$base" --create "$name"
 smth --base "$base" --switch "$name"
 smth --base "$base" --close "$name"
@@ -70,6 +74,8 @@ Omit the optional operand for the default checkout, where `name` is absent:
 smth --base "$base" --create
 smth --base "$base" --switch
 smth --base "$base" --close
+smth --base "$base" --tag a
+smth --base "$base" --untag a
 ```
 
 The default checkout cannot be deleted. For a plain record (`base` is absent),
@@ -81,6 +87,8 @@ smth --no-base --switch "$name"
 smth --no-base --close "$name"
 smth --no-base --flag "$name"
 smth --no-base --unflag "$name"
+smth --no-base --tag a "$name"
+smth --no-base --untag a "$name"
 ```
 
 Plain sessions cannot be deleted. Quote paths and names exactly as returned.
@@ -91,21 +99,27 @@ fall back to the TUI.
 
 - **Flag or unflag:** require a matching live record. These operations are
   idempotent.
+- **Tag or untag:** require exactly one lowercase letter a-z and a a matching
+  live record. These idempotent operations add/remove only that membership. A
+  tag can belong to multiple sessions, and a session can carry multiple tags.
+  Tags are working sets, not attention flags; do not use one in place of the
+  other. Membership ends when the tmux session is destroyed, even if its
+  checkout remains. Use ASCII letters even when the UI displays custom glyphs.
 - **Create:** ensure the target exists without changing the current tmux
-  client, or create a fresh repository with `--create-repo`. Capture its printed
-  tmux name when creating a new or colliding target.
+  client, or create a fresh repository with `--create-repo`. Capture its
+  printed tmux name when creating a new or colliding target.
 - **Switch:** perform the same creation or reuse operation, then switch to it.
   Existing attention windows are preferred automatically.
 - **Close:** require a matching live record. This kills only tmux and preserves
   the checkout and jj workspace registration.
 - **Delete:** require a repo-backed named workspace with `deletable: true`.
-  This forgets the workspace, removes its checkout, and closes its verified live
-  sessions attached to the checkout.
+  This forgets the workspace, removes its checkout, and closes its verified
+  live sessions attached to the checkout.
 - **Stage or unstage deletion:** require a repo-backed named workspace with
-  `deletable: true`. These idempotent operations only change its persisted marker.
-  The picker shares the selection: C-d toggles staging, C-y executes the batch,
-  and C-g clears it after cancelling ordering or onto mode. Exiting does not
-  clear markers.
+  `deletable: true`. These idempotent operations only change its persisted
+  marker. The picker shares the selection: C-d toggles staging, C-y executes
+  the batch, and C-g clears it after cancelling tag, ordering, or onto mode.
+  Exiting does not clear markers.
 
 Use `--onto REV` with create or switch only when a missing named workspace
 should start at a specific revision. It has no effect on existing checkouts.
