@@ -29,7 +29,7 @@ The live session row should use the configured sigil.
 
 ```terminal
 session:
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌* runner                                                                      ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────

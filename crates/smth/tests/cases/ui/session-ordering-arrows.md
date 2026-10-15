@@ -12,7 +12,7 @@ comparator, not the selected session; the selected alpha follows its new row.
     :t respawn-pane -k -t runner:0 'smth --order "+name"; cat'
     :p runner:0.0
     :settle -d 2s
-    :k C-p M-s
+    :k C-p C-s
     :snap --color
 
 Up switches directly from ascending to descending, displaying ↑name and moving
@@ -44,10 +44,10 @@ alpha remains selected and the editor remains on name.
 Accept descending ordering set with Up. Reopen, disable it with another Up,
 and cancel: the accepted descending stack and alpha's last-row position return.
 
-    :k up M-s
+    :k up C-s
     :snap
 
-    :k M-s up
+    :k C-s up
     :snap
 
     :k C-g

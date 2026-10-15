@@ -43,7 +43,7 @@ though there is no space to render the loading message.
 
 ```terminal
 session: alpha
-  0/2 | [M-s] ↑l ↑r ↓n | [C-r]
+  0/2 | [C-s] ↑l ↑r ↓n | [C-r]
 ▌  alpha/alpha     workspace ┃
 
 ```
@@ -57,7 +57,7 @@ restarting the picker.
 
 ```terminal
 session: alpha
-  0/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
+  0/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌  alpha/alpha                              ~/alpha.alpha                                                    workspace ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

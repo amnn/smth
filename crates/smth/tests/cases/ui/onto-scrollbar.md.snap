@@ -50,7 +50,7 @@ inverted. The scrollbar thumb should remain visible at the top edge.
 
 ```terminal
 onto:
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -75,7 +75,7 @@ the selected reversed `line 06` row, they should be switched back for contrast.
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ inversion moves down.
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ onto: '(empty) 'line '06
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ is the first commit in the view.
 
 ```terminal
 onto: '(empty) 'line '06
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -167,7 +167,7 @@ this is the first of six matching commits.
 
 ```terminal
 onto: line
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -189,7 +189,7 @@ widget.
 
 ```terminal
 onto: line
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -210,7 +210,7 @@ onto: line
 
 ```terminal
 onto: line
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -232,7 +232,7 @@ timeout.
 
 ```terminal
 onto: line
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -255,7 +255,7 @@ should remain while the widget disappears.
 
 ```terminal
 onto: line
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -274,7 +274,7 @@ selected and scroll it into view.
 
 ```terminal
 onto: line
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
@@ -297,7 +297,7 @@ counter without moving the selection.
 
 ```terminal
 onto: lin
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
                                                                          onto [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────

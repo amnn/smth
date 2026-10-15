@@ -33,7 +33,7 @@ its own path is used as the base.
 
 ```terminal
 session: omega
-  0/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/beta.zeta, [C-o] onto: trunk()
+  0/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/beta.zeta, [C-o] onto: trunk()
 ▌  beta-zeta/omega                          ~/beta.zeta.omega                                                workspace ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

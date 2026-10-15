@@ -38,7 +38,7 @@ alias manually to construct the shared-checkout state this case needs.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first                                    ~/first                                                               repo ┃
    first                                                                                                          tmux ┃
 ▌× alpha/first                              ~/alpha.feature                                                            ┃
@@ -60,7 +60,7 @@ Both rows are staged, and the footer counts two sessions, with no hidden target.
 
 ```terminal
 session:                                                                                                               ┃
-  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  5/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃
@@ -87,7 +87,7 @@ the staged state from the checkout, even when filtering to its other session.
 
 ```terminal
 session: alias                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
 ▌× alpha/alias                              ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -107,7 +107,7 @@ Toggling through the alias removes the same marker. Cancellation removes it too.
 
 ```terminal
 session: alias                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
 ▌■ alpha/alias                              ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -132,7 +132,7 @@ and the shared marker should disappear, just as it did when toggling off.
 
 ```terminal
 session: alias                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
 ▌■ alpha/alias                              ~/alpha.feature                                                            ┃
                                                                                                                        ┃
                                                                                                                        ┃
@@ -162,7 +162,7 @@ staged markers or a deletion footer.
 
 ```terminal
 session:                                                                                                               ┃
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃
  ■ runner                                                                                                              ┃

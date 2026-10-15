@@ -35,7 +35,7 @@ prefix.
 
 ```terminal
 session: z                                                                     ┃
-  1/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                      ┃
+  1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                      ┃
    z                                        ~/z                           repo ┃
    z                                                                      tmux ┃
 ▌■ alifragilistic-expialidocious-alpha-supercalifragilistic-expialidocious-z   ┃

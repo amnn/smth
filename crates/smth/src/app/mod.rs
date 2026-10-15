@@ -12,8 +12,8 @@ mod header;
 mod highlight;
 mod layout;
 mod onto;
-mod order;
 mod sessions;
+mod sort;
 mod span;
 
 use std::io;
@@ -61,7 +61,7 @@ pub struct App {
 
     actions: AvailableActions,
     onto: Option<onto::State>,
-    ordering: Option<order::State>,
+    sort: Option<sort::State>,
     repo: Option<Repo>,
     spinner: spinner::State,
     model: Model,
@@ -126,7 +126,7 @@ impl App {
             bg: None,
             actions: AvailableActions::default(),
             onto: None,
-            ordering: None,
+            sort: None,
             repo,
             spinner: spinner::State::new(),
             model,
@@ -277,17 +277,14 @@ impl App {
         let l = layout::Layout::new(f.area(), self.preview.visible() || self.onto.is_some());
 
         let new_sessions = self.model.sessions_for_query(self.repo.as_ref(), repo_root);
-        // Refresh once and borrow the picker, ordering, and deletion data for this render pass.
+        // Refresh once and borrow the picker, sort, and deletion data for this render pass.
         let status = self.model.refresh();
 
         let agent_summary = self.model.agent_summary();
         let snapshot = self.model.snapshot();
         let query = self.model.query();
         let delete = self.model.deleting();
-        let order = self
-            .ordering
-            .as_ref()
-            .map_or(&self.model.order, |s| &s.pending);
+        let order = self.sort.as_ref().map_or(&self.model.order, |s| &s.pending);
 
         let items = order.matches(snapshot);
 
@@ -329,7 +326,7 @@ impl App {
             self.repo.as_ref(),
             snapshot.item_count() as usize,
             order,
-            self.ordering.as_ref().map(|state| state.selected),
+            self.sort.as_ref().map(|state| state.selected),
         );
 
         let footer = Footer::new(delete, &items);
@@ -337,7 +334,7 @@ impl App {
             &self.sessions,
             self.bg.as_ref().is_some_and(activity::State::is_loading),
             self.onto.is_some(),
-            self.ordering.is_some(),
+            self.sort.is_some(),
             delete,
         );
 
@@ -394,16 +391,16 @@ impl App {
             return None;
         }
 
-        if let Some(ordering) = &mut self.ordering {
-            let action = ordering.handle_key(key);
+        if let Some(sort) = &mut self.sort {
+            let action = sort.handle_key(key);
             match action {
-                Some(order::Action::Accept) => {
-                    self.model.order = ordering.pending.clone();
-                    self.ordering = None;
+                Some(sort::Action::Accept) => {
+                    self.model.order = sort.pending.clone();
+                    self.sort = None;
                 }
 
-                Some(order::Action::Cancel) => {
-                    self.ordering = None;
+                Some(sort::Action::Cancel) => {
+                    self.sort = None;
                 }
 
                 None => {}
@@ -487,8 +484,8 @@ impl App {
                 }
             }
 
-            KC::Char('s') if alt => {
-                self.ordering = Some(order::State::new(&self.model.order));
+            KC::Char('s') if ctrl => {
+                self.sort = Some(sort::State::new(&self.model.order));
             }
 
             KC::Char('r') if alt => self.reset_current_repo(),

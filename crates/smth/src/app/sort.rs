@@ -1,7 +1,7 @@
 // Copyright (c) Ashok Menon
 // SPDX-License-Identifier: Apache-2.0
 
-//! Compact ordering indicator and expanded header controls.
+//! Compact sort indicator and expanded header controls.
 
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
@@ -15,7 +15,7 @@ use crate::model::order::Direction;
 use crate::model::order::Key;
 use crate::model::order::Order;
 
-/// Pending run-local ordering edit, previewed without changing the model until accepted.
+/// Pending run-local sort edit, previewed without changing the model until accepted.
 pub(super) struct State {
     pub(super) pending: Order,
     pub(super) selected: usize,
@@ -40,20 +40,18 @@ impl State {
         }
     }
 
-    /// Handle only ordering keys, leaving query edits and session actions inert.
+    /// Handle only sort keys, leaving query edits and session actions inert.
     pub(super) fn handle_key(&mut self, key: KeyEvent) -> Option<Action> {
         use KeyCode as KC;
         use KeyModifiers as KM;
 
-        const ALT: KM = KM::ALT;
         const CTRL: KM = KM::CONTROL;
 
-        let alt = key.modifiers.contains(ALT);
         let ctrl = key.modifiers.contains(CTRL);
         let count = self.pending.entries().len();
 
         match key.code {
-            KC::Char('s') if alt => return Some(Action::Accept),
+            KC::Char('s') if ctrl => return Some(Action::Accept),
             KC::Char('g') if ctrl => return Some(Action::Cancel),
 
             KC::Tab => self.selected = (self.selected + 1) % count,
@@ -89,7 +87,7 @@ impl State {
     }
 }
 
-/// Render a summary of the ordering criteria. Disabled criteria are omitted, enabled criteria are
+/// Render a summary of the sort criteria. Disabled criteria are omitted, enabled criteria are
 /// shown as initials, in the order they are applied, and with direction arrows.
 pub(super) fn summary(order: &Order) -> Line<'static> {
     let mut empty = true;
@@ -114,7 +112,7 @@ pub(super) fn summary(order: &Order) -> Line<'static> {
     line
 }
 
-/// Renders the full ordering control line. Unlike the summary, all criteria are shown with their
+/// Renders the full sort control line. Unlike the summary, all criteria are shown with their
 /// full labels.
 pub(super) fn expanded(order: &Order, selected: usize) -> Line<'static> {
     let mut line = Line::default();

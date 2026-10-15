@@ -63,7 +63,7 @@ session and glob-discovered repos.
 
 ```terminal
 session:
-  7/7 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  7/7 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌■ alpha-live                               alpha                                                                      ┃
  [C-x] close, [C-f] flag
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ move away from the initial attached-session result and onto the discovered
 
 ```terminal
 session: beta
-  1/7 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  1/7 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  beta                                     ~/beta                                                                     ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ This snapshot shows the picker after clearing the query with `C-u` and typing
 
 ```terminal
 session: mono
-  2/7 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  2/7 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  mono                                     ~/mono                                                                     ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

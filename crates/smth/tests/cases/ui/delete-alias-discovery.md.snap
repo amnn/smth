@@ -42,7 +42,7 @@ Stage the shared checkout. Both aliases count, but only `first` is visible.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first~1                                  ~/first                                                               repo ┃
    first~1                                                                                                        tmux ┃
 ▌× first                                    ~/alpha.feature                                                            ┃
@@ -65,7 +65,7 @@ hidden sessions.
 
 ```terminal
 session:                                                                                                               ┃
-  5/5 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  5/5 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃
@@ -95,7 +95,7 @@ The count should grow to three, with two hidden aliases.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first~1                                  ~/first                                                               repo ┃
    first~1                                                                                                        tmux ┃
 ▌× first                                    ~/alpha.feature                                                            ┃
@@ -118,7 +118,7 @@ should be counted as hidden.
 
 ```terminal
 session:                                                                                                               ┃
-  6/6 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  6/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃
@@ -148,7 +148,7 @@ only the surviving selected session and remove the hidden-count annotation.
 
 ```terminal
 session: first                                                                                                         ┃
-  1/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
    first~1                                  ~/first                                                               repo ┃
    first~1                                                                                                        tmux ┃
 ▌× first                                    ~/alpha.feature                                                            ┃
@@ -171,7 +171,7 @@ aliases should be absent from the full session list.
 
 ```terminal
 session:                                                                                                               ┃
-  4/4 | [M-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
+  4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                                              ┃
                                                                                                                        ┃
                                                                                                                        ┃
 ▌■ ui                                                                                                                  ┃

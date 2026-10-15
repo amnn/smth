@@ -46,7 +46,7 @@ Normalize the spinner for the snapshot.
 
 ```terminal
 session:
-  2/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  2/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
                                                                                                                        │
 ▌■ ui                                                                                                       creating ⠋ ┃
 
@@ -69,7 +69,7 @@ separates the trailing spinner from the right edge of the session list.
 
 ```terminal
 session:
-  2/2 | [M-s] ↑l ↑r ↓n | [C-r]
+  2/2 | [C-s] ↑l ↑r ↓n | [C-r]
                              │
 ▌■ ui             creating ⠋ ┃
 
@@ -93,7 +93,7 @@ space for itself. Colour coverage verifies the overlay clears underlying styles.
 
 ```terminal
 session:
-  2/2 | [M-s] ↑l ↑r ↓n | [C-r]
+  2/2 | [C-s] ↑l ↑r ↓n | [C-r]
 ▌■ ui             creating ⠋ ┃
 
 ```
@@ -146,7 +146,7 @@ request should be ignored until the active operation completes.
 
 ```terminal
 session: omega
-  0/2 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  0/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
    omega                                    ~/omega                                                               repo ┃
 ▌  omega                                                                                                    creating ⠋ ┃
 
@@ -175,7 +175,7 @@ original `zeta` create request should have run.
 
 ```terminal
 session: omega
-  0/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  0/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
    omega                                    ~/omega                                                               repo ┃
 ▌  omega                                                                                                          tmux ┃
 

@@ -58,7 +58,7 @@ and selection should remain unchanged.
 
 ```terminal
 session:
-  3/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: base
+  3/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: base
 ▌■ runner                                                                                ┃
  [C-x] close, [C-f] flag
 ──────────────────────────────────────────────────────────────────────────────────────────

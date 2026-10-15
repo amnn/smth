@@ -39,7 +39,7 @@ show `beta` without a live-session marker before accepting it triggers setup.
 
 ```terminal
 session: beta
-  1/3 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  1/3 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
 ▌  beta                                     ~/beta                                                                     ┃
 
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -47,7 +47,7 @@ label with a trailing spinner. Normalize the spinner for the snapshot.
 
 ```terminal
 session: zeta
-  0/1 | [M-s] ↑l ↑r ↓n | [C-r] repo: none
+  0/1 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
    zeta                                     ~/zeta                                                                repo ┃
 ▌  zeta                                                                                                    switching ⠋ ┃
 

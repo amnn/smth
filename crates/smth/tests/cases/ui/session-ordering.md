@@ -21,7 +21,7 @@ dimmed but its initial still interactive. Select recency without changing it;
 then select name, move it to the front, and reverse it. Alpha remains selected
 as the list reorders.
 
-    :k M-s
+    :k C-s
     :snap --color
 
     :k r
@@ -65,10 +65,10 @@ Accept a name-first descending stack. A subsequent edit can be cancelled without
 losing that accepted stack. Launching again uses the built-in default, not the
 accepted edit.
 
-    :k M-s n left left n M-s
+    :k C-s n left left n C-s
     :snap
 
-    :k M-s n C-g
+    :k C-s n C-g
     :snap
 
     :t respawn-pane -k -t runner:0 'smth; cat'
@@ -87,7 +87,7 @@ result rather than preferring recency.
 All-disabled entry selects live; enabling it does not revive any other key.
 Escape exits the application rather than accepting pending edits.
 
-    :k M-s l
+    :k C-s l
     :snap --color
 
     :k escape

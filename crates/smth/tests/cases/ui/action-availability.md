@@ -54,15 +54,16 @@ unstage (`C-d`), close (`C-x`), and unflag (`C-f`), alongside confirmation
 
     :snap -d 2s -e unstage -e '1 session'
 
-Ordering takes precedence over staged deletion. Enter the editor, change name
-ordering, and try opening onto with `C-o`. The expanded ordering controls and
-`order [C-g] cancel` footer must remain visible instead of deletion actions or
-onto mode. The query stays `first`, and `alpha/first` remains selected and staged.
+Sorting takes precedence over staged deletion. Enter the editor, change name
+ordering, and try opening onto with `C-o`. The expanded sort controls and
+`sort [C-g] cancel` footer must remain visible instead of deletion actions or
+onto mode. The query stays `first`, and `alpha/first` remains selected and
+staged.
 
-    :k M-s n n C-o
-    :snap -d 2s -e 'order.*cancel' -e '^session: first' -e '▌× alpha/first '
+    :k C-s n n C-o
+    :snap -d 2s -e 'sort.*cancel' -e '^session: first' -e '▌× alpha/first '
 
-Cancel ordering with `C-g`. The original ordering and deletion controls return,
+Cancel sorting with `C-g`. The original ordering and deletion controls return,
 with the one-session batch and query preserved.
 
     :k C-g
@@ -112,12 +113,12 @@ or exit (Escape and `C-c`) must be ignored. The snapshot should still show
     :k C-x C-d C-f C-y C-g enter esc C-c
     :snap -d 2s "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
-The ordering editor remains available during creation, but Escape and `C-c`
-still cannot exit an active background operation. Query editing and session
-actions remain frozen until ordering is accepted or cancelled.
+The sort editor remains available during creation, but Escape and `C-c` still
+cannot exit an active background operation. Query editing and session actions
+remain frozen until sorting is accepted or cancelled.
 
-    :k M-s n n xyz C-x C-y esc C-c
-    :snap -d 2s -e 'order.*cancel' -e '^session: first' -e creating "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
+    :k C-s n n xyz C-x C-y esc C-c
+    :snap -d 2s -e 'sort.*cancel' -e '^session: first' -e creating "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
     :k C-g
 
@@ -127,10 +128,10 @@ deletion, even during creation, and should offer cancellation with `C-g`.
     :k C-o
     :settle -d 2s -e '^onto:' -e 'onto.*cancel' "/[⠋⠙⠹⠸⠼⠴⠦⠧]/⠋"
 
-Press `M-s` to verify ordering cannot open in onto mode, then type `root`
-to edit the onto query while session creation is in progress.
+Press `C-s` to verify sorting cannot open in onto mode, then type `root` to
+edit the onto query while session creation is in progress.
 
-    :k M-s root
+    :k C-s root
 
 Use Down and Up to navigate revisions. The onto query and cancellation hint
 should remain visible after navigation.

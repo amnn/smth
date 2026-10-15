@@ -36,7 +36,7 @@ preceding it. Select it on entry, disable it, then cancel. Failed stays selected
 while idle, runner, and running move ahead of succeeded and waiting. Cancellation
 restores the alert-first order.
 
-    :k M-s a
+    :k C-s a
     :snap --color
 
     :k C-g
@@ -55,7 +55,7 @@ Open the ordering editor at the same width. The expanded controls now take
 precedence over the summary: attention, name, live, and recency stay visible,
 while the overlapping agent glyphs are covered by the header.
 
-    :k M-s
+    :k C-s
     :snap
 
 Widen the terminal while keeping the editor open. There is room for both the
