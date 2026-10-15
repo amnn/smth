@@ -59,7 +59,8 @@ inspection. The second request must not toggle the marker off.
     "live": true,
     "deletable": true,
     "pending_deletion": true,
-    "flagged": false
+    "flagged": false,
+    "tags": []
   }
 ]
 ```

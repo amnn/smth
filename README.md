@@ -85,6 +85,12 @@ deleting, and [staged workspace deletion][delete].
 See the [key bindings][keys] below and [scripting][cli] for the full command
 reference.
 
+Live sessions can carry independent single-letter tags (`a`–`z`): `smth
+--tag a [SESSION]` adds a membership and `smth --untag a [SESSION]` removes
+it. Tags are separate from attention flags but also disappear when their tmux
+session is destroyed. `smth --json` includes sorted `tags` for live
+sessions.
+
 [delete]: docs/session-management.md#delete
 
 ## Key bindings

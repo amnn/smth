@@ -41,6 +41,10 @@ pub struct SerializedSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flagged: Option<bool>,
 
+    /// Alphabetical tag memberships; omitted for non-live candidates.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<char>>,
+
     /// Tmux windows whose bell or agent lifecycle state currently requires attention.
     #[serde(skip_serializing_if = "BTreeSet::is_empty")]
     pub attention: BTreeSet<String>,

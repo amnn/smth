@@ -33,6 +33,8 @@ Options:
       --json                      Print structured information about discovered entries
       --flag [<SESSION>]          Mark a live session as flagged
       --unflag [<SESSION>]        Clear a live session's flag
+      --tag <TAG> <SESSION>       Add a tag to a live session
+      --untag <TAG> <SESSION>     Remove a tag from a live session
   -c, --create [<SESSION>]        Ensure a session exists without switching to it
       --create-repo               Create a fresh repository for the session requested by --create or
                                   --switch
@@ -149,6 +151,16 @@ Options:
           Clear a live session's flag. The optional session name overrides a named workspace
           inferred from --base. The target must match the selected repository family and workspace
           identity.
+
+      --tag <TAG> <SESSION>
+          Add a lowercase tag a-z to a live session. The optional session name overrides a named
+          workspace inferred from --base. The target must match the selected repository family and
+          workspace identity. Tags are independent of attention flags but also disappear when the
+          tmux session is destroyed.
+
+      --untag <TAG> <SESSION>
+          Remove a lowercase tag a-z from a live session, preserving all other tags. Target
+          resolution is the same as --tag. Removing an absent tag is a no-op.
 
   -c, --create [<SESSION>]
           Ensure a session exists without switching to it. Existing repository checkouts receive a

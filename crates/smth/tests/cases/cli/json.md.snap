@@ -40,7 +40,8 @@ glob.
     "live": true,
     "deletable": false,
     "pending_deletion": false,
-    "flagged": false
+    "flagged": false,
+    "tags": []
   },
   {
     "base": "<ROOT>/alpha",
@@ -50,6 +51,7 @@ glob.
     "deletable": false,
     "pending_deletion": false,
     "flagged": true,
+    "tags": [],
     "attention": [
       "0"
     ],
