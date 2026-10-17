@@ -42,7 +42,8 @@ for i in range(1, count + 1):
 
 Press `C-o` to render the current repo log in the onto picker. The child commit
 appears first, but the working-copy commit marked `@` should start selected and
-inverted. The scrollbar thumb should remain visible at the top edge.
+inverted. The scrollbar thumb should remain visible at the top edge. The footer
+shows `onto [C-o] accept [C-g] cancel` so both completion controls are visible.
 
     :settle -d 2s (settled)
     :k C-o
@@ -52,7 +53,7 @@ inverted. The scrollbar thumb should remain visible at the top edge.
 onto:
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
@@ -77,7 +78,7 @@ the selected reversed `line 06` row, they should be switched back for contrast.
 onto: '(empty) 'line '06
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
@@ -100,7 +101,7 @@ inversion moves down.
 onto: '(empty) 'line '06
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
@@ -121,7 +122,7 @@ onto: '(empty) 'line '06
 onto: '(empty) 'line '06
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) child                                                                         ┃
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
@@ -143,7 +144,7 @@ is the first commit in the view.
 onto: '(empty) 'line '06
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
 │  (empty) child                                                                         ┃
@@ -169,7 +170,7 @@ this is the first of six matching commits.
 onto: line
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 ┃
 │  (empty) child                                                                         ┃
@@ -191,7 +192,7 @@ widget.
 onto: line
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) line 03                                                                   6/6 │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
@@ -212,7 +213,7 @@ onto: line
 onto: line
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                              1/6 │
 │  (empty) line 06                                                                       ┃
@@ -234,7 +235,7 @@ timeout.
 onto: line
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       ┃
@@ -257,7 +258,7 @@ should remain while the widget disappears.
 onto: line
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 │  (empty) line 06                                                                       │
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  ┃
@@ -276,7 +277,7 @@ selected and scroll it into view.
 onto: line
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 ○  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 02                                                                       │
@@ -299,7 +300,7 @@ counter without moving the selection.
 onto: lin
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/long, [C-o] onto: trunk()
 ▌■ runner                                                                                ┃
-                                                                         onto [C-g] cancel
+                                                            onto [C-o] accept [C-g] cancel
 ──────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt hhhhhhhh                                  │
 │  (empty) line 06                                                                       ┃

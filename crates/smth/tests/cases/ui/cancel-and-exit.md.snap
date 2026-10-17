@@ -67,7 +67,7 @@ keeps the app open.
 onto:
   1/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌× alpha/feature                            ~/alpha.feature                                                            ┃
-                                                                                                       onto [C-g] cancel
+                                                                                          onto [C-o] accept [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) (no description set)

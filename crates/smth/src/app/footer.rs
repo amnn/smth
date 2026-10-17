@@ -113,7 +113,10 @@ impl<'s> Footer<'s> {
 
         let mut line = Line::from(Span::raw(label).dim());
 
-        if let Mode::Tag(state) = self.mode {
+        if let Mode::Onto(_) = self.mode {
+            push_shortcut_span(&mut line, "C-o");
+            line += Span::raw(" accept ");
+        } else if let Mode::Tag(state) = self.mode {
             let tags = state.initial | state.pending;
             let text = tags.display(self.alphabet);
             if !text.is_empty() {

@@ -111,7 +111,7 @@ picker still loads a valid log.
 onto:
   4/4 | [C-s] ↑l ↑r ↓n | [C-r] repo: ~/alpha, [C-o] onto: trunk()
 ▌■ ui                                                                                                                  ┃
-                                                                                                       onto [C-g] cancel
+                                                                                          onto [C-o] accept [C-g] cancel
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 @  wwwwwwww (no email set) ttttttttttttttttttt default@ hhhhhhhh
 │  (empty) alpha commit
