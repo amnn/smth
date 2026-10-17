@@ -37,7 +37,8 @@ for i in range(1, count + 1):
 
 Press `C-o` to render the current repo log in the onto picker. The child commit
 appears first, but the working-copy commit marked `@` should start selected and
-inverted. The scrollbar thumb should remain visible at the top edge.
+inverted. The scrollbar thumb should remain visible at the top edge. The footer
+shows `onto [C-o] accept [C-g] cancel` so both completion controls are visible.
 
     :settle -d 2s
     :k C-o
