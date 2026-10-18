@@ -36,10 +36,10 @@ enum Action {
     Filter,
 
     /// Select the next session carrying a tag.
-    Next(smth::Tag),
+    Next(smth::Target),
 
     /// Select the previous session carrying a tag.
-    Prev(smth::Tag),
+    Prev(smth::Target),
 
     /// Print fuzzy matches as structured records.
     Json,
@@ -190,11 +190,11 @@ struct Args {
 
     /// Switch to the next session carrying TAG.
     #[arg(long, value_name = "TAG", conflicts_with_all = ["select_1", "exit_0"])]
-    next: Option<smth::Tag>,
+    next: Option<smth::Target>,
 
     /// Switch to the previous session carrying TAG.
     #[arg(long, value_name = "TAG", conflicts_with_all = ["select_1", "exit_0"])]
-    prev: Option<smth::Tag>,
+    prev: Option<smth::Target>,
 
     /// Print structured information about discovered entries.
     #[arg(

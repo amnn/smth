@@ -151,6 +151,20 @@ regardless of middle's position in the reverse-name ordering.
     :p middle:0.0
     :$ smth --prev b --query q --order -name
 
+Attention uses an explicit dash, independently of tags. Flag both destinations:
+next selects zebra, previous selects alpha, and a selected singleton is silent.
+
+    :$ -q smth --no-base --flag alpha
+    :$ -q smth --no-base --flag zebra
+    :p alpha:0.0
+    :$ smth --next - --order +name
+
+    :p zebra:0.0
+    :$ smth --prev - --order +name
+
+    :p alpha:0.0
+    :$ smth --next - --query alpha
+
 Missing and invalid tag operands exit with argument-error status 2. A tag is
 required, and uppercase A is not a lowercase a-z tag.
 

@@ -248,13 +248,13 @@ impl Model {
             .collect()
     }
 
-    /// Find the next session with the given tag in the model's current snapshot, starting from the
+    /// Find the next session matching the target in the model's current snapshot, starting from the
     /// selected session (exclusive). Sessions are traversed according to the model's order,
     /// wrapping round if necessary.
     ///
-    /// Returns `None` if there are no eligible sessions with the given tag (excluding the current
+    /// Returns `None` if there are no eligible sessions matching the target (excluding the current
     /// selection).
-    pub fn next(&self, tag: tag::Tag) -> Option<&Session> {
+    pub fn next(&self, target: tag::Target) -> Option<&Session> {
         let matches = self.order.matches(self.picker.snapshot());
         let Some(start) = matches
             .iter()
@@ -263,12 +263,12 @@ impl Model {
             return matches
                 .into_iter()
                 .map(|item| item.data)
-                .find(|session| session.tags().is_some_and(|tags| tags.contains(tag)));
+                .find(|session| target.matches(session));
         };
 
         for offset in 1..matches.len() {
             let session = matches[(start + offset) % matches.len()].data;
-            if session.tags().is_some_and(|tags| tags.contains(tag)) {
+            if target.matches(session) {
                 return Some(session);
             }
         }
@@ -276,13 +276,13 @@ impl Model {
         None
     }
 
-    /// Find the previous session with the given tag in the model's current snapshot, starting from
+    /// Find the previous session matching the target in the model's current snapshot, starting from
     /// the selected session (exclusive). Sessions are traversed according to the model's order,
     /// wrapping round if necessary.
     ///
-    /// Returns `None` if there are no eligible sessions with the given tag (excluding the current
+    /// Returns `None` if there are no eligible sessions matching the target (excluding the current
     /// selection).
-    pub fn prev(&self, tag: tag::Tag) -> Option<&Session> {
+    pub fn prev(&self, target: tag::Target) -> Option<&Session> {
         let matches = self.order.matches(self.picker.snapshot());
         let Some(start) = matches
             .iter()
@@ -292,12 +292,12 @@ impl Model {
                 .into_iter()
                 .rev()
                 .map(|item| item.data)
-                .find(|session| session.tags().is_some_and(|tags| tags.contains(tag)));
+                .find(|session| target.matches(session));
         };
 
         for offset in 1..matches.len() {
             let session = matches[(start + matches.len() - offset) % matches.len()].data;
-            if session.tags().is_some_and(|tags| tags.contains(tag)) {
+            if target.matches(session) {
                 return Some(session);
             }
         }
@@ -826,10 +826,11 @@ mod tests {
     #[test]
     fn navigation_reads_published_matches_without_changing_selection() {
         let a = "a".parse().unwrap();
-        let z = "z".parse().unwrap();
+        let z = tag::Target::Tag("z".parse().unwrap());
 
         let mut tags = tag::Tags::default();
         tags.set(a, true);
+        let a = tag::Target::Tag(a);
 
         let mut model = Model {
             order: "+name".parse().unwrap(),

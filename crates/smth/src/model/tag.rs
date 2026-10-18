@@ -19,6 +19,13 @@ pub struct Tag(u8);
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub struct Tags(u32);
 
+/// A session navigation ring selected by a letter or the attention sigil.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Target {
+    Tag(Tag),
+    Attention,
+}
+
 impl Tag {
     /// Return the lowercase letter used in commands and serialized output.
     pub fn letter(self) -> char {
@@ -57,6 +64,16 @@ impl Tags {
     }
 }
 
+impl Target {
+    /// Whether a session belongs to this navigation target.
+    pub fn matches(self, session: &super::Session) -> bool {
+        match self {
+            Self::Tag(tag) => session.tags().is_some_and(|tags| tags.contains(tag)),
+            Self::Attention => session.flag() == Some(true) || session.has_alerts(),
+        }
+    }
+}
+
 impl BitOr for Tags {
     type Output = Self;
 
@@ -92,6 +109,18 @@ impl FromStr for Tag {
         );
 
         Ok(Self(value.as_bytes()[0] - b'a'))
+    }
+}
+
+impl FromStr for Target {
+    type Err = anyhow::Error;
+
+    fn from_str(value: &str) -> anyhow::Result<Self> {
+        if value == "-" {
+            Ok(Self::Attention)
+        } else {
+            value.parse().map(Self::Tag)
+        }
     }
 }
 

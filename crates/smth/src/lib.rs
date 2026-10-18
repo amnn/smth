@@ -22,3 +22,4 @@ pub use crate::model::session::Session;
 pub use crate::model::set_deleting;
 pub use crate::model::tag::Tag;
 pub use crate::model::tag::Tags;
+pub use crate::model::tag::Target;

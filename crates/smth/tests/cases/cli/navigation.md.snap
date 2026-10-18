@@ -243,6 +243,28 @@ qa
 aq
 ```
 
+Attention uses an explicit dash, independently of tags. Flag both destinations:
+next selects zebra, previous selects alpha, and a selected singleton is silent.
+
+    :$ -q smth --no-base --flag alpha (exit: 0)
+    :$ -q smth --no-base --flag zebra (exit: 0)
+    :p alpha:0.0
+    :$ smth --next - --order +name (exit: 0)
+
+```stdout
+zebra
+```
+
+    :p zebra:0.0
+    :$ smth --prev - --order +name (exit: 0)
+
+```stdout
+alpha
+```
+
+    :p alpha:0.0
+    :$ smth --next - --query alpha (exit: 0)
+
 Missing and invalid tag operands exit with argument-error status 2. A tag is
 required, and uppercase A is not a lowercase a-z tag.
 
