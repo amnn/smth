@@ -68,6 +68,25 @@ The default configuration uses bold lowercase letters in the flag colour,
 including on the selected row. See [tag alphabet
 configuration](configuration.md#tag-alphabet) to choose display glyphs.
 
+### Navigate tags and attention
+
+Press `C-j` then a lowercase tag letter or '-' to select the next matching
+session, or `C-k` then a letter or '-' for the previous one. Any other key
+cancels and is consumed, except Escape and `C-c`, which retain their normal
+exit behavior.
+
+`-` is a special tag for sessions needing attention: manual flags, bell
+alerts, or agents waiting, failed, or succeeded. Tags are otherwise independent
+of attention signals.
+
+'Next' and 'previous' are relative to the session that is currently selected in
+the UI, and the order that sessions are displayed in, with any filters applied.
+The traversal also wraps around at either end. If no selection is currently
+selected, traversal starts between the first and last sessions in the list.
+
+For non-interactive navigation and tmux bindings, see
+[CLI navigation](scripting.md#navigation).
+
 ### Edit tags
 
 Press `C-t` on a live session:

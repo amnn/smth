@@ -35,10 +35,10 @@ enum Action {
     /// Print fuzzy matches as names.
     Filter,
 
-    /// Select the next session carrying a tag.
+    /// Select the next tagged session or session needing attention.
     Next(smth::Target),
 
-    /// Select the previous session carrying a tag.
+    /// Select the previous tagged session or session needing attention.
     Prev(smth::Target),
 
     /// Print fuzzy matches as structured records.
@@ -158,7 +158,7 @@ struct Args {
     )]
     onto: Option<String>,
 
-    /// Initial ordering for the picker, --filter, and --json.
+    /// Ordering for the picker, filtering, and navigation.
     #[arg(
         long,
         value_name = "ORDER",
@@ -168,7 +168,8 @@ struct Args {
                      omitted comparators are disabled. Empty string disables all comparators. \
                      Overrides ui.order; default: '-live -recency +name'. With a query, fuzzy \
                      score takes precedence and this order breaks score ties. Picker edits last \
-                     only for this run."
+                     only for this run. Navigation (--next/--prev) uses the same ordering and \
+                     fuzzy-ranked query results."
     )]
     order: Option<Order>,
 
@@ -188,12 +189,30 @@ struct Args {
     #[arg(short = 'f', long, action = ArgAction::SetTrue)]
     filter: bool,
 
-    /// Switch to the next session carrying TAG.
-    #[arg(long, value_name = "TAG", conflicts_with_all = ["select_1", "exit_0"])]
+    /// Switch to the next session carrying TAG, or needing attention for -.
+    #[arg(
+        long,
+        value_name = "TAG",
+        conflicts_with_all = ["select_1", "exit_0"],
+        long_help = "Switch to the next session carrying a lowercase tag a-z, or needing attention \
+                     when TAG is an explicit '-'. Uses ui.order unless --order is supplied; \
+                     --query filters and fuzzy-ranks destinations as in the picker. Start after \
+                     the invoking tmux session and wrap. An absent or filtered-out anchor is after \
+                     all matches: next starts at the first match, previous at the last. Lookup reads \
+                     the completed snapshot without changing selection. Print the destination only \
+                     after a successful switch. An empty ring or an already-selected singleton \
+                     succeeds silently."
+    )]
     next: Option<smth::Target>,
 
-    /// Switch to the previous session carrying TAG.
-    #[arg(long, value_name = "TAG", conflicts_with_all = ["select_1", "exit_0"])]
+    /// Switch to the previous session carrying TAG, or needing attention for -.
+    #[arg(
+        long,
+        value_name = "TAG",
+        conflicts_with_all = ["select_1", "exit_0"],
+        long_help = "Like --next, but traverse the chosen order backward. Requires an explicit \
+                     lowercase tag a-z or '-' for attention; supports --order and --query."
+    )]
     prev: Option<smth::Target>,
 
     /// Print structured information about discovered entries.
