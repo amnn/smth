@@ -106,6 +106,8 @@ impl<'s> Footer<'s> {
         let label = match self.mode {
             Mode::Normal if deleting => "delete ",
             Mode::Normal => return None,
+            Mode::TagNext => "next tag ",
+            Mode::TagPrev => "prev tag ",
             Mode::Onto(_) => "onto ",
             Mode::Sort(_) => "sort ",
             Mode::Tag(_) => "tags",

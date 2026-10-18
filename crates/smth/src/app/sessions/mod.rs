@@ -153,8 +153,7 @@ impl<'s> Sessions<'s> {
         // If ordering has changed since the last render, move the selected index to the new
         // position of the previously selected session, as long as it still exists.
         if state.order.as_ref() != Some(self.order) {
-            if state.list.selected().is_some()
-                && let Some(selected) = selected.as_ref()
+            if let Some(selected) = selected.as_ref()
                 && let Some(index) = self
                     .new
                     .iter()
@@ -232,9 +231,10 @@ impl State {
         self.initial = None;
     }
 
-    /// Clear the selection so the next render selects the default row.
-    pub(super) fn reset_selection(&mut self) {
+    /// Clear both selections so the next render selects the default row.
+    pub(super) fn reset_selection(&mut self, selected: &mut Option<Session>) {
         self.list.select(None);
+        *selected = None;
     }
 
     /// Move selection to the beginning of the list.
@@ -247,6 +247,13 @@ impl State {
     /// Move selection to the end of the list.
     pub(super) fn select_last(&mut self) {
         self.list.select_last();
+    }
+
+    /// Re-anchor the selected session on the next render rather than selecting by row.
+    pub(super) fn reanchor(&mut self) {
+        // Clear the remembered order to re-anchor by session identity even if the configured
+        // order is unchanged: the next matcher refresh may move that session to a different row.
+        self.order = None;
     }
 
     /// Move selection down by one, unless already at the end of the list.
@@ -304,56 +311,128 @@ mod tests {
     /// A key press leaves the selected row in place when more initial matches arrive.
     #[test]
     fn key_pressed_cancels_pending_adjustment() {
-        let alpha = session("alpha");
-        let rest = [alpha.clone(), session("beta")];
-
-        let mut state = State::new(Some(alpha.clone()));
+        let rest = [session("alpha"), session("beta")];
+        let mut state = State::new(Some(session("alpha")));
         let mut selected = None;
+
         adjust(&mut state, &mut selected, &rest[..1], true);
 
         state.key_pressed();
         adjust(&mut state, &mut selected, &rest, false);
-        assert_eq!(selected.as_ref(), Some(&alpha));
+
+        assert_eq!(selected, Some(session("alpha")));
+    }
+
+    /// A navigation destination keeps its identity if pending matches arrive before drawing.
+    #[test]
+    fn navigation_reanchors_when_published_rows_change() {
+        // Matching is still running, with beta and gamma available so far. The startup
+        // adjustment skips beta and selects gamma at match index 1.
+        let mut state = State::new(Some(session("beta")));
+        let mut selected = None;
+
+        adjust(
+            &mut state,
+            &mut selected,
+            &[session("beta"), session("gamma")],
+            true,
+        );
+
+        // Follow the navigation key handler: record user input, set gamma as the destination,
+        // and request identity-based re-anchoring rather than relying on its current row.
+        state.key_pressed();
+        selected = Some(session("gamma"));
+        state.reanchor();
+        assert!(state.initial.is_none());
+
+        // Finish matching with alpha inserted before the existing rows, without changing the
+        // configured order. Gamma's old index now belongs to beta, so keeping it would be wrong.
+        adjust(
+            &mut state,
+            &mut selected,
+            &[session("alpha"), session("beta"), session("gamma")],
+            false,
+        );
+
+        // Gamma stays selected at match index 2, after the reserved prospective-session rows.
+        assert_eq!(selected, Some(session("gamma")));
+        assert_eq!(state.list.selected(), Some(NEW_SESSION_ROWS + 2));
+    }
+
+    /// An explicit destination does not need an existing list index to be re-anchored.
+    #[test]
+    fn navigation_reanchors_without_existing_row() {
+        // Select gamma by identity while the list index is still unset.
+        let mut state = State::default();
+        let mut selected = Some(session("gamma"));
+
+        // Request re-anchoring, then supply completed results with gamma after alpha.
+        state.reanchor();
+
+        adjust(
+            &mut state,
+            &mut selected,
+            &[session("alpha"), session("gamma")],
+            false,
+        );
+
+        // Gamma is selected at match index 1 even though there was no previous list index.
+        assert_eq!(selected, Some(session("gamma")));
+        assert_eq!(state.list.selected(), Some(NEW_SESSION_ROWS + 1));
     }
 
     /// An unfinished empty or singleton snapshot may still gain a second initial match.
     #[test]
     fn pending_adjustment_applies_once_as_matches_arrive() {
-        let alpha = session("alpha");
-        let beta = session("beta");
-
-        let mut state = State::new(Some(alpha.clone()));
-        let mut selected = Some(alpha.clone());
+        let mut state = State::new(Some(session("alpha")));
+        let mut selected = Some(session("alpha"));
 
         adjust(&mut state, &mut selected, &[], true);
 
         // No sessions yet, so no adjustment, and the initial session is still pending.
         assert!(state.initial.is_some());
 
-        adjust(
-            &mut state,
-            &mut selected,
-            std::slice::from_ref(&alpha),
-            true,
-        );
+        adjust(&mut state, &mut selected, &[session("alpha")], true);
 
         // There's a single session and it matches, but there's no alternative to switch to, so no
         // adjustment is made.
-        assert_eq!(selected.as_ref(), Some(&alpha));
+        assert_eq!(selected, Some(session("alpha")));
         assert!(state.initial.is_some());
 
-        let rest = [alpha.clone(), beta.clone()];
+        let rest = [session("alpha"), session("beta")];
         adjust(&mut state, &mut selected, &rest, true);
 
         // Now there's more than one session and the first one matches, so the adjustment is made.
-        assert_eq!(selected.as_ref(), Some(&beta));
+        assert_eq!(selected, Some(session("beta")));
         assert!(state.initial.is_none());
 
         // Reset the selection to the first row -- the adjustment will not be re-applied, because it
         // was already consumed.
         state.list.select(Some(NEW_SESSION_ROWS));
         adjust(&mut state, &mut selected, &rest, false);
-        assert_eq!(selected.as_ref(), Some(&alpha));
+        assert_eq!(selected, Some(session("alpha")));
+    }
+
+    /// Resetting selection discards the old identity even if the next draw re-anchors.
+    #[test]
+    fn reset_selection_discards_identity() {
+        // Establish gamma as the selected session and give it a list index after alpha.
+        let rest = [session("alpha"), session("gamma")];
+        let mut state = State::default();
+        let mut selected = Some(session("gamma"));
+
+        adjust(&mut state, &mut selected, &rest, false);
+
+        // Reset both selections, then request re-anchoring with the same results. Retaining
+        // gamma's identity here would restore its row instead of choosing a fresh default.
+        state.reset_selection(&mut selected);
+        state.reanchor();
+
+        adjust(&mut state, &mut selected, &rest, false);
+
+        // With no retained identity, alpha becomes the default at the first populated row.
+        assert_eq!(selected, Some(session("alpha")));
+        assert_eq!(state.list.selected(), Some(NEW_SESSION_ROWS));
     }
 
     /// In each of these cases, the adjustment cannot be applied on the first sessions passed in,

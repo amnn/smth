@@ -90,9 +90,10 @@ doc comments, with detail appropriate to the item kind:
   representative examples where helpful.
 - Structs/enums/type aliases: what data is modeled, key invariants, and field
   doc comments where field-level intent is non-obvious.
-- Functions/methods: what they do (not how), relevant parameters/returns, and
-  any meaningful invariants, preconditions, postconditions, panic conditions,
-  or error conditions.
+- Functions/methods: what they do and why (not how), relevant parameters/returns,
+  and any meaningful invariants, preconditions, postconditions, panic conditions,
+  or error conditions. Describe behavior directly rather than where the function
+  will be used or what it does not do.
 
 Hard wrap comments at column 100.
 

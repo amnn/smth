@@ -113,6 +113,8 @@ enum Action {
 /// Mutually exclusive picker editors; staged deletions remain in the model.
 enum Mode {
     Normal,
+    TagNext,
+    TagPrev,
     Onto(Box<onto::State>),
     Sort(sort::State),
     Tag(tag::State),
@@ -122,9 +124,15 @@ impl App {
     /// Create a new application.
     ///
     /// `repo` is the initial base repository, `revision` optionally overrides its workspace base
-    /// revision, and `model` contains the underlying data to drive the interface.
-    pub fn new(repo: Option<PathBuf>, revision: Option<String>, model: Model) -> Self {
-        let sessions = sessions::State::new(model.selected.clone());
+    /// revision, and `model` contains the underlying data to drive the interface. The model's
+    /// selection should point to the current session, if there is one, or be `None` otherwise.
+    ///
+    /// Clears that selection and prepares a one-time skip of the current session when it is the
+    /// first of multiple matches, making the next best candidate session the default destination.
+    pub fn new(repo: Option<PathBuf>, revision: Option<String>, mut model: Model) -> Self {
+        // Use the existing selection only for the startup adjustment; let the first draw choose
+        // the default row instead of re-anchoring.
+        let sessions = sessions::State::new(model.selected.take());
         let mut preview = preview::State::new();
         preview.feed(model.sessions());
         let repo = repo.map(|repo| {
@@ -439,6 +447,27 @@ impl App {
         match &mut self.mode {
             Mode::Normal => {}
 
+            mode @ (Mode::TagNext | Mode::TagPrev) => {
+                if let KC::Char(tag @ 'a'..='z') = key.code
+                    && key.modifiers.is_empty()
+                {
+                    let target = tag.to_string().parse().expect("lowercase tag");
+                    let destination = if matches!(mode, Mode::TagPrev) {
+                        self.model.prev(target)
+                    } else {
+                        self.model.next(target)
+                    };
+
+                    if let Some(destination) = destination {
+                        self.model.selected = Some(destination.clone());
+                        self.sessions.reanchor();
+                    }
+                }
+
+                self.mode = Mode::Normal;
+                return None;
+            }
+
             Mode::Onto(state) => {
                 match state.handle_key(key) {
                     Some(onto::Action::Accept) => self.accept_onto().await,
@@ -538,7 +567,7 @@ impl App {
             }
 
             KC::Char('k') if ctrl => {
-                self.sessions.select_previous();
+                self.mode = Mode::TagPrev;
             }
 
             KC::Down => {
@@ -546,7 +575,7 @@ impl App {
             }
 
             KC::Char('j') if ctrl => {
-                self.sessions.select_next();
+                self.mode = Mode::TagNext;
             }
 
             // App state
@@ -588,7 +617,7 @@ impl App {
     /// Append a character, resetting selection when it starts a new query.
     fn push_query(&mut self, ch: char) {
         if self.model.push_query(ch) {
-            self.sessions.reset_selection();
+            self.sessions.reset_selection(&mut self.model.selected);
         }
     }
 
