@@ -3,6 +3,7 @@
 
 //! Retained action eligibility for picker input and footer rendering.
 
+use crate::app::Mode;
 use crate::app::sessions;
 use crate::model::delete;
 use crate::model::session::Session;
@@ -24,17 +25,8 @@ pub(super) struct AvailableActions {
     pub(super) flag: Option<bool>,
     /// Whether tag editing can begin for the selected session.
     pub(super) tag: bool,
-    /// Modal actions taking precedence over session actions, or `None` when none are available.
-    pub(super) mode: Option<Mode>,
-}
-
-/// Modal actions taking precedence over session actions.
-#[derive(Clone, Copy)]
-pub(super) enum Mode {
-    Delete,
-    Onto,
-    Sort,
-    Tag,
+    /// Whether staged deletion controls are available without an active editor or mutation.
+    pub(super) deleting: bool,
 }
 
 impl AvailableActions {
@@ -42,12 +34,10 @@ impl AvailableActions {
     pub(super) fn new(
         sessions: &sessions::State,
         loading: bool,
-        onto: bool,
-        sort: bool,
-        tagging: bool,
+        mode: &Mode,
         delete: Option<&delete::Model>,
     ) -> Self {
-        let session_actions = !loading && !onto && !sort && !tagging;
+        let session_actions = !loading && matches!(mode, Mode::Normal);
         let selected = sessions.selected();
         Self {
             exit: !loading,
@@ -59,17 +49,7 @@ impl AvailableActions {
                 .map(|session| delete.is_some_and(|delete| delete.contains(session))),
             flag: selected.and_then(Session::flag).filter(|_| session_actions),
             tag: session_actions && delete.is_none() && sessions.is_live(),
-            mode: if tagging {
-                Some(Mode::Tag)
-            } else if onto {
-                Some(Mode::Onto)
-            } else if sort {
-                Some(Mode::Sort)
-            } else if !loading && delete.is_some() {
-                Some(Mode::Delete)
-            } else {
-                None
-            },
+            deleting: session_actions && delete.is_some(),
         }
     }
 }

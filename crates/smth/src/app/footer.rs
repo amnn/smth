@@ -10,11 +10,10 @@ use ratatui::style::Stylize as _;
 use ratatui::text::Line;
 use ratatui::text::Span;
 
+use crate::app::Mode;
 use crate::app::actions::AvailableActions;
-use crate::app::actions::Mode;
 use crate::app::span::push_shortcut_span;
 use crate::app::span::tag_span;
-use crate::app::tag;
 use crate::model::delete;
 use crate::model::session::Session;
 
@@ -23,7 +22,7 @@ pub(super) struct Footer<'s> {
     delete: Option<&'s delete::Model>,
     matches: &'s [Item<'s, Session>],
     selected: Option<&'s Session>,
-    tagging: Option<&'s tag::State>,
+    mode: &'s Mode,
 }
 
 impl<'s> Footer<'s> {
@@ -32,13 +31,13 @@ impl<'s> Footer<'s> {
         delete: Option<&'s delete::Model>,
         matches: &'s [Item<'s, Session>],
         selected: Option<&'s Session>,
-        tagging: Option<&'s tag::State>,
+        mode: &'s Mode,
     ) -> Self {
         Self {
             delete,
             matches,
             selected,
-            tagging,
+            mode,
         }
     }
 
@@ -47,8 +46,7 @@ impl<'s> Footer<'s> {
         use ratatui::layout::Constraint as C;
         use ratatui::layout::Layout as L;
 
-        if let Some(mode) = actions.mode {
-            let line = self.mode(mode);
+        if let Some(line) = self.mode(actions.deleting) {
             let [left, _, right] = area.layout(&L::horizontal([
                 C::Fill(1),
                 C::Max(1),
@@ -100,35 +98,33 @@ impl<'s> Footer<'s> {
     }
 
     /// Render the modal footer hint.
-    fn mode(&self, mode: Mode) -> Line<'static> {
-        let label = match mode {
-            Mode::Delete => "delete",
-            Mode::Onto => "onto",
-            Mode::Sort => "sort",
-            Mode::Tag => "tags",
+    fn mode(&self, deleting: bool) -> Option<Line<'static>> {
+        let label = match self.mode {
+            Mode::Normal if deleting => "delete ",
+            Mode::Normal => return None,
+            Mode::Onto(_) => "onto ",
+            Mode::Sort(_) => "sort ",
+            Mode::Tag(_) => "tags",
         };
 
         let mut line = Line::from(Span::raw(label).dim());
 
-        if let Mode::Tag = mode {
-            if let Some(state) = self.tagging {
-                let tags = state.initial | state.pending;
-                let text = tags.to_string();
-                if !text.is_empty() {
-                    line += Span::raw(": ").dim();
-                    for (tag, glyph) in tags.iter().zip(text.chars()) {
-                        line += Span::styled(glyph.to_string(), state.style(tag));
-                    }
+        if let Mode::Tag(state) = self.mode {
+            let tags = state.initial | state.pending;
+            let text = tags.to_string();
+            if !text.is_empty() {
+                line += Span::raw(": ").dim();
+                for (tag, glyph) in tags.iter().zip(text.chars()) {
+                    line += Span::styled(glyph.to_string(), state.style(tag));
                 }
             }
-            line += Span::raw(" ");
-        } else {
-            line += Span::raw(" ").dim();
-        }
 
-        if let Mode::Delete = mode
-            && let Some(delete) = self.delete
-        {
+            line += Span::raw(" ");
+            if state.batch {
+                push_shortcut_span(&mut line, "C-t");
+                line += Span::raw(" accept ");
+            }
+        } else if deleting && let Some(delete) = self.delete {
             push_shortcut_span(&mut line, "C-y");
 
             let count = delete.pending();
@@ -143,15 +139,8 @@ impl<'s> Footer<'s> {
             }
         }
 
-        if let Mode::Tag = mode
-            && self.tagging.is_some_and(|state| state.batch)
-        {
-            push_shortcut_span(&mut line, "C-t");
-            line += Span::raw(" accept ");
-        }
-
         push_shortcut_span(&mut line, "C-g");
         line += Span::raw(" cancel");
-        line
+        Some(line)
     }
 }
