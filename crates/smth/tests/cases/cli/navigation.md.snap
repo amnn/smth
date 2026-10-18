@@ -1,0 +1,266 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/cli/navigation.md
+---
+# Tag navigation
+
+Create three sessions carrying tag a and an untagged session, middle. Three
+members distinguish forward from backward traversal. Each loop starts at alpha
+and follows the destination after every switch, as successive invocations from
+the active session would in practice. Configure alphabetical ordering to keep
+the loops stable across switches; navigation otherwise inherits ui.order.
+
+Each successful navigation prints its destination. Shell directives inherit
+the runner's TMUX_PANE, which does not automatically follow client switches.
+Use :p to move the runner to the printed destination and update TMUX_PANE for
+the next invocation. The later anchor checks explicitly reset to middle rather
+than continuing a loop.
+
+    :w .config/smth/smth.toml (written)
+
+```toml
+[ui]
+order = "+name"
+```
+
+    :b jj cat (available)
+    :t rename-session -t 0 middle (success)
+    :t new-session -d -s alpha cat (success)
+    :t new-session -d -s beta cat (success)
+    :t new-session -d -s zebra cat (success)
+    :$ -q smth --no-base --tag a alpha (exit: 0)
+    :$ -q smth --no-base --tag a beta (exit: 0)
+    :$ -q smth --no-base --tag a zebra (exit: 0)
+
+Configured alphabetical navigation completes the forward loop:
+alpha -> beta -> zebra -> alpha, wrapping past the untagged middle session.
+
+    :p alpha:0.0
+    :$ smth --next a (exit: 0)
+
+```stdout
+beta
+```
+
+    :p beta:0.0
+    :$ smth --next a (exit: 0)
+
+```stdout
+zebra
+```
+
+    :p zebra:0.0
+    :$ smth --next a (exit: 0)
+
+```stdout
+alpha
+```
+
+Backward navigation completes the opposite loop:
+alpha -> zebra -> beta -> alpha.
+
+    :p alpha:0.0
+    :$ smth --prev a (exit: 0)
+
+```stdout
+zebra
+```
+
+    :p zebra:0.0
+    :$ smth --prev a (exit: 0)
+
+```stdout
+beta
+```
+
+    :p beta:0.0
+    :$ smth --prev a (exit: 0)
+
+```stdout
+alpha
+```
+
+Reversing the configured order makes next follow the backward loop without
+an explicit --order: alpha -> zebra -> beta -> alpha. Previous from alpha
+then selects beta, confirming that both directions honor the configuration.
+
+    :w .config/smth/smth.toml (written)
+
+```toml
+[ui]
+order = "-name"
+```
+
+    :p alpha:0.0
+    :$ smth --next a (exit: 0)
+
+```stdout
+zebra
+```
+
+    :p zebra:0.0
+    :$ smth --next a (exit: 0)
+
+```stdout
+beta
+```
+
+    :p beta:0.0
+    :$ smth --next a (exit: 0)
+
+```stdout
+alpha
+```
+
+    :p alpha:0.0
+    :$ smth --prev a (exit: 0)
+
+```stdout
+beta
+```
+
+An explicit --order +name overrides the reverse configuration: next from alpha
+selects beta, and previous from alpha selects zebra.
+
+    :p alpha:0.0
+    :$ smth --next a --order +name (exit: 0)
+
+```stdout
+beta
+```
+
+    :p alpha:0.0
+    :$ smth --prev a --order +name (exit: 0)
+
+```stdout
+zebra
+```
+
+Restore alphabetical configuration and reset to untagged middle for each
+anchor check. Next selects zebra; previous selects beta. Neither command
+requires the invoking session to carry tag a.
+
+    :w .config/smth/smth.toml (written)
+
+```toml
+[ui]
+order = "+name"
+```
+
+    :p middle:0.0
+    :$ smth --next a (exit: 0)
+
+```stdout
+zebra
+```
+
+    :p middle:0.0
+    :$ smth --prev a (exit: 0)
+
+```stdout
+beta
+```
+
+A query excludes middle, which has no fuzzy score and therefore follows all
+matches. Next wraps to alpha, the only candidate. From alpha, both an empty
+ring and a ring containing only alpha are successful no-ops with no output.
+
+    :p middle:0.0
+    :$ smth --next a --query alpha (exit: 0)
+
+```stdout
+alpha
+```
+
+    :p alpha:0.0
+    :$ smth --next z (exit: 0)
+
+    :$ smth --prev z (exit: 0)
+
+    :$ smth --next a --query alpha (exit: 0)
+
+    :$ smth --prev a --query alpha (exit: 0)
+
+Query navigation uses the same fuzzy-ranked results as the picker, not a
+separately sorted list. Create a distinct b ring whose names all match q.
+The filter shows qa -> q -> zqz -> aq, despite the reverse-name tie-breaker.
+Starting at q, next selects zqz and then aq; previous returns to zqz.
+
+    :t new-session -d -s q cat (success)
+    :t new-session -d -s qa cat (success)
+    :t new-session -d -s zqz cat (success)
+    :t new-session -d -s aq cat (success)
+    :$ -q smth --no-base --tag b aq (exit: 0)
+    :$ -q smth --no-base --tag b q (exit: 0)
+    :$ -q smth --no-base --tag b qa (exit: 0)
+    :$ -q smth --no-base --tag b zqz (exit: 0)
+    :$ smth --filter --query q --order -name (exit: 0)
+
+```stdout
+qa
+q
+zqz
+aq
+```
+
+    :p q:0.0
+    :$ smth --next b --query q --order -name (exit: 0)
+
+```stdout
+zqz
+```
+
+    :p zqz:0.0
+    :$ smth --next b --query q --order -name (exit: 0)
+
+```stdout
+aq
+```
+
+    :p aq:0.0
+    :$ smth --prev b --query q --order -name (exit: 0)
+
+```stdout
+zqz
+```
+
+When the query excludes the invoking middle session, its missing fuzzy score
+places it after every match. Next starts at qa and previous starts at aq,
+regardless of middle's position in the reverse-name ordering.
+
+    :p middle:0.0
+    :$ smth --next b --query q --order -name (exit: 0)
+
+```stdout
+qa
+```
+
+    :p middle:0.0
+    :$ smth --prev b --query q --order -name (exit: 0)
+
+```stdout
+aq
+```
+
+Missing and invalid tag operands exit with argument-error status 2. A tag is
+required, and uppercase A is not a lowercase a-z tag.
+
+    :$ smth --next (exit: 2)
+
+```stderr
+error: a value is required for '--next <TAG>' but none was supplied
+
+For more information, try 'help'.
+```
+
+    :$ smth --prev A (exit: 2)
+
+```stderr
+error: invalid value 'A' for '--prev <TAG>': tag must be one lowercase letter a-z
+
+For more information, try 'help'.
+```
+
+---
+vim: set ft=markdown:

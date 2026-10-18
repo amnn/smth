@@ -41,11 +41,9 @@ use crate::app::component::spinner;
 use crate::app::component::spinner::Spinner;
 use crate::app::footer::Footer;
 use crate::app::header::Header;
-use crate::app::sessions::NEW_SESSION_ROWS;
 use crate::app::sessions::Sessions;
 use crate::app::sessions::preview;
 use crate::app::sessions::preview::Preview;
-use crate::cmd::tmux;
 use crate::config::Alphabet;
 use crate::model::Model;
 use crate::model::session::Repo;
@@ -126,6 +124,7 @@ impl App {
     /// `repo` is the initial base repository, `revision` optionally overrides its workspace base
     /// revision, and `model` contains the underlying data to drive the interface.
     pub fn new(repo: Option<PathBuf>, revision: Option<String>, model: Model) -> Self {
+        let sessions = sessions::State::new(model.selected.clone());
         let mut preview = preview::State::new();
         preview.feed(model.sessions());
         let repo = repo.map(|repo| {
@@ -145,18 +144,12 @@ impl App {
             spinner: spinner::State::new(),
             model,
             preview,
-            sessions: sessions::State::new(None),
+            sessions,
         }
     }
 
     /// Run the interactive picker for discovered sessions.
     pub async fn run(mut self, cwd: &Path, ctx: Context<'_>) -> anyhow::Result<()> {
-        let invoking = tmux::invoking_session().await?;
-        let select = self
-            .model
-            .initial_selection(invoking.as_deref())
-            .map(|i| i + NEW_SESSION_ROWS);
-        self.sessions = sessions::State::new(select);
         let _guard = AlternateScreenGuard::new()?;
         let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
 
@@ -213,8 +206,7 @@ impl App {
 
                 Some(Action::Delete(delete::Action::Accept)) => {
                     if let Some(current) = &self.repo
-                        && let Some(delete) = self.model.deleting()
-                        && delete.paths().contains(current.path())
+                        && self.model.is_deleting(current.path())
                     {
                         self.repo = None;
                     }
@@ -254,8 +246,9 @@ impl App {
 
                 Some(Action::Tag(tags)) => {
                     let session = self
-                        .sessions
-                        .selected()
+                        .model
+                        .selected
+                        .as_ref()
                         .expect("tag editing requires a selection");
                     let result = session.set_tags(tags).await;
                     self.discover(ctx.globs).await?;
@@ -310,30 +303,35 @@ impl App {
         let l = layout::Layout::new(f.area(), self.preview.visible() || onto);
 
         let new_sessions = self.model.sessions_for_query(self.repo.as_ref(), repo_root);
-        // Refresh once and borrow the picker, sort, and deletion data for this render pass.
-        let status = self.model.refresh();
 
-        let agent_summary = self.model.agent_summary();
-        let snapshot = self.model.snapshot();
-        let query = self.model.query();
-        let delete = self.model.deleting();
+        // Refresh once and borrow the picker, sort, and deletion data for this render pass.
+        let snapshot = self.model.refresh();
+        if !snapshot.query.is_empty() {
+            // A supplied startup query expresses the same intent as typing it.
+            self.sessions.key_pressed();
+        }
+
         let order = if let Mode::Sort(state) = &self.mode {
             &state.pending
         } else {
-            &self.model.order
+            snapshot.order
         };
 
-        let items = order.matches(snapshot);
+        let items = order.matches(snapshot.matches);
 
         let (label, query) = if let Mode::Onto(onto) = &self.mode {
             ("onto", onto.query())
         } else {
-            ("session", query)
+            ("session", snapshot.query)
         };
 
         // (1) Render picker state.
         f.render_widget(prompt::widget(label, query), l.prompt);
-        f.render_stateful_widget(Spinner::new(status.running), l.loading, &mut self.spinner);
+        f.render_stateful_widget(
+            Spinner::new(snapshot.status.running),
+            l.loading,
+            &mut self.spinner,
+        );
 
         let sessions = Sessions::new(
             sigil,
@@ -341,13 +339,21 @@ impl App {
             &new_sessions,
             &items,
             order,
-            snapshot.pattern().column_pattern(0),
-            delete,
+            snapshot.matches.pattern().column_pattern(0),
+            snapshot.delete,
         );
 
-        // (2) Render session list. This also updates `self.sessions`, so that the selected index
-        // and session are up-to-date and valid.
-        sessions.draw(f, l.sessions, l.scroll, &mut self.sessions);
+        // (2) Render session list, updating its row index and the model's shared selection
+        // from the same matcher snapshot.
+        sessions.draw(
+            f,
+            l.sessions,
+            l.scroll,
+            &mut self.sessions,
+            snapshot.selected,
+            snapshot.status.running,
+        );
+
         if let Some(state) = &mut self.bg {
             f.render_stateful_widget(activity::Activity::new(), l.sessions, state);
         }
@@ -356,13 +362,13 @@ impl App {
         // have already been fed to preview during discovery and this will do nothing, but if the
         // selected row corresponds to the new session, then its repo may not have been fed to
         // preview yet.
-        self.preview.feed(self.sessions.selected());
+        self.preview.feed(snapshot.selected.as_ref());
 
         let header = Header::new(
-            agent_summary,
+            snapshot.agents,
             items.len(),
             self.repo.as_ref(),
-            snapshot.item_count() as usize,
+            snapshot.matches.item_count() as usize,
             order,
             if let Mode::Sort(state) = &self.mode {
                 Some(state.selected)
@@ -372,18 +378,18 @@ impl App {
         );
 
         let footer = Footer::new(
-            delete,
+            snapshot.delete,
             &items,
-            self.sessions.selected(),
+            snapshot.selected.as_ref(),
             &self.mode,
             alphabet,
         );
 
         self.actions = AvailableActions::new(
-            &self.sessions,
+            snapshot.selected.as_ref(),
             self.bg.as_ref().is_some_and(activity::State::is_loading),
             &self.mode,
-            delete,
+            snapshot.delete,
         );
 
         // (3) Render context and actions after the session list updates the selected session.
@@ -403,7 +409,7 @@ impl App {
         if let Mode::Onto(onto) = &mut self.mode {
             onto.draw(f, l_preview);
         } else {
-            let preview = Preview::new(self.sessions.preview());
+            let preview = Preview::new(snapshot.selected.as_ref());
             preview.draw(f, l_preview, &mut self.preview);
         }
     }
@@ -416,6 +422,8 @@ impl App {
         const ALT: KM = KM::ALT;
         const CTRL: KM = KM::CONTROL;
         const SHIFT: KM = KM::SHIFT;
+
+        self.sessions.key_pressed();
 
         let alt = key.modifiers.contains(ALT);
         let ctrl = key.modifiers.contains(CTRL);
@@ -480,45 +488,41 @@ impl App {
         match key.code {
             // Accept the selected row, switching to it.
             KC::Enter if self.actions.switch => {
-                return self.sessions.take_selected().map(Action::Switch);
+                return self.model.selected.take().map(Action::Switch);
             }
 
             // Create the selected row without switching.
             KC::Char('n') if ctrl && self.actions.create => {
-                return self.sessions.take_selected().map(Action::Create);
+                return self.model.selected.take().map(Action::Create);
             }
 
             // Session actions
             KC::Char('x') if ctrl && self.actions.close => {
-                return self.sessions.take_selected().map(Action::Close);
+                return self.model.selected.take().map(Action::Close);
             }
 
             KC::Char('d') if ctrl && self.actions.delete.is_some() => {
                 return self
-                    .sessions
-                    .take_selected()
+                    .model
+                    .selected
+                    .take()
                     .and_then(|session| session.repo())
                     .map(|path| Action::Delete(delete::Action::Toggle(path)));
             }
 
             KC::Char('f') if ctrl && self.actions.flag.is_some() => {
-                return self.sessions.take_selected().map(Action::ToggleFlag);
+                return self.model.selected.take().map(Action::ToggleFlag);
             }
 
             KC::Char('t') if ctrl && self.actions.tag => {
-                if let Some(tags) = self.sessions.selected().and_then(Session::tags) {
+                if let Some(tags) = self.model.selected.as_ref().and_then(Session::tags) {
                     self.mode = Mode::Tag(tag::State::new(tags));
                 }
             }
 
             // Scroll preview
-            KC::Up if shift => {
-                self.preview.scroll_up();
-            }
-
-            KC::Down if shift => {
-                self.preview.scroll_down();
-            }
+            KC::Up if shift => self.preview.scroll_up(),
+            KC::Down if shift => self.preview.scroll_down(),
 
             // Session list selection
             KC::Up | KC::Char('k') if alt => {
@@ -598,7 +602,7 @@ impl App {
     /// If there is no selection, or the selected session has no associated repo, the current repo
     /// is cleared.
     fn set_current_repo(&mut self) {
-        let repo = self.sessions.selected().and_then(Session::repo);
+        let repo = self.model.selected.as_ref().and_then(Session::repo);
         self.repo = repo.map(|repo| self.model.repo_context(repo));
     }
 }
