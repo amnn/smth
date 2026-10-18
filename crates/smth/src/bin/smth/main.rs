@@ -591,28 +591,33 @@ async fn run() -> anyhow::Result<ExitCode> {
         }
 
         selected @ (Some(Action::Filter) | None) => {
-            let matches = model.matches();
-            if args.exit_0 && matches.is_empty() {
-                return Ok(ExitCode::SUCCESS);
-            }
+            if selected.is_some() || args.exit_0 || args.select_1 {
+                // Only compute matches when they are needed for a non-interactive action, as this
+                // operation blocks the UI.
+                let matches = model.matches();
 
-            if args.select_1
-                && let [session] = &matches[..]
-            {
-                session.switch(&cwd, &config.tmux.setup).await?;
-                return Ok(ExitCode::SUCCESS);
-            }
-
-            if selected.is_some() {
-                for session in &matches {
-                    println!("{}", session.name());
+                if args.exit_0 && matches.is_empty() {
+                    return Ok(ExitCode::SUCCESS);
                 }
 
-                return Ok(if matches.is_empty() {
-                    ExitCode::FAILURE
-                } else {
-                    ExitCode::SUCCESS
-                });
+                if args.select_1
+                    && let [session] = &matches[..]
+                {
+                    session.switch(&cwd, &config.tmux.setup).await?;
+                    return Ok(ExitCode::SUCCESS);
+                }
+
+                if selected.is_some() {
+                    for session in &matches {
+                        println!("{}", session.name());
+                    }
+
+                    return Ok(if matches.is_empty() {
+                        ExitCode::FAILURE
+                    } else {
+                        ExitCode::SUCCESS
+                    });
+                }
             }
 
             let context = Context {
