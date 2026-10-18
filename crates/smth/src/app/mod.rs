@@ -34,7 +34,6 @@ use ratatui::style::Stylize as _;
 use ratatui::text::Span;
 
 use crate::app::actions::AvailableActions;
-use crate::app::actions::Mode;
 use crate::app::component::activity;
 use crate::app::component::block::Block;
 use crate::app::component::prompt;
@@ -62,9 +61,7 @@ pub struct App {
     bg: Option<activity::State<bool>>,
 
     actions: AvailableActions,
-    onto: Option<onto::State>,
-    sort: Option<sort::State>,
-    tagging: Option<tag::State>,
+    mode: Mode,
     repo: Option<Repo>,
     spinner: spinner::State,
     model: Model,
@@ -111,6 +108,14 @@ enum Action {
     Tag(Tags),
 }
 
+/// Mutually exclusive picker editors; staged deletions remain in the model.
+enum Mode {
+    Normal,
+    Onto(Box<onto::State>),
+    Sort(sort::State),
+    Tag(tag::State),
+}
+
 impl App {
     /// Create a new application.
     ///
@@ -131,9 +136,7 @@ impl App {
         Self {
             bg: None,
             actions: AvailableActions::default(),
-            onto: None,
-            sort: None,
-            tagging: None,
+            mode: Mode::Normal,
             repo,
             spinner: spinner::State::new(),
             model,
@@ -267,14 +270,16 @@ impl App {
     ///
     /// Reloads the picker when the selected revision can no longer be resolved.
     async fn accept_onto(&mut self) {
-        let (Some(onto), Some(repo)) = (self.onto.take(), &self.repo) else {
+        let (Mode::Onto(onto), Some(repo)) =
+            (std::mem::replace(&mut self.mode, Mode::Normal), &self.repo)
+        else {
             return;
         };
 
         if let Ok(revision) = onto.accept().await {
             self.repo = Some(repo.with_revision(revision));
         } else {
-            self.onto = Some(onto::State::new(repo.path().to_owned()));
+            self.mode = Mode::Onto(Box::new(onto::State::new(repo.path().to_owned())));
         }
     }
 
@@ -291,7 +296,8 @@ impl App {
     /// The frame is split up into regions, each with its own widget. The `preview` region and its
     /// scroll bar are only visible when the preview is toggled on (defaults to visible).
     fn draw(&mut self, f: &mut ratatui::Frame<'_>, sigil: char, repo_root: &Path) {
-        let l = layout::Layout::new(f.area(), self.preview.visible() || self.onto.is_some());
+        let onto = matches!(self.mode, Mode::Onto(_));
+        let l = layout::Layout::new(f.area(), self.preview.visible() || onto);
 
         let new_sessions = self.model.sessions_for_query(self.repo.as_ref(), repo_root);
         // Refresh once and borrow the picker, sort, and deletion data for this render pass.
@@ -301,11 +307,15 @@ impl App {
         let snapshot = self.model.snapshot();
         let query = self.model.query();
         let delete = self.model.deleting();
-        let order = self.sort.as_ref().map_or(&self.model.order, |s| &s.pending);
+        let order = if let Mode::Sort(state) = &self.mode {
+            &state.pending
+        } else {
+            &self.model.order
+        };
 
         let items = order.matches(snapshot);
 
-        let (label, query) = if let Some(onto) = &self.onto {
+        let (label, query) = if let Mode::Onto(onto) = &self.mode {
             ("onto", onto.query())
         } else {
             ("session", query)
@@ -343,22 +353,19 @@ impl App {
             self.repo.as_ref(),
             snapshot.item_count() as usize,
             order,
-            self.sort.as_ref().map(|state| state.selected),
+            if let Mode::Sort(state) = &self.mode {
+                Some(state.selected)
+            } else {
+                None
+            },
         );
 
-        let footer = Footer::new(
-            delete,
-            &items,
-            self.sessions.selected(),
-            self.tagging.as_ref(),
-        );
+        let footer = Footer::new(delete, &items, self.sessions.selected(), &self.mode);
 
         self.actions = AvailableActions::new(
             &self.sessions,
             self.bg.as_ref().is_some_and(activity::State::is_loading),
-            self.onto.is_some(),
-            self.sort.is_some(),
-            self.tagging.is_some(),
+            &self.mode,
             delete,
         );
 
@@ -376,7 +383,7 @@ impl App {
 
         // (4) Render the selected session preview or current-repo onto-picker surface, if it is
         // toggled on.
-        if let Some(onto) = &mut self.onto {
+        if let Mode::Onto(onto) = &mut self.mode {
             onto.draw(f, l_preview);
         } else {
             let preview = Preview::new(self.sessions.preview());
@@ -404,47 +411,50 @@ impl App {
             _ => {}
         }
 
-        if let Some(tagging) = &mut self.tagging {
-            match tagging.handle_key(key) {
-                Some(tag::Action::Accept) => {
-                    return self.tagging.take().map(|state| Action::Tag(state.pending));
-                }
-                Some(tag::Action::Cancel) => self.tagging = None,
-                None => {}
-            }
-            return None;
-        }
+        match &mut self.mode {
+            Mode::Normal => {}
 
-        if let Some(onto) = &mut self.onto {
-            let action = onto.handle_key(key);
-            match action {
-                Some(onto::Action::Accept) => self.accept_onto().await,
-                Some(onto::Action::Cancel) => self.onto = None,
-                None => {}
-            }
-
-            return None;
-        }
-
-        if let Some(sort) = &mut self.sort {
-            let action = sort.handle_key(key);
-            match action {
-                Some(sort::Action::Accept) => {
-                    self.model.order = sort.pending.clone();
-                    self.sort = None;
+            Mode::Onto(state) => {
+                match state.handle_key(key) {
+                    Some(onto::Action::Accept) => self.accept_onto().await,
+                    Some(onto::Action::Cancel) => self.mode = Mode::Normal,
+                    None => {}
                 }
 
-                Some(sort::Action::Cancel) => {
-                    self.sort = None;
-                }
-
-                None => {}
+                return None;
             }
 
-            return None;
+            Mode::Sort(state) => {
+                match state.handle_key(key) {
+                    Some(sort::Action::Accept) => {
+                        self.model.order = state.pending.clone();
+                        self.mode = Mode::Normal;
+                    }
+
+                    Some(sort::Action::Cancel) => self.mode = Mode::Normal,
+                    None => {}
+                }
+
+                return None;
+            }
+
+            Mode::Tag(state) => {
+                match state.handle_key(key) {
+                    Some(tag::Action::Accept) => {
+                        let tags = state.pending;
+                        self.mode = Mode::Normal;
+                        return Some(Action::Tag(tags));
+                    }
+
+                    Some(tag::Action::Cancel) => self.mode = Mode::Normal,
+                    None => {}
+                }
+
+                return None;
+            }
         }
 
-        if matches!(self.actions.mode, Some(Mode::Delete))
+        if self.actions.deleting
             && let Some(action) = delete::handle_key(key)
         {
             return Some(Action::Delete(action));
@@ -479,11 +489,9 @@ impl App {
             }
 
             KC::Char('t') if ctrl && self.actions.tag => {
-                self.tagging = self
-                    .sessions
-                    .selected()
-                    .and_then(Session::tags)
-                    .map(tag::State::new);
+                if let Some(tags) = self.sessions.selected().and_then(Session::tags) {
+                    self.mode = Mode::Tag(tag::State::new(tags));
+                }
             }
 
             // Scroll preview
@@ -523,12 +531,12 @@ impl App {
             // App state
             KC::Char('o') if ctrl => {
                 if let Some(repo) = &self.repo {
-                    self.onto = Some(onto::State::new(repo.path().to_owned()));
+                    self.mode = Mode::Onto(Box::new(onto::State::new(repo.path().to_owned())));
                 }
             }
 
             KC::Char('s') if ctrl => {
-                self.sort = Some(sort::State::new(&self.model.order));
+                self.mode = Mode::Sort(sort::State::new(&self.model.order));
             }
 
             KC::Char('r') if alt => self.reset_current_repo(),
