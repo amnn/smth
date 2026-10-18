@@ -16,6 +16,8 @@ navigation and wraparound have predictable destinations.
     :$ -q smth --no-base --tag a alpha (exit: 0)
     :$ -q smth --no-base --tag b beta (exit: 0)
     :$ -q smth --no-base --tag a gamma (exit: 0)
+    :$ -q smth --no-base --flag alpha (exit: 0)
+    :$ -q smth --no-base --flag beta (exit: 0)
     :t new-session -d -s ui 'smth --order +name' (success)
     :t resize-window -t ui:0 -x 80 -y 12 (success)
     :p ui:0.0
@@ -78,7 +80,7 @@ session:                                                                       �
                                                                                ┃
                                                                                ┃
                                                                                ┃
- [C-x] close, [C-f] flag, [C-t] tags: a                                        ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: a                                      ┃
 ```
 
     :k C-k a
@@ -135,6 +137,63 @@ session:                                                                       �
  [C-x] close, [C-f] flag, [C-t] tags: a                                        ┃
 ```
 
+Attention is independent of tags: next from gamma wraps to flagged alpha,
+next selects flagged beta, and previous returns to alpha.
+
+    :k C-j -
+    :snap
+
+```terminal
+session:                                                                       ┃
+  5/5 | [C-s] ↓n | [C-r] repo: none                                            ┃
+▌■ alpha                                 a                                     ┃
+ ■ beta                                  b                                     ┃
+ ■ gamma                                 a                                     ┃
+ ■ runner                                                                      ┃
+ ■ ui                                                                          ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: a                                      ┃
+```
+
+    :k C-j -
+    :snap
+
+```terminal
+session:                                                                       ┃
+  5/5 | [C-s] ↓n | [C-r] repo: none                                            ┃
+ ■ alpha                                 a                                     ┃
+▌■ beta                                  b                                     ┃
+ ■ gamma                                 a                                     ┃
+ ■ runner                                                                      ┃
+ ■ ui                                                                          ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: b                                      ┃
+```
+
+    :k C-k -
+    :snap
+
+```terminal
+session:                                                                       ┃
+  5/5 | [C-s] ↓n | [C-r] repo: none                                            ┃
+▌■ alpha                                 a                                     ┃
+ ■ beta                                  b                                     ┃
+ ■ gamma                                 a                                     ┃
+ ■ runner                                                                      ┃
+ ■ ui                                                                          ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: a                                      ┃
+```
+
 Filtering to alpha makes it the sole member. Both directions stay on alpha.
 
     :k alpha
@@ -154,7 +213,7 @@ session: alpha                                                                 �
                                                                                ┃
                                                                                ┃
                                                                                ┃
- [C-x] close, [C-f] flag, [C-t] tags: a                                        ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: a                                      ┃
 ```
 
     :k C-k a
@@ -172,7 +231,45 @@ session: alpha                                                                 �
                                                                                ┃
                                                                                ┃
                                                                                ┃
- [C-x] close, [C-f] flag, [C-t] tags: a                                        ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: a                                      ┃
+```
+
+Attention navigation also respects the filter and stays on alpha.
+
+    :k C-j -
+    :snap
+
+```terminal
+session: alpha                                                                 ┃
+  1/5 | [C-s] ↓n | [C-r] repo: none                                            ┃
+   alpha~1                                  ~/alpha                       repo ┃
+   alpha~1                                                                tmux ┃
+▌■ alpha                                 a                                     ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: a                                      ┃
+```
+
+    :k C-k -
+    :snap
+
+```terminal
+session: alpha                                                                 ┃
+  1/5 | [C-s] ↓n | [C-r] repo: none                                            ┃
+   alpha~1                                  ~/alpha                       repo ┃
+   alpha~1                                                                tmux ┃
+▌■ alpha                                 a                                     ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+                                                                               ┃
+ [C-x] close, [C-f] unflag, [C-t] tags: a                                      ┃
 ```
 
 ---

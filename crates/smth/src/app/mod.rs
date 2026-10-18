@@ -448,10 +448,10 @@ impl App {
             Mode::Normal => {}
 
             mode @ (Mode::TagNext | Mode::TagPrev) => {
-                if let KC::Char(tag @ 'a'..='z') = key.code
+                if let KC::Char(tag @ ('a'..='z' | '-')) = key.code
                     && key.modifiers.is_empty()
                 {
-                    let target = tag.to_string().parse().expect("lowercase tag");
+                    let target = tag.to_string().parse().expect("lowercase tag or dash");
                     let destination = if matches!(mode, Mode::TagPrev) {
                         self.model.prev(target)
                     } else {
