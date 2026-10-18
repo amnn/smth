@@ -11,6 +11,8 @@ navigation and wraparound have predictable destinations.
     :$ -q smth --no-base --tag a alpha
     :$ -q smth --no-base --tag b beta
     :$ -q smth --no-base --tag a gamma
+    :$ -q smth --no-base --flag alpha
+    :$ -q smth --no-base --flag beta
     :t new-session -d -s ui 'smth --order +name'
     :t resize-window -t ui:0 -x 80 -y 12
     :p ui:0.0
@@ -40,6 +42,18 @@ leaves gamma selected. An invalid key cancels without editing the query.
     :k C-j A
     :snap
 
+Attention is independent of tags: next from gamma wraps to flagged alpha,
+next selects flagged beta, and previous returns to alpha.
+
+    :k C-j -
+    :snap
+
+    :k C-j -
+    :snap
+
+    :k C-k -
+    :snap
+
 Filtering to alpha makes it the sole member. Both directions stay on alpha.
 
     :k alpha
@@ -48,6 +62,14 @@ Filtering to alpha makes it the sole member. Both directions stay on alpha.
     :snap
 
     :k C-k a
+    :snap
+
+Attention navigation also respects the filter and stays on alpha.
+
+    :k C-j -
+    :snap
+
+    :k C-k -
     :snap
 
 ---
