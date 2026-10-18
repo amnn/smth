@@ -25,13 +25,15 @@ Options:
   -b, --base <REPO>               Repository or workspace to use as the base context
   -B, --no-base                   Force an empty repository context
   -o, --onto <REV>                Revision used as the base for newly created workspaces
-      --order <ORDER>             Initial ordering for the picker, --filter, and --json
+      --order <ORDER>             Ordering for the picker, filtering, and navigation
   -q, --query <STR>               Seed the initial query
   -1, --select-1                  Automatically switch when the initial query has only one match
   -0, --exit-0                    Exit without opening the UI if the initial query has no matches
   -f, --filter                    Filter non-interactively using the initial query
-      --next <TAG>                Switch to the next session carrying TAG
-      --prev <TAG>                Switch to the previous session carrying TAG
+      --next <TAG>                Switch to the next session carrying TAG, or needing attention for
+                                  -
+      --prev <TAG>                Switch to the previous session carrying TAG, or needing attention
+                                  for -
       --json                      Print structured information about discovered entries
       --flag [<SESSION>]          Mark a live session as flagged
       --unflag [<SESSION>]        Clear a live session's flag
@@ -126,7 +128,8 @@ Options:
           +attn, or -attn. Earlier comparators have higher priority; omitted comparators are
           disabled. Empty string disables all comparators. Overrides ui.order; default: '-live
           -recency +name'. With a query, fuzzy score takes precedence and this order breaks score
-          ties. Picker edits last only for this run.
+          ties. Picker edits last only for this run. Navigation (--next/--prev) uses the same
+          ordering and fuzzy-ranked query results.
 
   -q, --query <STR>
           Seed the initial query
@@ -141,10 +144,17 @@ Options:
           Filter non-interactively using the initial query
 
       --next <TAG>
-          Switch to the next session carrying TAG
+          Switch to the next session carrying a lowercase tag a-z, or needing attention when TAG is
+          an explicit '-'. Uses ui.order unless --order is supplied; --query filters and fuzzy-ranks
+          destinations as in the picker. Start after the invoking tmux session and wrap. An absent
+          or filtered-out anchor is after all matches: next starts at the first match, previous at
+          the last. Lookup reads the completed snapshot without changing selection. Print the
+          destination only after a successful switch. An empty ring or an already-selected singleton
+          succeeds silently.
 
       --prev <TAG>
-          Switch to the previous session carrying TAG
+          Like --next, but traverse the chosen order backward. Requires an explicit lowercase tag
+          a-z or '-' for attention; supports --order and --query.
 
       --json
           Print structured JSON information about discovered live sessions and repository
@@ -254,7 +264,13 @@ Key bindings:
   up, down          In ordering mode, set the selected comparator to ↑
                     (descending) or ↓ (ascending); repeat the same direction to
                     disable it. Otherwise, move selection by one row.
-  C-k, C-j          Move selection by one row.
+  C-j, then a-z / -  
+                    Select the next session carrying that tag / needing
+                    attention, wrapping in displayed filtered order.
+  C-k, then a-z / -  
+                    Select the previous session carrying that tag / needing
+                    attention. The next key is consumed without editing the
+                    query; other keys cancel.
   M-up, M-down      Move selection to the first or last row.
   M-k, M-j          Move selection to the first or last row.
   S-up, S-down      Scroll the preview pane up or down.

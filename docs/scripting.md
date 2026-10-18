@@ -26,13 +26,13 @@ Repository context is selected independently from discovery:
 
 The picker and filtering modes support these startup options:
 
-- `--order ORDER` overrides `[ui].order` for the picker, `--filter`, and
-  `--json`. Quote the signed stack, for example `--order "-live -attn +name"`.
+- `--order ORDER` overrides `[ui].order` for the picker, `--filter`, `--json`,
+  `--next`, and `--prev`. Quote the signed stack, for example `--order "-live -attn +name"`.
   Omitted keys are disabled; `--order ""` disables all comparators. The default
   is `-live -recency +name`. Without a query, complete ties keep discovery order.
   With a query, fuzzy score takes precedence and the stack breaks score ties.
   See [ordering][ordering].
-- `-q`, `--query STR` seeds the interactive query.
+- `-q`, `--query STR` seeds the interactive query or limits CLI candidates.
 - `-1`, `--select-1` switches immediately when the initial query has one
   match.
 - `-0`, `--exit-0` exits instead of opening the UI when the initial query has
@@ -63,6 +63,46 @@ independently of whether the session is live or manually flagged.
 Use the `base` and `name` fields together when constructing a lifecycle
 command. Do not substitute a discovery glob or derive a target from the tmux
 name: collision suffixes and repository metadata are resolved independently.
+
+## Navigation
+
+Use `smth --next TAG` or `smth --prev TAG` with a lowercase tag letter or `-`
+to switch to the next or previous matching live session. Omitting the operand
+is an error.
+
+`-` is a special tag for sessions needing attention: manual flags, bell
+alerts, or agents waiting, failed, or succeeded. Tags are otherwise independent
+of attention signals.
+
+'Next' and 'previous' are relative to the current tmux session and the
+configured session order, with any `--query` filters applied. Navigation uses
+the same ordering and filtering as the picker. `--order ORDER` overrides
+`[ui].order`; use `--order +name` for alphabetical ordering unaffected by
+recency changes.
+
+Traversal starts after the current session in the chosen direction, even if it
+does not carry the tag, and wraps around at either end. If the current session
+is unavailable or filtered out, traversal starts between the first and last
+sessions in the list: next starts at the first and previous at the last. If
+there is no matching session other than the current one, the command succeeds
+without switching or printing anything.
+
+After a successful switch, stdout contains the destination session name.
+Switching selects the first window needing attention, as with a normal session
+switch.
+
+Navigation is mutually exclusive with other root actions and rejects
+`--select-1` and `--exit-0`.
+
+```sh
+smth --next a
+smth --prev a --order +name --query project
+smth --next -
+smth --prev -
+```
+
+For example, tmux bindings can run `smth --next a` and `smth --prev a` using
+`run-shell` without opening the picker.
 
 ## Lifecycle commands
 

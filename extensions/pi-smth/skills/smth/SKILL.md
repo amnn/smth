@@ -1,6 +1,6 @@
 ---
 name: smth
-description: Inspect and safely control smth tmux sessions and jj workspaces through smth's non-interactive CLI. Use when listing, finding, creating, switching, closing, staging or executing workspace deletions, deleting, flagging, unflagging, tagging, or untagging smth sessions, creating fresh repositories, or managing repo-backed agent workspaces.
+description: Inspect and safely control smth tmux sessions and jj workspaces through smth's non-interactive CLI. Use when listing, finding, creating, switching, navigating by tag or attention, closing, staging or executing workspace deletions, deleting, flagging, unflagging, tagging, or untagging smth sessions, creating fresh repositories, or managing repo-backed agent workspaces.
 license: Apache-2.0
 compatibility: Requires the smth binary, tmux, and jj on PATH; switching requires an invoking tmux client.
 ---
@@ -22,8 +22,8 @@ smth --json
 
 Use `--query TEXT` to narrow inspection with the picker matcher. With a query,
 fuzzy score takes precedence and the comparator stack breaks equal-score ties.
-`--order "-live -attn +name"` overrides `[ui].order` for both `--json` and
-`--filter`. Signed comparators are
+`--order "-live -attn +name"` overrides `[ui].order` for `--json`, `--filter`,
+`--next`, and `--prev`. Signed comparators are
 `live`, `recency`, `name`, and `attn`, evaluated left to right; omitted keys are
 disabled. The default is `-live -recency +name`; `--order ""` uses discovery
 order without a query and fuzzy ranking with one. Current attachment is
@@ -125,6 +125,41 @@ Use `--onto REV` with create or switch only when a missing named workspace
 should start at a specific revision. It has no effect on existing checkouts.
 After a mutation, run `smth --json` again when subsequent work depends on the
 new state.
+
+## Navigate tags and attention
+
+Use `smth --next TAG` or `smth --prev TAG` with a lowercase tag letter or `-`
+to switch to the next or previous matching live session. Omitting the operand
+is an error. Switching requires an invoking tmux client.
+
+`-` is a special tag for sessions needing attention: manual flags, bell
+alerts, or agents waiting, failed, or succeeded. Tags are otherwise independent
+of attention signals.
+
+'Next' and 'previous' are relative to the current tmux session and the
+configured session order, with any `--query` filters applied. Navigation uses
+the same ordering and filtering as the picker. `--order ORDER` overrides
+`[ui].order`; use `--order +name` for alphabetical ordering unaffected by
+recency changes.
+
+Traversal starts after the current session in the chosen direction, even if
+it does not carry the tag, and wraps around at either end. If the current
+session is unavailable or filtered out, traversal starts between the first
+and last sessions in the list: next starts at the first and previous at the
+last. If there is no matching session other than the current one, the command
+succeeds without switching or printing anything.
+
+After a successful switch, stdout contains the destination session name.
+Switching selects the first window needing attention, as with a normal
+session switch. Navigation is mutually exclusive with other root actions and
+rejects `--select-1` and `--exit-0`.
+
+```sh
+smth --next a
+smth --prev a --order +name --query project
+smth --next -
+smth --prev -
+```
 
 ## Create a fresh repository
 
