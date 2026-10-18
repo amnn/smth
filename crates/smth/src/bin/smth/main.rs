@@ -35,6 +35,12 @@ enum Action {
     /// Print fuzzy matches as names.
     Filter,
 
+    /// Select the next session carrying a tag.
+    Next(smth::Tag),
+
+    /// Select the previous session carrying a tag.
+    Prev(smth::Tag),
+
     /// Print fuzzy matches as structured records.
     Json,
 
@@ -82,6 +88,8 @@ enum Action {
     ArgGroup::new("action")
         .args([
             "filter",
+            "next",
+            "prev",
             "json",
             "flag",
             "unflag",
@@ -179,6 +187,14 @@ struct Args {
     /// Filter non-interactively using the initial query.
     #[arg(short = 'f', long, action = ArgAction::SetTrue)]
     filter: bool,
+
+    /// Switch to the next session carrying TAG.
+    #[arg(long, value_name = "TAG", conflicts_with_all = ["select_1", "exit_0"])]
+    next: Option<smth::Tag>,
+
+    /// Switch to the previous session carrying TAG.
+    #[arg(long, value_name = "TAG", conflicts_with_all = ["select_1", "exit_0"])]
+    prev: Option<smth::Tag>,
 
     /// Print structured information about discovered entries.
     #[arg(
@@ -382,6 +398,10 @@ impl Args {
     fn action(&self) -> Option<Action> {
         if self.filter {
             Some(Action::Filter)
+        } else if let Some(tag) = self.next {
+            Some(Action::Next(tag))
+        } else if let Some(tag) = self.prev {
+            Some(Action::Prev(tag))
         } else if self.json {
             Some(Action::Json)
         } else if let Some(session) = &self.flag {
@@ -498,7 +518,26 @@ async fn run() -> anyhow::Result<ExitCode> {
     let mut model = Model::new(&globs, current.as_deref(), query, order).await?;
 
     match &action {
+        Some(Action::Next(tag)) => {
+            model.settle();
+            if let Some(session) = model.next(*tag) {
+                session.switch(&cwd, &config.tmux.setup).await?;
+                println!("{}", session.name());
+            }
+            Ok(ExitCode::SUCCESS)
+        }
+
+        Some(Action::Prev(tag)) => {
+            model.settle();
+            if let Some(session) = model.prev(*tag) {
+                session.switch(&cwd, &config.tmux.setup).await?;
+                println!("{}", session.name());
+            }
+            Ok(ExitCode::SUCCESS)
+        }
+
         Some(Action::Json) => {
+            model.settle();
             let sessions = model.matches_json();
             println!("{}", serde_json::to_string_pretty(&sessions)?);
             Ok(ExitCode::SUCCESS)
@@ -594,8 +633,9 @@ async fn run() -> anyhow::Result<ExitCode> {
             if selected.is_some() || args.exit_0 || args.select_1 {
                 // Only compute matches when they are needed for a non-interactive action, as this
                 // operation blocks the UI.
-                let matches = model.matches();
+                model.settle();
 
+                let matches = model.matches();
                 if args.exit_0 && matches.is_empty() {
                     return Ok(ExitCode::SUCCESS);
                 }

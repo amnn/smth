@@ -4,7 +4,6 @@
 //! Retained action eligibility for picker input and footer rendering.
 
 use crate::app::Mode;
-use crate::app::sessions;
 use crate::model::delete;
 use crate::model::session::Session;
 
@@ -32,23 +31,23 @@ pub(super) struct AvailableActions {
 impl AvailableActions {
     /// Derive eligibility after rendering updates selection and activity state.
     pub(super) fn new(
-        sessions: &sessions::State,
+        selected: Option<&Session>,
         loading: bool,
         mode: &Mode,
         delete: Option<&delete::Model>,
     ) -> Self {
         let session_actions = !loading && matches!(mode, Mode::Normal);
-        let selected = sessions.selected();
+        let live = selected.is_some_and(|s| s.is_live());
         Self {
             exit: !loading,
-            switch: session_actions && sessions.selected().is_some(),
-            create: session_actions && sessions.selected().is_some() && !sessions.is_live(),
-            close: session_actions && sessions.is_live(),
+            switch: session_actions && selected.is_some(),
+            create: session_actions && selected.is_some() && !live,
+            close: session_actions && live,
             delete: selected
-                .filter(|_| session_actions && sessions.can_delete())
-                .map(|session| delete.is_some_and(|delete| delete.contains(session))),
-            flag: selected.and_then(Session::flag).filter(|_| session_actions),
-            tag: session_actions && delete.is_none() && sessions.is_live(),
+                .filter(|s| session_actions && s.can_delete())
+                .map(|s| delete.is_some_and(|delete| delete.contains(s))),
+            flag: selected.and_then(|s| s.flag()).filter(|_| session_actions),
+            tag: session_actions && delete.is_none() && live,
             deleting: session_actions && delete.is_some(),
         }
     }

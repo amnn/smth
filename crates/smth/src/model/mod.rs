@@ -24,9 +24,9 @@ use anyhow::Context as _;
 use anyhow::bail;
 use anyhow::ensure;
 use futures::future::join_all;
+use futures::future::try_join;
 use futures::stream::FuturesUnordered;
 use futures::stream::StreamExt as _;
-use nucleo::Snapshot;
 use nucleo::Status;
 
 use crate::cmd::jj;
@@ -60,6 +60,9 @@ pub struct Model {
     /// The sessions to fuzzy find over.
     sessions: Vec<Session>,
 
+    /// Selected session, retained even when excluded by the current query.
+    pub(crate) selected: Option<Session>,
+
     /// Checkout aggregates rebuilt with each discovery for deletion counts and targets.
     checkouts: checkout::Index,
 
@@ -67,7 +70,7 @@ pub struct Model {
     agents: BTreeMap<AgentState, usize>,
 
     /// Checkout deletions selected by discovery or explicit override, with affected session counts.
-    deleting: Option<delete::Model>,
+    delete: Option<delete::Model>,
 
     /// Names of live tmux sessions, used to disambiguate candidate session names.
     seen_tmux_names: BTreeSet<String>,
@@ -81,6 +84,17 @@ pub struct Model {
     /// A present `None` value means workspace discovery succeeded for this path, but no workspace
     /// root was recorded for it.
     workspaces: BTreeMap<PathBuf, Option<Workspace>>,
+}
+
+/// Borrowed model state after a matcher refresh, with selection mutable in place.
+pub(crate) struct Snapshot<'a> {
+    pub(crate) status: Status,
+    pub(crate) matches: &'a nucleo::Snapshot<Session>,
+    pub(crate) query: &'a str,
+    pub(crate) order: &'a Order,
+    pub(crate) agents: &'a BTreeMap<AgentState, usize>,
+    pub(crate) delete: Option<&'a delete::Model>,
+    pub(crate) selected: &'a mut Option<Session>,
 }
 
 /// Workspace metadata for a discovered repository.
@@ -111,15 +125,22 @@ impl Model {
             order,
             picker: Picker::new(query),
             sessions: Vec::new(),
+            selected: None,
             checkouts: checkout::Index::default(),
             agents: BTreeMap::new(),
-            deleting: None,
+            delete: None,
             seen_tmux_names: BTreeSet::new(),
             seen_workspaces: BTreeMap::new(),
             workspaces: BTreeMap::new(),
         };
 
-        model.discover(globs, current).await?;
+        let ((), invoking) =
+            try_join(model.discover(globs, current), tmux::invoking_session()).await?;
+
+        if let Some(invoking) = invoking {
+            model.selected = model.session_by_name(&invoking).cloned();
+        }
+
         Ok(model)
     }
 
@@ -139,7 +160,7 @@ impl Model {
     /// workspace forgotten, its checkout removed, or only some associated sessions closed.
     pub fn delete(&self) -> impl Future<Output = anyhow::Result<()>> + Send + use<> {
         let targets: anyhow::Result<BTreeMap<_, _>> = self
-            .deleting
+            .delete
             .iter()
             .flat_map(|delete| delete.paths())
             .map(|path| {
@@ -209,23 +230,17 @@ impl Model {
         }
     }
 
-    /// Return all matched sessions after the matcher has finished processing pending updates.
-    pub fn matches(&mut self) -> Vec<Session> {
-        loop {
-            let status = self.refresh();
-            if !status.running {
-                return self
-                    .order
-                    .matches(self.snapshot())
-                    .into_iter()
-                    .map(|item| item.data.clone())
-                    .collect();
-            }
-        }
+    /// Return the published matches in picker order without advancing the matcher.
+    pub fn matches(&self) -> Vec<Session> {
+        self.order
+            .matches(self.picker.snapshot())
+            .into_iter()
+            .map(|item| item.data.clone())
+            .collect()
     }
 
-    /// Return serialized records for all sessions matched by the seeded query.
-    pub fn matches_json(&mut self) -> Vec<SerializedSession> {
+    /// Serialize the published matches without advancing the matcher.
+    pub fn matches_json(&self) -> Vec<SerializedSession> {
         let sessions = self.matches();
         sessions
             .iter()
@@ -233,11 +248,68 @@ impl Model {
             .collect()
     }
 
+    /// Find the next session with the given tag in the model's current snapshot, starting from the
+    /// selected session (exclusive). Sessions are traversed according to the model's order,
+    /// wrapping round if necessary.
+    ///
+    /// Returns `None` if there are no eligible sessions with the given tag (excluding the current
+    /// selection).
+    pub fn next(&self, tag: tag::Tag) -> Option<&Session> {
+        let matches = self.order.matches(self.picker.snapshot());
+        let Some(start) = matches
+            .iter()
+            .position(|item| Some(item.data) == self.selected.as_ref())
+        else {
+            return matches
+                .into_iter()
+                .map(|item| item.data)
+                .find(|session| session.tags().is_some_and(|tags| tags.contains(tag)));
+        };
+
+        for offset in 1..matches.len() {
+            let session = matches[(start + offset) % matches.len()].data;
+            if session.tags().is_some_and(|tags| tags.contains(tag)) {
+                return Some(session);
+            }
+        }
+
+        None
+    }
+
+    /// Find the previous session with the given tag in the model's current snapshot, starting from
+    /// the selected session (exclusive). Sessions are traversed according to the model's order,
+    /// wrapping round if necessary.
+    ///
+    /// Returns `None` if there are no eligible sessions with the given tag (excluding the current
+    /// selection).
+    pub fn prev(&self, tag: tag::Tag) -> Option<&Session> {
+        let matches = self.order.matches(self.picker.snapshot());
+        let Some(start) = matches
+            .iter()
+            .position(|item| Some(item.data) == self.selected.as_ref())
+        else {
+            return matches
+                .into_iter()
+                .rev()
+                .map(|item| item.data)
+                .find(|session| session.tags().is_some_and(|tags| tags.contains(tag)));
+        };
+
+        for offset in 1..matches.len() {
+            let session = matches[(start + matches.len() - offset) % matches.len()].data;
+            if session.tags().is_some_and(|tags| tags.contains(tag)) {
+                return Some(session);
+            }
+        }
+
+        None
+    }
+
     /// Return the discovered session matching an optional repository base and name.
     pub fn session(&self, base: Option<&Path>, name: Option<&str>) -> Option<&Session> {
         match base {
             Some(base) => self.session_by_workspace(base, name),
-            None => name.and_then(|name| self.session_by_name(name)),
+            None => name.and_then(|name| self.session_by_plain_name(name)),
         }
     }
 
@@ -289,12 +361,12 @@ impl Model {
     /// This replaces rather than extends pending paths. `delete` validates the selected paths
     /// against discovered workspace metadata before performing any deletion.
     pub fn set_deletions(&mut self, paths: BTreeSet<PathBuf>) {
-        self.deleting = delete::Model::new(paths, &self.checkouts);
+        self.delete = delete::Model::new(paths, &self.checkouts);
     }
 
-    /// Return lifecycle state counts for agents across all discovered sessions.
-    pub(crate) fn agent_summary(&self) -> &BTreeMap<AgentState, usize> {
-        &self.agents
+    /// Wait for pending matching to finish. Interactive callers should refresh once per draw instead.
+    pub fn settle(&mut self) {
+        while self.picker.refresh().running {}
     }
 
     /// Clear the active query string.
@@ -311,7 +383,7 @@ impl Model {
         self.sessions.clear();
         self.checkouts = checkout::Index::default();
         self.agents.clear();
-        self.deleting = None;
+        self.delete = None;
         self.seen_tmux_names.clear();
         self.seen_workspaces.clear();
         self.workspaces.clear();
@@ -394,26 +466,18 @@ impl Model {
             .collect();
 
         self.checkouts = checkout::Index::new(&self.sessions);
-        self.deleting = delete::Model::new(pending_deletions, &self.checkouts);
+        self.delete = delete::Model::new(pending_deletions, &self.checkouts);
         self.picker.reset();
         self.picker.inject(self.sessions.clone());
 
         Ok(())
     }
 
-    /// The current deletion selection, if any.
-    pub(crate) fn deleting(&self) -> Option<&delete::Model> {
-        self.deleting.as_ref()
-    }
-
-    /// Select the first ordered result, skipping only the invoking session for an empty query.
-    pub(crate) fn initial_selection(&mut self, invoking: Option<&str>) -> Option<usize> {
-        let skip_current = self.picker.query().is_empty();
-        let matches = self.matches();
-        let first = matches.first()?;
-        Some(usize::from(
-            skip_current && invoking == Some(first.name().as_str()) && matches.len() > 1,
-        ))
+    /// Whether the `path` is staged for deletion.
+    pub(crate) fn is_deleting(&self, path: &Path) -> bool {
+        self.delete
+            .as_ref()
+            .is_some_and(|d| d.paths().contains(path))
     }
 
     /// Remove the trailing character from the active query string.
@@ -430,19 +494,18 @@ impl Model {
         started
     }
 
-    /// Return the active query string without advancing the matcher.
-    pub(crate) fn query(&self) -> &str {
-        self.picker.query()
-    }
-
-    /// Advance fuzzy matching and return its processing status.
-    pub(crate) fn refresh(&mut self) -> Status {
-        self.picker.refresh()
-    }
-
-    /// Borrow the last published matches without advancing the matcher.
-    pub(crate) fn snapshot(&self) -> &Snapshot<Session> {
-        self.picker.snapshot()
+    /// Advance fuzzy matching once and borrow the resulting state, including mutable selection.
+    pub(crate) fn refresh(&mut self) -> Snapshot<'_> {
+        let status = self.picker.refresh();
+        Snapshot {
+            status,
+            matches: self.picker.snapshot(),
+            query: self.picker.query(),
+            order: &self.order,
+            agents: &self.agents,
+            delete: self.delete.as_ref(),
+            selected: &mut self.selected,
+        }
     }
 
     /// Construct a repository context, normalizing it to an existing default workspace when known.
@@ -460,7 +523,7 @@ impl Model {
 
     /// Clear all cached pending-deletion markers, completing every removal concurrently.
     pub(crate) async fn reset_delete(&self) -> anyhow::Result<()> {
-        let Some(delete) = &self.deleting else {
+        let Some(delete) = &self.delete else {
             return Ok(());
         };
 
@@ -506,8 +569,10 @@ impl Model {
     /// Toggle a checkout's marker using its pending state from the last discovery.
     pub(crate) async fn toggle_delete(&self, path: &Path) -> anyhow::Result<()> {
         let deleting = self
-            .deleting()
+            .delete
+            .as_ref()
             .is_some_and(|delete| delete.paths().contains(path));
+
         set_deleting(path, !deleting).await
     }
 
@@ -596,7 +661,7 @@ impl Model {
             live: session.is_live(),
             deletable: session.can_delete(),
             pending_deletion: self
-                .deleting
+                .delete
                 .as_ref()
                 .is_some_and(|delete| delete.contains(session)),
             flagged: session.flag(),
@@ -608,8 +673,13 @@ impl Model {
         }
     }
 
-    /// Return the plain session matching `name`.
+    /// Return the session matching `name`
     fn session_by_name(&self, name: &str) -> Option<&Session> {
+        self.sessions.iter().find(|session| session.name() == name)
+    }
+
+    /// Return the plain session matching `name`.
+    fn session_by_plain_name(&self, name: &str) -> Option<&Session> {
         self.sessions
             .iter()
             .find(|session| session.repo().is_none() && session.name() == name)
@@ -724,6 +794,7 @@ mod tests {
     /// Assert result names at the call site after background matching completes.
     macro_rules! assert_matches {
         ($model:expr, $expected:expr) => {{
+            ($model).settle();
             let names: Vec<_> = ($model).matches().iter().map(Session::name).collect();
             assert_eq!(names, $expected);
         }};
@@ -749,6 +820,70 @@ mod tests {
             .into()
         }));
         model
+    }
+
+    /// Navigation reads published matches without refreshing the matcher or changing selection.
+    #[test]
+    fn navigation_reads_published_matches_without_changing_selection() {
+        let a = "a".parse().unwrap();
+        let z = "z".parse().unwrap();
+
+        let mut tags = tag::Tags::default();
+        tags.set(a, true);
+
+        let mut model = Model {
+            order: "+name".parse().unwrap(),
+            sessions: ["alpha", "beta", "gamma"]
+                .into_iter()
+                .map(|name| {
+                    LiveKind::new(
+                        name.to_owned(),
+                        None,
+                        tmux::SessionInfo {
+                            tags,
+                            ..Default::default()
+                        },
+                    )
+                    .into()
+                })
+                .collect(),
+            ..Model::default()
+        };
+
+        model.picker.inject(model.sessions.clone());
+        model.selected = model.session_by_name("alpha").cloned();
+        assert!(model.next(a).is_none());
+        assert!(model.prev(a).is_none());
+
+        model.settle();
+        assert_eq!(model.next(a).unwrap().name(), "beta");
+        assert_eq!(model.next(a).unwrap().name(), "beta");
+        assert_eq!(model.prev(a).unwrap().name(), "gamma");
+        assert!(model.next(z).is_none());
+
+        model.selected = model.next(a).cloned();
+        model.push_query('l');
+        assert_eq!(model.next(a).unwrap().name(), "gamma");
+        assert_eq!(model.prev(a).unwrap().name(), "alpha");
+
+        model.settle();
+        assert_eq!(model.next(a).unwrap().name(), "alpha");
+        assert_eq!(model.prev(a).unwrap().name(), "alpha");
+
+        model.selected = model.next(a).cloned();
+        assert!(model.next(a).is_none());
+        assert!(model.prev(a).is_none());
+
+        model.selected = None;
+        assert_eq!(model.prev(a).unwrap().name(), "alpha");
+
+        model.selected = model.prev(a).cloned();
+        model.push_query('z');
+        assert!(model.next(a).is_none());
+
+        model.settle();
+        assert!(model.next(a).is_none());
+        assert!(model.prev(a).is_none());
     }
 
     #[test]
@@ -790,45 +925,8 @@ mod tests {
     }
 
     #[test]
-    fn initial_selection_skips_only_the_invoking_first_result_without_a_query() {
-        let mut model = Model::default();
-        let sessions: Vec<Session> = ["alpha", "beta"]
-            .into_iter()
-            .map(|name| {
-                LiveKind::new(
-                    name.to_owned(),
-                    None,
-                    tmux::SessionInfo {
-                        agents: Default::default(),
-                        alerts: Default::default(),
-                        attached: true,
-                        flagged: false,
-                        tags: Default::default(),
-                        last_attached: None,
-                        repo: None,
-                    },
-                )
-                .into()
-            })
-            .collect();
-
-        model.picker.inject(sessions.clone());
-        assert_eq!(model.initial_selection(None), Some(0));
-        assert_eq!(model.initial_selection(Some("beta")), Some(0));
-        assert_eq!(model.initial_selection(Some("alpha")), Some(1));
-        model.push_query('a');
-        assert_eq!(model.initial_selection(Some("alpha")), Some(0));
-        model.clear_query();
-        model.picker.reset();
-        model.picker.inject([sessions[0].clone()]);
-        assert_eq!(model.initial_selection(Some("alpha")), Some(0));
-        model.picker.reset();
-        assert_eq!(model.initial_selection(Some("alpha")), None);
-    }
-
-    #[test]
     fn default_model_is_empty() {
-        let mut model = Model::default();
+        let model = Model::default();
 
         assert!(model.picker.query().is_empty());
         assert!(model.matches().is_empty());
@@ -877,7 +975,7 @@ mod tests {
         model.toggle_delete(&path).await.unwrap();
         assert!(marker.exists(), "toggle must not reread the marker");
 
-        model.deleting = delete::Model::new(BTreeSet::from([path.clone()]), &model.checkouts);
+        model.delete = delete::Model::new(BTreeSet::from([path.clone()]), &model.checkouts);
         model.toggle_delete(&path).await.unwrap();
         assert!(!marker.exists());
         model.toggle_delete(&path).await.unwrap();
@@ -885,6 +983,24 @@ mod tests {
             !marker.exists(),
             "toggle must not recreate a removed marker"
         );
+    }
+
+    /// Plain and serialized reads retain the published snapshot until matching is advanced.
+    #[test]
+    fn matches_read_published_snapshot_without_settling() {
+        let mut model = ordering_model(&["alpha", "beta"]);
+        assert!(model.matches().is_empty());
+        assert!(model.matches_json().is_empty());
+        model.settle();
+        model.push_query('z');
+
+        let names: Vec<_> = model.matches().iter().map(Session::name).collect();
+        assert_eq!(names, ["alpha", "beta"]);
+        assert_eq!(model.matches_json().len(), 2);
+
+        model.settle();
+        assert!(model.matches().is_empty());
+        assert!(model.matches_json().is_empty());
     }
 
     fn model_with_workspace(workspace: &Path, default: PathBuf) -> Model {
@@ -1173,7 +1289,7 @@ mod tests {
         fs::write(second.join(".jj").join(delete::MARKER), "").unwrap();
 
         let model = Model {
-            deleting: delete::Model::new(
+            delete: delete::Model::new(
                 BTreeSet::from([first, second.clone()]),
                 &checkout::Index::default(),
             ),
@@ -1198,7 +1314,7 @@ mod tests {
         }
 
         let model = Model {
-            deleting: delete::Model::new(
+            delete: delete::Model::new(
                 BTreeSet::from([first.clone(), second.clone(), temp.path().join("missing")]),
                 &checkout::Index::default(),
             ),
@@ -1277,17 +1393,17 @@ mod tests {
         fs::write(&marker, "").unwrap();
 
         let mut model = model_with_workspace(&requested, temp.path().join("repo"));
-        model.deleting = delete::Model::new(BTreeSet::from([pending]), &model.checkouts);
+        model.delete = delete::Model::new(BTreeSet::from([pending]), &model.checkouts);
         model.set_deletions(BTreeSet::from([requested.clone()]));
 
-        let delete = model.deleting().unwrap();
+        let delete = model.delete.as_ref().unwrap();
         assert_eq!(delete.paths(), &BTreeSet::from([requested.clone()]));
         assert_eq!(delete.pending(), 1);
         assert!(marker.exists());
         assert!(!requested.join(".jj").join(delete::MARKER).exists());
 
         model.set_deletions(BTreeSet::new());
-        assert!(model.deleting().is_none());
+        assert!(model.delete.is_none());
         assert!(marker.exists());
     }
 }
