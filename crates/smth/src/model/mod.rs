@@ -862,6 +862,16 @@ mod tests {
         assert_eq!(model.prev(a).unwrap().name(), "gamma");
         assert!(model.next(z).is_none());
 
+        model.order = "-name".parse().unwrap();
+        assert_eq!(model.next(a).unwrap().name(), "gamma");
+        assert_eq!(model.prev(a).unwrap().name(), "beta");
+
+        model.order = "+name".parse().unwrap();
+        model.selected = None;
+        assert_eq!(model.next(a).unwrap().name(), "alpha");
+        assert_eq!(model.prev(a).unwrap().name(), "gamma");
+        model.selected = model.session_by_name("alpha").cloned();
+
         model.selected = model.next(a).cloned();
         model.push_query('l');
         assert_eq!(model.next(a).unwrap().name(), "gamma");
