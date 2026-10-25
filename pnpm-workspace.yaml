@@ -4,6 +4,10 @@ packages:
 # Keep pnpm's lockfile enabled independently of npm's package-lock setting.
 lockfile: true
 
+# Pi pins undici 8.10.2; use a patched release until its dependency is updated.
+overrides:
+  "@earendil-works/pi-coding-agent>undici": "8.12.3"
+
 allowBuilds:
   "@google/genai": false
   esbuild: true
