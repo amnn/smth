@@ -23,10 +23,11 @@ Wait+Screen /smth\/scratch.*workspace/
 # caption: C-n creates without switching sessions.
 Sleep 2s
 Ctrl+N
-# Creation clears the query; wait for discovery before filtering again.
-Wait+Screen /■.*smth\/scratch/
+# Creation clears the query and brings discovery to five sessions. The new row
+# may be below the viewport, so filter again once that discovery has completed.
+Wait+Screen /5\/5.*C-s/
 Type "scratch"
-Wait+Screen /C-x.*close/
+Wait+Screen /■.*smth\/scratch/
 # caption: The new session is live; the picker stays open.
 Sleep 3s
 Escape

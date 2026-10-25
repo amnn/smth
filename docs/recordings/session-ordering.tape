@@ -15,13 +15,13 @@ Show
 Sleep 1s
 Ctrl+B
 Type `s`
-Wait+Screen /M-s.*↑l.*↑r.*↓n/
+Wait+Screen /C-s.*↑l.*↑r.*↓n/
 # caption: A priority stack: live, recency, then name.
 Sleep 3s
 
-Alt+S
+Ctrl+S
 Wait+Screen /↑live.*↑recency.*↓name.*attention/
-# caption: M-s edits; bold initials select comparators.
+# caption: C-s edits; bold initials select comparators.
 Sleep 3s
 Type "n"
 Left
@@ -41,19 +41,19 @@ Type "n"
 Wait+Screen /↓name/
 # caption: One more press enables ascending order (A–Z).
 Sleep 3s
-Alt+S
-Wait+Screen /M-s.*↓n.*↑l.*↑r/
-# caption: M-s accepts for this run, without saving.
+Ctrl+S
+Wait+Screen /C-s.*↓n.*↑l.*↑r/
+# caption: C-s accepts for this run, without saving.
 Sleep 3s
 
-Alt+S
+Ctrl+S
 Wait+Screen /↓name.*↑live/
 Type "n"
 Wait+Screen /↑name/
 # caption: Preview reversal; keep the selected session.
 Sleep 3s
 Ctrl+G
-Wait+Screen /M-s.*↓n.*↑l.*↑r/
+Wait+Screen /C-s.*↓n.*↑l.*↑r/
 # caption: C-g restores the accepted stack and selection.
 Sleep 3s
 Escape
