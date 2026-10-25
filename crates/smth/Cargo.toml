@@ -1,6 +1,6 @@
 [package]
 name = "smth"
-version = "0.5.0"
+version = "0.6.0"
 description = "switch to something else"
 edition = "2024"
 
