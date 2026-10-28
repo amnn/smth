@@ -199,7 +199,7 @@ fn write_config_help<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
          empty command disables command delivery. Delivery failures never fail state publication. \
          The root array executes directly. A nested array is evaluated depth-first, \
          POSIX-shell-joined, and passed to its parent as one argument. Strings interpolate \
-         {message}, {pane}, {socket}, {state}, {title}, and {tty} variables.",
+         {message}, {pane}, {session}, {socket}, {state}, {title}, and {tty} variables.",
     )?;
 
     w.def(
