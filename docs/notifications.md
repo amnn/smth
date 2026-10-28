@@ -95,6 +95,7 @@ nested `-execute` command above safe to pass as a single shell command string.
 | `{message}` | The supplied summary, or a default message for the state.                 |
 | `{state}`   | `waiting`, `succeeded`, or `failed`.                                      |
 | `{pane}`    | The tmux pane publishing the transition.                                  |
+| `{session}` | The tmux session name containing the notifying pane.                      |
 | `{socket}`  | The active tmux server socket path.                                       |
 | `{tty}`     | The preferred tmux client TTY, or an empty string when none is available. |
 

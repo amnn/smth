@@ -20,6 +20,25 @@ use crate::model::agent::AgentState;
 /// Maximum number of Unicode scalar values retained in notification text.
 const MAX_TEXT_CHARS: usize = 160;
 
+/// Pane identity and tmux connection details for a notification command.
+struct Target<'a> {
+    pane: &'a str,
+    socket: String,
+    session: String,
+}
+
+impl<'a> Target<'a> {
+    /// Fetch the socket path and owning session for a pane.
+    async fn new(pane: &'a str) -> anyhow::Result<Self> {
+        let (socket, session) = join!(tmux::socket_path(), tmux::pane_session(pane));
+        Ok(Self {
+            socket: socket?,
+            pane,
+            session: session?,
+        })
+    }
+}
+
 /// Run the configured command to clear any notification associated with an agent pane.
 pub async fn clear(command: &[custom::Cmd], pane: &str) -> anyhow::Result<()> {
     let variables = BTreeMap::from([("pane", pane)]);
@@ -41,19 +60,22 @@ pub async fn send(
         return Ok(());
     }
 
-    let socket: OptionFuture<_> = (!config.notify.is_empty()).then(tmux::socket_path).into();
-    let (clients, socket) = join!(tmux::client_snapshot(), socket);
+    let target: OptionFuture<_> = (!config.notify.is_empty())
+        .then(|| Target::new(pane))
+        .into();
+
+    let (clients, target) = join!(tmux::client_snapshot(), target);
     let clients = clients?;
-    let socket = socket.transpose()?;
+    let target = target.transpose()?;
 
     if !should_send(&clients, pane) {
         return Ok(());
     }
 
     let bell: OptionFuture<_> = config.bell.then(ring_bell).into();
-    let command: OptionFuture<_> = socket
-        .as_deref()
-        .map(|socket| send_command(config, &clients, socket, pane, state, title, summary))
+    let command: OptionFuture<_> = target
+        .as_ref()
+        .map(|target| send_command(config, &clients, target, state, title, summary))
         .into();
 
     let (bell, command) = join!(bell, command);
@@ -103,13 +125,12 @@ fn sanitize_text(text: &str) -> String {
 async fn send_command(
     config: &NotificationConfig,
     clients: &ClientSnapshot,
-    socket: &str,
-    pane: &str,
+    target: &Target<'_>,
     state: AgentState,
     title: Option<&str>,
     summary: Option<&str>,
 ) -> anyhow::Result<()> {
-    let tty = target_tty(clients, pane).unwrap_or_default();
+    let tty = target_tty(clients, target.pane).unwrap_or_default();
     let title = sanitize_text(title.unwrap_or_default());
     let summary = sanitize_text(summary.unwrap_or_default());
     let message = if summary.is_empty() {
@@ -121,8 +142,9 @@ async fn send_command(
     let state = state.value();
     let variables = BTreeMap::from([
         ("message", message.as_str()),
-        ("pane", pane),
-        ("socket", socket),
+        ("pane", target.pane),
+        ("session", target.session.as_str()),
+        ("socket", target.socket.as_str()),
         ("state", state.as_str()),
         ("title", title.as_str()),
         ("tty", tty),

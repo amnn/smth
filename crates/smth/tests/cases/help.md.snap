@@ -303,8 +303,8 @@ Configuration:
                     publication. The root array executes directly. A nested
                     array is evaluated depth-first, POSIX-shell-joined, and
                     passed to its parent as one argument. Strings interpolate
-                    {message}, {pane}, {socket}, {state}, {title}, and {tty}
-                    variables.
+                    {message}, {pane}, {session}, {socket}, {state}, {title},
+                    and {tty} variables.
   repo.globs        Glob patterns for jj repositories to surface alongside
                     existing tmux sessions. These stack with any --repo command-
                     line globs. A leading ~ path component expands to the user's

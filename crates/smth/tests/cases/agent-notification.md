@@ -10,6 +10,7 @@ files. The nested shell command records interpolated notification fields; the
 clear command records the pane's published state, exposing update ordering.
 
     :b sh cat
+    :t rename-session 'repo/feature {title}'
     :t set-window-option -g monitor-bell on
     :w .config/smth/smth.toml
 
@@ -28,7 +29,7 @@ notify = [
   [
     "sh",
     "-c",
-    "printf '# %s\\ntitle: %s\\nmessage: %s\\npane: %s\\nsocket: %s\\ntty: %s\\n\\n' \"$1\" \"$2\" \"$3\" \"$4\" \"${5:+socket-set}\" \"$6\" >> notifications",
+    "printf '# %s\\ntitle: %s\\nmessage: %s\\npane: %s\\nsocket: %s\\ntty: %s\\nsession: %s\\n\\n' \"$1\" \"$2\" \"$3\" \"$4\" \"${5:+socket-set}\" \"$6\" \"$7\" >> notifications",
     "notify",
     "{state}",
     "{title}",
@@ -36,6 +37,7 @@ notify = [
     "{pane}",
     "{socket}",
     "{tty}",
+    "{session}",
   ],
 ]
 ```
@@ -44,7 +46,8 @@ A running state is not attention-worthy, but should clear the notification for
 its pane. The first settled transition should append one notification containing
 the supplied title and summary without recursively interpolating the placeholders
 they contain. This headless test has no eligible interactive client, so the
-optional client TTY is empty.
+optional client TTY is empty. The session name includes a placeholder that must
+also remain literal data.
 
     :$ smth agent running
     :$ cat cleared
@@ -148,6 +151,7 @@ bell = true
 The pane runs `smth agent` itself so its stdout reaches the pane terminal. Wait
 for an explicit tmux signal before checking the asynchronous result.
 
+    :t rename-session 0
     :t new-window -d -t 0:1 "smth agent running; smth agent waiting; tmux wait-for -S bell-ready; cat"
     :t wait-for bell-ready
     :t display-message -p -t 0:1.0 '#{window_bell_flag}'

@@ -214,6 +214,27 @@ pub async fn pane_option(pane: &str, option: &str) -> anyhow::Result<Option<Stri
     Ok((!value.is_empty()).then(|| value.to_owned()))
 }
 
+/// Return the name of the session containing `pane`.
+///
+/// Returns an error if tmux cannot be run, lookup fails, or output is not valid UTF-8.
+pub async fn pane_session(pane: &str) -> anyhow::Result<String> {
+    let output = Command::new("tmux")
+        .args(["display-message", "-p", "-t", pane, "#{session_name}"])
+        .output()
+        .await
+        .context("failed to identify pane's tmux session")?;
+
+    ensure!(
+        output.status.success(),
+        "could not identify pane's tmux session: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    Ok(String::from_utf8(output.stdout)?
+        .trim_end_matches('\n')
+        .to_owned())
+}
+
 /// Run a shell script in the context of a target pane.
 pub async fn run_shell(target: &str, cwd: &Path, script: &str) -> anyhow::Result<()> {
     let output = Command::new("tmux")
