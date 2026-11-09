@@ -1,0 +1,100 @@
+---
+source: crates/smth/tests/test.rs
+expression: output
+input_file: crates/smth/tests/cases/ui/startup-input.md
+---
+# Startup input
+
+Enter queued before startup must be discarded when the picker enters raw mode,
+not interpreted as Ctrl-J and used to open the next-tag dialog.
+
+Name the starting session runner and create beta as the switch target, keeping
+its pane alive with cat. Fix the runner window size for stable snapshots.
+
+    :b jj cat tmux stty diff sh (available)
+    :t rename-session -t 0 runner (success)
+    :t new-session -d -s beta "printf 'beta target'; cat" (success)
+    :t resize-window -t runner:0 -x 80 -y 10 (success)
+
+Hold the pane before launching smth so Enter is queued with the shell's terminal
+settings. Settling after sending the key lets its echo arrive before we release
+the startup barrier. Save terminal settings before and after smth to check that
+exiting restores them, and keep the runner pane alive with cat.
+
+    :w startup.sh (written)
+
+```sh
+#!/bin/sh
+
+stty -g > terminal-before
+printf "waiting for startup"
+tmux wait-for -S startup-ready
+tmux wait-for startup-release
+smth --no-base --query beta
+stty -g > terminal-after
+tmux wait-for -S picker-exited
+cat
+```
+
+    :$ tmux respawn-pane -k 'sh startup.sh' (exit: 0)
+    :t wait-for startup-ready (success)
+    :settle -d 2s (settled)
+    :k enter
+    :settle (settled)
+    :t wait-for -S startup-release (success)
+    :snap -d 2s -e 'session: beta'
+
+```terminal
+session: beta
+  1/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
+▌■ beta                                                                        ┃
+ [C-x] close, [C-f] flag, [C-t] tags
+────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+```
+
+A genuine Ctrl-J after startup must still open the next-tag dialog.
+
+    :k C-j
+    :snap
+
+```terminal
+session: beta
+  1/2 | [C-s] ↑l ↑r ↓n | [C-r] repo: none
+▌■ beta                                                                        ┃
+                                                           next tag [C-g] cancel
+────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+```
+
+Cancel tag navigation with an unrecognized key, then use a fresh Enter to switch
+to beta. Wait for the session-change hook before checking that the client's
+session name is beta.
+
+    :k space
+    :settle (settled)
+    :t set-hook -g client-session-changed "set-hook -gu client-session-changed; wait-for -S switched" (success)
+    :k enter
+    :t wait-for switched (success)
+    :t display-message -p '#{client_session}' (success)
+
+```
+beta
+```
+
+After the picker exits, its original terminal settings must be restored exactly.
+The comparison should succeed without output.
+
+    :t wait-for picker-exited (success)
+    :$ diff terminal-before terminal-after (exit: 0)
+
+---
+vim: set ft=markdown:
