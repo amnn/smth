@@ -264,15 +264,16 @@ Key bindings:
   up, down          In ordering mode, set the selected comparator to ↑
                     (descending) or ↓ (ascending); repeat the same direction to
                     disable it. Otherwise, move selection by one row.
-  C-j, then a-z / -  
+  C-k, C-j          Move selection up or down by one row in the session list or
+                    onto picker, but not in ordering mode.
+  M-j, then a-z / -  
                     Select the next session carrying that tag / needing
                     attention, wrapping in displayed filtered order.
-  C-k, then a-z / -  
+  M-k, then a-z / -  
                     Select the previous session carrying that tag / needing
                     attention. The next key is consumed without editing the
                     query; other keys cancel.
   M-up, M-down      Move selection to the first or last row.
-  M-k, M-j          Move selection to the first or last row.
   S-up, S-down      Scroll the preview pane up or down.
   tab, S-tab        Select next/previous comparator in ordering mode, or jump
                     between fuzzy matches in onto mode.
