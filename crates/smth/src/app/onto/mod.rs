@@ -117,6 +117,9 @@ impl State {
         const CTRL: KM = KM::CONTROL;
         const SHIFT: KM = KM::SHIFT;
 
+        let ctrl = key.modifiers.contains(CTRL);
+        let shift = key.modifiers.contains(SHIFT);
+
         // Any key dismisses previous feedback; match navigation below replaces it.
         self.state.invalidate_match_counter();
 
@@ -125,21 +128,23 @@ impl State {
             KC::Enter => return Some(Action::Accept),
 
             // Cancel
-            KC::Char('g' | 'o') if key.modifiers.contains(CTRL) => {
+            KC::Char('g' | 'o') if ctrl => {
                 return Some(Action::Cancel);
             }
 
             // Select commit
             KC::Up => self.state.select_previous(),
             KC::Down => self.state.select_next(),
+            KC::Char('k') if ctrl => self.state.select_previous(),
+            KC::Char('j') if ctrl => self.state.select_next(),
             KC::Tab => self.state.select_next_match(),
             KC::BackTab => self.state.select_previous_match(),
 
             // Edit query
             KC::Backspace => self.state.pop_query(),
-            KC::Char('u') if key.modifiers.contains(CTRL) => self.state.clear_query(),
+            KC::Char('u') if ctrl => self.state.clear_query(),
             KC::Char(c) if key.modifiers.is_empty() => self.state.push_query(c),
-            KC::Char(c) if key.modifiers.contains(SHIFT) => self.state.push_query(c),
+            KC::Char(c) if shift => self.state.push_query(c),
 
             _ => {}
         }

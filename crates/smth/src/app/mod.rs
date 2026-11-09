@@ -567,6 +567,10 @@ impl App {
             }
 
             KC::Char('k') if ctrl => {
+                self.sessions.select_previous();
+            }
+
+            KC::Char('h') if ctrl => {
                 self.mode = Mode::TagPrev;
             }
 
@@ -575,6 +579,10 @@ impl App {
             }
 
             KC::Char('j') if ctrl => {
+                self.sessions.select_next();
+            }
+
+            KC::Char('l') if ctrl => {
                 self.mode = Mode::TagNext;
             }
 

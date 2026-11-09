@@ -1,7 +1,7 @@
 # Startup input
 
 Enter queued before startup must be discarded when the picker enters raw mode,
-not interpreted as Ctrl-J and used to open the next-tag dialog.
+not interpreted as Ctrl-J navigation.
 
 Name the starting session runner and create beta as the switch target, keeping
 its pane alive with cat. Fix the runner window size for stable snapshots.
@@ -39,9 +39,9 @@ cat
     :t wait-for -S startup-release
     :snap -d 2s -e 'session: beta'
 
-A genuine Ctrl-J after startup must still open the next-tag dialog.
+Ctrl-L after startup must open the next-tag dialog.
 
-    :k C-j
+    :k C-l
     :snap
 
 Cancel tag navigation with an unrecognized key, then use a fresh Enter to switch
