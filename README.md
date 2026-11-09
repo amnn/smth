@@ -111,9 +111,9 @@ brief CLI help; `smth --help` includes the complete picker key list.
 | `C-u` | Clear the filter. |
 | `C-x` | Close a live session. |
 | `C-y` | Confirm deletion of all staged workspaces, including hidden ones, and close their sessions. |
-| `up`, `down` | Move selection by one row. |
-| `C-j` then `a`–`z` / `-` | Select the next session with that tag / needing attention. |
-| `C-k` then `a`–`z` / `-` | Select the previous session with that tag / needing attention. |
+| `up`, `down`, `C-k`, `C-j` | Move selection by one row in the session list or onto picker. |
+| `C-l` then `a`–`z` / `-` | Select the next session with that tag / needing attention. |
+| `C-h` then `a`–`z` / `-` | Select the previous session with that tag / needing attention. |
 | `M-up`, `M-down`, `M-k`, `M-j` | Move selection to the first or last row. |
 | `S-up`, `S-down` | Scroll the preview pane up or down. |
 | `tab`, `S-tab` | Jump between fuzzy matches in onto mode. |

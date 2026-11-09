@@ -264,10 +264,12 @@ Key bindings:
   up, down          In ordering mode, set the selected comparator to ↑
                     (descending) or ↓ (ascending); repeat the same direction to
                     disable it. Otherwise, move selection by one row.
-  C-j, then a-z / -  
+  C-k, C-j          Move selection up or down by one row in the session list or
+                    onto picker.
+  C-l, then a-z / -  
                     Select the next session carrying that tag / needing
                     attention, wrapping in displayed filtered order.
-  C-k, then a-z / -  
+  C-h, then a-z / -  
                     Select the previous session carrying that tag / needing
                     attention. The next key is consumed without editing the
                     query; other keys cancel.

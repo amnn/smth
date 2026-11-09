@@ -5,7 +5,7 @@ input_file: crates/smth/tests/cases/ui/list-navigation-aliases.md
 ---
 # List navigation aliases
 
-Down and Up move down and up by one row, while `M-j` and `M-k`
+Down/`C-j` and Up/`C-k` move down and up by one row, while `M-j` and `M-k`
 jump to the last and first selectable rows in the session list.
 
 Create four plain sessions so single-row movement and jumps to either end have
@@ -66,6 +66,45 @@ session:                                                                        
 Up moves the selection back up by one row.
 
     :k up
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  6/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+▌■ runner                                                                                          ┃
+ ■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ gamma                                                                                           ┃
+ ■ zeta                                                                                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
+```
+
+`C-j` and `C-k` perform the same single-row movements without entering a
+ring prefix mode.
+
+    :k C-j
+    :snap
+
+```terminal
+session:                                                                                           ┃
+  6/6 | [C-s] ↑l ↑r ↓n | [C-r] repo: none                                                          ┃
+ ■ runner                                                                                          ┃
+▌■ alpha                                                                                           ┃
+ ■ beta                                                                                            ┃
+ ■ gamma                                                                                           ┃
+ ■ zeta                                                                                            ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+                                                                                                   ┃
+ [C-x] close, [C-f] flag, [C-t] tags                                                               ┃
+```
+
+    :k C-k
     :snap
 
 ```terminal

@@ -23,10 +23,10 @@ navigation and wraparound have predictable destinations.
     :p ui:0.0
     :settle -d 2s (settled)
 
-Hide the preview. C-j enters next-key mode without changing the selection;
+Hide the preview. C-l enters next-key mode without changing the selection;
 then a skips beta and selects gamma. The tag key does not edit the query.
 
-    :k C-p C-j
+    :k C-p C-l
     :snap
 
 ```terminal
@@ -65,7 +65,7 @@ session:                                                                       â
 Next wraps to alpha, and previous wraps back to gamma. A tag with no members
 leaves gamma selected. An invalid key cancels without editing the query.
 
-    :k C-j a
+    :k C-l a
     :snap
 
 ```terminal
@@ -83,7 +83,7 @@ session:                                                                       â
  [C-x] close, [C-f] unflag, [C-t] tags: a                                      â”ƒ
 ```
 
-    :k C-k a
+    :k C-h a
     :snap
 
 ```terminal
@@ -101,7 +101,7 @@ session:                                                                       â
  [C-x] close, [C-f] flag, [C-t] tags: a                                        â”ƒ
 ```
 
-    :k C-j z
+    :k C-l z
     :snap
 
 ```terminal
@@ -119,7 +119,7 @@ session:                                                                       â
  [C-x] close, [C-f] flag, [C-t] tags: a                                        â”ƒ
 ```
 
-    :k C-j A
+    :k C-l A
     :snap
 
 ```terminal
@@ -140,7 +140,7 @@ session:                                                                       â
 Attention is independent of tags: next from gamma wraps to flagged alpha,
 next selects flagged beta, and previous returns to alpha.
 
-    :k C-j -
+    :k C-l -
     :snap
 
 ```terminal
@@ -158,7 +158,7 @@ session:                                                                       â
  [C-x] close, [C-f] unflag, [C-t] tags: a                                      â”ƒ
 ```
 
-    :k C-j -
+    :k C-l -
     :snap
 
 ```terminal
@@ -176,7 +176,7 @@ session:                                                                       â
  [C-x] close, [C-f] unflag, [C-t] tags: b                                      â”ƒ
 ```
 
-    :k C-k -
+    :k C-h -
     :snap
 
 ```terminal
@@ -198,7 +198,7 @@ Filtering to alpha makes it the sole member. Both directions stay on alpha.
 
     :k alpha
     :settle (settled)
-    :k C-j a
+    :k C-l a
     :snap
 
 ```terminal
@@ -216,7 +216,7 @@ session: alpha                                                                 â
  [C-x] close, [C-f] unflag, [C-t] tags: a                                      â”ƒ
 ```
 
-    :k C-k a
+    :k C-h a
     :snap
 
 ```terminal
@@ -236,7 +236,7 @@ session: alpha                                                                 â
 
 Attention navigation also respects the filter and stays on alpha.
 
-    :k C-j -
+    :k C-l -
     :snap
 
 ```terminal
@@ -254,7 +254,7 @@ session: alpha                                                                 â
  [C-x] close, [C-f] unflag, [C-t] tags: a                                      â”ƒ
 ```
 
-    :k C-k -
+    :k C-h -
     :snap
 
 ```terminal

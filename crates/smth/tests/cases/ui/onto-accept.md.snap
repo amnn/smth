@@ -53,7 +53,11 @@ it. Although the local bookmark is ahead of its remote and renders as `base*` in
 the log, the semantic revision in the header should be `base`. The session query
 and selection should remain unchanged.
 
-    :k down enter
+Move down with `C-j` and back with `C-k`, then do the same with the arrows.
+Finally select the base with `C-j`, then press Enter to accept it, proving the
+navigation aliases act within onto mode.
+
+    :k C-j C-k down up C-j enter
     :snap -d 2s
 
 ```terminal

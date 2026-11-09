@@ -18,10 +18,10 @@ navigation and wraparound have predictable destinations.
     :p ui:0.0
     :settle -d 2s
 
-Hide the preview. C-j enters next-key mode without changing the selection;
+Hide the preview. C-l enters next-key mode without changing the selection;
 then a skips beta and selects gamma. The tag key does not edit the query.
 
-    :k C-p C-j
+    :k C-p C-l
     :snap
 
     :k a
@@ -30,46 +30,46 @@ then a skips beta and selects gamma. The tag key does not edit the query.
 Next wraps to alpha, and previous wraps back to gamma. A tag with no members
 leaves gamma selected. An invalid key cancels without editing the query.
 
-    :k C-j a
+    :k C-l a
     :snap
 
-    :k C-k a
+    :k C-h a
     :snap
 
-    :k C-j z
+    :k C-l z
     :snap
 
-    :k C-j A
+    :k C-l A
     :snap
 
 Attention is independent of tags: next from gamma wraps to flagged alpha,
 next selects flagged beta, and previous returns to alpha.
 
-    :k C-j -
+    :k C-l -
     :snap
 
-    :k C-j -
+    :k C-l -
     :snap
 
-    :k C-k -
+    :k C-h -
     :snap
 
 Filtering to alpha makes it the sole member. Both directions stay on alpha.
 
     :k alpha
     :settle
-    :k C-j a
+    :k C-l a
     :snap
 
-    :k C-k a
+    :k C-h a
     :snap
 
 Attention navigation also respects the filter and stays on alpha.
 
-    :k C-j -
+    :k C-l -
     :snap
 
-    :k C-k -
+    :k C-h -
     :snap
 
 ---
