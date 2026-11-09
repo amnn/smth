@@ -48,7 +48,10 @@ it. Although the local bookmark is ahead of its remote and renders as `base*` in
 the log, the semantic revision in the header should be `base`. The session query
 and selection should remain unchanged.
 
-    :k down enter
+The control aliases navigate revisions like arrows: move down twice and back
+up once before accepting the bookmarked row.
+
+    :k C-j C-j C-k enter
     :snap -d 2s
 
 Create a new workspace-backed session and verify that its parent is the selected
