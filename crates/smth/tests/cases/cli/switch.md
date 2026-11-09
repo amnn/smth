@@ -82,10 +82,11 @@ the same way.
 
 If checkout creation fails, switching should fail without printing a session
 name. Check the revision diagnostic separately from jj's version-dependent
-workspace creation progress.
+workspace creation progress. When jj emits no progress, the diagnostic shares
+its line with smth's error context, so extract it regardless of that prefix.
 
     :$ sh -c 'smth --base alpha --onto missing --switch invalid 2>switch-errors'
-    :$ sed -n '/^Error: Revision/p' switch-errors
+    :$ sed -n 's/^.*Error: Revision/Error: Revision/p' switch-errors
 
 A plain switch without a name is invalid, picker controls are rejected, and
 switch is mutually exclusive with create.
