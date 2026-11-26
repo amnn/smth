@@ -554,27 +554,35 @@ impl App {
             KC::Down if shift => self.preview.scroll_down(),
 
             // Session list selection
-            KC::Up | KC::Char('k') if alt => {
+            KC::Up if alt => {
                 self.sessions.select_first();
             }
 
-            KC::Down | KC::Char('j') if alt => {
+            KC::Down if alt => {
                 self.sessions.select_last();
+            }
+
+            KC::Char('k') if ctrl => {
+                self.sessions.select_previous();
             }
 
             KC::Up => {
                 self.sessions.select_previous();
             }
 
-            KC::Char('k') if ctrl => {
+            KC::Char('k') if alt => {
                 self.mode = Mode::TagPrev;
+            }
+
+            KC::Char('j') if ctrl => {
+                self.sessions.select_next();
             }
 
             KC::Down => {
                 self.sessions.select_next();
             }
 
-            KC::Char('j') if ctrl => {
+            KC::Char('j') if alt => {
                 self.mode = Mode::TagNext;
             }
 

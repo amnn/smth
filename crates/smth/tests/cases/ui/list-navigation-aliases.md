@@ -1,7 +1,7 @@
 # List navigation aliases
 
-Down and Up move down and up by one row, while `M-j` and `M-k`
-jump to the last and first selectable rows in the session list.
+Down and Up, and their aliases `C-j` and `C-k`, move by one row.
+`M-down` and `M-up` jump to the last and first selectable rows.
 
 Create four plain sessions so single-row movement and jumps to either end have
 different destinations in the unfiltered picker.
@@ -33,14 +33,24 @@ Up moves the selection back up by one row.
     :k up
     :snap
 
-`M-j` jumps to the last selectable row.
+`C-j` moves down one row without entering ring navigation.
 
-    :k M-j
+    :k C-j
     :snap
 
-`M-k` jumps back to the first selectable row.
+`C-k` moves back up one row.
 
-    :k M-k
+    :k C-k
+    :snap
+
+`M-down` jumps to the last selectable row.
+
+    :k M-down
+    :snap
+
+`M-up` jumps back to the first selectable row.
+
+    :k M-up
     :snap
 
 ---

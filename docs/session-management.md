@@ -70,8 +70,8 @@ configuration](configuration.md#tag-alphabet) to choose display glyphs.
 
 ### Navigate tags and attention
 
-Press `C-j` then a lowercase tag letter or '-' to select the next matching
-session, or `C-k` then a letter or '-' for the previous one. Any other key
+Press `M-j` then a lowercase tag letter or '-' to select the next matching
+session, or `M-k` then a letter or '-' for the previous one. Any other key
 cancels and is consumed, except Escape and `C-c`, which retain their normal
 exit behavior.
 

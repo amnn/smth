@@ -325,10 +325,13 @@ fn write_key_bindings<W: Write>(w: &mut Writer<W>) -> io::Result<()> {
         "In ordering mode, set the selected comparator to ↑ (descending) or ↓ (ascending); \
          repeat the same direction to disable it. Otherwise, move selection by one row.",
     )?;
-    w.def("C-j, then a-z / -", "Select the next session carrying that tag / needing attention, wrapping in displayed filtered order.")?;
-    w.def("C-k, then a-z / -", "Select the previous session carrying that tag / needing attention. The next key is consumed without editing the query; other keys cancel.")?;
+    w.def(
+        "C-k, C-j",
+        "Move selection up or down by one row in the session list or onto picker, but not in ordering mode.",
+    )?;
+    w.def("M-j, then a-z / -", "Select the next session carrying that tag / needing attention, wrapping in displayed filtered order.")?;
+    w.def("M-k, then a-z / -", "Select the previous session carrying that tag / needing attention. The next key is consumed without editing the query; other keys cancel.")?;
     w.def("M-up, M-down", "Move selection to the first or last row.")?;
-    w.def("M-k, M-j", "Move selection to the first or last row.")?;
     w.def("S-up, S-down", "Scroll the preview pane up or down.")?;
     w.def("tab, S-tab", "Select next/previous comparator in ordering mode, or jump between fuzzy matches in onto mode.")?;
     w.def(
